@@ -11,8 +11,12 @@
 (function(){
   'use strict';
 
-  // ✅ BASE PATH (repo GitHub Pages)
-  const BASE = "/digiy-pro-driver";
+  // ✅ BASE AUTO (GitHub Pages / local / prod)
+  // ex: https://beauville.github.io/digiy-pro-driver/  -> "/digiy-pro-driver"
+  // ex: local file / localhost -> ""
+  const path = location.pathname || "/";
+  const parts = path.split("/").filter(Boolean);
+  const BASE = (parts.length >= 1) ? ("/" + parts[0]) : "";
 
   function getPhone(){
     const s = sessionStorage.getItem("digiy_driver_phone");
@@ -27,10 +31,8 @@
   const phone = getPhone();
 
   if(phone){
-    // ✅ connecté → courses
     location.replace(BASE + "/courses.html");
   }else{
-    // ❌ pas connecté → auth
     location.replace(BASE + "/authentification-chauffeur.html");
   }
 })();
