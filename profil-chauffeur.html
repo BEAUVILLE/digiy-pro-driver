@@ -1,16 +1,18 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>DIGIY DRIVER — profil-chauffeur</title>
+  <title>DIGIY DRIVER — Profil chauffeur</title>
   <meta name="theme-color" content="#F8FAF6" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root{
       --bg:#F8FAF6; --card:#fff; --line:#E5E7EB;
       --text:#111827; --muted:#6B7280;
-      --gold:#EAB308; --radius:20px; --shadow:0 12px 28px rgba(0,0,0,.06);
+      --gold:#EAB308; --green:#16A34A; --danger:#EF4444;
+      --radius:20px; --shadow:0 12px 28px rgba(0,0,0,.06);
     }
     *{box-sizing:border-box}
     body{
@@ -22,11 +24,12 @@
       min-height:100vh; display:grid; place-items:center; padding:16px;
     }
     .card{
-      width:min(520px, 92vw);
+      width:min(560px, 94vw);
       border:1px solid var(--line); border-radius:var(--radius);
       background:var(--card); box-shadow:var(--shadow); padding:16px;
     }
-    .brand{display:flex; gap:12px; align-items:center}
+    .brand{display:flex; gap:12px; align-items:center; justify-content:space-between}
+    .left{display:flex; gap:12px; align-items:center}
     .logo{
       width:46px;height:46px;border-radius:16px;display:grid;place-items:center;
       border:1px solid var(--line);
@@ -35,21 +38,36 @@
     }
     h1{margin:0;font-size:18px}
     .sub{margin:4px 0 0;color:var(--muted);font-weight:650}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid var(--line); border-radius:999px;
+      padding:7px 10px; background:#F9FAFB; font-weight:900; font-size:12px;
+    }
+    .dot{width:9px;height:9px;border-radius:50%;background:#94a3b8}
+    .dot.ok{background:var(--green)}
+    .dot.bad{background:var(--danger)}
     label{display:block;margin:12px 0 8px;font-weight:950}
     input{
       width:100%;border:1px solid var(--line);border-radius:16px;
       padding:12px 12px;font-size:15px;background:#fff;outline:none;
     }
     input:focus{border-color:#FDE68A;box-shadow:0 0 0 4px rgba(234,179,8,.12)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:520px){ .row{grid-template-columns:1fr} }
+    .btnRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
     .btn{
-      width:100%;
+      flex:1;
       border:0;border-radius:16px;padding:12px 14px;min-height:44px;
-      font-weight:950;cursor:pointer;margin-top:14px;
+      font-weight:950;cursor:pointer;
       background:linear-gradient(135deg,#FFF7D6,#FDE68A);color:#78350F;
     }
     .btn.ghost{
       background:#F9FAFB;color:#374151;border:1px solid var(--line);
-      margin-top:10px;font-weight:900;
+      font-weight:900;
+    }
+    .btn.danger{
+      background:#fff;border:1px solid rgba(239,68,68,.30);
+      color:#7f1d1d;
     }
     .msg{
       margin-top:12px;padding:12px;border-radius:16px;border:1px solid var(--line);
@@ -58,150 +76,242 @@
     }
     .msg.ok{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.07); color:#14532d}
     .msg.bad{border-color:rgba(239,68,68,.22); background:rgba(239,68,68,.06); color:#7f1d1d}
-    .small{font-size:12px;color:var(--muted);font-weight:700;margin-top:10px}
+    .toggle{
+      display:flex;align-items:center;justify-content:space-between;
+      border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff;margin-top:12px;
+      font-weight:950;
+    }
+    .switch{
+      width:54px;height:32px;border-radius:999px;border:1px solid var(--line);
+      background:#e5e7eb; position:relative; cursor:pointer;
+    }
+    .knob{
+      width:26px;height:26px;border-radius:50%; background:#fff; position:absolute; top:2px; left:2px;
+      box-shadow:0 6px 14px rgba(0,0,0,.12);
+      transition:transform .18s ease;
+    }
+    .switch.on{background:rgba(22,163,74,.20); border-color:rgba(22,163,74,.35)}
+    .switch.on .knob{transform:translateX(22px)}
   </style>
 </head>
+
 <body>
   <div class="card">
     <div class="brand">
-      <div class="logo">∞</div>
+      <div class="left">
+        <div class="logo">∞</div>
+        <div>
+          <h1>Profil chauffeur</h1>
+          <div class="sub" id="sub">Chargement…</div>
+        </div>
+      </div>
+      <div class="pill" id="pill"><span class="dot"></span> Vérification…</div>
+    </div>
+
+    <div class="toggle">
+      <span>Disponibilité</span>
+      <div class="switch" id="sw"><div class="knob"></div></div>
+    </div>
+
+    <label>Nom complet</label>
+    <input id="full_name" placeholder="Ex: Lamine Ndiaye" />
+
+    <div class="row">
       <div>
-        <h1>DIGIY DRIVER — profil-chauffeur</h1>
-        <div class="sub">Connexion chauffeur (PIN)</div>
+        <label>Véhicule</label>
+        <input id="car_model" placeholder="Ex: Toyota Yaris" />
+      </div>
+      <div>
+        <label>Immatriculation</label>
+        <input id="car_plate" placeholder="Ex: DK-1234-AB" />
       </div>
     </div>
 
-    <label>Téléphone</label>
-    <input id="phone" placeholder="+221771234567" autocomplete="tel" />
+    <label>Ville (optionnel)</label>
+    <input id="city" placeholder="Ex: Dakar / Saly" />
 
-    <label>PIN</label>
-    <input id="pin" placeholder="****" inputmode="numeric" autocomplete="one-time-code" />
+    <div class="btnRow">
+      <button class="btn" id="btnSave" type="button">💾 Enregistrer</button>
+      <button class="btn ghost" id="btnCourses" type="button">🚗 Mes courses</button>
+      <button class="btn danger" id="btnLogout" type="button">⏏ Déconnexion</button>
+    </div>
 
-    <button class="btn" id="btnLogin" type="button">Se connecter</button>
-    <button class="btn ghost" id="btnClear" type="button">🧹 Effacer session</button>
-
-    <div class="msg" id="msg">Entre ton téléphone + PIN.</div>
+    <div class="msg" id="msg">—</div>
   </div>
 
 <script>
 (function(){
   'use strict';
-  
+
   const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
   const MODULE = "driver";
 
-  // ✅ NAMESPACE GLOBAL DIGIYLYFE
-  window._DIGIY_CLIENTS = window._DIGIY_CLIENTS || {};
-  
-  // ✅ CLIENT ISOLÉ DRIVER
-  if(!window._DIGIY_CLIENTS.driver){
-    window._DIGIY_CLIENTS.driver = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-  
-  const sb = window._DIGIY_CLIENTS.driver;
-
-  const msg = document.getElementById("msg");
-  const phoneEl = document.getElementById("phone");
-  const pinEl = document.getElementById("pin");
-  const btnLogin = document.getElementById("btnLogin");
+  const $ = (id)=>document.getElementById(id);
+  const msg = $("msg");
+  const pill = $("pill");
+  const sub = $("sub");
 
   function setMsg(t, kind=""){
     msg.className = "msg" + (kind ? " " + kind : "");
     msg.textContent = t;
   }
-
-  window.addEventListener("error", (e)=> setMsg("❌ Erreur JS:\n" + (e?.message || e), "bad"));
-  window.addEventListener("unhandledrejection", (e)=> setMsg("❌ Promesse rejetée:\n" + (e?.reason?.message || e?.reason || e), "bad"));
+  function setPill(t, kind=""){
+    pill.innerHTML = `<span class="dot ${kind||""}"></span> ${t}`;
+  }
 
   function normPhone(p){
     p = (p||"").trim().replace(/\s+/g,"").replace(/[^\d+]/g,"");
     if(p.startsWith("00221")) p = "+221" + p.slice(5);
+    if(!p.startsWith("+") && p.startsWith("221")) p = "+" + p;
     if(!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
-    if(p.startsWith("221") && !p.startsWith("+")) p = "+" + p;
     return p;
   }
 
-  function setAccess(phone, pin){
-    localStorage.setItem("digiy_driver_access_pin", JSON.stringify({
-      phone, pin, module: MODULE, ts: new Date().toISOString()
-    }));
-  }
-
-  function getAccess(){
+  function getPhone(){
+    const s = sessionStorage.getItem("digiy_driver_phone");
+    if(s) return normPhone(s);
     try{
-      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin") || "null");
-      if(a?.phone && a?.pin) return a;
+      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin")||"null");
+      return a?.phone ? normPhone(a.phone) : null;
     }catch(_){}
     return null;
   }
 
-  (async function auto(){
-    const a = getAccess();
-    if(a?.phone){
-      phoneEl.value = normPhone(a.phone);
-      setMsg("🟡 Session détectée. Vérification…", "");
-      try{
-        const { data } = await sb.rpc("verify_access_pin", {
-          p_phone: normPhone(a.phone), p_pin: String(a.pin), p_module: MODULE
-        });
-        if(data){
-          setMsg("✅ Session OK. Redirection…", "ok");
-          setTimeout(()=> location.href="./index.html", 200);
-        }else{
-          setMsg("⚠️ Session invalide. Reconnecte-toi.", "bad");
-        }
-      }catch(e){
-        setMsg("⚠️ Vérif impossible.\n" + (e?.message || e), "bad");
-      }
-    }
-  })();
+  function getAccess(){
+    try{ return JSON.parse(localStorage.getItem("digiy_driver_access_pin") || "null"); }
+    catch(e){ return null; }
+  }
 
-  document.getElementById("btnClear").addEventListener("click", ()=>{
+  function setBridge(phone){
+    sessionStorage.setItem("digiy_driver_ok","1");
+    sessionStorage.setItem("digiy_driver_phone", phone);
+  }
+
+  function clearBridge(){
+    sessionStorage.removeItem("digiy_driver_ok");
+    sessionStorage.removeItem("digiy_driver_phone");
+  }
+
+  // ✅ Supabase unique
+  window.__sb = window.__sb || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabase = window.__sb;
+
+  let driverPhone = null;
+  let isOnline = false;
+
+  function applySwitch(){
+    const sw = $("sw");
+    sw.classList.toggle("on", !!isOnline);
+  }
+  function setOnline(v){
+    isOnline = !!v;
+    applySwitch();
+  }
+
+  async function guardPin(){
+    const phone = getPhone();
+    const access = getAccess();
+    const pin = String(access?.pin || "").trim();
+
+    if(!phone || !pin){
+      setPill("Session absente", "bad");
+      sub.textContent = "Reconnecte-toi";
+      setMsg("⚠️ Pas de session PIN. Retour auth.", "bad");
+      setTimeout(()=> location.href="./authentification-chauffeur.html", 350);
+      return false;
+    }
+
+    const { data, error } = await supabase.rpc("verify_access_pin", {
+      p_phone: phone, p_pin: pin, p_module: MODULE
+    });
+
+    if(error || !data){
+      setPill("Session invalide", "bad");
+      sub.textContent = "Reconnecte-toi";
+      setMsg("❌ Session expirée / refusée.", "bad");
+      setTimeout(()=> location.href="./authentification-chauffeur.html", 350);
+      return false;
+    }
+
+    driverPhone = phone;
+    setBridge(phone);
+    setPill("OK", "ok");
+    sub.textContent = "Téléphone: ••••" + phone.slice(-4);
+    return true;
+  }
+
+  async function loadProfile(){
+    const { data, error } = await supabase
+      .from("driver_profiles")
+      .select("*")
+      .eq("phone", driverPhone)
+      .maybeSingle();
+
+    if(error){
+      setMsg("❌ Erreur load profil:\n" + error.message, "bad");
+      return;
+    }
+
+    // profil inexistant → valeurs par défaut
+    $("full_name").value = data?.full_name || "";
+    $("car_model").value = data?.car_model || "";
+    $("car_plate").value = data?.car_plate || "";
+    $("city").value = data?.city || (localStorage.getItem("digiy_driver_city") || "");
+    setOnline(!!data?.is_online);
+
+    setMsg(data ? "✅ Profil chargé." : "🟡 Pas de profil encore. Remplis puis Enregistrer.", data ? "ok" : "");
+  }
+
+  async function saveProfile(){
+    const payload = {
+      phone: driverPhone,
+      full_name: ($("full_name").value || "").trim(),
+      car_model: ($("car_model").value || "").trim(),
+      car_plate: ($("car_plate").value || "").trim(),
+      city: ($("city").value || "").trim() || null,
+      is_online: !!isOnline,
+      updated_at: new Date().toISOString()
+    };
+
+    // garde la ville en local pour courses.html
+    if(payload.city) localStorage.setItem("digiy_driver_city", payload.city);
+
+    const { error } = await supabase
+      .from("driver_profiles")
+      .upsert(payload, { onConflict: "phone" });
+
+    if(error){
+      setMsg("❌ Erreur save:\n" + error.message, "bad");
+      return;
+    }
+
+    setMsg("✅ Profil enregistré.", "ok");
+  }
+
+  $("sw").addEventListener("click", ()=> setOnline(!isOnline));
+
+  $("btnSave").addEventListener("click", async ()=>{
+    if(!driverPhone){ setMsg("Session invalide.", "bad"); return; }
+    setMsg("⏳ Enregistrement…", "");
+    await saveProfile();
+  });
+
+  $("btnCourses").addEventListener("click", ()=> location.href="./courses.html");
+
+  $("btnLogout").addEventListener("click", ()=>{
     localStorage.removeItem("digiy_driver_access_pin");
-    pinEl.value = "";
-    setMsg("🧹 Session effacée.", "");
+    clearBridge();
+    location.href="./authentification-chauffeur.html";
   });
 
-  btnLogin.addEventListener("click", async ()=>{
-    setMsg("🟡 Vérification…", "");
-    btnLogin.disabled = true;
-    btnLogin.textContent = "⏳ Vérification…";
-    
-    try{
-      const phone = normPhone(phoneEl.value);
-      const pin = String(pinEl.value || "").trim();
-
-      if(!phone || !pin){
-        setMsg("⚠️ Téléphone + PIN obligatoires.", "bad");
-        return;
-      }
-
-      const { data, error } = await sb.rpc("verify_access_pin", {
-        p_phone: phone, p_pin: pin, p_module: MODULE
-      });
-
-      if(error){
-        setMsg("❌ RPC:\n" + error.message, "bad");
-        return;
-      }
-      
-      if(!data){
-        setMsg("❌ PIN invalide.", "bad");
-        return;
-      }
-
-      setAccess(phone, pin);
-      setMsg("✅ Connexion OK. Redirection…", "ok");
-      setTimeout(()=> location.href="./index.html", 200);
-
-    } finally {
-      btnLogin.disabled = false;
-      btnLogin.textContent = "Se connecter";
-    }
-  });
-
-  pinEl.addEventListener("keydown", (e)=>{ if(e.key==="Enter") btnLogin.click(); });
+  (async ()=>{
+    setPill("Vérification…", "");
+    setMsg("…", "");
+    const ok = await guardPin();
+    if(!ok) return;
+    await loadProfile();
+  })();
 })();
 </script>
 </body>
