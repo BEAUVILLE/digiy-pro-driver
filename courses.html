@@ -3,8 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>DIGIY DRIVER — Courses (V2 PIN Live)</title>
+  <title>DIGIY DRIVER — Courses (PIN Live)</title>
   <meta name="theme-color" content="#0A0E1A">
+
+  <!-- ✅ SUPABASE (UNE SEULE FOIS) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root{
@@ -101,7 +104,7 @@
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
         <button class="btn ghost" id="btnRefresh" type="button">↻ Rafraîchir</button>
-        <button class="btn" id="btnBack" type="button">← Retour Dashboard</button>
+        <button class="btn" id="btnBack" type="button">← Retour</button>
       </div>
     </div>
 
@@ -116,35 +119,42 @@
       </div>
 
       <div id="rideList" class="list"></div>
+      <div id="emptyState" class="small" style="margin-top:10px; display:none;">Aucune course pour l'instant.</div>
     </div>
 
     <div class="card">
       <div class="small">
-        Astuce : si tu veux filtrer par ville, on utilise <b>localStorage digiy_driver_city</b>.
+        Astuce : filtrer ville via <b>localStorage digiy_driver_city</b>.
       </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <script>
-    // ✅ SUPABASE UNIFIÉ
+  (function(){
+    'use strict';
+
+    // ✅ SUPABASE UNIFIÉ (même projet partout)
     const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-
-    // ✅ UN SEUL CLIENT GLOBAL
-    window.digiyDriverClient = window.digiyDriverClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const supabase = window.digiyDriverClient;
-
     const MODULE = "driver";
+
+    if(!window.supabase?.createClient){
+      alert("Supabase non chargé (CDN).");
+      return;
+    }
+
+    // ✅ UN SEUL CLIENT GLOBAL DIGIY
+    window.__sb = window.__sb || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = window.__sb;
 
     const $ = (id)=>document.getElementById(id);
     const $list = $("rideList");
+    const $empty = $("emptyState");
 
     let driverPhone = null;
     let channel = null;
 
-    $("btnBack").addEventListener("click", ()=> location.href="./index.html");
+    $("btnBack").addEventListener("click", ()=> location.href="./index.html"); // index = routeur
     $("btnRefresh").addEventListener("click", ()=> loadInitial());
 
     function setConn(state){
@@ -180,7 +190,7 @@
       catch(e){ return null; }
     }
     function normPhone(p){
-      p = (p||"").trim().replace(/\s+/g,"");
+      p = (p||"").trim().replace(/\s+/g,"").replace(/[^\d+]/g,"");
       if(p.startsWith("00221")) p = "+221" + p.slice(5);
       if(!p.startsWith("+") && p.startsWith("221")) p = "+" + p;
       if(!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
@@ -188,15 +198,24 @@
     }
 
     async function guardPin(){
+      // ✅ priorité sessionStorage (bridge)
+      const sPhone = sessionStorage.getItem("digiy_driver_phone");
+      if(sPhone){
+        driverPhone = normPhone(sPhone);
+        $("subTitle").textContent = "V2 — Live (phone: " + driverPhone.slice(-4) + ")";
+        return { ok:true, phone: driverPhone };
+      }
+
       const access = getAccess();
       const phone = normPhone(access?.phone || "");
-      const pin = (access?.pin || "").trim();
+      const pin = String(access?.pin || "").trim();
 
       if(!phone || !pin){
         setConn("bad");
         $("subTitle").textContent = "Session absente";
-        $list.innerHTML = `<div class="small" style="margin-top:10px">Session PIN introuvable. Reconnecte-toi.</div>`;
-        updateCount();
+        $list.innerHTML = "";
+        $empty.style.display = "block";
+        $("badgeCount").textContent = "0 course";
         return { ok:false };
       }
 
@@ -207,9 +226,16 @@
       if(error || !data){
         setConn("bad");
         $("subTitle").textContent = "Session invalide";
-        $list.innerHTML = `<div class="small" style="margin-top:10px">Session expirée / refusée. Reconnecte-toi.</div>
-          <div style="margin-top:10px"><button class="btn" onclick="location.href='./authentification-chauffeur.html'">Se reconnecter</button></div>`;
-        updateCount();
+        $list.innerHTML = `
+          <div class="small" style="margin-top:10px">
+            Session expirée / refusée. Reconnecte-toi.
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn" onclick="location.href='./authentification-chauffeur.html'">Se reconnecter</button>
+          </div>
+        `;
+        $empty.style.display = "none";
+        $("badgeCount").textContent = "0 course";
         return { ok:false };
       }
 
@@ -267,19 +293,14 @@
     function updateCount(){
       const n = $list.querySelectorAll(".ride").length;
       $("badgeCount").textContent = n + (n>1 ? " courses" : " course");
-      if(n===0){
-        $list.innerHTML = `<div class="small" style="margin-top:10px">Aucune course pour l'instant.</div>`;
-      }
+      $empty.style.display = (n === 0) ? "block" : "none";
     }
 
     function upsertRide(r){
       const existing = $list.querySelector(`.ride[data-id="${r.id}"]`);
       const html = rideHTML(r);
       if(existing) existing.outerHTML = html;
-      else{
-        if($list.firstElementChild && $list.firstElementChild.classList.contains("small")) $list.innerHTML = "";
-        $list.insertAdjacentHTML("afterbegin", html);
-      }
+      else $list.insertAdjacentHTML("afterbegin", html);
       updateCount();
     }
 
@@ -295,7 +316,11 @@
 
       const { error } = await supabase
         .from("ride_requests")
-        .update({ status:"accepted", accepted_at: new Date().toISOString(), assigned_driver_phone: driverPhone })
+        .update({
+          status:"accepted",
+          accepted_at: new Date().toISOString(),
+          assigned_driver_phone: driverPhone
+        })
         .eq("id", id)
         .is("assigned_driver_phone", null)
         .eq("status", "new");
@@ -353,6 +378,7 @@
 
       if(error){
         $list.innerHTML = `<div class="small" style="margin-top:10px">Erreur load: ${error.message}</div>`;
+        $empty.style.display = "none";
         updateCount();
         return;
       }
@@ -381,7 +407,6 @@
           const mine = (r.assigned_driver_phone && r.assigned_driver_phone === driverPhone);
           const pool = (!r.assigned_driver_phone && r.status === "new");
           const okCity = !driverCity || (String(r.city||"").trim() === driverCity);
-
           if(okCity && (mine || pool)) upsertRide(r);
         })
 
@@ -392,7 +417,7 @@
           const okCity = !driverCity || (String(r.city||"").trim() === driverCity);
 
           if(okCity && (mine || pool)) upsertRide(r);
-          else removeCard(r.id);
+          else window.removeCard(r.id);
         })
 
         .subscribe((status)=>{
@@ -407,6 +432,8 @@
       await loadInitial();
       await startRealtime();
     })();
+
+  })();
   </script>
 </body>
 </html>
