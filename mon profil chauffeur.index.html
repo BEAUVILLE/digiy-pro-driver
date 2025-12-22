@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>DIGIY DRIVER — Authentification</title>
+  <meta name="theme-color" content="#F8FAF6" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#F8FAF6; --card:#fff; --line:#E5E7EB;
+      --text:#111827; --muted:#6B7280;
+      --gold:#EAB308; --radius:20px; --shadow:0 12px 28px rgba(0,0,0,.06);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(234,179,8,.18), transparent 60%),
+        radial-gradient(1000px 500px at 90% 0%, rgba(245,158,11,.15), transparent 55%),
+        var(--bg);
+      min-height:100vh; display:grid; place-items:center; padding:16px;
+    }
+    .card{
+      width:min(520px, 92vw);
+      border:1px solid var(--line); border-radius:var(--radius);
+      background:var(--card); box-shadow:var(--shadow); padding:16px;
+    }
+    .brand{display:flex; gap:12px; align-items:center}
+    .logo{
+      width:46px;height:46px;border-radius:16px;display:grid;place-items:center;
+      border:1px solid var(--line);
+      background:linear-gradient(135deg,#FFF7D6,#FDE68A);
+      color:#92400E;font-weight:950;font-size:20px;
+    }
+    h1{margin:0;font-size:18px}
+    .sub{margin:4px 0 0;color:var(--muted);font-weight:650}
+    label{display:block;margin:12px 0 8px;font-weight:950}
+    input{
+      width:100%;border:1px solid var(--line);border-radius:16px;
+      padding:12px 12px;font-size:15px;background:#fff;outline:none;
+    }
+    input:focus{border-color:#FDE68A;box-shadow:0 0 0 4px rgba(234,179,8,.12)}
+    .btn{
+      width:100%;
+      border:0;border-radius:16px;padding:12px 14px;min-height:44px;
+      font-weight:950;cursor:pointer;margin-top:14px;
+      background:linear-gradient(135deg,#FFF7D6,#FDE68A);color:#78350F;
+    }
+    .btn.ghost{
+      background:#F9FAFB;color:#374151;border:1px solid var(--line);
+      margin-top:10px;font-weight:900;
+    }
+    .msg{
+      margin-top:12px;padding:12px;border-radius:16px;border:1px solid var(--line);
+      background:#F9FAFB;color:var(--muted);font-weight:800;line-height:1.25;
+      white-space:pre-wrap;
+    }
+    .msg.ok{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.07); color:#14532d}
+    .msg.bad{border-color:rgba(239,68,68,.22); background:rgba(239,68,68,.06); color:#7f1d1d}
+    .small{font-size:12px;color:var(--muted);font-weight:700;margin-top:10px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <div class="logo">∞</div>
+      <div>
+        <h1>DIGIY DRIVER — Authentification</h1>
+        <div class="sub">Connexion chauffeur (PIN)</div>
+      </div>
+    </div>
+
+    <label>Téléphone</label>
+    <input id="phone" placeholder="+221771234567" autocomplete="tel" />
+
+    <label>PIN</label>
+    <input id="pin" placeholder="****" inputmode="numeric" autocomplete="one-time-code" />
+
+    <button class="btn" id="btnLogin" type="button">Se connecter</button>
+    <button class="btn ghost" id="btnClear" type="button">🧹 Effacer session</button>
+
+    <div class="msg" id="msg">Entre ton téléphone + PIN.</div>
+  </div>
+
+<script>
+(function(){
+  'use strict';
+  
+  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  const MODULE = "driver";
+
+  // ✅ NAMESPACE GLOBAL DIGIYLYFE
+  window._DIGIY_CLIENTS = window._DIGIY_CLIENTS || {};
+  
+  // ✅ CLIENT ISOLÉ DRIVER
+  if(!window._DIGIY_CLIENTS.driver){
+    window._DIGIY_CLIENTS.driver = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+  
+  const sb = window._DIGIY_CLIENTS.driver;
+
+  const msg = document.getElementById("msg");
+  const phoneEl = document.getElementById("phone");
+  const pinEl = document.getElementById("pin");
+  const btnLogin = document.getElementById("btnLogin");
+
+  function setMsg(t, kind=""){
+    msg.className = "msg" + (kind ? " " + kind : "");
+    msg.textContent = t;
+  }
+
+  window.addEventListener("error", (e)=> setMsg("❌ Erreur JS:\n" + (e?.message || e), "bad"));
+  window.addEventListener("unhandledrejection", (e)=> setMsg("❌ Promesse rejetée:\n" + (e?.reason?.message || e?.reason || e), "bad"));
+
+  function normPhone(p){
+    p = (p||"").trim().replace(/\s+/g,"").replace(/[^\d+]/g,"");
+    if(p.startsWith("00221")) p = "+221" + p.slice(5);
+    if(!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
+    if(p.startsWith("221") && !p.startsWith("+")) p = "+" + p;
+    return p;
+  }
+
+  function setAccess(phone, pin){
+    localStorage.setItem("digiy_driver_access_pin", JSON.stringify({
+      phone, pin, module: MODULE, ts: new Date().toISOString()
+    }));
+  }
+
+  function getAccess(){
+    try{
+      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin") || "null");
+      if(a?.phone && a?.pin) return a;
+    }catch(_){}
+    return null;
+  }
+
+  (async function auto(){
+    const a = getAccess();
+    if(a?.phone){
+      phoneEl.value = normPhone(a.phone);
+      setMsg("🟡 Session détectée. Vérification…", "");
+      try{
+        const { data } = await sb.rpc("verify_access_pin", {
+          p_phone: normPhone(a.phone), p_pin: String(a.pin), p_module: MODULE
+        });
+        if(data){
+          setMsg("✅ Session OK. Redirection…", "ok");
+          setTimeout(()=> location.href="./index.html", 200);
+        }else{
+          setMsg("⚠️ Session invalide. Reconnecte-toi.", "bad");
+        }
+      }catch(e){
+        setMsg("⚠️ Vérif impossible.\n" + (e?.message || e), "bad");
+      }
+    }
+  })();
+
+  document.getElementById("btnClear").addEventListener("click", ()=>{
+    localStorage.removeItem("digiy_driver_access_pin");
+    pinEl.value = "";
+    setMsg("🧹 Session effacée.", "");
+  });
+
+  btnLogin.addEventListener("click", async ()=>{
+    setMsg("🟡 Vérification…", "");
+    btnLogin.disabled = true;
+    btnLogin.textContent = "⏳ Vérification…";
+    
+    try{
+      const phone = normPhone(phoneEl.value);
+      const pin = String(pinEl.value || "").trim();
+
+      if(!phone || !pin){
+        setMsg("⚠️ Téléphone + PIN obligatoires.", "bad");
+        return;
+      }
+
+      const { data, error } = await sb.rpc("verify_access_pin", {
+        p_phone: phone, p_pin: pin, p_module: MODULE
+      });
+
+      if(error){
+        setMsg("❌ RPC:\n" + error.message, "bad");
+        return;
+      }
+      
+      if(!data){
+        setMsg("❌ PIN invalide.", "bad");
+        return;
+      }
+
+      setAccess(phone, pin);
+      setMsg("✅ Connexion OK. Redirection…", "ok");
+      setTimeout(()=> location.href="./index.html", 200);
+
+    } finally {
+      btnLogin.disabled = false;
+      btnLogin.textContent = "Se connecter";
+    }
+  });
+
+  pinEl.addEventListener("keydown", (e)=>{ if(e.key==="Enter") btnLogin.click(); });
+})();
+</script>
+</body>
+</html>
