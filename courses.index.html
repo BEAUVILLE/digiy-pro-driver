@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>DIGIY DRIVER — Courses (V2 PIN Live)</title>
+  <meta name="theme-color" content="#0A0E1A">
+
+  <style>
+    :root{
+      --bg:#0A0E1A;--line:rgba(148,163,184,.22);--text:#e5e7eb;--muted:#9ca3af;
+      --gold:#facc15;--orange:#f97316;--ok:#22c55e;--danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1100px 500px at 20% -10%, rgba(250,204,21,.12), transparent 60%),
+        radial-gradient(900px 450px at 90% 0%, rgba(249,115,22,.10), transparent 55%),
+        var(--bg);
+    }
+    .wrap{max-width:920px;margin:0 auto;padding:18px 14px 40px}
+    .top{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      border:1px solid var(--line);border-radius:18px;padding:14px;
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+    }
+    .logo{
+      width:44px;height:44px;border-radius:14px;display:grid;place-items:center;border:1px solid var(--line);
+      background:linear-gradient(135deg, rgba(250,204,21,.18), rgba(249,115,22,.12));
+      color:var(--gold);font-weight:900
+    }
+    .brand{display:flex;gap:12px;align-items:center}
+    h1{margin:0;font-size:18px}
+    .sub{margin:3px 0 0;color:var(--muted);font-weight:800}
+
+    .btn{
+      padding:10px 12px;border-radius:14px;cursor:pointer;font-weight:900;color:var(--text);
+      border:1px solid rgba(148,163,184,.30);background:rgba(2,6,23,.35);
+      min-height:44px; touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+    }
+    .btn.ok{border-color:rgba(34,197,94,.45); background:rgba(34,197,94,.15)}
+    .btn.danger{border-color:rgba(239,68,68,.45); background:rgba(239,68,68,.15)}
+    .btn.orange{border-color:rgba(249,115,22,.45); background:rgba(249,115,22,.15)}
+    .btn.ghost{border-color:rgba(148,163,184,.22); background:rgba(2,6,23,.18)}
+
+    .card{
+      margin-top:12px;border:1px solid var(--line);border-radius:18px;padding:16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+    }
+    .small{color:var(--muted);font-weight:800;line-height:1.35}
+
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid rgba(148,163,184,.30);
+      background:rgba(2,6,23,.35);
+      padding:7px 10px;border-radius:999px;
+      font-weight:900;font-size:12px;color:#e2e8f0;
+      max-width:70vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+    .dot{width:9px;height:9px;border-radius:50%;background:#94a3b8}
+    .dot.ok{background:var(--ok)}
+    .dot.warn{background:var(--orange)}
+    .dot.bad{background:var(--danger)}
+
+    .list{display:grid;gap:12px;margin-top:12px}
+    .ride{
+      border:1px solid rgba(148,163,184,.22);
+      background:rgba(2,6,23,.35);
+      border-radius:18px;
+      padding:14px;
+    }
+    .row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+    .title{font-weight:950}
+    .meta{color:var(--muted);font-weight:800;font-size:13px;margin-top:6px;line-height:1.3}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(148,163,184,.25);
+      background:rgba(2,6,23,.35);
+      font-weight:900;font-size:12px;color:#e2e8f0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="logo">∞</div>
+        <div>
+          <h1>Courses (PIN Live)</h1>
+          <div class="sub" id="subTitle">V2 — Realtime (PIN)</div>
+          <div style="margin-top:8px">
+            <span class="pill" id="pillConn"><span class="dot warn"></span> Connexion…</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn ghost" id="btnRefresh" type="button">↻ Rafraîchir</button>
+        <button class="btn" id="btnBack" type="button">← Retour Dashboard</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div class="badge" id="badgeMode"><span class="dot warn"></span> En attente</div>
+        <div class="badge" id="badgeCount">0 course</div>
+      </div>
+
+      <div class="small" style="margin-top:8px">
+        Pool public = courses <b>new</b> sans chauffeur. Tes courses = assignées à ton <b>téléphone</b>.
+      </div>
+
+      <div id="rideList" class="list"></div>
+    </div>
+
+    <div class="card">
+      <div class="small">
+        Astuce : si tu veux filtrer par ville, on utilise <b>localStorage digiy_driver_city</b>.
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    // ✅ SUPABASE UNIFIÉ
+    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+
+    // ✅ UN SEUL CLIENT GLOBAL
+    window.digiyDriverClient = window.digiyDriverClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = window.digiyDriverClient;
+
+    const MODULE = "driver";
+
+    const $ = (id)=>document.getElementById(id);
+    const $list = $("rideList");
+
+    let driverPhone = null;
+    let channel = null;
+
+    $("btnBack").addEventListener("click", ()=> location.href="./index.html");
+    $("btnRefresh").addEventListener("click", ()=> loadInitial());
+
+    function setConn(state){
+      const pill = $("pillConn");
+      const badge = $("badgeMode");
+      if(state === "ok"){
+        pill.innerHTML = '<span class="dot ok"></span> Connecté';
+        badge.innerHTML = '<span class="dot ok"></span> Live';
+      }else if(state === "bad"){
+        pill.innerHTML = '<span class="dot bad"></span> Session invalide';
+        badge.innerHTML = '<span class="dot bad"></span> Offline';
+      }else{
+        pill.innerHTML = '<span class="dot warn"></span> Connexion…';
+        badge.innerHTML = '<span class="dot warn"></span> En attente';
+      }
+    }
+
+    function fmtXOF(n){
+      try{ return Number(n||0).toLocaleString("fr-FR")+" F CFA"; }
+      catch(e){ return (n||0)+" F CFA"; }
+    }
+    function labelStatus(s){
+      if(s==="new") return "Nouvelle";
+      if(s==="accepted") return "Acceptée";
+      if(s==="done") return "Terminée";
+      if(s==="rejected") return "Refusée";
+      if(s==="cancelled") return "Annulée";
+      return s || "-";
+    }
+
+    function getAccess(){
+      try{ return JSON.parse(localStorage.getItem("digiy_driver_access_pin") || "null"); }
+      catch(e){ return null; }
+    }
+    function normPhone(p){
+      p = (p||"").trim().replace(/\s+/g,"");
+      if(p.startsWith("00221")) p = "+221" + p.slice(5);
+      if(!p.startsWith("+") && p.startsWith("221")) p = "+" + p;
+      if(!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
+      return p;
+    }
+
+    async function guardPin(){
+      const access = getAccess();
+      const phone = normPhone(access?.phone || "");
+      const pin = (access?.pin || "").trim();
+
+      if(!phone || !pin){
+        setConn("bad");
+        $("subTitle").textContent = "Session absente";
+        $list.innerHTML = `<div class="small" style="margin-top:10px">Session PIN introuvable. Reconnecte-toi.</div>`;
+        updateCount();
+        return { ok:false };
+      }
+
+      const { data, error } = await supabase.rpc("verify_access_pin", {
+        p_phone: phone, p_pin: pin, p_module: MODULE
+      });
+
+      if(error || !data){
+        setConn("bad");
+        $("subTitle").textContent = "Session invalide";
+        $list.innerHTML = `<div class="small" style="margin-top:10px">Session expirée / refusée. Reconnecte-toi.</div>
+          <div style="margin-top:10px"><button class="btn" onclick="location.href='./authentification-chauffeur.html'">Se reconnecter</button></div>`;
+        updateCount();
+        return { ok:false };
+      }
+
+      driverPhone = phone;
+      sessionStorage.setItem("digiy_driver_ok","1");
+      sessionStorage.setItem("digiy_driver_phone", phone);
+
+      $("subTitle").textContent = "V2 — Live (phone: " + phone.slice(-4) + ")";
+      return { ok:true, phone };
+    }
+
+    function rideHTML(r){
+      const status = r.status || "new";
+      const mine = (r.assigned_driver_phone && driverPhone && r.assigned_driver_phone === driverPhone);
+      const isPool = (!r.assigned_driver_phone && status === "new");
+
+      const canAccept = isPool;
+      const canDone = (mine && status === "accepted");
+      const canReject = (mine && status === "accepted");
+
+      const pickup = r.pickup_address || r.pickup_text || r.pickup || "—";
+      const dropoff = r.dropoff_address || r.dropoff_text || r.dropoff || "—";
+      const price = r.price || r.price_xof || r.amount || 0;
+
+      return `
+        <div class="ride" data-id="${r.id}">
+          <div class="row">
+            <div class="title">🚕 ${r.city || "—"} · ${labelStatus(status)} ${mine ? "· (à toi)" : ""}</div>
+            <div class="badge">${fmtXOF(price)}</div>
+          </div>
+          <div class="meta">
+            Départ: <b>${pickup}</b><br>
+            Arrivée: <b>${dropoff}</b><br>
+            ${r.note ? r.note : ""}
+          </div>
+          <div class="actions">
+            ${canAccept ? `
+              <button class="btn ok" onclick="acceptRide('${r.id}')">Accepter</button>
+              <button class="btn ghost" onclick="removeCard('${r.id}')">Masquer</button>
+            ` : ``}
+            ${canReject ? `
+              <button class="btn danger" onclick="rejectRide('${r.id}')">Refuser</button>
+            ` : ``}
+            ${canDone ? `
+              <button class="btn orange" onclick="doneRide('${r.id}')">Terminer</button>
+            ` : ``}
+            ${(!canAccept && !canReject && !canDone) ? `
+              <button class="btn ghost" onclick="removeCard('${r.id}')">Masquer</button>
+            ` : ``}
+          </div>
+        </div>
+      `;
+    }
+
+    function updateCount(){
+      const n = $list.querySelectorAll(".ride").length;
+      $("badgeCount").textContent = n + (n>1 ? " courses" : " course");
+      if(n===0){
+        $list.innerHTML = `<div class="small" style="margin-top:10px">Aucune course pour l'instant.</div>`;
+      }
+    }
+
+    function upsertRide(r){
+      const existing = $list.querySelector(`.ride[data-id="${r.id}"]`);
+      const html = rideHTML(r);
+      if(existing) existing.outerHTML = html;
+      else{
+        if($list.firstElementChild && $list.firstElementChild.classList.contains("small")) $list.innerHTML = "";
+        $list.insertAdjacentHTML("afterbegin", html);
+      }
+      updateCount();
+    }
+
+    window.removeCard = (id)=>{
+      const el = $list.querySelector(`.ride[data-id="${id}"]`);
+      if(el) el.remove();
+      updateCount();
+    };
+
+    // ====== ACTIONS ======
+    window.acceptRide = async (id)=>{
+      if(!driverPhone){ alert("Session invalide"); return; }
+
+      const { error } = await supabase
+        .from("ride_requests")
+        .update({ status:"accepted", accepted_at: new Date().toISOString(), assigned_driver_phone: driverPhone })
+        .eq("id", id)
+        .is("assigned_driver_phone", null)
+        .eq("status", "new");
+
+      if(error) alert("Erreur accept: " + error.message);
+    };
+
+    window.rejectRide = async (id)=>{
+      if(!driverPhone){ alert("Session invalide"); return; }
+
+      const { error } = await supabase
+        .from("ride_requests")
+        .update({ status:"rejected" })
+        .eq("id", id)
+        .eq("assigned_driver_phone", driverPhone)
+        .eq("status", "accepted");
+
+      if(error) alert("Erreur reject: " + error.message);
+    };
+
+    window.doneRide = async (id)=>{
+      if(!driverPhone){ alert("Session invalide"); return; }
+
+      const { error } = await supabase
+        .from("ride_requests")
+        .update({ status:"done", done_at: new Date().toISOString() })
+        .eq("id", id)
+        .eq("assigned_driver_phone", driverPhone)
+        .eq("status", "accepted");
+
+      if(error) alert("Erreur done: " + error.message);
+    };
+
+    // ====== LOAD INITIAL ======
+    async function loadInitial(){
+      const g = await guardPin();
+      if(!g.ok) return;
+
+      setConn("ok");
+
+      const driverCity = (localStorage.getItem("digiy_driver_city") || "").trim();
+
+      let query = supabase
+        .from("ride_requests")
+        .select("*")
+        .or(`assigned_driver_phone.eq.${driverPhone},and(assigned_driver_phone.is.null,status.eq.new)`)
+        .order("created_at", { ascending:false })
+        .limit(50);
+
+      if(driverCity){
+        query = query.eq("city", driverCity);
+      }
+
+      const { data, error } = await query;
+
+      if(error){
+        $list.innerHTML = `<div class="small" style="margin-top:10px">Erreur load: ${error.message}</div>`;
+        updateCount();
+        return;
+      }
+
+      $list.innerHTML = "";
+      (data || []).forEach(upsertRide);
+      updateCount();
+    }
+
+    // ====== REALTIME SUBSCRIBE ======
+    async function startRealtime(){
+      const g = await guardPin();
+      if(!g.ok) return;
+
+      const driverCity = (localStorage.getItem("digiy_driver_city") || "").trim();
+
+      if(channel){
+        try{ await supabase.removeChannel(channel); }catch(e){}
+      }
+
+      channel = supabase
+        .channel("digiy_driver_rides_pin_v2")
+
+        .on("postgres_changes", { event:"INSERT", schema:"public", table:"ride_requests" }, (payload)=>{
+          const r = payload.new;
+          const mine = (r.assigned_driver_phone && r.assigned_driver_phone === driverPhone);
+          const pool = (!r.assigned_driver_phone && r.status === "new");
+          const okCity = !driverCity || (String(r.city||"").trim() === driverCity);
+
+          if(okCity && (mine || pool)) upsertRide(r);
+        })
+
+        .on("postgres_changes", { event:"UPDATE", schema:"public", table:"ride_requests" }, (payload)=>{
+          const r = payload.new;
+          const mine = (r.assigned_driver_phone && r.assigned_driver_phone === driverPhone);
+          const pool = (!r.assigned_driver_phone && r.status === "new");
+          const okCity = !driverCity || (String(r.city||"").trim() === driverCity);
+
+          if(okCity && (mine || pool)) upsertRide(r);
+          else removeCard(r.id);
+        })
+
+        .subscribe((status)=>{
+          if(status === "SUBSCRIBED") setConn("ok");
+          if(status === "CHANNEL_ERROR" || status === "TIMED_OUT") setConn("bad");
+        });
+    }
+
+    // Boot
+    (async ()=>{
+      setConn("wait");
+      await loadInitial();
+      await startRealtime();
+    })();
+  </script>
+</body>
+</html>
