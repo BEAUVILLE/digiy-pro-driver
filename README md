@@ -1,0 +1,564 @@
+# 🚗 DIGIY PRO DRIVER
+
+**L'application chauffeur DIGIYLYFE — 0% commission**
+
+> *"L'argent au peuple — Le chauffeur garde ce qu'il gagne"*
+
+---
+
+## 🎯 C'EST QUOI ?
+
+**DIGIY PRO DRIVER** est l'espace professionnel des chauffeurs de l'écosystème DIGIYLYFE.
+
+### Philosophie : 0% Commission
+- ❌ **Pas comme Uber** (25% de vol)
+- ❌ **Pas comme Bolt** (20% de vol)
+- ✅ **Abonnement fixe** transparent
+- ✅ **Le chauffeur garde 100% de ses gains**
+
+---
+
+## 📂 STRUCTURE DU PROJET
+
+```
+digiy-pro-driver/
+├── authentification-chauffeur.html    # Connexion PIN
+├── index.html                          # Dashboard principal
+├── profil-chauffeur.html              # Fiche professionnelle
+├── courses.html                        # Gestion des courses (pool + mines)
+├── gains.html                          # Statistiques & revenus
+├── historique.html                     # Historique des courses
+├── vehicule.html                       # Infos véhicule
+└── README.md                           # Ce fichier
+```
+
+---
+
+## 🔐 SYSTÈME D'AUTHENTIFICATION
+
+### PIN Simple (Terrain)
+- **Téléphone** : +221XXXXXXXXX
+- **PIN** : 4 chiffres
+- **Pas de mot de passe compliqué**
+- **Pas de KYC lourd**
+- **Connexion rapide terrain**
+
+### Sécurité
+```javascript
+// RPC Supabase sécurisé
+verify_access_pin(p_phone, p_pin, p_module: "driver")
+```
+
+### Storage
+```javascript
+localStorage:
+  - digiy_driver_access_pin    // Session PIN
+  - digiy_driver_city          // Ville de travail
+
+sessionStorage:
+  - digiy_driver_ok            // Flag autorisation
+  - digiy_driver_phone         // Téléphone actuel
+```
+
+---
+
+## 🏗️ ARCHITECTURE TECHNIQUE
+
+### Frontend
+- **HTML5** pur (pas de framework lourd)
+- **CSS3** moderne (variables CSS)
+- **JavaScript** vanilla (fonction isolées)
+- **Progressive Web App** ready
+
+### Backend
+- **Supabase** (PostgreSQL + Realtime)
+- **Edge Functions** pour les RPC
+- **Row Level Security** activé
+
+### Client Supabase Isolé
+```javascript
+// ✅ Namespace global DIGIYLYFE
+window._DIGIY_CLIENTS = window._DIGIY_CLIENTS || {};
+
+// ✅ Client DRIVER isolé (pas de conflit avec RESTO, LOC, etc.)
+if(!window._DIGIY_CLIENTS.driver){
+  window._DIGIY_CLIENTS.driver = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+}
+
+const sb = window._DIGIY_CLIENTS.driver;
+```
+
+**Pourquoi ?**
+- Isolation totale du module DRIVER
+- Compatible avec autres modules DIGIYLYFE (RESTO, LOC, MARKET)
+- Pas de conflit entre modules
+- Scalable à l'infini
+
+---
+
+## 🗄️ BASE DE DONNÉES
+
+### Tables principales
+
+#### `driver_profiles`
+```sql
+- id (uuid)
+- phone (text, unique)
+- full_name (text)
+- whatsapp (text)
+- sector_city (text)
+- zones (text)
+- vehicle (text)
+- services (text[])
+- start_time (time)
+- end_time (time)
+- rest_days (text[])
+- note (text)
+- created_at (timestamp)
+- updated_at (timestamp)
+```
+
+#### `ride_requests`
+```sql
+- id (uuid)
+- city (text)
+- status (text)         # new, accepted, done, rejected, cancelled
+- pickup_address (text)
+- dropoff_address (text)
+- client_phone (text)
+- price (numeric)
+- assigned_driver_phone (text)  # Clé pour attribution
+- accepted_at (timestamp)
+- done_at (timestamp)
+- created_at (timestamp)
+```
+
+#### `access_pins`
+```sql
+- phone (text, primary key)
+- pin_hash (text)       # Hash bcrypt du PIN
+- module (text)         # "driver", "resto", "loc", etc.
+- active (boolean)
+- created_at (timestamp)
+- last_login (timestamp)
+```
+
+---
+
+## 🔄 FLUX UTILISATEUR
+
+### 1️⃣ Connexion
+```
+authentification-chauffeur.html
+↓ Entre téléphone + PIN
+↓ RPC verify_access_pin()
+↓ Si OK → localStorage.setItem()
+↓ Redirect → index.html
+```
+
+### 2️⃣ Dashboard
+```
+index.html
+↓ Vérifie session (verify_access_pin)
+↓ Si valide → Affiche menu
+├─ Profil
+├─ Courses
+├─ Gains
+└─ Déconnexion
+```
+
+### 3️⃣ Pool de courses
+```
+courses.html
+↓ Charge courses disponibles (assigned_driver_phone IS NULL)
+↓ Charge mes courses (assigned_driver_phone = mon phone)
+↓ Realtime ON → Subscribe aux changements
+↓ Actions:
+  ├─ Accept (claim course)
+  ├─ Reject (si acceptée par erreur)
+  └─ Done (terminer course)
+```
+
+---
+
+## 🎨 DESIGN SYSTEM
+
+### Couleurs
+```css
+:root {
+  --bg: #F8FAF6;           /* Fond clair */
+  --card: #fff;            /* Cartes */
+  --line: #E5E7EB;         /* Bordures */
+  --text: #111827;         /* Texte principal */
+  --muted: #6B7280;        /* Texte secondaire */
+  --gold: #EAB308;         /* Accent DIGIYLYFE */
+  --green: #16A34A;        /* Succès */
+  --danger: #EF4444;       /* Danger */
+}
+```
+
+### Typographie
+- **Font** : system-ui (natif OS)
+- **Poids** : 650-950 (medium à black)
+- **Taille** : 13px-18px
+
+### Composants
+- **Boutons** : border-radius 16px, gradient gold
+- **Cartes** : border-radius 20px, shadow subtile
+- **Pills** : border-radius 999px, inline-flex
+- **Messages** : Couleurs sémantiques (ok/bad)
+
+---
+
+## 🔧 FONCTIONNALITÉS
+
+### ✅ Implémenté
+
+#### Authentification
+- [x] Connexion PIN
+- [x] Vérification session auto
+- [x] Déconnexion propre
+- [x] Effacer session
+
+#### Profil
+- [x] Fiche complète chauffeur
+- [x] Édition infos
+- [x] Services multi-choix
+- [x] Horaires travail
+- [x] Jours de repos
+- [x] Statut complétude
+
+#### Courses
+- [x] Pool courses (nouvelles)
+- [x] Mes courses (assignées)
+- [x] Filtre par ville
+- [x] Realtime ON/OFF
+- [x] Accept course (claim)
+- [x] Reject course
+- [x] Done course
+- [x] Copier ID
+
+#### Gains (si présent)
+- [x] Total encaissé
+- [x] Nombre de courses
+- [x] Moyenne par course
+- [x] Filtre période
+- [x] Détails courses terminées
+
+---
+
+### 🔜 À venir (Roadmap)
+
+#### Phase 2
+- [ ] Notifications push (PWA)
+- [ ] Mode offline
+- [ ] Géolocalisation temps réel
+- [ ] Chat client-chauffeur
+- [ ] Photos véhicule
+- [ ] Documents (permis, assurance)
+
+#### Phase 3
+- [ ] Système de notation
+- [ ] Badges & récompenses
+- [ ] Programme fidélité
+- [ ] Parrainage chauffeurs
+- [ ] Formation en ligne
+
+---
+
+## 💰 MODÈLE ÉCONOMIQUE
+
+### Pour le chauffeur
+
+#### Avec Uber (25% commission)
+```
+Course : 10,000 F
+- Commission Uber : -2,500 F
+- Frais : -2,000 F
+= Net : 5,500 F
+
+20 courses/semaine = 110,000 F/semaine
+× 4 semaines = 440,000 F/mois
+```
+
+#### Avec DIGIY DRIVER (abonnement)
+```
+Course : 10,000 F
+- Abonnement : -500 F/jour (15,000 F/mois ÷ 30)
+- Frais : -2,000 F
+= Net : 7,500 F
+
+20 courses/semaine = 150,000 F/semaine
+× 4 semaines = 600,000 F/mois
+
+GAIN : +160,000 F/mois (+36%)
+```
+
+### Tarifs
+- **Abonnement mensuel** : 15,000 F CFA (~25 USD)
+- **Commission** : 0%
+- **Frais cachés** : 0
+- **Paiement direct** : Client → Chauffeur (cash, Wave, Orange Money)
+
+---
+
+## 🚀 INSTALLATION & DÉPLOIEMENT
+
+### Prérequis
+- Compte Supabase
+- Git
+- Serveur web (GitHub Pages, Netlify, Vercel, ou custom)
+
+### Setup Backend (Supabase)
+
+1. **Créer projet Supabase**
+   ```
+   https://supabase.com/dashboard
+   ```
+
+2. **Créer tables**
+   ```sql
+   -- Voir section "Base de données" ci-dessus
+   ```
+
+3. **Créer RPC fonctions**
+   ```sql
+   -- verify_access_pin
+   -- get_driver_profile_by_pin
+   -- save_driver_profile_by_pin
+   ```
+
+4. **Activer Realtime**
+   ```sql
+   ALTER PUBLICATION supabase_realtime ADD TABLE ride_requests;
+   ```
+
+5. **Configurer RLS (Row Level Security)**
+   ```sql
+   -- Policies par module
+   ```
+
+### Setup Frontend
+
+1. **Cloner le repo**
+   ```bash
+   git clone https://github.com/beauville/digiy-pro-driver.git
+   cd digiy-pro-driver
+   ```
+
+2. **Configurer Supabase**
+   ```javascript
+   // Dans chaque fichier HTML
+   const SUPABASE_URL = "https://votre-projet.supabase.co";
+   const SUPABASE_ANON_KEY = "votre-clé-anon";
+   ```
+
+3. **Déployer**
+   ```bash
+   git add .
+   git commit -m "Initial commit"
+   git push origin main
+   ```
+
+### GitHub Pages
+```bash
+Settings → Pages → Source: main branch
+```
+
+---
+
+## 🧪 TESTS
+
+### Test local
+```bash
+# Serveur local simple
+python3 -m http.server 8000
+# Puis ouvre http://localhost:8000
+```
+
+### Test mobile
+```bash
+# Expose ton serveur local
+ngrok http 8000
+# Ou utilise GitHub Pages directement
+```
+
+### Checklist de test
+- [ ] Connexion PIN fonctionne
+- [ ] Session persiste après reload
+- [ ] Profil se charge
+- [ ] Profil se sauvegarde
+- [ ] Pool courses s'affiche
+- [ ] Realtime fonctionne
+- [ ] Accept course claim correctement
+- [ ] Done course met à jour le statut
+- [ ] Déconnexion efface la session
+- [ ] Pas d'erreur console (F12)
+
+---
+
+## 🔒 SÉCURITÉ
+
+### Bonnes pratiques
+- ✅ Pas de clé privée Supabase en frontend
+- ✅ RPC avec validation côté serveur
+- ✅ Row Level Security activé
+- ✅ PIN hashé en bcrypt
+- ✅ Requêtes filtrées par `assigned_driver_phone`
+- ✅ Validation des inputs
+
+### Ce que le frontend NE PEUT PAS faire
+- ❌ Modifier les courses d'un autre chauffeur
+- ❌ Voir les données d'un autre chauffeur
+- ❌ Accepter une course déjà assignée
+- ❌ Terminer une course qui n'est pas la sienne
+
+---
+
+## 🐛 DEBUGGING
+
+### Console navigateur (F12)
+```javascript
+// Vérifier session
+localStorage.getItem("digiy_driver_access_pin")
+
+// Vérifier client Supabase
+window._DIGIY_CLIENTS.driver
+
+// Nettoyer session
+localStorage.clear()
+sessionStorage.clear()
+delete window._DIGIY_CLIENTS
+location.reload()
+```
+
+### Erreurs communes
+
+**"Identifier already declared"**
+→ Ancien fichier en cache. Vide le cache (CTRL + SHIFT + DELETE)
+
+**"Session invalide"**
+→ PIN expiré ou incorrect. Reconnecte-toi.
+
+**"RPC Error"**
+→ Vérifie que les fonctions RPC existent dans Supabase
+
+**Boucle infinie**
+→ Vide le cache et ferme tous les onglets
+
+---
+
+## 📱 COMPATIBILITÉ
+
+### Navigateurs supportés
+- ✅ Chrome 90+
+- ✅ Safari 14+
+- ✅ Firefox 88+
+- ✅ Edge 90+
+
+### Mobiles
+- ✅ iOS 14+
+- ✅ Android 8+
+
+### PWA (Progressive Web App)
+- [x] Manifest.json
+- [x] Service Worker (à venir)
+- [x] Installable
+- [x] Mode offline (à venir)
+
+---
+
+## 🤝 CONTRIBUTION
+
+### Règles
+1. **Code propre** : Vanilla JS, pas de framework lourd
+2. **Commentaires** : Explique ton code
+3. **Tests** : Teste avant de commit
+4. **Respect** : Pas de vol de commission !
+
+### Pattern de code
+```javascript
+// ✅ TOUJOURS utiliser le namespace
+window._DIGIY_CLIENTS = window._DIGIY_CLIENTS || {};
+
+// ✅ TOUJOURS isoler dans une fonction
+(function(){
+  'use strict';
+  // Ton code ici
+})();
+
+// ✅ TOUJOURS vérifier la session
+async function guardPin(){ ... }
+```
+
+---
+
+## 📞 SUPPORT
+
+### Documentation
+- **Supabase** : https://supabase.com/docs
+- **JavaScript** : https://developer.mozilla.org
+
+### Contact
+- **Email** : support@digiylyfe.com
+- **WhatsApp** : +221 XX XXX XX XX
+- **Site** : https://digiylyfe.com
+
+---
+
+## 📄 LICENCE
+
+**Propriété de DIGIYLYFE**
+
+Ce code est la propriété intellectuelle de DIGIYLYFE.  
+Utilisation commerciale interdite sans autorisation.
+
+---
+
+## 🌍 MISSION
+
+> **"L'Afrique enracinée, connectée au monde"**
+
+DIGIY PRO DRIVER fait partie de l'écosystème DIGIYLYFE :
+- 🚗 **DRIVER** : Transport sans commission
+- 🍴 **RESTO** : POS pour restaurants
+- 🏠 **LOC** : Hébergements directs
+- 🛒 **MARKET** : Marketplace 0%
+- 📦 **FRET** : Transport de marchandises
+- 💼 **JOBS** : Emploi local
+- 💳 **PAY** : Paiements directs
+
+**L'argent au peuple. La dignité au travailleur.**
+
+---
+
+## 📊 STATISTIQUES
+
+- **Chauffeurs actifs** : [À venir]
+- **Courses complétées** : [À venir]
+- **Argent gardé par les chauffeurs** : [À venir]
+- **Commission volée évitée** : [À venir]
+
+---
+
+## 🎯 VISION 2025
+
+- 10,000 chauffeurs actifs
+- 1,000,000 courses/an
+- 5 milliards F CFA gardés par les chauffeurs
+- Extension à toute l'Afrique de l'Ouest
+
+---
+
+**Conçu avec ❤️ pour l'Afrique**  
+**Par des africains, pour des africains**  
+**0% commission. 100% dignité.**
+
+**∞ DIGIYLYFE — Pierre par pierre, on construit**
+
+---
+
+*Dernière mise à jour : Décembre 2024*
