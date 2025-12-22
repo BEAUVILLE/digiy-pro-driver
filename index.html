@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DIGIY DRIVER — Dashboard</title>
+  <title>DIGIY PRO DRIVER</title>
   <meta name="theme-color" content="#F8FAF6" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -31,7 +31,7 @@
 
   <div id="status" class="msg">Vérification session...</div>
 
-  <button class="btn ghost" onclick="location.href='./authentification-chauffeur.html'" >
+  <button class="btn ghost" onclick="location.href='./authentification-chauffeur.html'">
     🔑 Se connecter
   </button>
 
@@ -51,20 +51,15 @@
 <script>
 (function(){
   'use strict';
-  
+
+  /* 🔐 SUPABASE — DÉJÀ INTÉGRÉ */
   const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
   const MODULE = "driver";
 
-  // ✅ NAMESPACE GLOBAL DIGIYLYFE
-  window._DIGIY_CLIENTS = window._DIGIY_CLIENTS || {};
-  
-  // ✅ CLIENT ISOLÉ DRIVER
-  if(!window._DIGIY_CLIENTS.driver){
-    window._DIGIY_CLIENTS.driver = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-  
-  const sb = window._DIGIY_CLIENTS.driver;
+  /* ✅ UN SEUL CLIENT GLOBAL DIGIY */
+  window.__sb = window.__sb || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sb = window.__sb;
 
   const statusEl = document.getElementById("status");
   const meEl = document.getElementById("me");
@@ -72,7 +67,7 @@
   function setStatus(t, kind=""){
     statusEl.className = "msg" + (kind ? " " + kind : "");
     statusEl.textContent = t;
-    console.log("[DASHBOARD]", t);
+    console.log("[DRIVER DASH]", t);
   }
 
   function normPhone(p){
@@ -91,6 +86,17 @@
     return null;
   }
 
+  function setBridge(phone){
+    // ✅ Bridge pour courses.html / profil-chauffeur.html (simple et fiable)
+    sessionStorage.setItem("digiy_driver_ok", "1");
+    sessionStorage.setItem("digiy_driver_phone", phone);
+  }
+
+  function clearBridge(){
+    sessionStorage.removeItem("digiy_driver_ok");
+    sessionStorage.removeItem("digiy_driver_phone");
+  }
+
   async function guard(){
     const a = getAccess();
     const phone = normPhone(a?.phone || "");
@@ -99,6 +105,7 @@
     meEl.textContent = phone || "—";
 
     if(!phone || !pin){
+      clearBridge();
       setStatus("⚠️ Pas de session. Clique « Se connecter ».", "bad");
       return;
     }
@@ -107,38 +114,43 @@
 
     try{
       const { data, error } = await sb.rpc("verify_access_pin", {
-        p_phone: phone, p_pin: pin, p_module: MODULE
+        p_phone: phone,
+        p_pin: pin,
+        p_module: MODULE
       });
 
       if(error){
         console.error("RPC Error:", error);
+        clearBridge();
         setStatus("❌ Erreur serveur. Reconnecte-toi.", "bad");
         return;
       }
 
       if(!data){
+        clearBridge();
         setStatus("❌ Session expirée. Clique « Se connecter ».", "bad");
-        // ✅ PAS DE REDIRECT AUTO (évite boucle)
+        // pas de redirect auto (évite boucle)
         return;
       }
 
+      setBridge(phone);
       setStatus("✅ Session valide ! Dashboard prêt.", "ok");
     }catch(e){
       console.error("Exception:", e);
-      setStatus("⚠️ Erreur réseau.", "bad");
+      clearBridge();
+      setStatus("⚠️ Erreur réseau. Vérifie ta connexion.", "bad");
     }
   }
 
   window.logout = function(){
     localStorage.removeItem("digiy_driver_access_pin");
-    sessionStorage.removeItem("digiy_driver_ok");
-    sessionStorage.removeItem("digiy_driver_phone");
+    clearBridge();
     setStatus("🧹 Déconnexion effectuée.", "");
     meEl.textContent = "—";
-    setTimeout(()=> location.href="./authentification-chauffeur.html", 500);
+    setTimeout(()=> location.href="./authentification-chauffeur.html", 400);
   };
 
-  setTimeout(guard, 300);
+  setTimeout(guard, 250);
 })();
 </script>
 </body>
