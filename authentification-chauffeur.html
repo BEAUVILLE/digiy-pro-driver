@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>DIGIY DRIVER — authentification-Chauffeur (PIN)</title>
+  <title>DIGIY DRIVER — Auth Chauffeur (PIN)</title>
   <meta name="theme-color" content="#F8FAF6" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -87,11 +87,13 @@
   </div>
 
 <script>
+(function(){
+  'use strict';
+
   // ✅ CONFIG
   const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-
-  const MODULE = "driver";// ✅ même valeur partout
+  const MODULE = "driver"; // ✅ même valeur partout
 
   // ✅ DOM
   const msg = document.getElementById("msg");
@@ -131,33 +133,51 @@
     return null;
   }
 
-  // ✅ UN SEUL CLIENT GLOBAL - NOM UNIQUE
+  function setBridge(phone){
+    sessionStorage.setItem("digiy_driver_ok", "1");
+    sessionStorage.setItem("digiy_driver_phone", phone);
+  }
+  function clearBridge(){
+    sessionStorage.removeItem("digiy_driver_ok");
+    sessionStorage.removeItem("digiy_driver_phone");
+  }
+
+  // ✅ UN SEUL CLIENT GLOBAL (identique à index.html)
   if(!window.supabase?.createClient){
     setMsg("❌ Supabase non chargé (CDN). Vérifie ta connexion.", "bad");
+    return;
   }
-  
-  // ✅ Crée OU réutilise (jamais de redéclaration)
-  window.digiyDriverClient = window.digiyDriverClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const sb = window.digiyDriverClient;
+  window.__sb = window.__sb || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sb = window.__sb;
+
+  async function verify(phone, pin){
+    const { data, error } = await sb.rpc("verify_access_pin", {
+      p_phone: phone, p_pin: pin, p_module: MODULE
+    });
+    if(error) throw error;
+    return !!data;
+  }
 
   // ✅ auto (si déjà connecté)
   (async function auto(){
     dbg.textContent = "MODULE=" + MODULE;
     const a = getAccess();
     if(a?.phone){
-      phoneEl.value = normPhone(a.phone);
+      const phone = normPhone(a.phone);
+      phoneEl.value = phone;
       setMsg("🟡 Session détectée. Vérification…", "");
       try{
-        const { data } = await sb.rpc("verify_access_pin", {
-          p_phone: normPhone(a.phone), p_pin: String(a.pin), p_module: MODULE
-        });
-        if(data){
+        const ok = await verify(phone, String(a.pin || "").trim());
+        if(ok){
+          setBridge(phone);
           setMsg("✅ Session OK. Redirection…", "ok");
-          setTimeout(()=> location.href="./index.html", 200);
+          setTimeout(()=> location.href="./index.html", 180);
         }else{
+          clearBridge();
           setMsg("⚠️ Session existante mais invalide. Reconnecte-toi.", "bad");
         }
       }catch(e){
+        clearBridge();
         setMsg("⚠️ Vérif session impossible.\n" + (e?.message || e), "bad");
       }
     }
@@ -165,12 +185,13 @@
 
   document.getElementById("btnClear").addEventListener("click", ()=>{
     localStorage.removeItem("digiy_driver_access_pin");
+    clearBridge();
     pinEl.value = "";
     setMsg("🧹 Session effacée. Reconnecte-toi.", "");
   });
 
   btnLogin.addEventListener("click", async ()=>{
-    setMsg("🟡 Clic détecté. Vérification…", "");
+    setMsg("🟡 Vérification…", "");
     btnLogin.disabled = true; btnLogin.textContent = "⏳ Vérification…";
     try{
       const phone = normPhone(phoneEl.value);
@@ -181,31 +202,30 @@
         return;
       }
 
-      const { data, error } = await sb.rpc("verify_access_pin", {
-        p_phone: phone, p_pin: pin, p_module: MODULE
-      });
-
-      if(error){
-        setMsg("❌ RPC:\n" + error.message, "bad");
-        return;
-      }
-      
-      // ✅ CORRECTION ICI - setMsg au lieu de setStatus
-      if(!data){
+      const ok = await verify(phone, pin);
+      if(!ok){
+        clearBridge();
         setMsg("❌ Session invalide/expirée. Vérifie ton PIN.", "bad");
         return;
       }
 
       setAccess(phone, pin);
-      setMsg("✅ Connexion OK. Redirection…", "ok");
-      setTimeout(()=> location.href="./index.html", 200);
+      setBridge(phone);
 
+      setMsg("✅ Connexion OK. Redirection…", "ok");
+      setTimeout(()=> location.href="./index.html", 180);
+
+    } catch(e){
+      clearBridge();
+      setMsg("❌ Erreur serveur:\n" + (e?.message || e), "bad");
     } finally {
       btnLogin.disabled = false; btnLogin.textContent = "Se connecter";
     }
   });
 
   pinEl.addEventListener("keydown", (e)=>{ if(e.key==="Enter") btnLogin.click(); });
+})();
 </script>
 </body>
 </html>
+
