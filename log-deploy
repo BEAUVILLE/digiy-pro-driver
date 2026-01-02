@@ -1,0 +1,10 @@
+{
+  "app": "digiy-driver",
+  "branch": "main",
+  "sha": "67d2d9a",
+  "message": "deploy: production update DIGIY DRIVER",
+  "deployed_at_utc": "2026-01-02T20:37:15Z",
+  "server": "srv1167111",
+  "root": "/var/www/digiy-driver",
+  "backup": "digiy-driver__OLD__2026-01-02_203715"
+}
