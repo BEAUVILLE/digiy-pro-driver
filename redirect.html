@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DIGIY DRIVER — Redirection</title>
+  <meta name="theme-color" content="#020617" />
+</head>
+<body>
+<script>
+(function(){
+  'use strict';
+
+  // BASE auto (GitHub Pages ou prod)
+  const path = location.pathname || "/";
+  const parts = path.split("/").filter(Boolean);
+  const BASE = (parts.length >= 1) ? ("/" + parts[0]) : "";
+
+  function getPhone(){
+    const s = sessionStorage.getItem("digiy_driver_phone");
+    if(s) return s;
+    try{
+      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin")||"null");
+      return a?.phone || null;
+    }catch(_){}
+    return null;
+  }
+
+  const phone = getPhone();
+  if(phone){
+    location.replace(BASE + "/courses.html");
+  }else{
+    location.replace(BASE + "/authentification-chauffeur.html");
+  }
+})();
+</script>
+</body>
+</html>
