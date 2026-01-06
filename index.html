@@ -2,37 +2,90 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DIGIY PRO DRIVER</title>
   <meta name="theme-color" content="#F8FAF6" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <script>
-(function(){
+(async function(){
   'use strict';
 
-  // ✅ BASE auto GitHub Pages: https://beauville.github.io/digiy-pro-driver/ -> "/digiy-pro-driver"
-  const path = location.pathname || "/";
+  // ✅ BASE AUTO (GitHub Pages / local / prod)
+  // ex: https://beauville.github.io/digiy-pro-driver/  -> "/digiy-pro-driver"
+  const path  = location.pathname || "/";
   const parts = path.split("/").filter(Boolean);
-  const BASE = (parts.length >= 1) ? ("/" + parts[0]) : "";
+  const BASE  = (parts.length >= 1) ? ("/" + parts[0]) : "";
+
+  // ✅ URL paiement (repo séparé)
+  const PAY_URL = "https://beauville.github.io/commencer-a-payer/";
+
+  // ✅ SUPABASE — DÉJÀ POSÉ
+  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+
+  // ✅ client global unique
+  const supabase = (window.__sb || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+  window.__sb = supabase;
 
   function getPhone(){
     const s = sessionStorage.getItem("digiy_driver_phone");
-    if(s) return s;
+    if (s) return s;
+
     try{
-      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin")||"null");
+      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin") || "null");
       return a?.phone || null;
-    }catch(_){}
-    return null;
+    }catch(_){
+      return null;
+    }
   }
 
+  async function isDriverActive(phone){
+    try{
+      // RPC: is_driver_active(p_phone text) -> boolean
+      const { data, error } = await supabase.rpc("is_driver_active", { p_phone: phone });
+      if (error) throw error;
+      return data === true;
+    }catch(e){
+      console.warn("is_driver_active error:", e);
+      return null; // inconnu (supabase down)
+    }
+  }
+
+  // =========================
+  // ✅ ROUTAGE
+  // =========================
   const phone = getPhone();
 
-  if(phone){
-    location.replace(BASE + "/courses.html");
-  }else{
+  // 1) pas loggé => login
+  if (!phone){
     location.replace(BASE + "/authentification-chauffeur.html");
+    return;
   }
+
+  // 2) check abonnement
+  const ok = await isDriverActive(phone);
+
+  // 3) supabase down => ne pas bloquer à tort => dashboard
+  if (ok === null){
+    location.replace(BASE + "/courses.html");
+    return;
+  }
+
+  // 4) pas actif => paiement
+  if (!ok){
+    location.replace(
+      PAY_URL +
+      "?phone=" + encodeURIComponent(phone) +
+      "&from=" + encodeURIComponent(location.href)
+    );
+    return;
+  }
+
+  // 5) actif => dashboard
+  location.replace(BASE + "/courses.html");
 })();
 </script>
 </body>
