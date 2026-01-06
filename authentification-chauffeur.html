@@ -1,172 +1,150 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>DIGIY DRIVER — Auth Chauffeur (PIN)</title>
-  <meta name="theme-color" content="#F8FAF6" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY DRIVER — Connexion Chauffeur</title>
+  <meta name="theme-color" content="#061b14"/>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js"></script>
 
   <style>
     :root{
-      --bg:#F8FAF6; --card:#fff; --line:#E5E7EB;
-      --text:#111827; --muted:#6B7280;
-      --gold:#EAB308; --radius:20px; --shadow:0 12px 28px rgba(0,0,0,.06);
+      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
+      --text:#eafff1; --muted:rgba(234,255,241,.78);
+      --green:#16a34a; --gold:#facc15; --danger:#ef4444;
+      --r:18px;
     }
     *{box-sizing:border-box}
     body{
-      margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 10% -10%, rgba(234,179,8,.18), transparent 60%),
-        radial-gradient(1000px 500px at 90% 0%, rgba(245,158,11,.15), transparent 55%),
-        var(--bg);
-      min-height:100vh; display:grid; place-items:center; padding:16px;
+      margin:0; min-height:100vh;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
+                 radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
+                 var(--bg);
+      color:var(--text);
+      display:flex; align-items:center; justify-content:center;
+      padding:20px;
     }
+    .wrap{width:min(520px,100%);}
     .card{
-      width:min(520px, 92vw);
-      border:1px solid var(--line); border-radius:var(--radius);
-      background:var(--card); box-shadow:var(--shadow); padding:16px;
-    }
-    .brand{display:flex; gap:12px; align-items:center}
-    .logo{
-      width:46px;height:46px;border-radius:16px;display:grid;place-items:center;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--line);
-      background:linear-gradient(135deg,#FFF7D6,#FDE68A);
-      color:#92400E;font-weight:950;font-size:20px;
+      border-radius:var(--r);
+      padding:18px;
+      box-shadow:0 12px 40px rgba(0,0,0,.35);
     }
-    h1{margin:0;font-size:18px}
-    .sub{margin:4px 0 0;color:var(--muted);font-weight:650}
-    label{display:block;margin:12px 0 8px;font-weight:950}
+    h1{margin:0 0 6px; font-size:24px;}
+    p{margin:0 0 14px; color:var(--muted); line-height:1.4}
+    label{display:block; font-size:14px; color:var(--muted); margin:12px 0 6px}
     input{
-      width:100%;border:1px solid var(--line);border-radius:16px;
-      padding:12px 12px;font-size:15px;background:#fff;outline:none;
+      width:100%; padding:14px 12px; border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.25); color:var(--text);
+      font-size:18px; outline:none;
     }
-    input:focus{border-color:#FDE68A;box-shadow:0 0 0 4px rgba(234,179,8,.12)}
+    input:focus{border-color:rgba(34,197,94,.55); box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+    .row{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+    button{
+      flex:1;
+      min-width:160px;
+      border:0; cursor:pointer;
+      padding:14px 14px;
+      border-radius:14px;
+      font-weight:800;
+      font-size:16px;
+    }
     .btn{
-      width:100%;
-      border:0;border-radius:16px;padding:12px 14px;min-height:44px;
-      font-weight:950;cursor:pointer;margin-top:14px;
-      background:linear-gradient(135deg,#FFF7D6,#FDE68A);color:#78350F;
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
+      color:#042012;
     }
-    .btn.ghost{
-      background:#F9FAFB;color:#374151;border:1px solid var(--line);
-      margin-top:10px;font-weight:900;
+    .btn2{
+      background:rgba(250,204,21,.14);
+      color:var(--text);
+      border:1px solid rgba(250,204,21,.25);
     }
-    .msg{
-      margin-top:12px;padding:12px;border-radius:16px;border:1px solid var(--line);
-      background:#F9FAFB;color:var(--muted);font-weight:800;line-height:1.25;
-      white-space:pre-wrap;
+    .small{
+      margin-top:12px;
+      font-size:13px;
+      color:rgba(234,255,241,.72);
     }
-    .msg.ok{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.07); color:#14532d}
-    .msg.bad{border-color:rgba(239,68,68,.22); background:rgba(239,68,68,.06); color:#7f1d1d}
-    .small{font-size:12px;color:var(--muted);font-weight:700;margin-top:10px}
+    .note{
+      margin-top:12px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px dashed rgba(255,255,255,.18);
+      color:rgba(234,255,241,.85);
+      background:rgba(0,0,0,.18);
+      font-size:13px;
+      line-height:1.4;
+    }
+    .err{color:#fecaca}
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="brand">
-      <div class="logo">∞</div>
-      <div>
-        <h1>DIGIY DRIVER PRO — Connexion</h1>
-        <div class="sub">Téléphone + PIN (clé chauffeur)</div>
+  <div class="wrap">
+    <div class="card">
+      <h1>🚗 DIGIY DRIVER — Connexion</h1>
+      <p>Entre ton numéro WhatsApp. Si ton abonnement n’est pas actif, on te redirige vers le paiement.</p>
+
+      <label for="phone">Téléphone (WhatsApp)</label>
+      <input id="phone" inputmode="tel" autocomplete="tel" placeholder="+221 77 123 45 67" />
+
+      <div class="row">
+        <button class="btn" id="btnLogin">Entrer</button>
+        <button class="btn2" id="btnClear" type="button">Effacer</button>
       </div>
+
+      <div class="note">
+        ✅ Exemple : <b>77 123 45 67</b> → DIGIY met automatiquement <b>+221</b><br/>
+        🔐 Aucun “bling-bling” : juste efficace, léger, terrain.
+      </div>
+
+      <p class="small" id="status"></p>
     </div>
-
-    <label>Téléphone chauffeur</label>
-    <input id="phone" type="tel" inputmode="tel" placeholder="+221 77 XXX XX XX" />
-
-    <label>PIN</label>
-    <input id="pin" type="password" inputmode="numeric" placeholder="••••" />
-
-    <button class="btn" id="loginBtn">Se connecter</button>
-    <button class="btn ghost" id="backBtn">Retour</button>
-
-    <div class="msg" id="msg">Entre ton téléphone et ton PIN.</div>
-    <div class="small">GitHub Pages: URLs en /digiy-pro-driver/... (pas à la racine).</div>
   </div>
 
-<script>
-(function(){
-  'use strict';
+  <script>
+    const statusEl = document.getElementById("status");
+    const phoneEl = document.getElementById("phone");
 
-  /* 🔐 SUPABASE — DÉJÀ POSÉ */
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const path = location.pathname || "/";
-  const parts = path.split("/").filter(Boolean);
-  const BASE = (parts.length >= 1) ? ("/" + parts[0]) : "";
-
-  const $ = (id)=>document.getElementById(id);
-  const msg = $("msg");
-
-  function normPhone(p){
-    p = (p||"").trim().replace(/\s+/g,"").replace(/[^\d+]/g,"");
-    if(p.startsWith("00221")) p = "+221" + p.slice(5);
-    if(!p.startsWith("+") && p.startsWith("221")) p = "+" + p;
-    if(!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
-    return p;
-  }
-
-  function setMsg(text, ok){
-    msg.className = "msg" + (ok===true ? " ok" : ok===false ? " bad" : "");
-    msg.textContent = text;
-  }
-
-  async function verifyPin(phone, pin){
-    // ✅ Quand tu veux, on branche sur ton vrai RPC:
-    // const { data, error } = await sb.rpc("verify_driver_pin", { p_phone: phone, p_pin: pin });
-    // if(error) throw error;
-    // return !!data;
-
-    // ✅ Fallback (fonctionnel pour tester le flow)
-    return (pin && pin.length >= 3);
-  }
-
-  $("loginBtn").addEventListener("click", async ()=>{
-    const phone = normPhone($("phone").value);
-    const pin = ($("pin").value||"").trim();
-
-    if(!phone.startsWith("+221")){
-      setMsg("⚠️ Téléphone invalide. Exemple: +221771234567", false);
-      return;
-    }
-    if(!pin){
-      setMsg("⚠️ PIN manquant.", false);
-      return;
+    function setStatus(msg, isErr){
+      statusEl.textContent = msg || "";
+      statusEl.className = isErr ? "small err" : "small";
     }
 
-    $("loginBtn").disabled = true;
-    setMsg("⏳ Vérification...", null);
-
+    // Prefill si déjà un phone
     try{
-      const ok = await verifyPin(phone, pin);
-      if(!ok){
-        setMsg("⛔️ PIN incorrect.", false);
-        return;
+      const p = (window.DIGIY && DIGIY.getPhone) ? DIGIY.getPhone() : "";
+      if(p) phoneEl.value = p;
+    }catch(e){}
+
+    document.getElementById("btnClear").addEventListener("click", () => {
+      phoneEl.value = "";
+      try{ DIGIY.clearPhone(); }catch(e){}
+      setStatus("Effacé.");
+    });
+
+    document.getElementById("btnLogin").addEventListener("click", async () => {
+      setStatus("Vérification...");
+      const phone = phoneEl.value;
+
+      try{
+        DIGIY.setPhone(phone);
+
+        // 👉 On redirige direct vers une page PRO (exemple: courses.html)
+        // la page courses.html va elle-même re-check abonnement (guard)
+        location.href = "./courses.html";
+      }catch(e){
+        console.warn(e);
+        setStatus("Numéro invalide. Réessaie.", true);
       }
-
-      sessionStorage.setItem("digiy_driver_phone", phone);
-      localStorage.setItem("digiy_driver_access_pin", JSON.stringify({ phone, ts: Date.now() }));
-
-      setMsg("✅ Connecté. Redirection...", true);
-      location.replace(BASE + "/courses.html");
-    }catch(e){
-      console.error(e);
-      setMsg("❌ Erreur connexion. Vérifie Supabase / réseau.", false);
-    }finally{
-      $("loginBtn").disabled = false;
-    }
-  });
-
-  $("backBtn").addEventListener("click", ()=>location.replace(BASE + "/index.html"));
-})();
-</script>
+    });
+  </script>
 </body>
 </html>
+
 
 
 
