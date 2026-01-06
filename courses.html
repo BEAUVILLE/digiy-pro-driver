@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>DIGIY DRIVER PRO — Courses</title>
   <meta name="theme-color" content="#F8FAF6" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -92,9 +92,9 @@
     }
     .tag.new{border-color:rgba(37,99,235,.22); background:rgba(37,99,235,.06); color:#1e3a8a}
     .tag.accepted{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.07); color:#14532d}
+    .tag.done{border-color:rgba(234,179,8,.35); background:rgba(234,179,8,.10); color:#78350F}
     .tag.cancelled{border-color:rgba(239,68,68,.22); background:rgba(239,68,68,.06); color:#7f1d1d}
     .kv{font-size:13px;color:#111827}
-    .kv b{color:#111827}
     .small{font-size:12px;color:var(--muted);font-weight:700}
     .ride-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .empty{
@@ -117,10 +117,22 @@
     }
     .msg.ok{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.07); color:#14532d}
     .msg.bad{border-color:rgba(239,68,68,.22); background:rgba(239,68,68,.06); color:#7f1d1d}
+
+    .paylock{
+      display:none;
+      margin-top:10px;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(239,68,68,.25);
+      background:rgba(239,68,68,.06);
+      color:#7f1d1d;
+      font-weight:900;
+    }
+    .paylock.show{display:block}
   </style>
 </head>
-
 <body>
+
 <header>
   <div class="wrap">
     <div class="top">
@@ -133,50 +145,57 @@
       </div>
 
       <div class="right">
-        <div class="pill" id="pillPhone">📞 —</div>
-        <div class="pill bad" id="pillRT">● Realtime OFF</div>
-        <button class="btn ghost" id="btnReload">↻ Rafraîchir</button>
-        <button class="btn red" id="btnLogout">Déconnexion</button>
+        <span class="pill" id="phonePill">📞 —</span>
+        <span class="pill bad" id="rtPill">● Realtime OFF</span>
+        <button class="btn ghost" id="refreshBtn">↻ Rafraîchir</button>
+        <button class="btn red" id="logoutBtn">Déconnexion</button>
       </div>
     </div>
-    <div class="msg" id="msg">Chargement…</div>
+
+    <div class="msg ok" id="statusMsg">✅ Prêt.</div>
+    <div class="paylock" id="payLock">
+      ⛔️ Abonnement requis (9 900 FCFA / mois). Clique “Payer abonnement”.
+    </div>
   </div>
 </header>
 
 <main>
   <div class="wrap">
     <div class="grid">
+
       <section class="card">
-        <h3>
-          <span>📥 Courses</span>
-          <span class="muted" id="metaCounts">—</span>
-        </h3>
+        <h3>📥 Courses <span class="muted" id="countNew">Nouvelles: 0</span></h3>
 
         <div class="tabs">
-          <button class="tab active" id="tabNew">Nouvelles (new)</button>
-          <button class="tab" id="tabMine">Mes courses (assigned)</button>
+          <button class="tab active" data-tab="new" id="tabNew">Nouvelles (new)</button>
+          <button class="tab" data-tab="assigned" id="tabAssigned">Mes courses (assigned)</button>
         </div>
 
-        <div class="list" id="list"></div>
+        <div class="list" id="rideList"></div>
       </section>
 
       <aside class="card">
-        <h3>
-          <span>⚙️ Actions</span>
-          <span class="muted">Terrain</span>
-        </h3>
+        <h3>⚙️ Actions <span class="muted">Terrain</span></h3>
 
-        <div class="small">Téléphone chauffeur = clé d’identité (PIN). RLS par header <b>x-driver-phone</b>.</div>
+        <div class="small">
+          Téléphone chauffeur = clé d’identité (PIN). RLS par header <b>x-driver-phone</b>.
+        </div>
 
-        <div style="height:10px"></div>
+        <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+          <button class="btn green" id="btnOnline">✅ Je suis dispo</button>
+          <button class="btn red" id="btnOffline">⛔️ Indispo</button>
+        </div>
 
-        <button class="btn green" id="btnGoOnline">✅ Je suis dispo</button>
-        <button class="btn ghost" id="btnGoOffline">⛔️ Indispo</button>
+        <div class="msg" id="helpMsg" style="margin-top:12px;">
+Notes :
+• “Accepter” passe new → accepted atomique (RPC accept_ride).
+• “Terminer” passe accepted → done (update fallback si pas de RPC finish_ride).
+• Abonnement: si la DB renvoie "subscription_required" → on bloque côté UI.
+        </div>
 
-        <div style="height:12px"></div>
-
-        <div class="small">Notes : “Accepter” passe <b>new → accepted</b> atomique. “Terminer” passe <b>accepted → done</b>.</div>
+        <button class="btn blue" id="payBtn" style="margin-top:12px;">💳 Payer abonnement (9 900 FCFA)</button>
       </aside>
+
     </div>
   </div>
 </main>
@@ -190,32 +209,16 @@
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
-  // ✅ BASE AUTO (GitHub Pages / local / prod)
+  // ✅ BASE GitHub Pages auto
   const path = location.pathname || "/";
   const parts = path.split("/").filter(Boolean);
   const BASE = (parts.length >= 1) ? ("/" + parts[0]) : "";
 
-  const TABLE = "ride_requests";
+  const $ = (id)=>document.getElementById(id);
 
-  // DOM
-  const msg = document.getElementById("msg");
-  const listEl = document.getElementById("list");
-  const pillPhone = document.getElementById("pillPhone");
-  const pillRT = document.getElementById("pillRT");
-  const metaCounts = document.getElementById("metaCounts");
-  const tabNew = document.getElementById("tabNew");
-  const tabMine = document.getElementById("tabMine");
-  const btnReload = document.getElementById("btnReload");
-  const btnLogout = document.getElementById("btnLogout");
-  const btnGoOnline = document.getElementById("btnGoOnline");
-  const btnGoOffline = document.getElementById("btnGoOffline");
-
-  function setMsg(t, kind=""){
-    msg.className = "msg" + (kind ? " " + kind : "");
-    msg.textContent = t;
+  function isUUID(v){
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(v||""));
   }
-  window.addEventListener("error", (e)=> setMsg("❌ Erreur JS:\n" + (e?.message || e), "bad"));
-  window.addEventListener("unhandledrejection", (e)=> setMsg("❌ Promesse rejetée:\n" + (e?.reason?.message || e?.reason || e), "bad"));
 
   function getPhone(){
     const s = sessionStorage.getItem("digiy_driver_phone");
@@ -227,274 +230,277 @@
     return null;
   }
 
-  const driverPhone = getPhone();
-  if(!driverPhone){
-    setMsg("⚠️ Session chauffeur absente. Redirection…", "bad");
-    setTimeout(()=> location.replace(BASE + "/authentification-chauffeur.html"), 200);
-    return;
+  function setMsg(text, ok){
+    const el = $("statusMsg");
+    el.className = "msg" + (ok===true ? " ok" : ok===false ? " bad" : "");
+    el.textContent = text;
   }
-  pillPhone.textContent = "📞 " + driverPhone;
 
-  // ✅ Supabase client avec HEADER RLS
-  if(!window.supabase?.createClient){
-    setMsg("❌ Supabase non chargé (CDN).", "bad");
+  function showPayLock(show){
+    $("payLock").classList.toggle("show", !!show);
+  }
+
+  const phone = getPhone();
+  if(!phone){
+    location.replace(BASE + "/authentification-chauffeur.html");
     return;
   }
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    global: { headers: { "x-driver-phone": driverPhone } }
+  $("phonePill").textContent = "📞 " + phone;
+
+  // ✅ Client Supabase + header x-driver-phone (RLS)
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { headers: { "x-driver-phone": phone } }
   });
 
-  // UI state
-  let view = "new"; // 'new' | 'mine'
-  let realtimeOn = false;
-  let channel = null;
+  let tab = "new";
+  let rtChannel = null;
 
-  function setTab(){
-    tabNew.classList.toggle("active", view==="new");
-    tabMine.classList.toggle("active", view==="mine");
-  }
+  $("tabNew").addEventListener("click", ()=>{ tab="new"; $("tabNew").classList.add("active"); $("tabAssigned").classList.remove("active"); render(); });
+  $("tabAssigned").addEventListener("click", ()=>{ tab="assigned"; $("tabAssigned").classList.add("active"); $("tabNew").classList.remove("active"); render(); });
 
-  function fmtWhen(ts){
+  $("refreshBtn").addEventListener("click", ()=>render());
+
+  $("logoutBtn").addEventListener("click", ()=>{
+    sessionStorage.removeItem("digiy_driver_phone");
+    localStorage.removeItem("digiy_driver_access_pin");
+    location.replace(BASE + "/authentification-chauffeur.html");
+  });
+
+  $("payBtn").addEventListener("click", ()=>{
+    // 🔁 Mets TON lien paiement (Wave / page digiy / WhatsApp)
+    // Ici WhatsApp fallback (change le numéro si besoin)
+    const txt = encodeURIComponent("Je veux payer mon abonnement DIGIY DRIVER PRO (9 900 FCFA/mois). Mon numéro chauffeur: " + phone);
+    window.open("https://wa.me/221771234567?text=" + txt, "_blank");
+  });
+
+  $("btnOnline").addEventListener("click", async ()=>{
     try{
-      const d = new Date(ts);
-      return d.toLocaleString("fr-FR", { dateStyle:"short", timeStyle:"short" });
-    }catch(_){ return ts || "—"; }
+      setMsg("⏳ Mise à jour disponibilité...", null);
+      const { error } = await sb.from("driver_profiles").update({ is_online: true }).eq("phone", phone);
+      if(error) throw error;
+      setMsg("✅ Dispo.", true);
+    }catch(e){
+      console.error(e);
+      setMsg("❌ Impossible de passer en dispo (RLS/phone).", false);
+    }
+  });
+
+  $("btnOffline").addEventListener("click", async ()=>{
+    try{
+      setMsg("⏳ Mise à jour disponibilité...", null);
+      const { error } = await sb.from("driver_profiles").update({ is_online: false }).eq("phone", phone);
+      if(error) throw error;
+      setMsg("⛔️ Indispo.", true);
+    }catch(e){
+      console.error(e);
+      setMsg("❌ Impossible de passer en indispo (RLS/phone).", false);
+    }
+  });
+
+  function humanDate(iso){
+    try{
+      const d = new Date(iso);
+      const pad=(n)=>String(n).padStart(2,"0");
+      return pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear()+" "+pad(d.getHours())+":"+pad(d.getMinutes());
+    }catch(_){ return "—"; }
   }
 
   function escapeHtml(s){
-    return String(s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+    return String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+  }
+
+  async function fetchRides(){
+    showPayLock(false);
+
+    if(tab === "new"){
+      const { data, error } = await sb
+        .from("ride_requests")
+        .select("*")
+        .eq("status","new")
+        .order("created_at",{ascending:false})
+        .limit(50);
+      if(error) throw error;
+      return data || [];
+    }else{
+      const { data, error } = await sb
+        .from("ride_requests")
+        .select("*")
+        .eq("status","accepted")
+        .eq("assigned_driver_phone", phone)
+        .order("created_at",{ascending:false})
+        .limit(50);
+      if(error) throw error;
+      return data || [];
+    }
+  }
+
+  async function acceptRide(rideId){
+    if(!isUUID(rideId)){
+      alert("ID course invalide (UUID).");
+      return;
+    }
+
+    try{
+      setMsg("⏳ Acceptation...", null);
+
+      // ✅ RPC EXACT (ton SQL dit: accept_ride(p_ride_id uuid))
+      const { data, error } = await sb.rpc("accept_ride", { p_ride_id: rideId });
+
+      if(error){
+        const m = (error.message||"").toLowerCase();
+
+        if(m.includes("subscription_required")){
+          showPayLock(true);
+          setMsg("⛔️ Abonnement requis : 9 900 FCFA / mois.", false);
+          alert("⛔️ Abonnement requis : 9 900 FCFA / mois.\nClique sur “Payer abonnement”.");
+          return;
+        }
+        if(m.includes("missing x-driver-phone")){
+          setMsg("⚠️ Session invalide. Reconnecte-toi.", false);
+          alert("Session chauffeur invalide. Reconnecte-toi.");
+          return;
+        }
+        if(m.includes("ride_not_available")){
+          setMsg("Trop tard 😅 un autre chauffeur a pris la course.", false);
+          alert("Trop tard 😅 un autre chauffeur a pris la course.");
+          return;
+        }
+
+        throw error;
+      }
+
+      setMsg("✅ Course acceptée.", true);
+      await render();
+    }catch(e){
+      console.error(e);
+      setMsg("❌ Erreur acceptation (RPC/RLS).", false);
+      alert("Erreur acceptation. Vérifie la fonction accept_ride + RLS.");
+    }
+  }
+
+  async function finishRide(rideId){
+    if(!isUUID(rideId)){
+      alert("ID course invalide (UUID).");
+      return;
+    }
+    try{
+      setMsg("⏳ Fin de course...", null);
+
+      const { error } = await sb.from("ride_requests")
+        .update({ status:"done", done_at: new Date().toISOString() })
+        .eq("id", rideId)
+        .eq("assigned_driver_phone", phone);
+
+      if(error) throw error;
+
+      setMsg("✅ Course terminée.", true);
+      await render();
+    }catch(e){
+      console.error(e);
+      setMsg("❌ Impossible de terminer (RLS).", false);
+      alert("Impossible de terminer. Ajuste RLS ou ajoute un RPC finish_ride.");
+    }
+  }
+
+  function copy(text){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(()=>setMsg("📋 Copié.", true)).catch(()=>{});
+    }else{
+      prompt("Copie :", text);
+    }
   }
 
   function rideCard(r){
-    const status = r.status || "—";
-    const tagCls = status==="new" ? "new" : (status==="accepted" ? "accepted" : (status==="cancelled" ? "cancelled" : ""));
-    const pickup = r.pickup_text || r.pickup_name || "—";
-    const dropoff = r.dropoff_text || r.dropoff_name || "—";
+    const id = r.id;
     const city = r.city || "—";
-    const clientPhone = r.client_phone || "—";
-    const created = r.created_at || r.inserted_at || r.created || r.createdAt || null;
+    const pickup = r.pickup_text || r.pickup_address || "—";
+    const dropoff = r.dropoff_text || r.dropoff_address || "—";
+    const client = r.client_phone || "—";
+    const when = humanDate(r.created_at || "");
 
-    const isMine = (r.assigned_driver_phone && r.assigned_driver_phone === driverPhone);
+    const tag = r.status || "—";
+    const tagClass = (tag==="new") ? "new" : (tag==="accepted") ? "accepted" : (tag==="done") ? "done" : (tag==="cancelled") ? "cancelled" : "";
 
-    const canAccept = (view==="new" && status==="new");
-    const canHide = (view==="new" && status==="new");
-    const canDone = (view==="mine" && isMine && status==="accepted");
-    const canCancel = (view==="mine" && isMine && (status==="accepted" || status==="new"));
+    const isNew = (tab==="new");
+    const isAssigned = (tab==="assigned");
 
     return `
-      <div class="ride" data-id="${escapeHtml(r.id)}">
+      <div class="ride">
         <div class="ride-left">
-          <div class="ride-title">
-            🚕 ${escapeHtml(city)}
-            <span class="tag ${tagCls}">${escapeHtml(status)}</span>
-          </div>
-          <div class="kv">Départ: <b>${escapeHtml(pickup)}</b></div>
-          <div class="kv">Arrivée: <b>${escapeHtml(dropoff)}</b></div>
-          <div class="small">Client: ${escapeHtml(clientPhone)} • ${created ? fmtWhen(created) : "—"}</div>
-          ${r.driver_name ? `<div class="small">Chauffeur: <b>${escapeHtml(r.driver_name)}</b></div>` : ``}
-          ${r.driver_vehicle ? `<div class="small">Véhicule: <b>${escapeHtml(r.driver_vehicle)}</b></div>` : ``}
+          <div class="ride-title">🚕 ${escapeHtml(city)} <span class="tag ${tagClass}">${escapeHtml(tag)}</span></div>
+          <div class="kv"><b>Départ:</b> ${escapeHtml(pickup)}</div>
+          <div class="kv"><b>Arrivée:</b> ${escapeHtml(dropoff)}</div>
+          <div class="small">Client: ${escapeHtml(client)} • ${escapeHtml(when)}</div>
         </div>
 
         <div class="ride-actions">
-          ${canAccept ? `<button class="btn green" data-act="accept">Accepter</button>` : ``}
-          ${canHide ? `<button class="btn ghost" data-act="hide">Masquer</button>` : ``}
-          ${canDone ? `<button class="btn blue" data-act="done">Terminer</button>` : ``}
-          ${canCancel ? `<button class="btn red" data-act="cancel">Annuler</button>` : ``}
-          <button class="btn ghost" data-act="copy">Copier ID</button>
+          ${isNew ? `<button class="btn green" data-accept="${id}">Accepter</button>` : ``}
+          ${isAssigned ? `<button class="btn blue" data-done="${id}">Terminer</button>` : ``}
+          <button class="btn ghost" data-hide="${id}">Masquer</button>
+          <button class="btn ghost" data-copy="${id}">Copier ID</button>
         </div>
       </div>
     `;
   }
 
-  async function load(){
-    setMsg("🟡 Chargement…", "");
-    listEl.innerHTML = "";
+  async function render(){
     try{
-      let q = sb.from(TABLE).select("*").order("created_at", { ascending:false }).limit(80);
+      $("rideList").innerHTML = `<div class="empty">⏳ Chargement...</div>`;
+      const rides = await fetchRides();
 
-      if(view==="new"){
-        q = q.eq("status","new");
-        // exclure masqués par ce driver (si colonne existe)
-        // (si la colonne n'existe pas, PostgREST renvoie une erreur; on catch plus bas)
-        q = q.or(`hidden_by_driver_phone.is.null,not.hidden_by_driver_phone.cs.{${driverPhone}}`);
-      }else{
-        // mes courses
-        q = q.eq("assigned_driver_phone", driverPhone);
+      if(tab==="new") $("countNew").textContent = "Nouvelles: " + (rides.length||0);
+
+      if(!rides.length){
+        $("rideList").innerHTML = `<div class="empty">Aucune course ici pour le moment.</div>`;
+        return;
       }
 
-      const { data, error } = await q;
-      if(error){
-        // fallback si "hidden_by_driver_phone" n'existe pas dans ton schéma
-        if(view==="new" && String(error.message||"").toLowerCase().includes("hidden_by_driver_phone")){
-          const { data: d2, error: e2 } = await sb.from(TABLE).select("*").eq("status","new").order("created_at",{ascending:false}).limit(80);
-          if(e2) throw e2;
-          render(d2||[]);
-          return;
-        }
-        throw error;
-      }
-      render(data||[]);
-    } catch(e){
-      setMsg("❌ Erreur load:\n" + (e?.message || e), "bad");
+      $("rideList").innerHTML = rides.map(rideCard).join("");
+
+      $("rideList").querySelectorAll("[data-accept]").forEach(btn=>{
+        btn.addEventListener("click", ()=>acceptRide(btn.getAttribute("data-accept")));
+      });
+      $("rideList").querySelectorAll("[data-done]").forEach(btn=>{
+        btn.addEventListener("click", ()=>finishRide(btn.getAttribute("data-done")));
+      });
+      $("rideList").querySelectorAll("[data-copy]").forEach(btn=>{
+        btn.addEventListener("click", ()=>copy(btn.getAttribute("data-copy")));
+      });
+      $("rideList").querySelectorAll("[data-hide]").forEach(btn=>{
+        btn.addEventListener("click", ()=>btn.closest(".ride")?.remove());
+      });
+
+    }catch(e){
+      console.error(e);
+      setMsg("❌ Erreur chargement courses (RLS/colonnes).", false);
+      $("rideList").innerHTML = `<div class="empty">Erreur chargement. Vérifie RLS / colonnes.</div>`;
     }
   }
 
-  function render(rows){
-    const n = rows.length;
-    metaCounts.textContent = (view==="new" ? `Nouvelles: ${n}` : `Mes courses: ${n}`);
-    if(!n){
-      listEl.innerHTML = `<div class="empty">Aucune course ici pour l’instant.</div>`;
-      setMsg("✅ Prêt.", "ok");
-      return;
-    }
-    listEl.innerHTML = rows.map(rideCard).join("");
-    setMsg("✅ Prêt.", "ok");
-  }
-
-  // Actions
-  listEl.addEventListener("click", async (e)=>{
-    const btn = e.target.closest("button");
-    if(!btn) return;
-    const card = e.target.closest(".ride");
-    if(!card) return;
-    const rideId = card.getAttribute("data-id");
-    const act = btn.getAttribute("data-act");
-
-    if(act==="copy"){
-      try{ await navigator.clipboard.writeText(rideId); setMsg("📋 ID copié.", "ok"); }catch(_){ setMsg("⚠️ Copie impossible.", "bad"); }
-      return;
-    }
-
-    if(act==="accept"){
-      btn.disabled = true; btn.textContent = "⏳ Accept…";
-      try{
-        const driverName = prompt("Nom chauffeur (optionnel)", "Mamadou D.") || null;
-        const driverVehicle = prompt("Véhicule (optionnel)", "Corolla DK-1234-AB") || null;
-
-        const { data, error } = await sb.rpc("accept_ride_request_atomic", {
-          p_ride_id: rideId,
-          p_driver_phone: driverPhone,
-          p_driver_name: driverName,
-          p_driver_vehicle: driverVehicle
-        });
-        if(error) throw error;
-
-        setMsg("✅ Course acceptée (atomique).", "ok");
-        // bascule direct sur "Mes courses"
-        view = "mine"; setTab();
-        await load();
-
-      }catch(err){
-        setMsg("❌ Impossible d’accepter:\n" + (err?.message || err), "bad");
-        await load();
-      }finally{
-        btn.disabled = false; btn.textContent = "Accepter";
-      }
-      return;
-    }
-
-    if(act==="hide"){
-      btn.disabled = true; btn.textContent = "⏳ Masque…";
-      try{
-        const { data, error } = await sb.rpc("hide_ride_for_driver", {
-          p_ride_id: rideId,
-          p_driver_phone: driverPhone
-        });
-        if(error) throw error;
-
-        setMsg("✅ Course masquée pour toi.", "ok");
-        await load();
-      }catch(err){
-        setMsg("❌ Impossible de masquer:\n" + (err?.message || err), "bad");
-      }finally{
-        btn.disabled = false; btn.textContent = "Masquer";
-      }
-      return;
-    }
-
-    if(act==="done"){
-      if(!confirm("Terminer la course (done) ?")) return;
-      btn.disabled = true; btn.textContent = "⏳ Done…";
-      try{
-        const { error } = await sb.from(TABLE)
-          .update({ status: "done" })
-          .eq("id", rideId);
-        if(error) throw error;
-
-        setMsg("✅ Course terminée (done).", "ok");
-        await load();
-      }catch(err){
-        setMsg("❌ Impossible de terminer:\n" + (err?.message || err), "bad");
-      }finally{
-        btn.disabled = false; btn.textContent = "Terminer";
-      }
-      return;
-    }
-
-    if(act==="cancel"){
-      if(!confirm("Annuler la course (cancelled) ?")) return;
-      btn.disabled = true; btn.textContent = "⏳ Cancel…";
-      try{
-        const { error } = await sb.from(TABLE)
-          .update({ status: "cancelled", cancelled_by: "driver", cancelled_at: new Date().toISOString() })
-          .eq("id", rideId);
-        if(error) throw error;
-
-        setMsg("✅ Course annulée.", "ok");
-        await load();
-      }catch(err){
-        setMsg("❌ Impossible d’annuler:\n" + (err?.message || err), "bad");
-      }finally{
-        btn.disabled = false; btn.textContent = "Annuler";
-      }
-      return;
-    }
-  });
-
-  // Tabs
-  tabNew.addEventListener("click", async ()=>{
-    view = "new"; setTab(); await load();
-  });
-  tabMine.addEventListener("click", async ()=>{
-    view = "mine"; setTab(); await load();
-  });
-
-  btnReload.addEventListener("click", load);
-
-  btnLogout.addEventListener("click", ()=>{
-    sessionStorage.removeItem("digiy_driver_ok");
-    sessionStorage.removeItem("digiy_driver_phone");
-    setMsg("🧹 Déconnexion…", "");
-    setTimeout(()=> location.replace(BASE + "/authentification-chauffeur.html"), 120);
-  });
-
-  btnGoOnline.addEventListener("click", ()=> setMsg("✅ Dispo (logique métier à brancher si besoin).", "ok"));
-  btnGoOffline.addEventListener("click", ()=> setMsg("⛔️ Indispo (logique métier à brancher si besoin).", ""));
-
-  // Realtime
   function startRealtime(){
-    try{
-      channel = sb.channel("digiy_driver_rides")
-        .on("postgres_changes", { event:"*", schema:"public", table: TABLE }, (payload)=>{
-          // refresh léger
-          load();
-        })
-        .subscribe((status)=>{
-          realtimeOn = (status === "SUBSCRIBED");
-          pillRT.className = "pill " + (realtimeOn ? "ok":"bad");
-          pillRT.textContent = realtimeOn ? "● Realtime ON" : "● Realtime OFF";
-        });
-    } catch(e){
-      pillRT.className = "pill bad";
-      pillRT.textContent = "● Realtime OFF";
+    if(rtChannel){
+      sb.removeChannel(rtChannel);
+      rtChannel = null;
     }
+
+    rtChannel = sb.channel("rides_rt")
+      .on("postgres_changes", { event: "*", schema: "public", table: "ride_requests" }, ()=>{
+        render().catch(()=>{});
+      })
+      .subscribe((status)=>{
+        if(status === "SUBSCRIBED"){
+          $("rtPill").className = "pill ok";
+          $("rtPill").textContent = "● Realtime ON";
+        }else{
+          $("rtPill").className = "pill bad";
+          $("rtPill").textContent = "● Realtime OFF";
+        }
+      });
   }
 
-  // init
-  setTab();
-  setMsg("🟡 Initialisation…", "");
+  setMsg("✅ Prêt.", true);
+  render();
   startRealtime();
-  load();
 
 })();
 </script>
