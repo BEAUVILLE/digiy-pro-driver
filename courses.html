@@ -266,12 +266,13 @@ Notes :
     location.replace(BASE + "/authentification-chauffeur.html");
   });
 
-  $("payBtn").addEventListener("click", ()=>{
-    // 🔁 Mets TON lien paiement (Wave / page digiy / WhatsApp)
-    // Ici WhatsApp fallback (change le numéro si besoin)
-    const txt = encodeURIComponent("Je veux payer mon abonnement DIGIY DRIVER PRO (9 900 FCFA/mois). Mon numéro chauffeur: " + phone);
-    window.open("https://wa.me/221771234567?text=" + txt, "_blank");
-  });
+ $("payBtn").addEventListener("click", ()=>{
+  const url = "https://beauville.github.io/commencer-a-payer/";
+  // Bonus: on passe le téléphone en param si tu veux le récupérer côté page paiement
+  const payUrl = url + "?module=digiy-pro-driver&plan=mensuel_9900&phone=" + encodeURIComponent(phone);
+  window.open(payUrl, "_blank");
+});
+
 
   $("btnOnline").addEventListener("click", async ()=>{
     try{
