@@ -2,276 +2,35 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>DIGIY DRIVER PRO — Courses</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DIGIY PRO DRIVER</title>
   <meta name="theme-color" content="#F8FAF6" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    :root{
-      --bg:#F8FAF6; --card:#fff; --line:#E5E7EB;
-      --text:#111827; --muted:#6B7280;
-      --gold:#EAB308; --green:#16A34A; --red:#EF4444; --blue:#2563EB;
-      --radius:18px; --shadow:0 12px 28px rgba(0,0,0,.06);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 10% -10%, rgba(234,179,8,.18), transparent 60%),
-        radial-gradient(1000px 500px at 90% 0%, rgba(34,197,94,.10), transparent 55%),
-        var(--bg);
-      min-height:100vh;
-    }
-    header{
-      position:sticky; top:0; z-index:50;
-      background:rgba(248,250,246,.92); backdrop-filter: blur(8px);
-      border-bottom:1px solid var(--line);
-    }
-    .wrap{max-width:980px;margin:0 auto;padding:14px 14px}
-    .top{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
-    }
-    .brand{display:flex;gap:10px;align-items:center}
-    .logo{
-      width:44px;height:44px;border-radius:16px;display:grid;place-items:center;
-      border:1px solid var(--line);
-      background:linear-gradient(135deg,#FFF7D6,#FDE68A);
-      color:#92400E;font-weight:950;font-size:20px;
-      box-shadow:0 10px 24px rgba(234,179,8,.12);
-    }
-    .titles{display:flex;flex-direction:column}
-    .t1{font-weight:950;letter-spacing:.02em}
-    .t2{font-size:12px;color:var(--muted);font-weight:700;margin-top:2px}
-    .right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .pill{
-      padding:8px 12px;border-radius:999px;border:1px solid var(--line);
-      background:#fff;font-weight:900;font-size:13px;color:#111827;
-    }
-    .pill.ok{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.07); color:#14532d}
-    .pill.bad{border-color:rgba(239,68,68,.22); background:rgba(239,68,68,.06); color:#7f1d1d}
-    .btn{
-      border:0;border-radius:14px;padding:10px 12px;min-height:42px;
-      font-weight:950;cursor:pointer;
-      background:linear-gradient(135deg,#FFF7D6,#FDE68A);color:#78350F;
-    }
-    .btn.ghost{background:#fff;border:1px solid var(--line);color:#111827;font-weight:900}
-    .btn.red{background:rgba(239,68,68,.10); border:1px solid rgba(239,68,68,.25); color:#991b1b}
-    .btn.green{background:rgba(22,163,74,.10); border:1px solid rgba(22,163,74,.25); color:#14532d}
-    .btn.blue{background:rgba(37,99,235,.10); border:1px solid rgba(37,99,235,.22); color:#1e3a8a}
-    main .wrap{padding-top:16px}
-    .grid{
-      display:grid;gap:14px;
-      grid-template-columns: 1.15fr .85fr;
-    }
-    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
-    .card{
-      background:var(--card); border:1px solid var(--line);
-      border-radius:var(--radius); box-shadow:var(--shadow);
-      padding:14px;
-    }
-    .card h3{
-      margin:0 0 10px; font-size:14px; letter-spacing:.02em;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .muted{color:var(--muted);font-weight:700}
-    .list{display:flex;flex-direction:column;gap:10px}
-    .ride{
-      border:1px solid var(--line); border-radius:16px; padding:12px;
-      display:flex; gap:12px; justify-content:space-between; align-items:flex-start;
-      background:#fff;
-    }
-    .ride-left{display:flex;flex-direction:column;gap:6px}
-    .ride-title{
-      display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-      font-weight:950;
-    }
-    .tag{
-      font-size:12px;font-weight:950;border-radius:999px;padding:4px 9px;border:1px solid var(--line);
-      background:#F9FAFB;color:#111827;
-    }
-    .tag.new{border-color:rgba(37,99,235,.22); background:rgba(37,99,235,.06); color:#1e3a8a}
-    .tag.accepted{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.07); color:#14532d}
-    .tag.done{border-color:rgba(234,179,8,.35); background:rgba(234,179,8,.10); color:#78350F}
-    .tag.cancelled{border-color:rgba(239,68,68,.22); background:rgba(239,68,68,.06); color:#7f1d1d}
-    .kv{font-size:13px;color:#111827}
-    .small{font-size:12px;color:var(--muted);font-weight:700}
-    .ride-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .empty{
-      padding:14px;border-radius:16px;border:1px dashed var(--line);
-      background:#F9FAFB;color:var(--muted);font-weight:800;
-    }
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
-    .tab{
-      border:1px solid var(--line); background:#fff; border-radius:999px;
-      padding:8px 12px; font-weight:950; cursor:pointer;
-    }
-    .tab.active{
-      border-color:rgba(234,179,8,.45);
-      background:rgba(234,179,8,.10);
-      color:#78350F;
-    }
-    .msg{
-      margin-top:10px;padding:10px 12px;border-radius:16px;border:1px solid var(--line);
-      background:#F9FAFB;color:var(--muted);font-weight:800;white-space:pre-wrap;
-    }
-    .msg.ok{border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.07); color:#14532d}
-    .msg.bad{border-color:rgba(239,68,68,.22); background:rgba(239,68,68,.06); color:#7f1d1d}
-
-    .paylock{
-      display:none;
-      margin-top:10px;
-      padding:12px;
-      border-radius:16px;
-      border:1px solid rgba(239,68,68,.25);
-      background:rgba(239,68,68,.06);
-      color:#7f1d1d;
-      font-weight:900;
-    }
-    .paylock.show{display:block}
-  </style>
 </head>
 <body>
-
-<header>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand">
-        <div class="logo">∞</div>
-        <div class="titles">
-          <div class="t1">DIGIY DRIVER PRO — Courses</div>
-          <div class="t2">Statuts: new → accepted → done | cancelled | rejected</div>
-        </div>
-      </div>
-
-      <div class="right">
-        <span class="pill" id="phonePill">📞 —</span>
-        <span class="pill bad" id="rtPill">● Realtime OFF</span>
-        <button class="btn ghost" id="refreshBtn">↻ Rafraîchir</button>
-        <button class="btn red" id="logoutBtn">Déconnexion</button>
-      </div>
-    </div>
-
-    <div class="msg ok" id="statusMsg">✅ Prêt.</div>
-    <div class="paylock" id="payLock">
-      ⛔️ Abonnement requis (9 900 FCFA / mois). Clique “Payer abonnement”.
-    </div>
-  </div>
-</header>
-
-<main>
-  <div class="wrap">
-    <div class="grid">
-
-      <section class="card">
-        <h3>📥 Courses <span class="muted" id="countNew">Nouvelles: 0</span></h3>
-
-        <div class="tabs">
-          <button class="tab active" data-tab="new" id="tabNew">Nouvelles (new)</button>
-          <button class="tab" data-tab="assigned" id="tabAssigned">Mes courses (assigned)</button>
-        </div>
-
-        <div class="list" id="rideList"></div>
-      </section>
-
-      <aside class="card">
-        <h3>⚙️ Actions <span class="muted">Terrain</span></h3>
-
-        <div class="small">
-          Téléphone chauffeur = clé d’identité (PIN). RLS par header <b>x-driver-phone</b>.
-        </div>
-
-        <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
-          <button class="btn green" id="btnOnline">✅ Je suis dispo</button>
-          <button class="btn red" id="btnOffline">⛔️ Indispo</button>
-        </div>
-
-        <div class="msg" id="helpMsg" style="margin-top:12px;">
-Notes :
-• “Accepter” passe new → accepted atomique (RPC accept_ride).
-• “Terminer” passe accepted → done (update fallback si pas de RPC finish_ride).
-• Abonnement: si la DB renvoie "subscription_required" → on bloque côté UI.
-        </div>
-
-        <button class="btn blue" id="payBtn" style="margin-top:12px;">💳 Payer abonnement (9 900 FCFA)</button>
-      </aside>
-
-    </div>
-  </div>
-</main>
-
 <script>
 (function(){
   'use strict';
 
-  /* 🔐 SUPABASE — DÉJÀ POSÉ */
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-<script>
-(async function(){
-  'use strict';
-
-  /* 🔐 CONFIG */
-  const PAY_URL = "https://beauville.github.io/commencer-a-payer/";
-
-  function getPhone(){
-    const s = sessionStorage.getItem("digiy_driver_phone");
-    if(s) return s;
-    try{
-      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin")||"null");
-      return a?.phone || null;
-    }catch(_){}
-    return null;
-  }
-
-  const phone = getPhone();
-
-  // 🚫 Pas identifié → auth
-  if(!phone){
-    location.replace("./authentification-chauffeur.html");
-    return;
-  }
-
-  // 🔍 Vérification abonnement
-  const { data, error } = await supabase
-    .from("driver_subscriptions")
-    .select("status, current_period_end")
-    .eq("phone", phone)
-    .maybeSingle();
-
-  // ❌ Pas d’abonnement ou erreur → payer
-  if(error || !data || data.status !== "active"){
-    location.replace(PAY_URL);
-    return;
-  }
-
-  // ⏰ Abonnement expiré → payer
-  if(new Date(data.current_period_end) < new Date()){
-    location.replace(PAY_URL);
-    return;
-  }
-
-  // ✅ OK → accès autorisé
-  console.log("✅ Abonnement actif — accès PRO autorisé");
-
-})();
-</script>
-  
-  // ✅ BASE GitHub Pages auto
+  // ✅ BASE AUTO (GitHub Pages / local / prod)
   const path = location.pathname || "/";
   const parts = path.split("/").filter(Boolean);
   const BASE = (parts.length >= 1) ? ("/" + parts[0]) : "";
 
-  const $ = (id)=>document.getElementById(id);
+  // ✅ URL paiement (ton repo commencer-a-payer)
+  const PAY_URL = "https://beauville.github.io/commencer-a-payer/";
 
-  function isUUID(v){
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(v||""));
-  }
+  // ✅ SUPABASE — DÉJÀ POSÉ
+  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+
+  const supabase = window.__sb || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.__sb = supabase;
 
   function getPhone(){
     const s = sessionStorage.getItem("digiy_driver_phone");
-    if(s) return s;
+    if (s) return s;
     try{
       const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin")||"null");
       return a?.phone || null;
@@ -279,278 +38,46 @@ Notes :
     return null;
   }
 
-  function setMsg(text, ok){
-    const el = $("statusMsg");
-    el.className = "msg" + (ok===true ? " ok" : ok===false ? " bad" : "");
-    el.textContent = text;
-  }
-
-  function showPayLock(show){
-    $("payLock").classList.toggle("show", !!show);
-  }
-
-  const phone = getPhone();
-  if(!phone){
-    location.replace(BASE + "/authentification-chauffeur.html");
-    return;
-  }
-  $("phonePill").textContent = "📞 " + phone;
-
-  // ✅ Client Supabase + header x-driver-phone (RLS)
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    global: { headers: { "x-driver-phone": phone } }
-  });
-
-  let tab = "new";
-  let rtChannel = null;
-
-  $("tabNew").addEventListener("click", ()=>{ tab="new"; $("tabNew").classList.add("active"); $("tabAssigned").classList.remove("active"); render(); });
-  $("tabAssigned").addEventListener("click", ()=>{ tab="assigned"; $("tabAssigned").classList.add("active"); $("tabNew").classList.remove("active"); render(); });
-
-  $("refreshBtn").addEventListener("click", ()=>render());
-
-  $("logoutBtn").addEventListener("click", ()=>{
-    sessionStorage.removeItem("digiy_driver_phone");
-    localStorage.removeItem("digiy_driver_access_pin");
-    location.replace(BASE + "/authentification-chauffeur.html");
-  });
-
- $("payBtn").addEventListener("click", ()=>{
-  const url = "https://beauville.github.io/commencer-a-payer/";
-  // Bonus: on passe le téléphone en param si tu veux le récupérer côté page paiement
-  const payUrl = url + "?module=digiy-pro-driver&plan=mensuel_9900&phone=" + encodeURIComponent(phone);
-  window.open(payUrl, "_blank");
-});
-
-
-  $("btnOnline").addEventListener("click", async ()=>{
+  async function isActive(phone){
     try{
-      setMsg("⏳ Mise à jour disponibilité...", null);
-      const { error } = await sb.from("driver_profiles").update({ is_online: true }).eq("phone", phone);
-      if(error) throw error;
-      setMsg("✅ Dispo.", true);
+      // RPC: is_driver_active(p_phone text) -> boolean
+      const { data, error } = await supabase.rpc('is_driver_active', { p_phone: phone });
+      if (error) throw error;
+      return !!data;
     }catch(e){
-      console.error(e);
-      setMsg("❌ Impossible de passer en dispo (RLS/phone).", false);
-    }
-  });
-
-  $("btnOffline").addEventListener("click", async ()=>{
-    try{
-      setMsg("⏳ Mise à jour disponibilité...", null);
-      const { error } = await sb.from("driver_profiles").update({ is_online: false }).eq("phone", phone);
-      if(error) throw error;
-      setMsg("⛔️ Indispo.", true);
-    }catch(e){
-      console.error(e);
-      setMsg("❌ Impossible de passer en indispo (RLS/phone).", false);
-    }
-  });
-
-  function humanDate(iso){
-    try{
-      const d = new Date(iso);
-      const pad=(n)=>String(n).padStart(2,"0");
-      return pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear()+" "+pad(d.getHours())+":"+pad(d.getMinutes());
-    }catch(_){ return "—"; }
-  }
-
-  function escapeHtml(s){
-    return String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
-  }
-
-  async function fetchRides(){
-    showPayLock(false);
-
-    if(tab === "new"){
-      const { data, error } = await sb
-        .from("ride_requests")
-        .select("*")
-        .eq("status","new")
-        .order("created_at",{ascending:false})
-        .limit(50);
-      if(error) throw error;
-      return data || [];
-    }else{
-      const { data, error } = await sb
-        .from("ride_requests")
-        .select("*")
-        .eq("status","accepted")
-        .eq("assigned_driver_phone", phone)
-        .order("created_at",{ascending:false})
-        .limit(50);
-      if(error) throw error;
-      return data || [];
+      console.warn("is_driver_active error:", e);
+      // si Supabase down => on ne bloque pas à tort, on renvoie sur login
+      return null; // inconnu
     }
   }
 
-  async function acceptRide(rideId){
-    if(!isUUID(rideId)){
-      alert("ID course invalide (UUID).");
+  (async function boot(){
+    const phone = getPhone();
+
+    // pas loggé => login
+    if (!phone){
+      location.replace(BASE + "/authentification-chauffeur.html");
       return;
     }
 
-    try{
-      setMsg("⏳ Acceptation...", null);
+    const ok = await isActive(phone);
 
-      // ✅ RPC EXACT (ton SQL dit: accept_ride(p_ride_id uuid))
-      const { data, error } = await sb.rpc("accept_ride", { p_ride_id: rideId });
-
-      if(error){
-        const m = (error.message||"").toLowerCase();
-
-        if(m.includes("subscription_required")){
-          showPayLock(true);
-          setMsg("⛔️ Abonnement requis : 9 900 FCFA / mois.", false);
-          alert("⛔️ Abonnement requis : 9 900 FCFA / mois.\nClique sur “Payer abonnement”.");
-          return;
-        }
-        if(m.includes("missing x-driver-phone")){
-          setMsg("⚠️ Session invalide. Reconnecte-toi.", false);
-          alert("Session chauffeur invalide. Reconnecte-toi.");
-          return;
-        }
-        if(m.includes("ride_not_available")){
-          setMsg("Trop tard 😅 un autre chauffeur a pris la course.", false);
-          alert("Trop tard 😅 un autre chauffeur a pris la course.");
-          return;
-        }
-
-        throw error;
-      }
-
-      setMsg("✅ Course acceptée.", true);
-      await render();
-    }catch(e){
-      console.error(e);
-      setMsg("❌ Erreur acceptation (RPC/RLS).", false);
-      alert("Erreur acceptation. Vérifie la fonction accept_ride + RLS.");
-    }
-  }
-
-  async function finishRide(rideId){
-    if(!isUUID(rideId)){
-      alert("ID course invalide (UUID).");
+    // si statut inconnu => on renvoie sur dashboard (ou login) au choix
+    if (ok === null){
+      location.replace(BASE + "/courses.html");
       return;
     }
-    try{
-      setMsg("⏳ Fin de course...", null);
 
-      const { error } = await sb.from("ride_requests")
-        .update({ status:"done", done_at: new Date().toISOString() })
-        .eq("id", rideId)
-        .eq("assigned_driver_phone", phone);
-
-      if(error) throw error;
-
-      setMsg("✅ Course terminée.", true);
-      await render();
-    }catch(e){
-      console.error(e);
-      setMsg("❌ Impossible de terminer (RLS).", false);
-      alert("Impossible de terminer. Ajuste RLS ou ajoute un RPC finish_ride.");
-    }
-  }
-
-  function copy(text){
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(text).then(()=>setMsg("📋 Copié.", true)).catch(()=>{});
-    }else{
-      prompt("Copie :", text);
-    }
-  }
-
-  function rideCard(r){
-    const id = r.id;
-    const city = r.city || "—";
-    const pickup = r.pickup_text || r.pickup_address || "—";
-    const dropoff = r.dropoff_text || r.dropoff_address || "—";
-    const client = r.client_phone || "—";
-    const when = humanDate(r.created_at || "");
-
-    const tag = r.status || "—";
-    const tagClass = (tag==="new") ? "new" : (tag==="accepted") ? "accepted" : (tag==="done") ? "done" : (tag==="cancelled") ? "cancelled" : "";
-
-    const isNew = (tab==="new");
-    const isAssigned = (tab==="assigned");
-
-    return `
-      <div class="ride">
-        <div class="ride-left">
-          <div class="ride-title">🚕 ${escapeHtml(city)} <span class="tag ${tagClass}">${escapeHtml(tag)}</span></div>
-          <div class="kv"><b>Départ:</b> ${escapeHtml(pickup)}</div>
-          <div class="kv"><b>Arrivée:</b> ${escapeHtml(dropoff)}</div>
-          <div class="small">Client: ${escapeHtml(client)} • ${escapeHtml(when)}</div>
-        </div>
-
-        <div class="ride-actions">
-          ${isNew ? `<button class="btn green" data-accept="${id}">Accepter</button>` : ``}
-          ${isAssigned ? `<button class="btn blue" data-done="${id}">Terminer</button>` : ``}
-          <button class="btn ghost" data-hide="${id}">Masquer</button>
-          <button class="btn ghost" data-copy="${id}">Copier ID</button>
-        </div>
-      </div>
-    `;
-  }
-
-  async function render(){
-    try{
-      $("rideList").innerHTML = `<div class="empty">⏳ Chargement...</div>`;
-      const rides = await fetchRides();
-
-      if(tab==="new") $("countNew").textContent = "Nouvelles: " + (rides.length||0);
-
-      if(!rides.length){
-        $("rideList").innerHTML = `<div class="empty">Aucune course ici pour le moment.</div>`;
-        return;
-      }
-
-      $("rideList").innerHTML = rides.map(rideCard).join("");
-
-      $("rideList").querySelectorAll("[data-accept]").forEach(btn=>{
-        btn.addEventListener("click", ()=>acceptRide(btn.getAttribute("data-accept")));
-      });
-      $("rideList").querySelectorAll("[data-done]").forEach(btn=>{
-        btn.addEventListener("click", ()=>finishRide(btn.getAttribute("data-done")));
-      });
-      $("rideList").querySelectorAll("[data-copy]").forEach(btn=>{
-        btn.addEventListener("click", ()=>copy(btn.getAttribute("data-copy")));
-      });
-      $("rideList").querySelectorAll("[data-hide]").forEach(btn=>{
-        btn.addEventListener("click", ()=>btn.closest(".ride")?.remove());
-      });
-
-    }catch(e){
-      console.error(e);
-      setMsg("❌ Erreur chargement courses (RLS/colonnes).", false);
-      $("rideList").innerHTML = `<div class="empty">Erreur chargement. Vérifie RLS / colonnes.</div>`;
-    }
-  }
-
-  function startRealtime(){
-    if(rtChannel){
-      sb.removeChannel(rtChannel);
-      rtChannel = null;
+    // pas actif => paiement
+    if (!ok){
+      // on passe le phone en querystring pour pré-remplir côté paiement si tu veux
+      location.replace(PAY_URL + "?phone=" + encodeURIComponent(phone) + "&from=" + encodeURIComponent(location.href));
+      return;
     }
 
-    rtChannel = sb.channel("rides_rt")
-      .on("postgres_changes", { event: "*", schema: "public", table: "ride_requests" }, ()=>{
-        render().catch(()=>{});
-      })
-      .subscribe((status)=>{
-        if(status === "SUBSCRIBED"){
-          $("rtPill").className = "pill ok";
-          $("rtPill").textContent = "● Realtime ON";
-        }else{
-          $("rtPill").className = "pill bad";
-          $("rtPill").textContent = "● Realtime OFF";
-        }
-      });
-  }
-
-  setMsg("✅ Prêt.", true);
-  render();
-  startRealtime();
+    // actif => dashboard
+    location.replace(BASE + "/courses.html");
+  })();
 
 })();
 </script>
