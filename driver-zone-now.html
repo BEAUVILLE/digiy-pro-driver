@@ -3,390 +3,191 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER — Ma Zone Maintenant</title>
-  <meta name="theme-color" content="#0A0E1A"/>
+  <title>DIGIY DRIVER PRO — Zone maintenant</title>
+  <meta name="theme-color" content="#061b14"/>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js"></script>
 
   <style>
     :root{
-      --bg:#070b16;
-      --card:#0b1224;
-      --line:rgba(255,255,255,.10);
-      --text:#eaf2ff;
-      --muted:rgba(234,242,255,.72);
-      --gold:#facc15;
-      --green:#22c55e;
-      --orange:#fb923c;
-      --red:#ef4444;
-      --radius:18px;
-      --shadow: 0 18px 45px rgba(0,0,0,.45);
+      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
+      --text:#eafff1; --muted:rgba(234,255,241,.78);
+      --green:#16a34a; --gold:#facc15; --r:18px;
     }
     *{box-sizing:border-box}
     body{
-      margin:0;
-      min-height:100vh;
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      margin:0; min-height:100vh;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
+                 radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
+                 var(--bg);
       color:var(--text);
-      background:
-        radial-gradient(900px 500px at 15% -10%, rgba(250,204,21,.18), transparent 60%),
-        radial-gradient(900px 500px at 90% 0%, rgba(34,197,94,.16), transparent 55%),
-        var(--bg);
     }
-    a{color:inherit; text-decoration:none}
-    .wrap{max-width:980px; margin:0 auto; padding:16px 14px 26px;}
-    .topbar{
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background:rgba(6,27,20,.75);
+      border-bottom:1px solid var(--line);
+      padding:14px 16px;
       display:flex; align-items:center; justify-content:space-between;
-      gap:10px; margin:10px 0 14px;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px;
-      padding:10px 12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      border-radius:999px;
-    }
-    .brand .mark{
-      width:34px; height:34px; border-radius:12px;
-      display:grid; place-items:center;
-      color:#0b0b0b;
-      background: linear-gradient(135deg, #fde68a, #facc15, #f59e0b);
-      box-shadow: 0 10px 30px rgba(250,204,21,.22);
-      font-weight:900;
-    }
-    .brand .t1{font-weight:900; letter-spacing:.2px}
-    .brand .t2{font-size:12px; color:var(--muted); margin-top:1px}
-    .btn{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      padding:10px 12px;
-      border-radius:999px;
-      font-weight:700;
-      display:inline-flex; align-items:center; gap:8px;
-      cursor:pointer;
-    }
-    .btn:active{transform:translateY(1px)}
-    .grid{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
       gap:12px;
     }
-    @media (max-width: 860px){
-      .grid{grid-template-columns:1fr}
-    }
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .card h2{
-      margin:0;
-      padding:14px 14px 10px;
-      font-size:15px;
-      letter-spacing:.2px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px;
-    }
-    .sub{
-      padding:0 14px 12px;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.35;
-    }
+    .title{font-weight:900; letter-spacing:.2px;}
     .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:7px 10px;
-      border-radius:999px;
+      padding:8px 10px;
       border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      font-size:12px;
+      border-radius:999px;
+      font-size:13px;
       color:var(--muted);
+      background:rgba(0,0,0,.22);
+      display:flex; gap:8px; align-items:center;
       white-space:nowrap;
     }
-    .list{padding:10px 10px 12px; display:flex; flex-direction:column; gap:10px;}
-    .row{
-      display:grid;
-      grid-template-columns: 1.4fr .6fr;
-      gap:10px;
-      padding:12px;
+    main{padding:16px; max-width:980px; margin:0 auto;}
+    .grid{display:grid; gap:12px; grid-template-columns: repeat(12, 1fr);}
+    .card{
+      grid-column: span 12;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--line);
-      background:rgba(8,12,26,.75);
-      border-radius:16px;
+      border-radius:var(--r);
+      padding:16px;
+      box-shadow:0 12px 40px rgba(0,0,0,.32);
     }
-    .zname{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+    @media(min-width:860px){
+      .card.half{grid-column: span 6;}
+    }
+    h1{margin:0 0 8px; font-size:20px;}
+    p{margin:0; color:var(--muted); line-height:1.45}
+    button,a.btn{
+      border:0; cursor:pointer;
+      padding:12px 14px;
+      border-radius:14px;
       font-weight:900;
+      font-size:15px;
+      text-decoration:none;
+      display:inline-flex; align-items:center; justify-content:center;
     }
-    .meta{
-      margin-top:6px;
-      display:flex; flex-wrap:wrap; gap:8px;
-      color:var(--muted);
+    .btn{
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
+      color:#042012;
+    }
+    .btn2{
+      background:rgba(250,204,21,.14);
+      color:var(--text);
+      border:1px solid rgba(250,204,21,.25);
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    .muted{color:rgba(234,255,241,.72); font-size:13px}
+    .kbd{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size:12px;
-    }
-    .scoreBox{
-      display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between;
-    }
-    .score{
-      font-weight:1000;
-      font-size:24px;
-      letter-spacing:.3px;
-      color:var(--gold);
-    }
-    .badge{
-      font-weight:800;
-      font-size:12px;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-    }
-    .badge.hot{color:#111827; background:linear-gradient(135deg,#fde68a,#facc15,#f59e0b); border-color:rgba(250,204,21,.35)}
-    .badge.active{color:#062b1b; background:linear-gradient(135deg,#bbf7d0,#22c55e); border-color:rgba(34,197,94,.35)}
-    .badge.mid{color:#1f1300; background:linear-gradient(135deg,#fed7aa,#fb923c); border-color:rgba(251,146,60,.35)}
-    .badge.calm{color:var(--muted)}
-    .rightCard{padding:14px;}
-    .kpi{display:grid; gap:10px; grid-template-columns:1fr 1fr;}
-    .kpi .box{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      border-radius:16px;
-      padding:12px;
-    }
-    .kpi .lab{font-size:12px; color:var(--muted)}
-    .kpi .val{margin-top:6px; font-weight:1000; font-size:18px}
-    .hint{
-      margin-top:10px;
-      border:1px dashed rgba(250,204,21,.35);
-      background:rgba(250,204,21,.06);
-      border-radius:16px;
-      padding:12px;
-      color:rgba(234,242,255,.85);
-      font-size:13px;
-      line-height:1.35;
-    }
-    .state{padding:14px; color:var(--muted); font-size:13px;}
-    .err{
-      margin-top:10px;
-      padding:12px;
-      border-radius:16px;
-      border:1px solid rgba(239,68,68,.35);
-      background:rgba(239,68,68,.08);
-      color:rgba(255,255,255,.9);
-      white-space:pre-wrap;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size:12px;
+      padding:4px 8px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:10px;
+      background:rgba(0,0,0,.22);
+      color:rgba(234,255,241,.88);
+      display:inline-block;
+      margin-left:6px;
     }
   </style>
 </head>
-
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <div class="mark">∞</div>
-        <div>
-          <div class="t1">DIGIY DRIVER</div>
-          <div class="t2">Ma Zone Maintenant — score 0–100</div>
-        </div>
+
+<header>
+  <div class="title">📍 Zone maintenant</div>
+  <div class="pill" id="pillPhone">📱 …</div>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="card half">
+      <h1>Statut</h1>
+      <p id="status">Chargement…</p>
+
+      <div class="row">
+        <button class="btn" id="btnGo">Je suis disponible</button>
+        <a class="btn2" href="./courses.html">Voir les courses</a>
       </div>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
-        <a class="btn" href="./index.html">← Retour</a>
-        <button class="btn" id="btnRefresh">↻ Actualiser</button>
-      </div>
-    </div>
+      <p class="muted" style="margin-top:10px;">
+        Astuce : si tu dois payer, DIGIY te redirige puis te ramène ici automatiquement<span class="kbd">from</span>.
+      </p>
+    </section>
 
-    <div class="grid">
-      <!-- LEFT -->
-      <div class="card">
-        <h2>
-          Zones chaudes (24h)
-          <span class="pill" id="pillUpdated">⏳ Mise à jour…</span>
-        </h2>
-        <div class="sub">
-          Lecture rapide : <b>🔥 très active</b>, <b>🟢 active</b>, <b>🟡 moyen</b>, <b>⚪ calme</b>.  
-          Objectif : te montrer où “ça bouge”, sans deviner.
-        </div>
+    <section class="card half">
+      <h1>Zone</h1>
+      <p class="muted">Choisis une zone simple (pas besoin de carte lourde). Tu peux brancher ta logique ensuite.</p>
 
-        <div class="list" id="zoneList">
-          <div class="state">Chargement…</div>
-        </div>
-
-        <div class="state" id="stateNote" style="display:none;"></div>
-        <div class="err" id="errBox" style="display:none;"></div>
+      <div class="row">
+        <button class="btn2 zone" data-zone="Saly Centre">Saly Centre</button>
+        <button class="btn2 zone" data-zone="Ngaparou">Ngaparou</button>
+        <button class="btn2 zone" data-zone="Somone">Somone</button>
+        <button class="btn2 zone" data-zone="Dakar">Dakar</button>
       </div>
 
-      <!-- RIGHT -->
-      <div class="card">
-        <div class="rightCard">
-          <h2 style="padding:0 0 10px; border:0;">
-            Résumé
-            <span class="pill">V1</span>
-          </h2>
+      <p class="muted" id="zoneState" style="margin-top:10px;">Zone : non définie</p>
+    </section>
 
-          <div class="kpi">
-            <div class="box">
-              <div class="lab">Top zone</div>
-              <div class="val" id="kpiTop">—</div>
-            </div>
-            <div class="box">
-              <div class="lab">Score top</div>
-              <div class="val" id="kpiScore">—</div>
-            </div>
-            <div class="box">
-              <div class="lab">Courses total (top 5)</div>
-              <div class="val" id="kpiTrips">—</div>
-            </div>
-            <div class="box">
-              <div class="lab">Panier moyen (top)</div>
-              <div class="val" id="kpiAvg">—</div>
-            </div>
-          </div>
-
-          <div class="hint">
-            💡 <b>Mode démo</b> : la vue peut inclure des données test si vous n’avez pas encore de drivers actifs.
-            Le jour du lancement, tu vides <code>driver_trips_demo</code> et tu passes en “2h”.
-          </div>
-        </div>
+    <section class="card">
+      <h1>Menu</h1>
+      <div class="row">
+        <a class="btn2" href="./profil-chauffeur.html">Mon profil</a>
+        <a class="btn2" href="./index.html">Accueil</a>
+        <button class="btn2" id="btnLogout">Déconnexion</button>
       </div>
-    </div>
+    </section>
   </div>
+</main>
 
 <script>
-  // ============================================================
-  // 🔐 SUPABASE — DÉJÀ POSÉ (TES CLÉS)
-  // ============================================================
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  const pillPhone = document.getElementById("pillPhone");
+  const statusEl = document.getElementById("status");
+  const zoneState = document.getElementById("zoneState");
 
-  const SB = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const LS_ZONE = "digiy_driver_zone";
 
-  // Vue agrégée (démo-friendly)
-  const VIEW = "v_driver_zone_hot_score_live";
+  function setStatus(msg){ statusEl.textContent = msg || ""; }
 
-  const zoneList = document.getElementById("zoneList");
-  const pillUpdated = document.getElementById("pillUpdated");
-  const btnRefresh = document.getElementById("btnRefresh");
-  const errBox = document.getElementById("errBox");
-  const stateNote = document.getElementById("stateNote");
-
-  const kpiTop = document.getElementById("kpiTop");
-  const kpiScore = document.getElementById("kpiScore");
-  const kpiTrips = document.getElementById("kpiTrips");
-  const kpiAvg = document.getElementById("kpiAvg");
-
-  function fmtCFA(n){
-    const x = Math.round(Number(n || 0));
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " CFA";
+  function loadZone(){
+    const z = localStorage.getItem(LS_ZONE);
+    zoneState.textContent = "Zone : " + (z || "non définie");
+    return z;
   }
 
-  function badge(score){
-    score = Number(score || 0);
-    if(score >= 80) return { label:"🔥 Très active", cls:"hot" };
-    if(score >= 60) return { label:"🟢 Active", cls:"active" };
-    if(score >= 40) return { label:"🟡 Moyen", cls:"mid" };
-    return { label:"⚪ Calme", cls:"calm" };
+  function setZone(z){
+    localStorage.setItem(LS_ZONE, z);
+    loadZone();
   }
 
-  function timeAgo(iso){
-    if(!iso) return "—";
-    const t = new Date(iso).getTime();
-    const now = Date.now();
-    const s = Math.max(0, Math.round((now - t)/1000));
-    if(s < 60) return `il y a ${s}s`;
-    const m = Math.round(s/60);
-    if(m < 60) return `il y a ${m} min`;
-    const h = Math.round(m/60);
-    return `il y a ${h}h`;
+  async function boot(){
+    // ✅ PROTÉGÉ : abonnement obligatoire
+    const ok = await DIGIY.bootProPage({ requireSubscription: true });
+    if(!ok) return;
+
+    const phone = DIGIY.getPhone();
+    pillPhone.textContent = "📱 " + (phone || "…");
+
+    setStatus("✅ Abonnement actif. Tu peux te mettre en ligne.");
+    loadZone();
   }
 
-  function setLoading(){
-    errBox.style.display = "none";
-    stateNote.style.display = "none";
-    zoneList.innerHTML = `<div class="state">Chargement…</div>`;
-    pillUpdated.textContent = "⏳ Mise à jour…";
-  }
+  document.querySelectorAll(".zone").forEach(btn => {
+    btn.addEventListener("click", () => setZone(btn.dataset.zone));
+  });
 
-  function setError(msg){
-    errBox.style.display = "block";
-    errBox.textContent = msg;
-    pillUpdated.textContent = "⚠️ Erreur";
-  }
+  document.getElementById("btnGo").addEventListener("click", () => {
+    const z = loadZone();
+    alert(z ? ("Disponible en zone : " + z) : "Choisis d’abord une zone.");
+  });
 
-  function render(rows){
-    if(!rows || rows.length === 0){
-      zoneList.innerHTML = `<div class="state">Aucune donnée pour le moment.</div>`;
-      pillUpdated.textContent = "🟡 Vide";
-      kpiTop.textContent = "—";
-      kpiScore.textContent = "—";
-      kpiTrips.textContent = "—";
-      kpiAvg.textContent = "—";
-      return;
-    }
+  document.getElementById("btnLogout").addEventListener("click", () => {
+    DIGIY.clearPhone();
+    location.replace("./authentification-chauffeur.html");
+  });
 
-    const top = rows[0];
-    const tripsTop5 = rows.slice(0,5).reduce((a,r)=>a + Number(r.trips_completed_24h || 0), 0);
-
-    kpiTop.textContent = top.zone_key || "—";
-    kpiScore.textContent = `${top.hot_score_0_100}/100`;
-    kpiTrips.textContent = `${tripsTop5}`;
-    kpiAvg.textContent = fmtCFA(top.avg_amount_24h);
-
-    pillUpdated.textContent = `✅ Update ${timeAgo(top.last_trip_created_at)}`;
-
-    zoneList.innerHTML = rows.slice(0,8).map(r=>{
-      const b = badge(r.hot_score_0_100);
-      const canc = Number(r.trips_cancelled_24h || 0);
-      const tot = Number(r.trips_total_24h || 0);
-      const cancelRate = tot ? Math.round((canc/tot)*100) : 0;
-
-      return `
-        <div class="row">
-          <div>
-            <div class="zname">
-              <span>${r.zone_key || "Zone"}</span>
-              <span class="badge ${b.cls}">${b.label}</span>
-            </div>
-            <div class="meta">
-              <span>🚗 ${r.trips_completed_24h} course(s) / 24h</span>
-              <span>💰 ${fmtCFA(r.avg_amount_24h)} moy.</span>
-              <span>📍 ${Number(r.avg_distance_km_24h || 0).toFixed(1)} km</span>
-              <span>⏱️ ${timeAgo(r.last_trip_created_at)}</span>
-              ${canc ? `<span>⚠️ Annulations ${cancelRate}%</span>` : ``}
-            </div>
-          </div>
-
-          <div class="scoreBox">
-            <div class="score">${r.hot_score_0_100}</div>
-            <div class="pill">Score</div>
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  async function load(){
-    setLoading();
-
-    const { data, error } = await SB
-      .from(VIEW)
-      .select("*")
-      .order("hot_score_0_100", { ascending:false })
-      .limit(8);
-
-    if(error){
-      setError(String(error.message || error));
-      zoneList.innerHTML = `<div class="state">Impossible de charger pour l’instant.</div>`;
-      return;
-    }
-
-    render(data || []);
-  }
-
-  btnRefresh.addEventListener("click", load);
-  load();
+  boot();
 </script>
+
 </body>
 </html>
