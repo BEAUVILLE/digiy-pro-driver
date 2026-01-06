@@ -2,15 +2,19 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>DIGIY PRO DRIVER</title>
   <meta name="theme-color" content="#F8FAF6" />
-  <base href="./">
 </head>
 <body>
 <script>
 (function(){
   'use strict';
+
+  // ✅ BASE auto GitHub Pages: https://beauville.github.io/digiy-pro-driver/ -> "/digiy-pro-driver"
+  const path = location.pathname || "/";
+  const parts = path.split("/").filter(Boolean);
+  const BASE = (parts.length >= 1) ? ("/" + parts[0]) : "";
 
   function getPhone(){
     const s = sessionStorage.getItem("digiy_driver_phone");
@@ -23,9 +27,15 @@
   }
 
   const phone = getPhone();
-  location.replace(phone ? "./courses.html" : "./authentification-chauffeur.html");
+
+  if(phone){
+    location.replace(BASE + "/courses.html");
+  }else{
+    location.replace(BASE + "/authentification-chauffeur.html");
+  }
 })();
 </script>
 </body>
 </html>
+
 
