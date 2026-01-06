@@ -1,46 +1,37 @@
 /* =========================================================
-   DIGIY DRIVER PRO — GUARD ABONNEMENT + REDIRECTION
+   DIGIY DRIVER PRO — GUARD ABONNEMENT + REDIRECTION (BÉTON)
    - Supabase init
-   - Lecture phone (localStorage)
-   - RPC is_driver_active(p_phone) -> boolean
+   - LocalStorage phone
+   - RPC: is_driver_active(p_phone) -> boolean
    - Si false -> redirect PAY_URL?phone=...&from=...
+   - Gère PAY_URL avec ou sans slash
+   - Conserve hash (#...) dans le from
 ========================================================= */
 
 (function () {
   "use strict";
 
-  // ✅ Mets ici ton lien de paiement (GitHub Pages ou domaine)
+  // ✅ URL paiement (mets ton vrai endpoint)
+  // Ex: "https://beauville.github.io/commencer-a-payer/"
+  // ou "https://pay.digiylyfe.com/driver"
   const PAY_URL = "https://beauville.github.io/commencer-a-payer/";
 
-  // ✅ Clé storage unique (évite collisions)
+  // ✅ Storage
   const LS_PHONE_KEY = "digiy_driver_phone";
 
-  // ✅ Supabase (intégré comme tu veux : prêt à l’emploi)
+  // ✅ Supabase (comme tu veux : prêt)
   const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
-  // Expose en global pour tes pages
   const DIGIY = (window.DIGIY = window.DIGIY || {});
   DIGIY.PAY_URL = PAY_URL;
   DIGIY.LS_PHONE_KEY = LS_PHONE_KEY;
 
-  function qs(id) {
-    return document.getElementById(id);
-  }
-
-  function toast(msg) {
-    // mini feedback (sans bling-bling)
-    console.log("DIGIY:", msg);
-  }
-
   function normalizePhone(input) {
     let p = String(input || "").trim();
-    // supprime espaces et tirets
     p = p.replace(/\s+/g, "").replace(/-/g, "");
-    // si juste 9 chiffres, on ajoute +221 (Sénégal)
     if (/^\d{9}$/.test(p)) p = "+221" + p;
-    // si commence par 221 sans +, on corrige
     if (/^221\d{9}$/.test(p)) p = "+" + p;
     return p;
   }
@@ -57,12 +48,11 @@
     localStorage.removeItem(LS_PHONE_KEY);
   }
 
-  // ✅ Init Supabase (via CDN @supabase/supabase-js@2 déjà inclus dans tes pages)
   function ensureSupabase() {
     if (DIGIY.supabase) return DIGIY.supabase;
 
     if (!window.supabase || !window.supabase.createClient) {
-      throw new Error("Supabase JS SDK non chargé. Ajoute le script CDN supabase-js@2.");
+      throw new Error("Supabase JS SDK non chargé. Ajoute le CDN supabase-js@2.");
     }
 
     DIGIY.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -73,28 +63,53 @@
     return DIGIY.supabase;
   }
 
-  // ✅ Redirection paiement avec retour
-  function redirectToPay(phone) {
-    const from = encodeURIComponent(location.href);
-    const url =
-      PAY_URL +
-      "?phone=" +
-      encodeURIComponent(phone || "") +
-      "&from=" +
-      from;
+  // ✅ Helper: construit une URL avec query params (sans bug ? & #)
+  function buildUrlWithParams(base, params) {
+    const b = String(base || "").trim();
+    if (!b) throw new Error("PAY_URL vide");
 
-    location.replace(url);
+    // Si base a déjà un "?" ou un "#", on s'appuie sur URL() si possible
+    // Sinon on fait simple.
+    let u;
+    try {
+      u = new URL(b, location.origin);
+    } catch (e) {
+      // fallback (rare)
+      const sep = b.includes("?") ? "&" : "?";
+      const q = Object.entries(params)
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v ?? ""))}`)
+        .join("&");
+      return b + sep + q;
+    }
+
+    Object.entries(params).forEach(([k, v]) => {
+      u.searchParams.set(k, String(v ?? ""));
+    });
+
+    return u.toString();
+  }
+
+  // ✅ Redirection paiement avec retour (BÉTON)
+  function redirectToPay(phone) {
+    const p = normalizePhone(phone || getPhone());
+
+    // On garde TOUT : path + query + hash
+    const from = location.origin + location.pathname + location.search + location.hash;
+
+    const target = buildUrlWithParams(PAY_URL, {
+      phone: p || "",
+      from: from, // ⚠️ on laisse URLSearchParams encoder proprement
+    });
+
+    location.replace(target);
   }
 
   // ✅ Guard abonnement
   async function guardSubscriptionOrRedirect(phone) {
     const sb = ensureSupabase();
-
     const p = normalizePhone(phone || getPhone());
 
-    // pas de phone -> retour login
     if (!p) {
-      toast("Aucun téléphone, redirection vers login.");
       location.replace("./authentification-chauffeur.html");
       return false;
     }
@@ -103,14 +118,11 @@
       const { data, error } = await sb.rpc("is_driver_active", { p_phone: p });
       if (error) throw error;
 
-      // data doit être true pour passer
       if (data !== true) {
-        toast("Abonnement inactif/past_due -> redirection paiement.");
         redirectToPay(p);
         return false;
       }
 
-      // ok, on garde le phone propre
       setPhone(p);
       return true;
     } catch (e) {
@@ -120,7 +132,7 @@
     }
   }
 
-  // ✅ Helper à appeler en 1 ligne sur chaque page PRO
+  // ✅ Boot helper pour pages PRO
   async function bootProPage(options) {
     options = options || {};
     const requireSub = options.requireSubscription !== false; // default true
@@ -133,10 +145,12 @@
     return true;
   }
 
-  // Expose API
+  // expose
   DIGIY.getPhone = getPhone;
   DIGIY.setPhone = setPhone;
   DIGIY.clearPhone = clearPhone;
+  DIGIY.redirectToPay = redirectToPay;
   DIGIY.guardSubscriptionOrRedirect = guardSubscriptionOrRedirect;
   DIGIY.bootProPage = bootProPage;
 })();
+
