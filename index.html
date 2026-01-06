@@ -11,18 +11,16 @@
 (function(){
   'use strict';
 
-  // ✅ BASE AUTO (GitHub Pages / local / prod)
-  // ex: https://beauville.github.io/digiy-pro-driver/  -> "/digiy-pro-driver"
-  // ex: local file / localhost -> ""
-  const path = location.pathname || "/";
-  const parts = path.split("/").filter(Boolean);
-  const BASE = (parts.length >= 1) ? ("/" + parts[0]) : "";
+  // ✅ GitHub Pages ONLY:
+  // /<username>/<repo>/...  -> BASE="/<repo>"
+  const parts = (location.pathname || "/").split("/").filter(Boolean);
+  const BASE = (parts.length >= 2) ? ("/" + parts[1]) : "";
 
   function getPhone(){
     const s = sessionStorage.getItem("digiy_driver_phone");
-    if(s) return s;
+    if (s) return s;
     try{
-      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin")||"null");
+      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin") || "null");
       return a?.phone || null;
     }catch(_){}
     return null;
@@ -30,9 +28,9 @@
 
   const phone = getPhone();
 
-  if(phone){
+  if (phone) {
     location.replace(BASE + "/courses.html");
-  }else{
+  } else {
     location.replace(BASE + "/authentification-chauffeur.html");
   }
 })();
