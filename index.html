@@ -1,94 +1,121 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DIGIY PRO DRIVER</title>
-  <meta name="theme-color" content="#F8FAF6" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY DRIVER PRO</title>
+  <meta name="theme-color" content="#061b14"/>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js"></script>
+
+  <style>
+    :root{
+      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
+      --text:#eafff1; --muted:rgba(234,255,241,.78);
+      --green:#16a34a; --gold:#facc15; --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
+                 radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
+                 var(--bg);
+      color:var(--text);
+      display:flex; align-items:center; justify-content:center;
+      padding:18px;
+    }
+    .wrap{width:min(760px,100%);}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      padding:18px;
+      box-shadow:0 14px 44px rgba(0,0,0,.35);
+    }
+    h1{margin:0 0 8px; font-size:26px; letter-spacing:.2px;}
+    p{margin:0 0 14px; color:var(--muted); line-height:1.5; font-size:16px;}
+    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+    a.btn, button.btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:10px;
+      padding:14px 16px;
+      border-radius:14px;
+      font-weight:900;
+      text-decoration:none;
+      border:0; cursor:pointer;
+      font-size:16px;
+      min-width:220px;
+    }
+    .primary{
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
+      color:#042012;
+    }
+    .secondary{
+      background:rgba(250,204,21,.14);
+      border:1px solid rgba(250,204,21,.25);
+      color:var(--text);
+    }
+    .pill{
+      display:inline-flex; gap:10px; align-items:center;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      color:rgba(234,255,241,.9);
+      font-size:13px;
+      margin-top:10px;
+    }
+    .muted{color:rgba(234,255,241,.72); font-size:13px; margin-top:10px}
+    .hr{height:1px; background:rgba(255,255,255,.12); margin:14px 0;}
+  </style>
 </head>
 <body>
-<script>
-(async function(){
-  'use strict';
+  <div class="wrap">
+    <div class="card">
+      <h1>🚗 DIGIY DRIVER PRO</h1>
+      <p>
+        Outil chauffeur. Si ton abonnement est actif, tu entres direct.
+        Sinon, tu es redirigé vers le paiement, puis tu reviens automatiquement.
+      </p>
 
-  // ✅ BASE AUTO (GitHub Pages / local / prod)
-  // ex: https://beauville.github.io/digiy-pro-driver/  -> "/digiy-pro-driver"
-  const path  = location.pathname || "/";
-  const parts = path.split("/").filter(Boolean);
-  const BASE  = (parts.length >= 1) ? ("/" + parts[0]) : "";
+      <div class="pill" id="pill">📱 Vérification…</div>
 
-  // ✅ URL paiement (repo séparé)
-  const PAY_URL = "https://beauville.github.io/commencer-a-payer/";
+      <div class="hr"></div>
 
-  // ✅ SUPABASE — DÉJÀ POSÉ
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+      <div class="row">
+        <a class="btn primary" href="./driver-zone-now.html">Entrer dans la zone</a>
+        <a class="btn secondary" href="./courses.html">Voir les courses</a>
+        <a class="btn secondary" href="./profil-chauffeur.html">Mon profil</a>
+      </div>
 
-  // ✅ client global unique
-  const supabase = (window.__sb || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
-  window.__sb = supabase;
+      <p class="muted" id="status"></p>
+    </div>
+  </div>
 
-  function getPhone(){
-    const s = sessionStorage.getItem("digiy_driver_phone");
-    if (s) return s;
+  <script>
+    const pill = document.getElementById("pill");
+    const statusEl = document.getElementById("status");
 
-    try{
-      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin") || "null");
-      return a?.phone || null;
-    }catch(_){
-      return null;
-    }
-  }
+    function setStatus(msg){ statusEl.textContent = msg || ""; }
 
-  async function isDriverActive(phone){
-    try{
-      // RPC: is_driver_active(p_phone text) -> boolean
-      const { data, error } = await supabase.rpc("is_driver_active", { p_phone: phone });
-      if (error) throw error;
-      return data === true;
-    }catch(e){
-      console.warn("is_driver_active error:", e);
-      return null; // inconnu (supabase down)
-    }
-  }
+    (async () => {
+      const phone = DIGIY.getPhone();
+      pill.textContent = phone ? ("📱 " + phone) : "📱 Non connecté";
 
-  // =========================
-  // ✅ ROUTAGE
-  // =========================
-  const phone = getPhone();
+      if(!phone){
+        setStatus("Aucun numéro trouvé. Redirection vers la connexion…");
+        setTimeout(() => location.replace("./authentification-chauffeur.html"), 450);
+        return;
+      }
 
-  // 1) pas loggé => login
-  if (!phone){
-    location.replace(BASE + "/authentification-chauffeur.html");
-    return;
-  }
-
-  // 2) check abonnement
-  const ok = await isDriverActive(phone);
-
-  // 3) supabase down => ne pas bloquer à tort => dashboard
-  if (ok === null){
-    location.replace(BASE + "/courses.html");
-    return;
-  }
-
-  // 4) pas actif => paiement
-  if (!ok){
-    location.replace(
-      PAY_URL +
-      "?phone=" + encodeURIComponent(phone) +
-      "&from=" + encodeURIComponent(location.href)
-    );
-    return;
-  }
-
-  // 5) actif => dashboard
-  location.replace(BASE + "/courses.html");
-})();
-</script>
+      // Ici on ne bloque pas (les pages PRO elles-mêmes font le guard)
+      setStatus("OK. Choisis une page (Zone / Courses / Profil).");
+    })();
+  </script>
 </body>
 </html>
+
 
 
