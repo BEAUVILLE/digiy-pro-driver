@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY — Redirection</title>
+  <title>DIGIY — Retour</title>
   <meta name="theme-color" content="#061b14"/>
   <style>
     :root{--bg:#061b14;--text:#eafff1;--muted:rgba(234,255,241,.78)}
@@ -19,38 +19,33 @@
       padding:18px;
       text-align:center;
     }
-    .box{max-width:520px}
+    .box{max-width:560px}
     h1{margin:0 0 10px; font-size:20px}
     p{margin:0; color:var(--muted); line-height:1.5}
+    .small{margin-top:10px; font-size:12px; opacity:.85; word-break:break-word}
   </style>
 </head>
 <body>
   <div class="box">
-    <h1>⏳ DIGIY — Redirection…</h1>
-    <p id="msg">On te ramène exactement là où tu dois être.</p>
+    <h1>⏳ DIGIY — Retour en cours…</h1>
+    <p>On te ramène exactement à l’écran demandé.</p>
+    <div class="small" id="dest"></div>
   </div>
 
   <script>
-    const msg = document.getElementById("msg");
-    const url = new URL(location.href);
+    const destEl = document.getElementById("dest");
+    const u = new URL(location.href);
 
-    const to = url.searchParams.get("to");
-    const from = url.searchParams.get("from");
+    // Priorité : to, sinon from
+    let target = u.searchParams.get("to") || u.searchParams.get("from") || "./index.html";
 
-    let target = to || from || "./index.html";
+    // Sécurité basique (anti javascript:)
+    const t = String(target || "").trim();
+    if (t.toLowerCase().startsWith("javascript:")) target = "./index.html";
 
-    try{
-      // sécurité de base : interdit javascript:
-      if(String(target).trim().toLowerCase().startsWith("javascript:")){
-        target = "./index.html";
-      }
-    }catch(e){ target = "./index.html"; }
+    destEl.textContent = "Destination: " + target;
 
-    msg.textContent = "Destination: " + target;
-
-    setTimeout(() => {
-      location.replace(target);
-    }, 300);
+    setTimeout(() => location.replace(target), 250);
   </script>
 </body>
 </html>
