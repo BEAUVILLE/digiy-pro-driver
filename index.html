@@ -5,30 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DIGIY PRO DRIVER</title>
   <meta name="theme-color" content="#F8FAF6" />
+  <base href="./">
 </head>
 <body>
 <script>
 (function(){
   'use strict';
 
-  // ✅ Redirection 100% fiable sur GitHub Pages :
-  // on construit l'URL à partir du dossier courant (repo), pas la racine du domaine.
-  const base = new URL('.', location.href); // ex: https://beauville.github.io/digiy-pro-driver/
-
   function getPhone(){
     const s = sessionStorage.getItem("digiy_driver_phone");
-    if (s) return s;
+    if(s) return s;
     try{
-      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin") || "null");
+      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin")||"null");
       return a?.phone || null;
     }catch(_){}
     return null;
   }
 
   const phone = getPhone();
-
-  const target = phone ? new URL('courses.html', base) : new URL('authentification-chauffeur.html', base);
-  location.replace(target.toString());
+  location.replace(phone ? "./courses.html" : "./authentification-chauffeur.html");
 })();
 </script>
 </body>
