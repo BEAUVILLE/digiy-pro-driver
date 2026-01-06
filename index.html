@@ -11,10 +11,9 @@
 (function(){
   'use strict';
 
-  // ✅ GitHub Pages ONLY:
-  // /<username>/<repo>/...  -> BASE="/<repo>"
-  const parts = (location.pathname || "/").split("/").filter(Boolean);
-  const BASE = (parts.length >= 2) ? ("/" + parts[1]) : "";
+  // ✅ Redirection 100% fiable sur GitHub Pages :
+  // on construit l'URL à partir du dossier courant (repo), pas la racine du domaine.
+  const base = new URL('.', location.href); // ex: https://beauville.github.io/digiy-pro-driver/
 
   function getPhone(){
     const s = sessionStorage.getItem("digiy_driver_phone");
@@ -28,12 +27,10 @@
 
   const phone = getPhone();
 
-  if (phone) {
-    location.replace(BASE + "/courses.html");
-  } else {
-    location.replace(BASE + "/authentification-chauffeur.html");
-  }
+  const target = phone ? new URL('courses.html', base) : new URL('authentification-chauffeur.html', base);
+  location.replace(target.toString());
 })();
 </script>
 </body>
 </html>
+
