@@ -1,106 +1,194 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DIGIY PRO DRIVER</title>
-  <meta name="theme-color" content="#F8FAF6" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY DRIVER PRO — Courses</title>
+  <meta name="theme-color" content="#061b14"/>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js"></script>
+
+  <style>
+    :root{
+      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
+      --text:#eafff1; --muted:rgba(234,255,241,.78);
+      --green:#16a34a; --gold:#facc15; --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
+                 radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
+                 var(--bg);
+      color:var(--text);
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background:rgba(6,27,20,.75);
+      border-bottom:1px solid var(--line);
+      padding:14px 16px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+    }
+    .title{font-weight:900; letter-spacing:.2px;}
+    .pill{
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      font-size:13px;
+      color:var(--muted);
+      background:rgba(0,0,0,.22);
+      display:flex; gap:8px; align-items:center;
+      white-space:nowrap;
+    }
+    main{padding:16px; max-width:980px; margin:0 auto;}
+    .grid{display:grid; gap:12px; grid-template-columns: repeat(12, 1fr);}
+    .card{
+      grid-column: span 12;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      padding:16px;
+      box-shadow:0 12px 40px rgba(0,0,0,.32);
+    }
+    @media(min-width:860px){
+      .card.half{grid-column: span 6;}
+    }
+    h1{margin:0 0 8px; font-size:20px;}
+    p{margin:0; color:var(--muted); line-height:1.45}
+    button{
+      border:0; cursor:pointer;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:900;
+      font-size:15px;
+    }
+    .btn{
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
+      color:#042012;
+    }
+    .btn2{
+      background:rgba(250,204,21,.14);
+      color:var(--text);
+      border:1px solid rgba(250,204,21,.25);
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    .muted{color:var(--muted); font-size:13px}
+    .list{margin-top:10px; display:grid; gap:10px}
+    .item{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(0,0,0,.18);
+      display:flex; justify-content:space-between; gap:12px; align-items:flex-start;
+    }
+    .tag{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(34,197,94,.35);
+      background:rgba(34,197,94,.12);
+      color:rgba(234,255,241,.92);
+      white-space:nowrap;
+    }
+  </style>
 </head>
 <body>
+
+<header>
+  <div class="title">🚗 DIGIY DRIVER PRO — Courses</div>
+  <div class="pill" id="pillPhone">📱 …</div>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="card half">
+      <h1>Statut</h1>
+      <p id="status">Chargement…</p>
+
+      <div class="row">
+        <button class="btn" id="btnRefresh">Rafraîchir</button>
+        <button class="btn2" id="btnLogout">Déconnexion</button>
+      </div>
+
+      <p class="muted" style="margin-top:10px;">
+        Si l’abonnement n’est pas actif, tu seras automatiquement redirigé vers le paiement.
+      </p>
+    </section>
+
+    <section class="card half">
+      <h1>Courses (démo)</h1>
+      <p class="muted">Ici tu branches ton vrai flux (courses, demandes, zones). Pour l’instant on montre une liste légère.</p>
+
+      <div class="list" id="list">
+        <!-- rempli en JS -->
+      </div>
+    </section>
+
+    <section class="card">
+      <h1>Règle DIGIY</h1>
+      <p>
+        ✅ Pro = outil de travail. <br/>
+        ✅ Abonnement actif = accès. <br/>
+        ✅ Sinon → paiement → retour exact sur la page.
+      </p>
+    </section>
+  </div>
+</main>
+
 <script>
-// ✅ URL paiement
-const PAY_URL = "https://beauville.github.io/commencer-a-payer/";
+  const pillPhone = document.getElementById("pillPhone");
+  const statusEl = document.getElementById("status");
+  const listEl = document.getElementById("list");
 
-// ✅ Check abonnement actif (bloque l'accès au dashboard si past_due)
-async function guardSubscriptionOrRedirect(phone){
-  try{
-    const { data, error } = await supabase.rpc('is_driver_active', { p_phone: phone });
-    if (error) throw error;
-
-    if (!data){
-      location.replace(PAY_URL + "?phone=" + encodeURIComponent(phone) + "&from=" + encodeURIComponent(location.href));
-      return false;
-    }
-    return true;
-  }catch(e){
-    console.warn("guardSubscriptionOrRedirect error:", e);
-    // Si Supabase down, on ne bloque pas à tort : on laisse passer
-    return true;
-  }
-}
-  
-(function(){
-  'use strict';
-
-  // ✅ BASE AUTO (GitHub Pages / local / prod)
-  const path = location.pathname || "/";
-  const parts = path.split("/").filter(Boolean);
-  const BASE = (parts.length >= 1) ? ("/" + parts[0]) : "";
-
-  // ✅ URL paiement (ton repo commencer-a-payer)
-  const PAY_URL = "https://beauville.github.io/commencer-a-payer/";
-
-  // ✅ SUPABASE — DÉJÀ POSÉ
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-
-  const supabase = window.__sb || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  window.__sb = supabase;
-
-  function getPhone(){
-    const s = sessionStorage.getItem("digiy_driver_phone");
-    if (s) return s;
-    try{
-      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin")||"null");
-      return a?.phone || null;
-    }catch(_){}
-    return null;
+  function setStatus(msg){
+    statusEl.textContent = msg || "";
   }
 
-  async function isActive(phone){
-    try{
-      // RPC: is_driver_active(p_phone text) -> boolean
-      const { data, error } = await supabase.rpc('is_driver_active', { p_phone: phone });
-      if (error) throw error;
-      return !!data;
-    }catch(e){
-      console.warn("is_driver_active error:", e);
-      // si Supabase down => on ne bloque pas à tort, on renvoie sur login
-      return null; // inconnu
-    }
+  function demoRows(){
+    const rows = [
+      { id: "C-1001", zone: "Saly Centre", when: "Maintenant", status: "Nouvelle" },
+      { id: "C-1002", zone: "Ngaparou", when: "30 min", status: "À venir" },
+      { id: "C-1003", zone: "Dakar Plateau", when: "Demain", status: "Planifiée" },
+    ];
+    listEl.innerHTML = rows.map(r => `
+      <div class="item">
+        <div>
+          <div style="font-weight:900">${r.id} — ${r.zone}</div>
+          <div class="muted">${r.when}</div>
+        </div>
+        <div class="tag">${r.status}</div>
+      </div>
+    `).join("");
   }
 
-  (async function boot(){
-    const phone = getPhone();
+  async function boot(){
+    // ✅ 1) Protège la page PRO (abonnement)
+    const ok = await DIGIY.bootProPage({ requireSubscription: true });
+    if(!ok) return; // si false -> déjà redirigé
 
-    // pas loggé => login
-    if (!phone){
-      location.replace(BASE + "/authentification-chauffeur.html");
-      return;
-    }
+    // ✅ 2) Affiche phone
+    const phone = DIGIY.getPhone();
+    pillPhone.textContent = "📱 " + (phone || "…");
 
-    const ok = await isActive(phone);
+    // ✅ 3) Contenu page
+    setStatus("✅ Abonnement actif. Page PRO ouverte.");
+    demoRows();
+  }
 
-    // si statut inconnu => on renvoie sur dashboard (ou login) au choix
-    if (ok === null){
-      location.replace(BASE + "/courses.html");
-      return;
-    }
+  document.getElementById("btnRefresh").addEventListener("click", () => location.reload());
 
-    // pas actif => paiement
-    if (!ok){
-      // on passe le phone en querystring pour pré-remplir côté paiement si tu veux
-      location.replace(PAY_URL + "?phone=" + encodeURIComponent(phone) + "&from=" + encodeURIComponent(location.href));
-      return;
-    }
+  document.getElementById("btnLogout").addEventListener("click", () => {
+    DIGIY.clearPhone();
+    location.replace("./authentification-chauffeur.html");
+  });
 
-    // actif => dashboard
-    location.replace(BASE + "/courses.html");
-  })();
-
-})();
+  boot();
 </script>
+
 </body>
 </html>
+
