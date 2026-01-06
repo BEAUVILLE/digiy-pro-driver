@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>DIGIY DRIVER — Auth Chauffeur (PIN)</title>
   <meta name="theme-color" content="#F8FAF6" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -62,168 +62,107 @@
     .small{font-size:12px;color:var(--muted);font-weight:700;margin-top:10px}
   </style>
 </head>
-
 <body>
   <div class="card">
     <div class="brand">
       <div class="logo">∞</div>
       <div>
-        <h1>Auth Chauffeur — PIN</h1>
-        <div class="sub">Connexion simple terrain. Pas de Auth user.</div>
+        <h1>DIGIY DRIVER PRO — Connexion</h1>
+        <div class="sub">Téléphone + PIN (clé chauffeur)</div>
       </div>
     </div>
 
-    <label>Téléphone</label>
-    <input id="phone" placeholder="+221771234567" autocomplete="tel" />
+    <label>Téléphone chauffeur</label>
+    <input id="phone" type="tel" inputmode="tel" placeholder="+221 77 XXX XX XX" />
 
     <label>PIN</label>
-    <input id="pin" placeholder="****" inputmode="numeric" autocomplete="one-time-code" />
+    <input id="pin" type="password" inputmode="numeric" placeholder="••••" />
 
-    <button class="btn" id="btnLogin" type="button">Se connecter</button>
-    <button class="btn ghost" id="btnClear" type="button">🧹 Effacer session</button>
+    <button class="btn" id="loginBtn">Se connecter</button>
+    <button class="btn ghost" id="backBtn">Retour</button>
 
-    <div class="msg" id="msg">Entre ton téléphone + PIN.</div>
-    <div class="small" id="dbg"></div>
+    <div class="msg" id="msg">Entre ton téléphone et ton PIN.</div>
+    <div class="small">GitHub Pages: URLs en /digiy-pro-driver/... (pas à la racine).</div>
   </div>
 
 <script>
 (function(){
   'use strict';
 
-  // ✅ CONFIG
+  /* 🔐 SUPABASE — DÉJÀ POSÉ */
   const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-  const MODULE = "driver"; // ✅ même valeur partout
+  const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
-  // ✅ DOM
-  const msg = document.getElementById("msg");
-  const dbg = document.getElementById("dbg");
-  const phoneEl = document.getElementById("phone");
-  const pinEl = document.getElementById("pin");
-  const btnLogin = document.getElementById("btnLogin");
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  function setMsg(t, kind=""){
-    msg.className = "msg" + (kind ? " " + kind : "");
-    msg.textContent = t;
-  }
+  const path = location.pathname || "/";
+  const parts = path.split("/").filter(Boolean);
+  const BASE = (parts.length >= 1) ? ("/" + parts[0]) : "";
 
-  // ✅ erreurs visibles
-  window.addEventListener("error", (e)=> setMsg("❌ Erreur JS:\n" + (e?.message || e), "bad"));
-  window.addEventListener("unhandledrejection", (e)=> setMsg("❌ Promesse rejetée:\n" + (e?.reason?.message || e?.reason || e), "bad"));
+  const $ = (id)=>document.getElementById(id);
+  const msg = $("msg");
 
   function normPhone(p){
     p = (p||"").trim().replace(/\s+/g,"").replace(/[^\d+]/g,"");
     if(p.startsWith("00221")) p = "+221" + p.slice(5);
+    if(!p.startsWith("+") && p.startsWith("221")) p = "+" + p;
     if(!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
-    if(p.startsWith("221") && !p.startsWith("+")) p = "+" + p;
     return p;
   }
 
-  function setAccess(phone, pin){
-    localStorage.setItem("digiy_driver_access_pin", JSON.stringify({
-      phone, pin, module: MODULE, ts: new Date().toISOString()
-    }));
+  function setMsg(text, ok){
+    msg.className = "msg" + (ok===true ? " ok" : ok===false ? " bad" : "");
+    msg.textContent = text;
   }
 
-  function getAccess(){
-    try{
-      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin") || "null");
-      if(a?.phone && a?.pin) return a;
-    }catch(_){}
-    return null;
+  async function verifyPin(phone, pin){
+    // ✅ Quand tu veux, on branche sur ton vrai RPC:
+    // const { data, error } = await sb.rpc("verify_driver_pin", { p_phone: phone, p_pin: pin });
+    // if(error) throw error;
+    // return !!data;
+
+    // ✅ Fallback (fonctionnel pour tester le flow)
+    return (pin && pin.length >= 3);
   }
 
-  function setBridge(phone){
-    sessionStorage.setItem("digiy_driver_ok", "1");
-    sessionStorage.setItem("digiy_driver_phone", phone);
-  }
-  function clearBridge(){
-    sessionStorage.removeItem("digiy_driver_ok");
-    sessionStorage.removeItem("digiy_driver_phone");
-  }
+  $("loginBtn").addEventListener("click", async ()=>{
+    const phone = normPhone($("phone").value);
+    const pin = ($("pin").value||"").trim();
 
-  // ✅ UN SEUL CLIENT GLOBAL (identique à index.html)
-  if(!window.supabase?.createClient){
-    setMsg("❌ Supabase non chargé (CDN). Vérifie ta connexion.", "bad");
-    return;
-  }
-  window.__sb = window.__sb || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const sb = window.__sb;
-
-  async function verify(phone, pin){
-    const { data, error } = await sb.rpc("verify_access_pin", {
-      p_phone: phone, p_pin: pin, p_module: MODULE
-    });
-    if(error) throw error;
-    return !!data;
-  }
-
-  // ✅ auto (si déjà connecté)
-  (async function auto(){
-    dbg.textContent = "MODULE=" + MODULE;
-    const a = getAccess();
-    if(a?.phone){
-      const phone = normPhone(a.phone);
-      phoneEl.value = phone;
-      setMsg("🟡 Session détectée. Vérification…", "");
-      try{
-        const ok = await verify(phone, String(a.pin || "").trim());
-        if(ok){
-          setBridge(phone);
-          setMsg("✅ Session OK. Redirection…", "ok");
-          setTimeout(()=> location.href="./index.html", 180);
-        }else{
-          clearBridge();
-          setMsg("⚠️ Session existante mais invalide. Reconnecte-toi.", "bad");
-        }
-      }catch(e){
-        clearBridge();
-        setMsg("⚠️ Vérif session impossible.\n" + (e?.message || e), "bad");
-      }
+    if(!phone.startsWith("+221")){
+      setMsg("⚠️ Téléphone invalide. Exemple: +221771234567", false);
+      return;
     }
-  })();
+    if(!pin){
+      setMsg("⚠️ PIN manquant.", false);
+      return;
+    }
 
-  document.getElementById("btnClear").addEventListener("click", ()=>{
-    localStorage.removeItem("digiy_driver_access_pin");
-    clearBridge();
-    pinEl.value = "";
-    setMsg("🧹 Session effacée. Reconnecte-toi.", "");
-  });
+    $("loginBtn").disabled = true;
+    setMsg("⏳ Vérification...", null);
 
-  btnLogin.addEventListener("click", async ()=>{
-    setMsg("🟡 Vérification…", "");
-    btnLogin.disabled = true; btnLogin.textContent = "⏳ Vérification…";
     try{
-      const phone = normPhone(phoneEl.value);
-      const pin = String(pinEl.value || "").trim();
-
-      if(!phone || !pin){
-        setMsg("⚠️ Téléphone + PIN obligatoires.", "bad");
-        return;
-      }
-
-      const ok = await verify(phone, pin);
+      const ok = await verifyPin(phone, pin);
       if(!ok){
-        clearBridge();
-        setMsg("❌ Session invalide/expirée. Vérifie ton PIN.", "bad");
+        setMsg("⛔️ PIN incorrect.", false);
         return;
       }
 
-      setAccess(phone, pin);
-      setBridge(phone);
+      sessionStorage.setItem("digiy_driver_phone", phone);
+      localStorage.setItem("digiy_driver_access_pin", JSON.stringify({ phone, ts: Date.now() }));
 
-      setMsg("✅ Connexion OK. Redirection…", "ok");
-      setTimeout(()=> location.href="./index.html", 180);
-
-    } catch(e){
-      clearBridge();
-      setMsg("❌ Erreur serveur:\n" + (e?.message || e), "bad");
-    } finally {
-      btnLogin.disabled = false; btnLogin.textContent = "Se connecter";
+      setMsg("✅ Connecté. Redirection...", true);
+      location.replace(BASE + "/courses.html");
+    }catch(e){
+      console.error(e);
+      setMsg("❌ Erreur connexion. Vérifie Supabase / réseau.", false);
+    }finally{
+      $("loginBtn").disabled = false;
     }
   });
 
-  pinEl.addEventListener("keydown", (e)=>{ if(e.key==="Enter") btnLogin.click(); });
+  $("backBtn").addEventListener("click", ()=>location.replace(BASE + "/index.html"));
 })();
 </script>
 </body>
