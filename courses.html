@@ -9,6 +9,27 @@
 </head>
 <body>
 <script>
+// ✅ URL paiement
+const PAY_URL = "https://beauville.github.io/commencer-a-payer/";
+
+// ✅ Check abonnement actif (bloque l'accès au dashboard si past_due)
+async function guardSubscriptionOrRedirect(phone){
+  try{
+    const { data, error } = await supabase.rpc('is_driver_active', { p_phone: phone });
+    if (error) throw error;
+
+    if (!data){
+      location.replace(PAY_URL + "?phone=" + encodeURIComponent(phone) + "&from=" + encodeURIComponent(location.href));
+      return false;
+    }
+    return true;
+  }catch(e){
+    console.warn("guardSubscriptionOrRedirect error:", e);
+    // Si Supabase down, on ne bloque pas à tort : on laisse passer
+    return true;
+  }
+}
+  
 (function(){
   'use strict';
 
