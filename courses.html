@@ -208,7 +208,56 @@ Notes :
   const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+<script>
+(async function(){
+  'use strict';
 
+  /* 🔐 CONFIG */
+  const PAY_URL = "https://beauville.github.io/commencer-a-payer/";
+
+  function getPhone(){
+    const s = sessionStorage.getItem("digiy_driver_phone");
+    if(s) return s;
+    try{
+      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin")||"null");
+      return a?.phone || null;
+    }catch(_){}
+    return null;
+  }
+
+  const phone = getPhone();
+
+  // 🚫 Pas identifié → auth
+  if(!phone){
+    location.replace("./authentification-chauffeur.html");
+    return;
+  }
+
+  // 🔍 Vérification abonnement
+  const { data, error } = await supabase
+    .from("driver_subscriptions")
+    .select("status, current_period_end")
+    .eq("phone", phone)
+    .maybeSingle();
+
+  // ❌ Pas d’abonnement ou erreur → payer
+  if(error || !data || data.status !== "active"){
+    location.replace(PAY_URL);
+    return;
+  }
+
+  // ⏰ Abonnement expiré → payer
+  if(new Date(data.current_period_end) < new Date()){
+    location.replace(PAY_URL);
+    return;
+  }
+
+  // ✅ OK → accès autorisé
+  console.log("✅ Abonnement actif — accès PRO autorisé");
+
+})();
+</script>
+  
   // ✅ BASE GitHub Pages auto
   const path = location.pathname || "/";
   const parts = path.split("/").filter(Boolean);
