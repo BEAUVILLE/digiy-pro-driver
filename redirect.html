@@ -1,38 +1,57 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DIGIY DRIVER — Redirection</title>
-  <meta name="theme-color" content="#020617" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY — Redirection</title>
+  <meta name="theme-color" content="#061b14"/>
+  <style>
+    :root{--bg:#061b14;--text:#eafff1;--muted:rgba(234,255,241,.78)}
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      display:flex; align-items:center; justify-content:center;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
+                 radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
+                 var(--bg);
+      color:var(--text);
+      padding:18px;
+      text-align:center;
+    }
+    .box{max-width:520px}
+    h1{margin:0 0 10px; font-size:20px}
+    p{margin:0; color:var(--muted); line-height:1.5}
+  </style>
 </head>
 <body>
-<script>
-(function(){
-  'use strict';
+  <div class="box">
+    <h1>⏳ DIGIY — Redirection…</h1>
+    <p id="msg">On te ramène exactement là où tu dois être.</p>
+  </div>
 
-  // BASE auto (GitHub Pages ou prod)
-  const path = location.pathname || "/";
-  const parts = path.split("/").filter(Boolean);
-  const BASE = (parts.length >= 1) ? ("/" + parts[0]) : "";
+  <script>
+    const msg = document.getElementById("msg");
+    const url = new URL(location.href);
 
-  function getPhone(){
-    const s = sessionStorage.getItem("digiy_driver_phone");
-    if(s) return s;
+    const to = url.searchParams.get("to");
+    const from = url.searchParams.get("from");
+
+    let target = to || from || "./index.html";
+
     try{
-      const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin")||"null");
-      return a?.phone || null;
-    }catch(_){}
-    return null;
-  }
+      // sécurité de base : interdit javascript:
+      if(String(target).trim().toLowerCase().startsWith("javascript:")){
+        target = "./index.html";
+      }
+    }catch(e){ target = "./index.html"; }
 
-  const phone = getPhone();
-  if(phone){
-    location.replace(BASE + "/courses.html");
-  }else{
-    location.replace(BASE + "/authentification-chauffeur.html");
-  }
-})();
-</script>
+    msg.textContent = "Destination: " + target;
+
+    setTimeout(() => {
+      location.replace(target);
+    }, 300);
+  </script>
 </body>
 </html>
+
