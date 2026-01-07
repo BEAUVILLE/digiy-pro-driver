@@ -3,11 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER PRO</title>
+  <title>DIGIY DRIVER PRO — VTC 0% Commission</title>
   <meta name="theme-color" content="#061b14"/>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js"></script>
 
   <style>
     :root{
@@ -24,132 +21,210 @@
         radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
         var(--bg);
       color:var(--text);
-      display:flex; align-items:center; justify-content:center;
       padding:18px;
     }
-    .wrap{width:min(760px,100%);}
+    
+    /* STATUS GUARD */
+    #guard_status {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      z-index: 9999;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* APP CACHÉE PAR DÉFAUT */
+    .app {
+      display: none;
+    }
+    
+    html.access-ok .app {
+      display: block;
+    }
+    
+    .wrap{
+      max-width:760px;
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+    }
+    
     .card{
       background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--line);
       border-radius:var(--r);
-      padding:18px;
+      padding:28px;
       box-shadow:0 14px 44px rgba(0,0,0,.35);
+      width:100%;
     }
-    h1{margin:0 0 8px; font-size:26px; letter-spacing:.2px;}
-    p{margin:0 0 14px; color:var(--muted); line-height:1.5; font-size:16px;}
-    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
-    a.btn, button.btn{
-      display:inline-flex; align-items:center; justify-content:center;
+    
+    h1{
+      margin:0 0 8px;
+      font-size:32px;
+      letter-spacing:.2px;
+      background:linear-gradient(135deg, var(--green), var(--gold));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    
+    p{margin:0 0 14px; color:var(--muted); line-height:1.6; font-size:16px;}
+    
+    .pill{
+      display:inline-flex;
       gap:10px;
-      padding:14px 16px;
+      align-items:center;
+      padding:10px 16px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      color:rgba(234,255,241,.9);
+      font-size:14px;
+      font-weight:700;
+      margin:14px 0;
+    }
+    
+    .row{display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;}
+    
+    a.btn, button.btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:14px 20px;
       border-radius:14px;
       font-weight:900;
       text-decoration:none;
-      border:0; cursor:pointer;
+      border:0;
+      cursor:pointer;
       font-size:16px;
-      min-width:220px;
+      flex:1;
+      min-width:200px;
+      transition:all .2s;
     }
+    
     .primary{
       background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
       color:#042012;
+      box-shadow:0 4px 16px rgba(34,197,94,.3);
     }
+    
+    .primary:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 24px rgba(34,197,94,.4);
+    }
+    
     .secondary{
       background:rgba(250,204,21,.14);
       border:1px solid rgba(250,204,21,.25);
       color:var(--text);
     }
-    .pill{
-      display:inline-flex; gap:10px; align-items:center;
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.18);
-      color:rgba(234,255,241,.9);
-      font-size:13px;
-      margin-top:10px;
-      flex-wrap:wrap;
+    
+    .secondary:hover{
+      background:rgba(250,204,21,.2);
+      border-color:rgba(250,204,21,.4);
     }
-    .muted{color:rgba(234,255,241,.72); font-size:13px; margin-top:10px}
-    .hr{height:1px; background:rgba(255,255,255,.12); margin:14px 0;}
+    
+    .hr{height:1px; background:rgba(255,255,255,.12); margin:20px 0;}
+    
     .note{
-      margin-top:10px;
-      font-size:12px;
+      margin-top:14px;
+      font-size:13px;
       color:rgba(234,255,241,.7);
-      line-height:1.45;
+      line-height:1.6;
+      padding:12px;
+      background:rgba(0,0,0,.2);
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    
+    @media(max-width:640px){
+      .row{flex-direction:column;}
+      a.btn{width:100%;}
     }
   </style>
 </head>
 <body>
+
+<!-- ========================================== -->
+<!-- STATUS GUARD -->
+<!-- ========================================== -->
+<div id="guard_status">🔐 Vérification...</div>
+
+<!-- ========================================== -->
+<!-- GUARD SCRIPTS -->
+<!-- ========================================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./guard.js"></script>
+<script>
+  (async () => {
+    // ✅ MODULE = "DRIVER_PRO" (majuscule comme dans la DB)
+    const ok = await window.DIGIY.guardOrPay("DRIVER_PRO", "/digiy-driver/authentification-chauffeur.html");
+    if (!ok) return; // Redirigé
+    
+    // ✅ Accès OK
+    console.log("🦅 DIGIY DRIVER PRO chargé avec succès");
+    console.log("📊 Access:", window.DIGIY_ACCESS);
+    
+    // Masquer le status
+    setTimeout(() => {
+      const s = document.getElementById("guard_status");
+      if (s) s.style.display = "none";
+    }, 1200);
+    
+    // Afficher le phone dans l'UI
+    const phone = window.DIGIY_ACCESS.phone;
+    document.getElementById("userPhone").textContent = phone;
+  })();
+</script>
+
+<!-- ========================================== -->
+<!-- APP DIGIY DRIVER -->
+<!-- ========================================== -->
+<div class="app">
   <div class="wrap">
     <div class="card">
       <h1>🚗 DIGIY DRIVER PRO</h1>
       <p>
-        Porte d’entrée chauffeur. <b>Connexion + abonnement</b> vérifiés.
-        Si c’est <b>past_due</b> (ou pas actif), redirection paiement.
+        Bienvenue dans ton espace chauffeur professionnel.
+        <strong>0% commission</strong> sur toutes tes courses.
       </p>
 
-      <div class="pill" id="pill">⏳ Vérification…</div>
+      <div class="pill">
+        ✅ <span id="userPhone">+221 77 XXX XX XX</span> • Abonnement actif
+      </div>
 
       <div class="hr"></div>
 
-      <div class="row" id="linksRow" style="opacity:.65; pointer-events:none;">
-        <a class="btn primary" href="./driver-zone-now.html">Entrer dans la zone</a>
-        <a class="btn secondary" href="./courses.html">Voir les courses</a>
-        <a class="btn secondary" href="./profil-chauffeur.html">Mon profil</a>
+      <div class="row">
+        <a class="btn primary" href="./driver-zone-now.html">
+          🚗 Entrer dans la zone
+        </a>
+        <a class="btn secondary" href="./courses.html">
+          📋 Voir les courses
+        </a>
+        <a class="btn secondary" href="./profil-chauffeur.html">
+          👤 Mon profil
+        </a>
       </div>
 
-      <p class="muted" id="status"></p>
-
       <div class="note">
-        ⚙️ Plan: <b>mensuel 9 900 FCFA</b> • Paiement: <b>Wave</b> • Activation: immédiate •
-        Accès verrouillé via <b>rpc is_driver_active</b>.
+        <strong>📦 Ton abonnement DRIVER PRO</strong><br>
+        • Prix: <strong>9,900 FCFA/mois</strong><br>
+        • Paiement: Wave / Orange Money<br>
+        • Commission: <strong>0%</strong> (tu gardes 100%)<br>
+        • Support: WhatsApp +221 77 134 28 89
       </div>
     </div>
   </div>
+</div>
 
-  <script>
-    const pill = document.getElementById("pill");
-    const statusEl = document.getElementById("status");
-    const linksRow = document.getElementById("linksRow");
-
-    function setStatus(msg){ statusEl.textContent = msg || ""; }
-
-    (async () => {
-      // guard.js doit exposer window.DIGIY
-      if (!window.DIGIY){
-        pill.textContent = "⚠️ guard.js manquant";
-        setStatus("Vérifie que guard.js est bien à la racine du repo et chargé.");
-        return;
-      }
-
-      const phone = DIGIY.getPhone();
-
-      if(!phone){
-        pill.textContent = "📱 Non connecté";
-        setStatus("Redirection vers la connexion…");
-        setTimeout(() => location.replace("./authentification-chauffeur.html"), 350);
-        return;
-      }
-
-      pill.textContent = "📱 " + phone + " • ⏳ Abonnement…";
-      setStatus("Vérification abonnement…");
-
-      const ok = await DIGIY.guardSubscriptionOrRedirect(phone, location.href);
-
-      if(ok){
-        pill.textContent = "✅ " + phone + " • Abonnement actif";
-        setStatus("OK. Choisis une page (Zone / Courses / Profil).");
-        linksRow.style.opacity = "1";
-        linksRow.style.pointerEvents = "auto";
-      } else {
-        pill.textContent = "⛔ " + phone + " • Paiement requis";
-        setStatus("Redirection paiement…");
-        // la redirection est déjà faite par guardSubscriptionOrRedirect
-      }
-    })();
-  </script>
 </body>
 </html>
-
-
-
