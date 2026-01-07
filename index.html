@@ -19,9 +19,10 @@
     body{
       margin:0; min-height:100vh;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-      background:radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
-                 radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
-                 var(--bg);
+      background:
+        radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
+        radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
+        var(--bg);
       color:var(--text);
       display:flex; align-items:center; justify-content:center;
       padding:18px;
@@ -66,9 +67,16 @@
       color:rgba(234,255,241,.9);
       font-size:13px;
       margin-top:10px;
+      flex-wrap:wrap;
     }
     .muted{color:rgba(234,255,241,.72); font-size:13px; margin-top:10px}
     .hr{height:1px; background:rgba(255,255,255,.12); margin:14px 0;}
+    .note{
+      margin-top:10px;
+      font-size:12px;
+      color:rgba(234,255,241,.7);
+      line-height:1.45;
+    }
   </style>
 </head>
 <body>
@@ -76,42 +84,68 @@
     <div class="card">
       <h1>🚗 DIGIY DRIVER PRO</h1>
       <p>
-        Outil chauffeur. Si ton abonnement est actif, tu entres direct.
-        Sinon, tu es redirigé vers le paiement, puis tu reviens automatiquement.
+        Porte d’entrée chauffeur. <b>Connexion + abonnement</b> vérifiés.
+        Si c’est <b>past_due</b> (ou pas actif), redirection paiement.
       </p>
 
-      <div class="pill" id="pill">📱 Vérification…</div>
+      <div class="pill" id="pill">⏳ Vérification…</div>
 
       <div class="hr"></div>
 
-      <div class="row">
+      <div class="row" id="linksRow" style="opacity:.65; pointer-events:none;">
         <a class="btn primary" href="./driver-zone-now.html">Entrer dans la zone</a>
         <a class="btn secondary" href="./courses.html">Voir les courses</a>
         <a class="btn secondary" href="./profil-chauffeur.html">Mon profil</a>
       </div>
 
       <p class="muted" id="status"></p>
+
+      <div class="note">
+        ⚙️ Plan: <b>mensuel 9 900 FCFA</b> • Paiement: <b>Wave</b> • Activation: immédiate •
+        Accès verrouillé via <b>rpc is_driver_active</b>.
+      </div>
     </div>
   </div>
 
   <script>
     const pill = document.getElementById("pill");
     const statusEl = document.getElementById("status");
+    const linksRow = document.getElementById("linksRow");
 
     function setStatus(msg){ statusEl.textContent = msg || ""; }
 
     (async () => {
-      const phone = DIGIY.getPhone();
-      pill.textContent = phone ? ("📱 " + phone) : "📱 Non connecté";
-
-      if(!phone){
-        setStatus("Aucun numéro trouvé. Redirection vers la connexion…");
-        setTimeout(() => location.replace("./authentification-chauffeur.html"), 450);
+      // guard.js doit exposer window.DIGIY
+      if (!window.DIGIY){
+        pill.textContent = "⚠️ guard.js manquant";
+        setStatus("Vérifie que guard.js est bien à la racine du repo et chargé.");
         return;
       }
 
-      // Ici on ne bloque pas (les pages PRO elles-mêmes font le guard)
-      setStatus("OK. Choisis une page (Zone / Courses / Profil).");
+      const phone = DIGIY.getPhone();
+
+      if(!phone){
+        pill.textContent = "📱 Non connecté";
+        setStatus("Redirection vers la connexion…");
+        setTimeout(() => location.replace("./authentification-chauffeur.html"), 350);
+        return;
+      }
+
+      pill.textContent = "📱 " + phone + " • ⏳ Abonnement…";
+      setStatus("Vérification abonnement…");
+
+      const ok = await DIGIY.guardSubscriptionOrRedirect(phone, location.href);
+
+      if(ok){
+        pill.textContent = "✅ " + phone + " • Abonnement actif";
+        setStatus("OK. Choisis une page (Zone / Courses / Profil).");
+        linksRow.style.opacity = "1";
+        linksRow.style.pointerEvents = "auto";
+      } else {
+        pill.textContent = "⛔ " + phone + " • Paiement requis";
+        setStatus("Redirection paiement…");
+        // la redirection est déjà faite par guardSubscriptionOrRedirect
+      }
     })();
   </script>
 </body>
