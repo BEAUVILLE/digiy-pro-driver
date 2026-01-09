@@ -1,96 +1,53 @@
 /* =========================================
-   DIGIY PRO DRIVER — guard.js (FINAL+)
-   - GitHub Pages friendly
-   - Login phone via session/localStorage
-   - Check abonnement via RPC: is_driver_active(p_phone text) -> boolean
-   - Redirect paiement si inactif
-   - Cache léger
-   - Alias guardOrPay() pour compatibilité avec index.html
+   DIGIY PRO DRIVER — guard.js (ONE ENTRY)
+   - Une seule porte d'entrée : INSCRIPTION
+   - Si pas actif -> inscription (où tarifs sont visibles)
+   - Check abonnement via RPC is_driver_active(p_phone text) -> boolean
 ========================================= */
 (function(){
   'use strict';
 
-  // ✅ Paiement (repo séparé)
-  const PAY_URL = "https://beauville.github.io/commencer-a-payer/";
+  // ✅ UNIQUE PORTE D’ENTRÉE (ta page inscription, avec tarifs visibles)
+  const ENTRY_URL = "https://digiylyfe.com/inscription-pro.html"; // <-- mets TON URL finale ici
 
   // ✅ Supabase
   const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
-  // ✅ Client global unique
   const sb = (window.__sb)
     ? window.__sb
     : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   window.__sb = sb;
 
-  // =========================
-  // UI (optionnel)
-  // =========================
+  // UI status (optionnel)
   function setStatus(txt){
     const el = document.getElementById("guard_status");
     if (el) el.textContent = txt;
   }
 
-  // =========================
-  // Utils
-  // =========================
   function normPhone(p){
     p = String(p||"").trim();
-    // retire espaces et caractères inutiles (garde chiffres et +)
     p = p.replace(/\s+/g,"").replace(/[^\d+]/g,"");
-
-    // convertit 00221xxxxxxxxx -> +221xxxxxxxxx
-    if (p.startsWith("00221")) p = "+221" + p.slice(5);
-
-    // si commence par 221 sans + -> ajoute +
-    if (!p.startsWith("+") && p.startsWith("221")) p = "+" + p;
-
-    // si 9 chiffres (format local) -> +221
-    if (!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
-
+    if(p.startsWith("00221")) p = "+221" + p.slice(5);
+    if(!p.startsWith("+") && p.startsWith("221")) p = "+" + p;
+    if(!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
     return p;
   }
 
   function getPhone(){
-    // 1) session
     const s = sessionStorage.getItem("digiy_driver_phone");
     if (s) return normPhone(s);
 
-    // 2) local storage (pin object)
     try{
       const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin")||"null");
       if (a && a.phone) return normPhone(a.phone);
     }catch(_){}
 
-    // 3) fallback générique si tu l’utilises ailleurs
     const g = localStorage.getItem("digiy_phone") || localStorage.getItem("phone");
     if (g) return normPhone(g);
 
     return null;
-  }
-
-  function cacheKey(phone){
-    return "digiy_driver_active_cache__" + normPhone(phone || "");
-  }
-
-  function getCache(phone){
-    try{
-      const raw = localStorage.getItem(cacheKey(phone));
-      if(!raw) return null;
-      const obj = JSON.parse(raw);
-      if(!obj || typeof obj !== "object") return null;
-      if(!obj.ts || (Date.now() - obj.ts) > 60 * 1000) return null; // 60s cache
-      return obj.ok;
-    }catch(_){
-      return null;
-    }
-  }
-
-  function setCache(phone, ok){
-    try{
-      localStorage.setItem(cacheKey(phone), JSON.stringify({ ok: !!ok, ts: Date.now() }));
-    }catch(_){}
   }
 
   async function isDriverActive(phone){
@@ -99,94 +56,61 @@
       if (error) throw error;
       return !!data;
     }catch(e){
-      // ⚠️ si Supabase a un souci, on ne bloque pas “à tort”
+      // Si RPC down: on n'empêche pas (safe)
       console.warn("[DIGIY] is_driver_active error:", e);
-      return null; // inconnu
+      return null;
     }
   }
 
-  function redirectToPay(phone, fromUrl){
-    const u = PAY_URL
-      + "?phone=" + encodeURIComponent(phone || "")
-      + "&from="  + encodeURIComponent(fromUrl || location.href)
-      + "&module=" + encodeURIComponent("DRIVER_PRO");
-    location.replace(u);
+  function goEntry(reason, moduleCode, phone){
+    const u = new URL(ENTRY_URL);
+    u.searchParams.set("module", String(moduleCode||"DRIVER_PRO"));
+    if (reason) u.searchParams.set("reason", reason); // missing_phone / not_active
+    if (phone) u.searchParams.set("phone", phone);
+    u.searchParams.set("from", location.href);
+    location.replace(u.toString());
   }
 
-  // =========================
-  // API publique
-  // =========================
+  // API
   window.DIGIY = window.DIGIY || {};
   window.DIGIY.getPhone = getPhone;
 
-  /**
-   * return boolean:
-   * - true  => accès OK
-   * - false => redirection paiement effectuée
-   * - true  => si phone vide (la page gère login)
-   */
-  window.DIGIY.guardSubscriptionOrRedirect = async function(phone, fromUrl){
-    phone = normPhone(phone || getPhone() || "");
+  // ✅ Fonction attendue par ta page
+  window.DIGIY.guardOrPay = async function(moduleCode){
+    const module = String(moduleCode || "DRIVER_PRO").toUpperCase();
+    const phone = getPhone();
 
+    setStatus("🔐 Vérification...");
+
+    // 1) Pas identifié -> entrée unique
     if(!phone){
-      setStatus("📵 Téléphone manquant — connexion requise");
-      return true; // laisse la page gérer le login
+      setStatus("📝 Inscription requise");
+      goEntry("missing_phone", module, "");
+      return false;
     }
 
-    setStatus("🔐 Vérification abonnement...");
-
-    // cache 60s pour éviter de spam RPC
-    const cached = getCache(phone);
-    if (cached !== null){
-      if (cached){
-        setStatus("✅ Abonnement actif");
-        return true;
-      }else{
-        setStatus("⛔ Abonnement inactif — paiement requis");
-        redirectToPay(phone, fromUrl || location.href);
-        return false;
-      }
-    }
-
+    // 2) Identifié -> check actif
     const ok = await isDriverActive(phone);
 
     if (ok === null){
-      // Supabase down => ne bloque pas (safe)
+      // RPC down => laisse passer (safe)
       setStatus("⚠️ Vérification indisponible — accès autorisé");
+      window.DIGIY_ACCESS = { ok:true, phone, module, note:"rpc_down" };
+      document.documentElement.classList.add("access-ok");
       return true;
     }
 
-    setCache(phone, ok);
-
-    if (!ok){
-      setStatus("⛔ Abonnement inactif — paiement requis");
-      redirectToPay(phone, fromUrl || location.href);
+    if(!ok){
+      setStatus("⛔ Paiement requis");
+      goEntry("not_active", module, phone);
       return false;
     }
 
-    setStatus("✅ Abonnement actif");
+    // 3) OK
+    setStatus("✅ Accès autorisé");
+    window.DIGIY_ACCESS = { ok:true, phone, module };
+    document.documentElement.classList.add("access-ok");
     return true;
-  };
-
-  /**
-   * ✅ Alias attendu par ta page actuelle:
-   * window.DIGIY.guardOrPay("DRIVER_PRO", "/digiy-driver/authentification-chauffeur.html")
-   *
-   * - moduleCode est gardé pour compat, mais on s’en sert surtout pour mettre &module=
-   * - loginUrl = où envoyer si pas de phone (ou si tu veux gérer login)
-   */
-  window.DIGIY.guardOrPay = async function(moduleCode, loginUrl){
-    const phone = getPhone();
-
-    // si pas de phone -> on redirige vers loginUrl (comme tu veux)
-    if(!phone){
-      setStatus("📵 Connexion requise");
-      if (loginUrl) location.href = loginUrl;
-      return false;
-    }
-
-    // sinon vérif abonnement (redirige PAY si inactif)
-    return await window.DIGIY.guardSubscriptionOrRedirect(phone, loginUrl || location.href);
   };
 
 })();
