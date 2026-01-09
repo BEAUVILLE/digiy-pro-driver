@@ -1,20 +1,22 @@
 /* =========================================
    DIGIY PRO DRIVER — guard.js (ONE ENTRY)
-   - Une seule porte d'entrée : INSCRIPTION
-   - Si pas actif -> inscription (où tarifs sont visibles)
-   - Check abonnement via RPC is_driver_active(p_phone text) -> boolean
+   - Une seule porte d'entrée : INSCRIPTION DIGIY
+   - Si pas actif -> redirige vers inscription (tarifs visibles là-bas)
+   - Check abonnement via RPC: is_driver_active(p_phone text) -> boolean
+   - GitHub Pages friendly
 ========================================= */
 (function(){
   'use strict';
 
-  // ✅ UNIQUE PORTE D’ENTRÉE (ta page inscription, avec tarifs visibles)
-  const ENTRY_URL = "https://digiylyfe.com/inscription-pro.html"; // <-- mets TON URL finale ici
+  // ✅ UNIQUE PORTE D’ENTRÉE
+  const ENTRY_URL = "https://beauville.github.io/inscription-digiy/";
 
   // ✅ Supabase
   const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
+  // ✅ Client global unique
   const sb = (window.__sb)
     ? window.__sb
     : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -26,6 +28,7 @@
     if (el) el.textContent = txt;
   }
 
+  // Normalise num (Sénégal)
   function normPhone(p){
     p = String(p||"").trim();
     p = p.replace(/\s+/g,"").replace(/[^\d+]/g,"");
@@ -36,14 +39,17 @@
   }
 
   function getPhone(){
+    // 1) session
     const s = sessionStorage.getItem("digiy_driver_phone");
     if (s) return normPhone(s);
 
+    // 2) local storage (objet pin)
     try{
       const a = JSON.parse(localStorage.getItem("digiy_driver_access_pin")||"null");
       if (a && a.phone) return normPhone(a.phone);
     }catch(_){}
 
+    // 3) fallback générique
     const g = localStorage.getItem("digiy_phone") || localStorage.getItem("phone");
     if (g) return normPhone(g);
 
@@ -56,22 +62,22 @@
       if (error) throw error;
       return !!data;
     }catch(e){
-      // Si RPC down: on n'empêche pas (safe)
+      // Si Supabase a un souci: ne pas bloquer à tort
       console.warn("[DIGIY] is_driver_active error:", e);
-      return null;
+      return null; // inconnu
     }
   }
 
   function goEntry(reason, moduleCode, phone){
     const u = new URL(ENTRY_URL);
-    u.searchParams.set("module", String(moduleCode||"DRIVER_PRO"));
-    if (reason) u.searchParams.set("reason", reason); // missing_phone / not_active
+    u.searchParams.set("module", String(moduleCode || "DRIVER_PRO"));
+    u.searchParams.set("reason", String(reason || ""));
     if (phone) u.searchParams.set("phone", phone);
     u.searchParams.set("from", location.href);
     location.replace(u.toString());
   }
 
-  // API
+  // API publique
   window.DIGIY = window.DIGIY || {};
   window.DIGIY.getPhone = getPhone;
 
@@ -82,14 +88,14 @@
 
     setStatus("🔐 Vérification...");
 
-    // 1) Pas identifié -> entrée unique
+    // 1) pas identifié -> inscription (porte unique)
     if(!phone){
       setStatus("📝 Inscription requise");
       goEntry("missing_phone", module, "");
       return false;
     }
 
-    // 2) Identifié -> check actif
+    // 2) identifié -> check abonnement
     const ok = await isDriverActive(phone);
 
     if (ok === null){
