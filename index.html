@@ -202,16 +202,20 @@
         <a class="btn secondary" href="./profil-chauffeur.html">👤 Mon profil</a>
       </div>
 
-      <div class="note">
-        <strong>📦 Ton abonnement DRIVER PRO</strong><br>
-        • Prix: <strong>9,900 FCFA/mois</strong><br>
-        • Paiement: Wave / Orange Money<br>
-        • Commission: <strong>0%</strong> (tu gardes 100%)<br>
-        • Support: WhatsApp +221 77 134 28 89
-      </div>
-    </div>
-  </div>
+     <div class="note">
+  <strong>📦 Ton abonnement DRIVER PRO</strong><br>
+  • Prix : <strong>9,900 FCFA / mois</strong><br>
+  • Paiement : <strong>Wave</strong><br>
+  • Commission : <strong>0%</strong> (tu gardes 100%)<br>
+  • Support : <strong>JB BEAUVILLE</strong> — WhatsApp <strong>+221 77 134 28 89</strong>
 </div>
 
-</body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./guard.js"></script>
+<script>
+  (async () => {
+    const ok = await window.DIGIY.guardOrPay("DRIVER_PRO");
+    if (!ok) return; // redirigé inscription
+  })();
+</script></body>
 </html>
