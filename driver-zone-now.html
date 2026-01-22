@@ -7,7 +7,6 @@
   <meta name="theme-color" content="#061b14"/>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js"></script>
 
   <style>
     :root{
@@ -111,7 +110,7 @@
       </div>
 
       <p class="muted" style="margin-top:10px;">
-        Astuce : si tu dois payer, DIGIY te redirige puis te ramène ici automatiquement<span class="kbd">from</span>.
+        Session active : 8 heures depuis ta dernière connexion.
       </p>
     </section>
 
@@ -140,6 +139,46 @@
   </div>
 </main>
 
+<!-- ✅ GUARD INTÉGRÉ -->
+<script>
+  (function () {
+    "use strict";
+
+    const SESSION_KEY = "DIGIY_DRIVER_PRO_SESSION";
+    const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8h
+
+    function now() { return Date.now(); }
+
+    function getSession() {
+      try {
+        const raw = localStorage.getItem(SESSION_KEY);
+        const s = JSON.parse(raw);
+        if (!s || !s.expires_at || now() > s.expires_at) return null;
+        return s;
+      } catch {
+        return null;
+      }
+    }
+
+    function clearSession() {
+      localStorage.removeItem(SESSION_KEY);
+    }
+
+    function logout(redirect = "pin.html") {
+      clearSession();
+      const url = new URL(location.href);
+      const slug = url.searchParams.get("slug");
+      if (slug) {
+        location.replace(redirect + "?slug=" + slug);
+      } else {
+        location.replace(redirect);
+      }
+    }
+
+    window.DIGIY_GUARD = { getSession, clearSession, logout };
+  })();
+</script>
+
 <script>
   const pillPhone = document.getElementById("pillPhone");
   const statusEl = document.getElementById("status");
@@ -161,14 +200,30 @@
   }
 
   async function boot(){
-    // ✅ PROTÉGÉ : abonnement obligatoire
-    const ok = await DIGIY.bootProPage({ requireSubscription: true });
-    if(!ok) return;
+    // ✅ Vérifier la session
+    const session = window.DIGIY_GUARD.getSession();
+    
+    if (!session || !session.owner_id) {
+      // ❌ Pas de session → redirection vers pin.html
+      const url = new URL(location.href);
+      const slug = url.searchParams.get("slug");
+      const pinUrl = slug ? `./pin.html?slug=${slug}` : "./pin.html";
+      
+      console.log("❌ Session expirée, redirection vers:", pinUrl);
+      location.replace(pinUrl);
+      return;
+    }
 
-    const phone = DIGIY.getPhone();
-    pillPhone.textContent = "📱 " + (phone || "…");
+    // ✅ Session OK
+    console.log("✅ Session OK, owner_id:", session.owner_id);
 
-    setStatus("✅ Abonnement actif. Tu peux te mettre en ligne.");
+    // Afficher le téléphone
+    pillPhone.textContent = "📱 " + (session.phone || session.slug || "Connecté");
+
+    // Afficher le statut
+    setStatus(`✅ Connecté (${session.title || "Chauffeur"}). Tu peux te mettre en ligne.`);
+
+    // Charger la zone sauvegardée
     loadZone();
   }
 
@@ -178,12 +233,11 @@
 
   document.getElementById("btnGo").addEventListener("click", () => {
     const z = loadZone();
-    alert(z ? ("Disponible en zone : " + z) : "Choisis d’abord une zone.");
+    alert(z ? ("🚗 Disponible en zone : " + z) : "⚠️ Choisis d'abord une zone.");
   });
 
   document.getElementById("btnLogout").addEventListener("click", () => {
-    DIGIY.clearPhone();
-    location.replace("./authentification-chauffeur.html");
+    window.DIGIY_GUARD.logout();
   });
 
   boot();
