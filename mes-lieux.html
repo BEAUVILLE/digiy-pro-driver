@@ -73,6 +73,10 @@
       background:rgba(255,255,255,.08); color:var(--text);
       border:1px solid var(--line);
     }
+    .btn-danger{
+      background:rgba(239,68,68,.14); color:#fecaca;
+      border:1px solid rgba(239,68,68,.25);
+    }
     .btn-active{
       background:rgba(34,197,94,.20); color:#86efac;
       border:1px solid rgba(34,197,94,.35);
@@ -263,7 +267,11 @@
           <div class="lieu-actions">
             ${lieu.slug === current_slug 
               ? '<button class="btn-active">✅ Actif</button>'
-              : `<button class="btn-primary" onclick="activerLieu('${lieu.slug}', '${lieu.title}', '${lieu.phone}')">Activer</button>`
+              : `<button class="btn-primary" onclick="activerLieu('${lieu.slug}', '${escapeHtml(lieu.title)}', '${lieu.phone}')">Activer</button>`
+            }
+            ${lieu.slug === current_slug
+              ? '<button class="btn-danger" disabled style="opacity:0.5;cursor:not-allowed;" title="Impossible de supprimer le lieu actif">🗑️</button>'
+              : `<button class="btn-danger" onclick="supprimerLieu('${lieu.slug}', '${escapeHtml(lieu.title)}')">🗑️</button>`
             }
           </div>
         </div>
@@ -281,6 +289,13 @@
     }
   }
 
+  // Escape HTML pour éviter injection
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   // Activer un lieu (changer de slug)
   window.activerLieu = function(slug, title, phone) {
     const newSession = window.DIGIY_GUARD.setSession({
@@ -295,6 +310,40 @@
     
     // Recharger pour voir le changement
     location.reload();
+  };
+
+  // Supprimer un lieu
+  window.supprimerLieu = async function(slug, title) {
+    // Confirmation
+    const confirmMsg = `⚠️ ATTENTION !\n\nSupprimer le lieu "${title}" ?\nSlug: ${slug}\n\nCette action est IRRÉVERSIBLE.`;
+    
+    if (!confirm(confirmMsg)) {
+      return;
+    }
+
+    try {
+      const { data, error } = await sb.rpc("delete_slug", {
+        p_slug: slug,
+        p_owner_id: owner_id
+      });
+
+      if (error) throw error;
+
+      const result = typeof data === "string" ? JSON.parse(data) : data;
+
+      if (!result.ok) {
+        throw new Error(result.error || "Erreur lors de la suppression");
+      }
+
+      console.log("✅ Lieu supprimé:", slug);
+      
+      // Recharger la liste
+      loadLieux();
+
+    } catch (err) {
+      console.error(err);
+      alert("❌ Erreur de suppression : " + err.message);
+    }
   };
 
   // Toggle formulaire ajout
