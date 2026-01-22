@@ -6,6 +6,10 @@
   <title>DIGIY DRIVER PRO — VTC 0% Commission</title>
   <meta name="theme-color" content="#061b14"/>
 
+  <!-- Supabase + Guard -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js"></script>
+
   <style>
     :root{
       --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
@@ -140,21 +144,59 @@
 <body>
   <div id="guard_status">🔐 Vérification...</div>
 
-  <!-- 1 seule fois -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js"></script>
   <script>
     (async () => {
-      const ok = await window.DIGIY.guardOrPay("DRIVER_PRO");
-      if (!ok) return;
+      // ✅ Attendre que guard.js soit chargé
+      let attempts = 0;
+      while (!window.DIGIY_GUARD && attempts < 50) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+      }
 
-      // Accès OK
+      if (!window.DIGIY_GUARD) {
+        document.getElementById("guard_status").textContent = "❌ Erreur: guard.js non chargé";
+        console.error("DIGIY_GUARD non trouvé");
+        return;
+      }
+
+      // ✅ Vérifier la session
+      const session = window.DIGIY_GUARD.getSession();
+      
+      if (!session || !session.owner_id) {
+        // ❌ Pas de session → redirection vers pin.html
+        const url = new URL(location.href);
+        const slug = url.searchParams.get("slug");
+        const pinUrl = slug ? `./pin.html?slug=${slug}` : "./pin.html";
+        
+        console.log("❌ Pas de session, redirection vers:", pinUrl);
+        location.replace(pinUrl);
+        return;
+      }
+
+      // ✅ Session OK
+      console.log("✅ Session OK, owner_id:", session.owner_id);
+      
+      // Afficher l'app
+      document.documentElement.classList.add('access-ok');
+      
+      // Mettre à jour le status
       const s = document.getElementById("guard_status");
-      if (s) setTimeout(()=> s.style.display="none", 700);
+      if (s) {
+        s.textContent = "✅ Connecté";
+        setTimeout(() => s.style.display = "none", 700);
+      }
 
-      const phone = (window.DIGIY_ACCESS && window.DIGIY_ACCESS.phone) ? window.DIGIY_ACCESS.phone : "";
-      const el = document.getElementById("userPhone");
-      if (el && phone) el.textContent = phone;
+      // Afficher le téléphone
+      const phoneEl = document.getElementById("userPhone");
+      if (phoneEl && session.phone) {
+        phoneEl.textContent = session.phone;
+      }
+
+      // Afficher le titre
+      const titleEl = document.getElementById("driverTitle");
+      if (titleEl && session.title) {
+        titleEl.textContent = session.title;
+      }
     })();
   </script>
 
@@ -163,7 +205,7 @@
       <div class="card">
         <h1>🚗 DIGIY DRIVER PRO</h1>
         <p>
-          Bienvenue dans ton espace chauffeur professionnel.
+          Bienvenue <strong id="driverTitle">chauffeur</strong> dans ton espace professionnel.
           <strong>0% commission</strong> sur toutes tes courses.
         </p>
 
