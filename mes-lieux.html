@@ -146,7 +146,7 @@
     <p>Crée un nouveau point d'activité (ville, zone, quartier...)</p>
 
     <label>Nom du lieu *</label>
-    <input id="inputTitle" placeholder="Ex: Moussa VTC Dakar, Boutique Saly Centre..." />
+    <input id="inputTitle" placeholder="Ex: Moussa VTC Dakar, Transport Saly Centre..." />
     <p style="font-size:12px;color:var(--muted);margin-top:4px;">
       Le slug sera généré automatiquement (ex: chauffeur-moussa-vtc-dakar)
     </p>
@@ -194,6 +194,10 @@
     return session;
   }
 
+  function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
+  }
+
   function getSb() {
     if (!window.__digiy_sb__) {
       window.__digiy_sb__ = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -201,7 +205,7 @@
     return window.__digiy_sb__;
   }
 
-  window.DIGIY_GUARD = { getSession, setSession, getSb };
+  window.DIGIY_GUARD = { getSession, setSession, clearSession, getSb };
 })();
 </script>
 
@@ -261,7 +265,7 @@
       listContainer.innerHTML = `<div class="list">${data.map(lieu => `
         <div class="lieu-item ${lieu.slug === current_slug ? 'active' : ''}">
           <div class="lieu-info">
-            <div class="lieu-name">${lieu.title}</div>
+            <div class="lieu-name">${escapeHtml(lieu.title)}</div>
             <div class="lieu-slug">${lieu.slug}</div>
           </div>
           <div class="lieu-actions">
@@ -269,10 +273,7 @@
               ? '<button class="btn-active">✅ Actif</button>'
               : `<button class="btn-primary" onclick="activerLieu('${lieu.slug}', '${escapeHtml(lieu.title)}', '${lieu.phone}')">Activer</button>`
             }
-            ${lieu.slug === current_slug
-              ? '<button class="btn-danger" disabled style="opacity:0.5;cursor:not-allowed;" title="Impossible de supprimer le lieu actif">🗑️</button>'
-              : `<button class="btn-danger" onclick="supprimerLieu('${lieu.slug}', '${escapeHtml(lieu.title)}')">🗑️</button>`
-            }
+            <button class="btn-danger" onclick="supprimerLieu('${lieu.slug}', '${escapeHtml(lieu.title)}', ${lieu.slug === current_slug})">🗑️</button>
           </div>
         </div>
       `).join('')}</div>`;
@@ -298,7 +299,7 @@
 
   // Activer un lieu (changer de slug)
   window.activerLieu = function(slug, title, phone) {
-    const newSession = window.DIGIY_GUARD.setSession({
+    window.DIGIY_GUARD.setSession({
       ok: true,
       owner_id: owner_id,
       slug: slug,
@@ -307,15 +308,21 @@
     });
     
     console.log("✅ Lieu activé:", slug);
-    
-    // Recharger pour voir le changement
     location.reload();
   };
 
-  // Supprimer un lieu
-  window.supprimerLieu = async function(slug, title) {
-    // Confirmation
-    const confirmMsg = `⚠️ ATTENTION !\n\nSupprimer le lieu "${title}" ?\nSlug: ${slug}\n\nCette action est IRRÉVERSIBLE.`;
+  // Supprimer un lieu (INTELLIGENT)
+  window.supprimerLieu = async function(slug, title, isActive) {
+    // Confirmation différente selon si actif ou pas
+    let confirmMsg;
+    if (isActive) {
+      confirmMsg = `⚠️ ATTENTION !\n\nTu vas supprimer le lieu ACTIF "${title}".\n\n`;
+      confirmMsg += `• S'il reste d'autres lieux → basculement automatique\n`;
+      confirmMsg += `• Si c'est le dernier → déconnexion\n\n`;
+      confirmMsg += `Continuer ?`;
+    } else {
+      confirmMsg = `Supprimer "${title}" ?\n\nCette action est irréversible.`;
+    }
     
     if (!confirm(confirmMsg)) {
       return;
@@ -335,9 +342,50 @@
         throw new Error(result.error || "Erreur lors de la suppression");
       }
 
-      console.log("✅ Lieu supprimé:", slug);
+      console.log("✅ Lieu supprimé:", slug, result);
       
-      // Recharger la liste
+      // Cas 1: Lieu actif supprimé
+      if (isActive) {
+        // Sous-cas A: C'était le dernier lieu
+        if (result.was_last) {
+          console.log("🔴 Dernier lieu supprimé → déconnexion");
+          window.DIGIY_GUARD.clearSession();
+          alert("Dernier lieu supprimé. Redirection vers la connexion.");
+          location.replace("./pin.html");
+          return;
+        }
+        
+        // Sous-cas B: Il reste d'autres lieux → switch auto
+        if (result.next_slug) {
+          console.log("🔄 Switch automatique vers:", result.next_slug);
+          
+          // Récupérer les infos du nouveau lieu
+          const { data: nextLieuData } = await sb.rpc("get_owner_slugs", {
+            p_owner_id: owner_id
+          });
+          
+          const nextLieu = nextLieuData.find(l => l.slug === result.next_slug);
+          
+          if (nextLieu) {
+            window.DIGIY_GUARD.setSession({
+              ok: true,
+              owner_id: owner_id,
+              slug: nextLieu.slug,
+              title: nextLieu.title,
+              phone: nextLieu.phone
+            });
+            
+            alert(`Lieu supprimé.\nBasculement automatique vers: ${nextLieu.title}`);
+            location.reload();
+          } else {
+            // Fallback si problème
+            location.reload();
+          }
+          return;
+        }
+      }
+      
+      // Cas 2: Lieu non-actif supprimé → simple reload
       loadLieux();
 
     } catch (err) {
@@ -377,7 +425,7 @@
         p_owner_id: owner_id,
         p_title: title,
         p_phone: session.phone,
-        p_module: "DRIVER"  // Adapter selon le module
+        p_module: "DRIVER"
       });
 
       if (error) throw error;
@@ -390,7 +438,6 @@
 
       showStatus(`✅ Lieu créé : ${result.slug}`, "ok");
       
-      // Recharger la liste
       setTimeout(() => {
         inputTitle.value = "";
         addForm.classList.remove("show");
