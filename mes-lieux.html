@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY PRO — Mes Lieux</title>
+  <meta name="theme-color" content="#061b14"/>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
+      --text:#eafff1; --muted:rgba(234,255,241,.78);
+      --green:#16a34a; --gold:#facc15; --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
+                 radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
+                 var(--bg);
+      color:var(--text);
+      padding:16px;
+    }
+    header{
+      max-width:980px; margin:0 auto 16px;
+      display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+    }
+    .title{font-weight:900; font-size:22px;}
+    .pill{
+      padding:8px 12px; border:1px solid var(--line); border-radius:999px;
+      background:rgba(0,0,0,.22); color:var(--muted); font-size:13px;
+    }
+    main{max-width:980px; margin:0 auto;}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line); border-radius:var(--r); padding:20px;
+      box-shadow:0 12px 40px rgba(0,0,0,.32); margin-bottom:16px;
+    }
+    h1{margin:0 0 8px; font-size:20px;}
+    p{margin:0; color:var(--muted); line-height:1.45; font-size:15px;}
+    .list{margin-top:16px; display:grid; gap:12px;}
+    .lieu-item{
+      border:1px solid var(--line); border-radius:16px; padding:16px;
+      background:rgba(0,0,0,.18); display:flex; justify-content:space-between;
+      align-items:center; gap:12px; flex-wrap:wrap;
+    }
+    .lieu-item.active{
+      border-color:rgba(34,197,94,.55);
+      background:rgba(34,197,94,.08);
+      box-shadow:0 0 0 3px rgba(34,197,94,.12);
+    }
+    .lieu-info{flex:1; min-width:200px;}
+    .lieu-name{font-weight:900; font-size:16px; margin-bottom:4px;}
+    .lieu-slug{font-size:13px; color:var(--muted); font-family:ui-monospace, monospace;}
+    .lieu-actions{display:flex; gap:8px; flex-wrap:wrap;}
+    button, a.btn{
+      border:0; cursor:pointer; padding:10px 16px; border-radius:12px;
+      font-weight:900; font-size:14px; text-decoration:none;
+      display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
+      color:#042012;
+    }
+    .btn-secondary{
+      background:rgba(250,204,21,.14); color:var(--text);
+      border:1px solid rgba(250,204,21,.25);
+    }
+    .btn-ghost{
+      background:rgba(255,255,255,.08); color:var(--text);
+      border:1px solid var(--line);
+    }
+    .btn-active{
+      background:rgba(34,197,94,.20); color:#86efac;
+      border:1px solid rgba(34,197,94,.35);
+      cursor:default;
+    }
+    .add-form{
+      border-top:1px solid var(--line); margin-top:16px; padding-top:16px;
+      display:none;
+    }
+    .add-form.show{display:block;}
+    label{display:block; font-size:13px; color:rgba(234,255,241,.75); margin:12px 0 6px;}
+    input{
+      width:100%; padding:12px; border-radius:12px;
+      border:1px solid var(--line); background:rgba(0,0,0,.22);
+      color:var(--text); font-size:15px; outline:none;
+    }
+    input:focus{border-color:rgba(34,197,94,.55); box-shadow:0 0 0 3px rgba(34,197,94,.15);}
+    .row{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;}
+    .status{
+      margin-top:12px; padding:12px; border-radius:12px;
+      font-size:14px; font-weight:800; display:none;
+    }
+    .status.show{display:block;}
+    .status.ok{
+      background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.35);
+      color:#86efac;
+    }
+    .status.error{
+      background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.35);
+      color:#fecaca;
+    }
+    .empty{
+      text-align:center; padding:40px 20px; color:var(--muted);
+      border:2px dashed rgba(255,255,255,.14); border-radius:16px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="title">📍 Mes Lieux d'Activité</div>
+  <div class="pill" id="pillPhone">📱 …</div>
+</header>
+
+<main>
+  <!-- Liste des lieux -->
+  <div class="card">
+    <h1>Tous tes lieux</h1>
+    <p>Gère tous tes points d'activité. Clique sur "Activer" pour travailler depuis ce lieu.</p>
+
+    <div id="listContainer">
+      <div class="empty">
+        <div style="font-size:48px;margin-bottom:12px;">⏳</div>
+        Chargement...
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:16px;">
+      <button class="btn-secondary" id="btnShowAdd">➕ Ajouter un lieu</button>
+      <a class="btn-ghost" href="./index.html">← Retour accueil</a>
+    </div>
+  </div>
+
+  <!-- Formulaire ajout lieu -->
+  <div class="card add-form" id="addForm">
+    <h1>Nouveau lieu d'activité</h1>
+    <p>Crée un nouveau point d'activité (ville, zone, quartier...)</p>
+
+    <label>Nom du lieu *</label>
+    <input id="inputTitle" placeholder="Ex: Moussa VTC Dakar, Boutique Saly Centre..." />
+    <p style="font-size:12px;color:var(--muted);margin-top:4px;">
+      Le slug sera généré automatiquement (ex: chauffeur-moussa-vtc-dakar)
+    </p>
+
+    <div class="row">
+      <button class="btn-primary" id="btnCreate">✅ Créer ce lieu</button>
+      <button class="btn-ghost" id="btnCancelAdd">Annuler</button>
+    </div>
+
+    <div class="status" id="addStatus"></div>
+  </div>
+</main>
+
+<!-- ✅ GUARD + SUPABASE -->
+<script>
+(function () {
+  "use strict";
+
+  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  
+  const SESSION_KEY = "DIGIY_DRIVER_PRO_SESSION";
+  const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
+
+  function now() { return Date.now(); }
+
+  function getSession() {
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      const s = JSON.parse(raw);
+      if (!s || !s.expires_at || now() > s.expires_at) return null;
+      return s;
+    } catch {
+      return null;
+    }
+  }
+
+  function setSession(data) {
+    const session = {
+      ...data,
+      created_at: now(),
+      expires_at: now() + SESSION_TTL_MS
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    return session;
+  }
+
+  function getSb() {
+    if (!window.__digiy_sb__) {
+      window.__digiy_sb__ = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    return window.__digiy_sb__;
+  }
+
+  window.DIGIY_GUARD = { getSession, setSession, getSb };
+})();
+</script>
+
+<script>
+(async () => {
+  const session = window.DIGIY_GUARD.getSession();
+  
+  if (!session || !session.owner_id) {
+    const url = new URL(location.href);
+    const slug = url.searchParams.get("slug");
+    location.replace(slug ? `./pin.html?slug=${slug}` : "./pin.html");
+    return;
+  }
+
+  const sb = window.DIGIY_GUARD.getSb();
+  const owner_id = session.owner_id;
+  const current_slug = session.slug;
+
+  // UI Elements
+  const pillPhone = document.getElementById("pillPhone");
+  const listContainer = document.getElementById("listContainer");
+  const addForm = document.getElementById("addForm");
+  const addStatus = document.getElementById("addStatus");
+  const inputTitle = document.getElementById("inputTitle");
+
+  pillPhone.textContent = "📱 " + (session.phone || "Connecté");
+
+  function showStatus(msg, type = "ok") {
+    addStatus.className = `status show ${type}`;
+    addStatus.textContent = msg;
+  }
+
+  function hideStatus() {
+    addStatus.className = "status";
+  }
+
+  // Charger tous les lieux
+  async function loadLieux() {
+    try {
+      const { data, error } = await sb.rpc("get_owner_slugs", {
+        p_owner_id: owner_id
+      });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        listContainer.innerHTML = `
+          <div class="empty">
+            <div style="font-size:48px;margin-bottom:12px;">📍</div>
+            Aucun lieu trouvé.<br>
+            Clique sur "Ajouter un lieu" pour commencer.
+          </div>
+        `;
+        return;
+      }
+
+      listContainer.innerHTML = `<div class="list">${data.map(lieu => `
+        <div class="lieu-item ${lieu.slug === current_slug ? 'active' : ''}">
+          <div class="lieu-info">
+            <div class="lieu-name">${lieu.title}</div>
+            <div class="lieu-slug">${lieu.slug}</div>
+          </div>
+          <div class="lieu-actions">
+            ${lieu.slug === current_slug 
+              ? '<button class="btn-active">✅ Actif</button>'
+              : `<button class="btn-primary" onclick="activerLieu('${lieu.slug}', '${lieu.title}', '${lieu.phone}')">Activer</button>`
+            }
+          </div>
+        </div>
+      `).join('')}</div>`;
+
+    } catch (err) {
+      console.error(err);
+      listContainer.innerHTML = `
+        <div class="empty">
+          <div style="font-size:48px;margin-bottom:12px;">❌</div>
+          Erreur de chargement<br>
+          <small>${err.message}</small>
+        </div>
+      `;
+    }
+  }
+
+  // Activer un lieu (changer de slug)
+  window.activerLieu = function(slug, title, phone) {
+    const newSession = window.DIGIY_GUARD.setSession({
+      ok: true,
+      owner_id: owner_id,
+      slug: slug,
+      title: title,
+      phone: phone
+    });
+    
+    console.log("✅ Lieu activé:", slug);
+    
+    // Recharger pour voir le changement
+    location.reload();
+  };
+
+  // Toggle formulaire ajout
+  document.getElementById("btnShowAdd").addEventListener("click", () => {
+    addForm.classList.add("show");
+    inputTitle.focus();
+    hideStatus();
+  });
+
+  document.getElementById("btnCancelAdd").addEventListener("click", () => {
+    addForm.classList.remove("show");
+    inputTitle.value = "";
+    hideStatus();
+  });
+
+  // Créer un nouveau lieu
+  document.getElementById("btnCreate").addEventListener("click", async () => {
+    const title = inputTitle.value.trim();
+    
+    if (!title) {
+      showStatus("⚠️ Entre un nom de lieu", "error");
+      return;
+    }
+
+    try {
+      hideStatus();
+      document.getElementById("btnCreate").disabled = true;
+      document.getElementById("btnCreate").textContent = "⏳ Création...";
+
+      const { data, error } = await sb.rpc("create_new_slug", {
+        p_owner_id: owner_id,
+        p_title: title,
+        p_phone: session.phone,
+        p_module: "DRIVER"  // Adapter selon le module
+      });
+
+      if (error) throw error;
+
+      const result = typeof data === "string" ? JSON.parse(data) : data;
+
+      if (!result.ok) {
+        throw new Error(result.error || "Erreur lors de la création");
+      }
+
+      showStatus(`✅ Lieu créé : ${result.slug}`, "ok");
+      
+      // Recharger la liste
+      setTimeout(() => {
+        inputTitle.value = "";
+        addForm.classList.remove("show");
+        loadLieux();
+      }, 1500);
+
+    } catch (err) {
+      console.error(err);
+      showStatus("❌ Erreur : " + err.message, "error");
+    } finally {
+      document.getElementById("btnCreate").disabled = false;
+      document.getElementById("btnCreate").textContent = "✅ Créer ce lieu";
+    }
+  });
+
+  // Chargement initial
+  loadLieux();
+})();
+</script>
+
+</body>
+</html>
