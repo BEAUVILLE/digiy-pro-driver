@@ -7,7 +7,6 @@
   <meta name="theme-color" content="#061b14"/>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js"></script>
 
   <style>
     :root{
@@ -115,13 +114,13 @@
       </div>
 
       <p class="muted" style="margin-top:10px;">
-        Si l’abonnement n’est pas actif, tu seras automatiquement redirigé vers le paiement.
+        Session active : 8 heures depuis ta dernière connexion.
       </p>
     </section>
 
     <section class="card half">
       <h1>Courses (démo)</h1>
-      <p class="muted">Ici tu branches ton vrai flux (courses, demandes, zones). Pour l’instant on montre une liste légère.</p>
+      <p class="muted">Ici tu branches ton vrai flux (courses, demandes, zones). Pour l'instant on montre une liste légère.</p>
 
       <div class="list" id="list">
         <!-- rempli en JS -->
@@ -131,13 +130,53 @@
     <section class="card">
       <h1>Règle DIGIY</h1>
       <p>
-        ✅ Pro = outil de travail. <br/>
-        ✅ Abonnement actif = accès. <br/>
-        ✅ Sinon → paiement → retour exact sur la page.
+        ✅ Session active = accès. <br/>
+        ✅ 8 heures de session après connexion. <br/>
+        ✅ Déconnexion automatique après expiration.
       </p>
     </section>
   </div>
 </main>
+
+<!-- ✅ GUARD INTÉGRÉ -->
+<script>
+  (function () {
+    "use strict";
+
+    const SESSION_KEY = "DIGIY_DRIVER_PRO_SESSION";
+    const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8h
+
+    function now() { return Date.now(); }
+
+    function getSession() {
+      try {
+        const raw = localStorage.getItem(SESSION_KEY);
+        const s = JSON.parse(raw);
+        if (!s || !s.expires_at || now() > s.expires_at) return null;
+        return s;
+      } catch {
+        return null;
+      }
+    }
+
+    function clearSession() {
+      localStorage.removeItem(SESSION_KEY);
+    }
+
+    function logout(redirect = "pin.html") {
+      clearSession();
+      const url = new URL(location.href);
+      const slug = url.searchParams.get("slug");
+      if (slug) {
+        location.replace(redirect + "?slug=" + slug);
+      } else {
+        location.replace(redirect);
+      }
+    }
+
+    window.DIGIY_GUARD = { getSession, clearSession, logout };
+  })();
+</script>
 
 <script>
   const pillPhone = document.getElementById("pillPhone");
@@ -166,24 +205,37 @@
   }
 
   async function boot(){
-    // ✅ 1) Protège la page PRO (abonnement)
-    const ok = await DIGIY.bootProPage({ requireSubscription: true });
-    if(!ok) return; // si false -> déjà redirigé
+    // ✅ Vérifier la session
+    const session = window.DIGIY_GUARD.getSession();
+    
+    if (!session || !session.owner_id) {
+      // ❌ Pas de session → redirection vers pin.html
+      const url = new URL(location.href);
+      const slug = url.searchParams.get("slug");
+      const pinUrl = slug ? `./pin.html?slug=${slug}` : "./pin.html";
+      
+      console.log("❌ Session expirée, redirection vers:", pinUrl);
+      location.replace(pinUrl);
+      return;
+    }
 
-    // ✅ 2) Affiche phone
-    const phone = DIGIY.getPhone();
-    pillPhone.textContent = "📱 " + (phone || "…");
+    // ✅ Session OK
+    console.log("✅ Session OK, owner_id:", session.owner_id);
 
-    // ✅ 3) Contenu page
-    setStatus("✅ Abonnement actif. Page PRO ouverte.");
+    // Afficher le téléphone
+    pillPhone.textContent = "📱 " + (session.phone || session.slug || "Connecté");
+
+    // Afficher le statut
+    setStatus(`✅ Session active (${session.title || "Chauffeur"})`);
+
+    // Afficher les courses démo
     demoRows();
   }
 
   document.getElementById("btnRefresh").addEventListener("click", () => location.reload());
 
   document.getElementById("btnLogout").addEventListener("click", () => {
-    DIGIY.clearPhone();
-    location.replace("./authentification-chauffeur.html");
+    window.DIGIY_GUARD.logout();
   });
 
   boot();
@@ -191,4 +243,3 @@
 
 </body>
 </html>
-
