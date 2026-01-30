@@ -82,10 +82,12 @@
     if (!slug || pin.length < 4) return { ok: false, error: "Slug et PIN requis" };
 
     // ✅ RPC dédiée DRIVER (pas de verify_access_pin_by_slug)
-    const { data, error } = await sb.rpc("driver_login_by_slug_last4", {
-      p_slug: slug,
-      p_pin: pin
-    });
+   const { data, error } = await sb.rpc("verify_access_pin", {
+  p_module: "DRIVER",
+  p_phone: resultPhoneOrSessionPhone, // ex: phone récupéré via input/slug store
+  p_pin: pin,
+  p_slug: slug
+});
 
     if (error) {
       console.error("🔐 Erreur RPC driver_login_by_slug_last4:", error);
