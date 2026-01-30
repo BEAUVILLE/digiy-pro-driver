@@ -6,7 +6,7 @@
   <title>Mes Courses — DIGIY DRIVER PRO</title>
   <meta name="theme-color" content="#061b14"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-20260130-4"></script>
+  <script src="./guard.js?v=driver-20260130-7"></script>
   <style>
     :root{--bg:#061b14;--card:#0b2a1f;--line:rgba(255,255,255,.14);--text:#eafff1;--muted:rgba(234,255,241,.78);--green:#16a34a;--gold:#facc15;--r:18px}
     *{box-sizing:border-box}
@@ -119,60 +119,61 @@
 
   function renderTrips(rows){
     if(!rows || !rows.length){
-  const demo = [
-    {
-      id:"DEMO-1001",
-      pickup_city:"Saly",
-      pickup_zone:"Saly Centre",
-      dropoff_city:"Ngaparou",
-      dropoff_zone:"Route principale",
-      amount:2500,
-      scheduled_at:new Date().toISOString()
-    },
-    {
-      id:"DEMO-1002",
-      pickup_city:"Somone",
-      pickup_zone:"Lagune",
-      dropoff_city:"Saly",
-      dropoff_zone:"Nianing",
-      proposed_price:3500,
-      scheduled_at:new Date(Date.now()+30*60*1000).toISOString()
-    },
-    {
-      id:"DEMO-1003",
-      pickup_city:"AIBD",
-      pickup_zone:"Arrivées",
-      dropoff_city:"Dakar",
-      dropoff_zone:"Plateau",
-      amount:15000,
-      scheduled_at:new Date(Date.now()+24*60*60*1000).toISOString()
-    }
-  ];
+      const demo = [
+        {
+          id:"DEMO-1001",
+          pickup_city:"Saly",
+          pickup_zone:"Saly Centre",
+          dropoff_city:"Ngaparou",
+          dropoff_zone:"Route principale",
+          amount:2500,
+          scheduled_at:new Date().toISOString()
+        },
+        {
+          id:"DEMO-1002",
+          pickup_city:"Somone",
+          pickup_zone:"Lagune",
+          dropoff_city:"Saly",
+          dropoff_zone:"Nianing",
+          proposed_price:3500,
+          scheduled_at:new Date(Date.now()+30*60*1000).toISOString()
+        },
+        {
+          id:"DEMO-1003",
+          pickup_city:"AIBD",
+          pickup_zone:"Arrivées",
+          dropoff_city:"Dakar",
+          dropoff_zone:"Plateau",
+          amount:15000,
+          scheduled_at:new Date(Date.now()+24*60*60*1000).toISOString()
+        }
+      ];
 
-  listEl.innerHTML = `
-    <div class="empty">
-      Aucune course trouvée pour l’instant frérot.<br><br>
-      <span class="muted">En attendant, voilà 3 démos KIFF (le live arrive).</span>
-    </div>
-    <div style="height:10px"></div>
-  ` + demo.map(tr=>{
-    const from = [tr.pickup_city, tr.pickup_zone].filter(Boolean).join(" • ");
-    const to   = [tr.dropoff_city, tr.dropoff_zone].filter(Boolean).join(" • ");
-    const when = tr.scheduled_at;
-    const amount = (tr.amount!=null) ? `${tr.amount} FCFA` : (tr.proposed_price!=null ? `${tr.proposed_price} FCFA` : "—");
-    return `
-      <div class="item">
-        <div>
-          <div style="font-weight:900">${tr.id} — ${from} → ${to}</div>
-          <div class="muted">${fmtWhen(when)} • ${amount}</div>
+      listEl.innerHTML = `
+        <div class="empty">
+          Aucune course trouvée pour l’instant frérot.<br><br>
+          <span class="muted">En attendant, voilà 3 démos KIFF (le live arrive).</span>
         </div>
-        <div class="tag soon">⏰ À venir</div>
-      </div>
-    `;
-  }).join("");
+        <div style="height:10px"></div>
+      ` + demo.map(tr=>{
+        const from = [tr.pickup_city, tr.pickup_zone].filter(Boolean).join(" • ");
+        const to   = [tr.dropoff_city, tr.dropoff_zone].filter(Boolean).join(" • ");
+        const when = tr.scheduled_at;
+        const amount = (tr.amount!=null) ? `${tr.amount} FCFA` : (tr.proposed_price!=null ? `${tr.proposed_price} FCFA` : "—");
+        return `
+          <div class="item">
+            <div>
+              <div style="font-weight:900">${tr.id} — ${from} → ${to}</div>
+              <div class="muted">${fmtWhen(when)} • ${amount}</div>
+            </div>
+            <div class="tag soon">⏰ À venir</div>
+          </div>
+        `;
+      }).join("");
 
-  return;
-}
+      return;
+    }
+
     listEl.innerHTML = rows.map(tr=>{
       const tag = tagFromTrip(tr);
       const from = [tr.pickup_city, tr.pickup_zone].filter(Boolean).join(" • ") || "Départ";
@@ -192,10 +193,63 @@
     }).join("");
   }
 
+  // ✅ Create test trip when ?make_test=1
+  async function maybeCreateTestTrip(){
+    const want = url.searchParams.get("make_test");
+    if(want !== "1") return false;
+
+    // On évite de recréer si refresh
+    url.searchParams.delete("make_test");
+    history.replaceState(null, "", url.toString());
+
+    try{
+      debugEl.textContent = "⏳ Création course test...";
+      const payload = {
+        auth_user_id: session.owner_id,
+        status: "new",
+        pickup_city: "Saly",
+        pickup_zone: "Saly Centre",
+        dropoff_city: "Ngaparou",
+        dropoff_zone: "Route principale",
+        distance_km: 6.2,
+        duration_min: 18,
+        fare_base: 500,
+        fare_per_km: 300,
+        amount: 2500,
+        client_label: "Client test",
+        client_phone: "+221770000000",
+        notes: "Test DIGIY DRIVER PRO",
+        scheduled_at: new Date().toISOString()
+      };
+
+      const { data, error } = await sb
+        .from("driver_trips")
+        .insert(payload)
+        .select("id")
+        .single();
+
+      if(error) throw error;
+
+      debugEl.textContent = "✅ Course test créée: " + (data?.id || "OK");
+      return true;
+
+    }catch(e){
+      console.warn("❌ INSERT course test KO:", e);
+      debugEl.textContent =
+        "⚠️ Course test refusée (RLS INSERT). " +
+        "On fera une RPC SECURITY DEFINER pour créer une course test propre. " +
+        "Détail: " + (e?.message || e);
+      return false;
+    }
+  }
+
   async function loadTrips(){
+    // ✅ Try create test trip first (if requested)
+    await maybeCreateTestTrip();
+
     debugEl.textContent = "";
 
-    // ✅ Stratégie 1: SELECT direct driver_trips (si RLS OK)
+    // ✅ SELECT direct driver_trips (si RLS OK)
     try{
       const { data, error } = await sb
         .from("driver_trips")
@@ -215,7 +269,7 @@
       debugEl.textContent = "⚠️ RLS bloque driver_trips en SELECT. On peut créer une RPC list_driver_trips_by_owner pour ouvrir propre.";
     }
 
-    // Fallback: démo (pour pas laisser vide)
+    // fallback démo
     renderTrips([]);
   }
 
@@ -231,4 +285,3 @@
 </script>
 </body>
 </html>
-
