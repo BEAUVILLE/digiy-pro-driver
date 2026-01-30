@@ -3,243 +3,105 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER PRO — Courses</title>
+  <title>Mes Courses — DIGIY DRIVER PRO</title>
   <meta name="theme-color" content="#061b14"/>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
-    :root{
-      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
-      --text:#eafff1; --muted:rgba(234,255,241,.78);
-      --green:#16a34a; --gold:#facc15; --r:18px;
-    }
+    :root{--bg:#061b14;--card:#0b2a1f;--line:rgba(255,255,255,.14);--text:#eafff1;--muted:rgba(234,255,241,.78);--green:#16a34a;--gold:#facc15;--r:18px}
     *{box-sizing:border-box}
-    body{
-      margin:0; min-height:100vh;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-      background:radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
-                 radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
-                 var(--bg);
-      color:var(--text);
-    }
-    header{
-      position:sticky; top:0; z-index:10;
-      backdrop-filter: blur(10px);
-      background:rgba(6,27,20,.75);
-      border-bottom:1px solid var(--line);
-      padding:14px 16px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px;
-    }
-    .title{font-weight:900; letter-spacing:.2px;}
-    .pill{
-      padding:8px 10px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      font-size:13px;
-      color:var(--muted);
-      background:rgba(0,0,0,.22);
-      display:flex; gap:8px; align-items:center;
-      white-space:nowrap;
-    }
-    main{padding:16px; max-width:980px; margin:0 auto;}
-    .grid{display:grid; gap:12px; grid-template-columns: repeat(12, 1fr);}
-    .card{
-      grid-column: span 12;
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      padding:16px;
-      box-shadow:0 12px 40px rgba(0,0,0,.32);
-    }
-    @media(min-width:860px){
-      .card.half{grid-column: span 6;}
-    }
-    h1{margin:0 0 8px; font-size:20px;}
-    p{margin:0; color:var(--muted); line-height:1.45}
-    button{
-      border:0; cursor:pointer;
-      padding:12px 14px;
-      border-radius:14px;
-      font-weight:900;
-      font-size:15px;
-    }
-    .btn{
-      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
-      color:#042012;
-    }
-    .btn2{
-      background:rgba(250,204,21,.14);
-      color:var(--text);
-      border:1px solid rgba(250,204,21,.25);
-    }
-    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-    .muted{color:var(--muted); font-size:13px}
-    .list{margin-top:10px; display:grid; gap:10px}
-    .item{
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:16px;
-      padding:12px;
-      background:rgba(0,0,0,.18);
-      display:flex; justify-content:space-between; gap:12px; align-items:flex-start;
-    }
-    .tag{
-      font-size:12px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(34,197,94,.35);
-      background:rgba(34,197,94,.12);
-      color:rgba(234,255,241,.92);
-      white-space:nowrap;
-    }
+    body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(900px 500px at 10% -10%,rgba(34,197,94,.20),transparent 60%),radial-gradient(900px 500px at 110% 0%,rgba(250,204,21,.14),transparent 55%),var(--bg);color:var(--text)}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:rgba(6,27,20,.75);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .title{font-weight:900;letter-spacing:.2px;font-size:18px}
+    .pill{padding:8px 10px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--muted);background:rgba(0,0,0,.22);display:flex;gap:8px;align-items:center;white-space:nowrap}
+    main{padding:16px;max-width:980px;margin:0 auto}
+    .grid{display:grid;gap:12px;grid-template-columns:repeat(12,1fr)}
+    .card{grid-column:span 12;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 12px 40px rgba(0,0,0,.32)}
+    @media(min-width:860px){.card.half{grid-column:span 6}}
+    h1{margin:0 0 8px;font-size:20px}
+    p{margin:0;color:var(--muted);line-height:1.45}
+    button{border:0;cursor:pointer;padding:12px 14px;border-radius:14px;font-weight:900;font-size:15px}
+    .btn{background:linear-gradient(135deg,rgba(34,197,94,.95),rgba(16,185,129,.85));color:#042012}
+    .btn2{background:rgba(250,204,21,.14);color:var(--text);border:1px solid rgba(250,204,21,.25)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .muted{color:var(--muted);font-size:13px}
+    .list{margin-top:10px;display:grid;gap:10px}
+    .item{border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px;background:rgba(0,0,0,.18);display:flex;justify-content:space-between;gap:12px;align-items:flex-start;transition:all .2s}
+    .item:hover{border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.08);transform:translateY(-2px)}
+    .tag{font-size:12px;padding:6px 10px;border-radius:999px;white-space:nowrap;font-weight:900}
+    .tag.new{border:1px solid rgba(34,197,94,.35);background:rgba(34,197,94,.12);color:rgba(234,255,241,.92)}
+    .tag.soon{border:1px solid rgba(250,204,21,.35);background:rgba(250,204,21,.12);color:rgba(254,243,199,.92)}
+    .tag.planned{border:1px solid rgba(59,130,246,.35);background:rgba(59,130,246,.12);color:rgba(191,219,254,.92)}
   </style>
 </head>
 <body>
-
 <header>
-  <div class="title">🚗 DIGIY DRIVER PRO — Courses</div>
+  <div class="title">🚗 Mes Courses</div>
   <div class="pill" id="pillPhone">📱 …</div>
 </header>
 
 <main>
   <div class="grid">
     <section class="card half">
-      <h1>Statut</h1>
+      <h1>T'es en ligne frérot ! 🦅</h1>
       <p id="status">Chargement…</p>
-
       <div class="row">
-        <button class="btn" id="btnRefresh">Rafraîchir</button>
-        <button class="btn2" id="btnLogout">Déconnexion</button>
+        <button class="btn" id="btnRefresh">🔄 Actualiser</button>
+        <button class="btn2" id="btnLogout">🚪 Me déconnecter</button>
       </div>
-
-      <p class="muted" style="margin-top:10px;">
-        Session active : 8 heures depuis ta dernière connexion.
-      </p>
+      <p class="muted" style="margin-top:10px">Tu restes connecté pendant 8h - GO GO GO !</p>
     </section>
 
     <section class="card half">
-      <h1>Courses (démo)</h1>
-      <p class="muted">Ici tu branches ton vrai flux (courses, demandes, zones). Pour l'instant on montre une liste légère.</p>
-
-      <div class="list" id="list">
-        <!-- rempli en JS -->
-      </div>
+      <h1>Tes courses 🔥</h1>
+      <p class="muted">Bientôt tes vraies courses en direct ! Pour l'instant on te montre un aperçu.</p>
+      <div class="list" id="list"></div>
     </section>
 
     <section class="card">
-      <h1>Règle DIGIY</h1>
-      <p>
-        ✅ Session active = accès. <br/>
-        ✅ 8 heures de session après connexion. <br/>
-        ✅ Déconnexion automatique après expiration.
-      </p>
+      <h1>Comment ça marche</h1>
+      <p>✅ T'es connecté = tu vois tout<br>✅ 8 heures de session après ta connexion<br>✅ Déconnexion auto si t'es inactif trop longtemps<br>💰 0% commission - Tout pour toi frérot !</p>
     </section>
   </div>
 </main>
 
-<!-- ✅ GUARD INTÉGRÉ -->
 <script>
-  (function () {
-    "use strict";
-
-    const SESSION_KEY = "DIGIY_DRIVER_PRO_SESSION";
-    const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8h
-
-    function now() { return Date.now(); }
-
-    function getSession() {
-      try {
-        const raw = localStorage.getItem(SESSION_KEY);
-        const s = JSON.parse(raw);
-        if (!s || !s.expires_at || now() > s.expires_at) return null;
-        return s;
-      } catch {
-        return null;
-      }
-    }
-
-    function clearSession() {
-      localStorage.removeItem(SESSION_KEY);
-    }
-
-    function logout(redirect = "pin.html") {
-      clearSession();
-      const url = new URL(location.href);
-      const slug = url.searchParams.get("slug");
-      if (slug) {
-        location.replace(redirect + "?slug=" + slug);
-      } else {
-        location.replace(redirect);
-      }
-    }
-
-    window.DIGIY_GUARD = { getSession, clearSession, logout };
-  })();
+(function(){
+  const SESSION_KEY="DIGIY_DRIVER_PRO_SESSION",SESSION_TTL_MS=288e5;
+  function now(){return Date.now()}
+  function getSession(){try{const raw=localStorage.getItem(SESSION_KEY),s=JSON.parse(raw);if(!s||!s.expires_at||now()>s.expires_at)return null;return s}catch{return null}}
+  function clearSession(){localStorage.removeItem(SESSION_KEY)}
+  function logout(redirect="./pin.html"){clearSession();const url=new URL(location.href),slug=url.searchParams.get("slug");slug?location.replace(redirect+"?slug="+encodeURIComponent(slug)):location.replace(redirect)}
+  window.DIGIY_GUARD={getSession,clearSession,logout}
+})();
 </script>
 
 <script>
-  const pillPhone = document.getElementById("pillPhone");
-  const statusEl = document.getElementById("status");
-  const listEl = document.getElementById("list");
-
-  function setStatus(msg){
-    statusEl.textContent = msg || "";
+const pillPhone=document.getElementById("pillPhone"),statusEl=document.getElementById("status"),listEl=document.getElementById("list");
+function setStatus(msg){statusEl.textContent=msg||""}
+function renderRows(rows){
+  listEl.innerHTML=(rows||[]).map(r=>`<div class="item"><div><div style="font-weight:900">${r.id} — ${r.zone}</div><div class="muted">${r.when}</div></div><div class="tag ${r.status}">${r.label}</div></div>`).join("");
+}
+function demoRows(){
+  renderRows([
+    {id:"C-1001",zone:"Saly Centre",when:"Maintenant",status:"new",label:"🔥 Nouvelle !"},
+    {id:"C-1002",zone:"Ngaparou",when:"Dans 30 min",status:"soon",label:"⏰ Bientôt"},
+    {id:"C-1003",zone:"Dakar Plateau",when:"Demain",status:"planned",label:"📅 Programmée"}
+  ]);
+}
+async function boot(){
+  const session=window.DIGIY_GUARD.getSession();
+  if(!session||!session.owner_id){
+    const url=new URL(location.href),slug=url.searchParams.get("slug");
+    location.replace(slug?`./pin.html?slug=${encodeURIComponent(slug)}`:"./pin.html");
+    return;
   }
-
-  function demoRows(){
-    const rows = [
-      { id: "C-1001", zone: "Saly Centre", when: "Maintenant", status: "Nouvelle" },
-      { id: "C-1002", zone: "Ngaparou", when: "30 min", status: "À venir" },
-      { id: "C-1003", zone: "Dakar Plateau", when: "Demain", status: "Planifiée" },
-    ];
-    listEl.innerHTML = rows.map(r => `
-      <div class="item">
-        <div>
-          <div style="font-weight:900">${r.id} — ${r.zone}</div>
-          <div class="muted">${r.when}</div>
-        </div>
-        <div class="tag">${r.status}</div>
-      </div>
-    `).join("");
-  }
-
-  async function boot(){
-    // ✅ Vérifier la session
-    const session = window.DIGIY_GUARD.getSession();
-    
-    if (!session || !session.owner_id) {
-      // ❌ Pas de session → redirection vers pin.html
-      const url = new URL(location.href);
-      const slug = url.searchParams.get("slug");
-      const pinUrl = slug ? `./pin.html?slug=${slug}` : "./pin.html";
-      
-      console.log("❌ Session expirée, redirection vers:", pinUrl);
-      location.replace(pinUrl);
-      return;
-    }
-
-    // ✅ Session OK
-    console.log("✅ Session OK, owner_id:", session.owner_id);
-
-    // Afficher le téléphone
-    pillPhone.textContent = "📱 " + (session.phone || session.slug || "Connecté");
-
-    // Afficher le statut
-    setStatus(`✅ Session active (${session.title || "Chauffeur"})`);
-
-    // Afficher les courses démo
-    demoRows();
-  }
-
-  document.getElementById("btnRefresh").addEventListener("click", () => location.reload());
-
-  document.getElementById("btnLogout").addEventListener("click", () => {
-    window.DIGIY_GUARD.logout();
-  });
-
-  boot();
+  pillPhone.textContent="📱 "+(session.phone||session.slug||"Connecté");
+  setStatus(`✅ Connecté ${session.title||"frérot"} 🦅`);
+  demoRows();
+}
+document.getElementById("btnRefresh").addEventListener("click",()=>boot());
+document.getElementById("btnLogout").addEventListener("click",()=>{confirm("Tu veux vraiment te déconnecter frérot ?")&&window.DIGIY_GUARD.logout()});
+boot();
 </script>
-
 </body>
 </html>
