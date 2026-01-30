@@ -94,8 +94,7 @@
   function money(n){ const x=parseInt(n||0,10)||0; return x.toLocaleString("fr-FR")+" FCFA"; }
   function dt(ts){
     if(!ts) return "";
-    const s=String(ts).slice(0,19).replace("T"," ");
-    return s;
+    return String(ts).slice(0,19).replace("T"," ");
   }
 
   function tagClass(status){
@@ -112,6 +111,25 @@
     if(s.includes("accepted")||s.includes("assigned")) return "✅ Acceptée";
     if(s.includes("new")||s.includes("pending")) return "🔥 Nouvelle";
     return "📌 "+(status||"Course");
+  }
+
+  function getSlugFromUrl(){
+    try{
+      const u=new URL(location.href);
+      return (u.searchParams.get("slug") || "").trim().toLowerCase();
+    }catch{ return ""; }
+  }
+
+  function syncSlugToLinks(slug){
+    if(!slug) return;
+    const links = document.querySelectorAll('a[href^="./"]');
+    links.forEach(a=>{
+      try{
+        const u=new URL(a.getAttribute("href"), location.href);
+        u.searchParams.set("slug", slug);
+        a.setAttribute("href", u.pathname.split("/").pop() + "?slug=" + encodeURIComponent(slug));
+      }catch{}
+    });
   }
 
   function render(rows, zones){
@@ -151,11 +169,14 @@
   async function loadTrips(session){
     const zones = secteursActifs();
 
-    pillPhone.textContent = "📱 " + (session.phone || session.slug || "Connecté");
+    // ✅ slug safe : session.slug sinon URL
+    const slugSafe = (session.slug || getSlugFromUrl() || "").trim().toLowerCase();
+    syncSlugToLinks(slugSafe);
+
+    pillPhone.textContent = "📱 " + (session.phone || slugSafe || "Connecté");
     setStatus("⏳ Chargement des vraies courses…");
     subInfo.textContent = zones.length ? `Filtre actif: ${zones.length} secteur(s)` : "Aucun secteur sélectionné (affichage total).";
 
-    // ✅ PIN vient maintenant du guard.js (session.pin)
     const pin = session.pin || "";
     if(!pin){
       setStatus("⚠️ PIN manquant. Reconnecte-toi.");
@@ -164,13 +185,18 @@
     }
 
     const sb = window.DIGIY_GUARD.getSb();
+    if(!sb){
+      setStatus("❌ Supabase indisponible.");
+      render([], zones);
+      return;
+    }
 
-    const { data, error } = await sb.rpc("verify_access_pin_by_slug", {
-  p_slug: slug,
-  p_pin: pin,
-  p_module: "DRIVER"
-});
-
+    const { data, error } = await sb.rpc("rpc_driver_trips_list_by_pin", {
+      p_phone: session.phone,
+      p_pin: pin,
+      p_module: "DRIVER",
+      p_limit: 50
+    });
 
     if(error){
       console.error(error);
@@ -180,8 +206,6 @@
     }
 
     const trips = Array.isArray(data) ? data : [];
-
-    // ✅ filtre secteurs sur pickup_zone
     const filtered = zones.length
       ? trips.filter(t => zones.includes((t.pickup_zone || t.pickup_city || "").trim()))
       : trips;
@@ -201,7 +225,6 @@
     confirm("Tu veux vraiment te déconnecter frérot ?") && window.DIGIY_GUARD.logout("./pin.html");
   });
 
-  // si guard prêt
   if(window.DIGIY_GUARD?.requireSession) boot();
   else window.addEventListener("DIGIY_GUARD_READY", boot);
 })();
