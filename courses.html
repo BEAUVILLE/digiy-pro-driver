@@ -119,9 +119,60 @@
 
   function renderTrips(rows){
     if(!rows || !rows.length){
-      listEl.innerHTML = `<div class="empty">Aucune course trouvée pour l’instant frérot.<br><br><span class="muted">Si tu veux, on injecte 3 démos “kiff” le temps de brancher le flux.</span></div>`;
-      return;
+  const demo = [
+    {
+      id:"DEMO-1001",
+      pickup_city:"Saly",
+      pickup_zone:"Saly Centre",
+      dropoff_city:"Ngaparou",
+      dropoff_zone:"Route principale",
+      amount:2500,
+      scheduled_at:new Date().toISOString()
+    },
+    {
+      id:"DEMO-1002",
+      pickup_city:"Somone",
+      pickup_zone:"Lagune",
+      dropoff_city:"Saly",
+      dropoff_zone:"Nianing",
+      proposed_price:3500,
+      scheduled_at:new Date(Date.now()+30*60*1000).toISOString()
+    },
+    {
+      id:"DEMO-1003",
+      pickup_city:"AIBD",
+      pickup_zone:"Arrivées",
+      dropoff_city:"Dakar",
+      dropoff_zone:"Plateau",
+      amount:15000,
+      scheduled_at:new Date(Date.now()+24*60*60*1000).toISOString()
     }
+  ];
+
+  listEl.innerHTML = `
+    <div class="empty">
+      Aucune course trouvée pour l’instant frérot.<br><br>
+      <span class="muted">En attendant, voilà 3 démos KIFF (le live arrive).</span>
+    </div>
+    <div style="height:10px"></div>
+  ` + demo.map(tr=>{
+    const from = [tr.pickup_city, tr.pickup_zone].filter(Boolean).join(" • ");
+    const to   = [tr.dropoff_city, tr.dropoff_zone].filter(Boolean).join(" • ");
+    const when = tr.scheduled_at;
+    const amount = (tr.amount!=null) ? `${tr.amount} FCFA` : (tr.proposed_price!=null ? `${tr.proposed_price} FCFA` : "—");
+    return `
+      <div class="item">
+        <div>
+          <div style="font-weight:900">${tr.id} — ${from} → ${to}</div>
+          <div class="muted">${fmtWhen(when)} • ${amount}</div>
+        </div>
+        <div class="tag soon">⏰ À venir</div>
+      </div>
+    `;
+  }).join("");
+
+  return;
+}
     listEl.innerHTML = rows.map(tr=>{
       const tag = tagFromTrip(tr);
       const from = [tr.pickup_city, tr.pickup_zone].filter(Boolean).join(" • ") || "Départ";
