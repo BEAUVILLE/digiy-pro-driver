@@ -41,8 +41,8 @@
   <!-- ✅ NAV LIBERTÉ (pas de prison) -->
   <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
     <a class="pill" href="./index.html">🏠 Dashboard</a>
-    <a class="pill" href="./driver-zone-kiff.html">📍 Secteurs</a>
-    <a class="pill" href="./mes-lieux-kiff.html">📌 Mes lieux</a>
+    <a class="pill" href="./driver-zone-now.html">📍 Secteurs</a>
+    <a class="pill" href="./mes-lieux.html">📌 Mes lieux</a>
     <div class="pill" id="pillPhone">📱 …</div>
   </div>
 </header>
@@ -61,7 +61,7 @@
 
     <section class="card half">
       <h1>Tes courses 🔥</h1>
-      <p class="muted">Bientôt tes vraies courses en direct ! Pour l'instant on te montre un aperçu.</p>
+      <p class="muted">Bientôt tes vraies courses en direct ! Pour l'instant on te montre un aperçu (filtré par tes secteurs si tu en as).</p>
       <div class="list" id="list"></div>
     </section>
 
@@ -74,28 +74,79 @@
 
 <script>
 (function(){
-  const SESSION_KEY="DIGIY_DRIVER_PRO_SESSION",SESSION_TTL_MS=288e5;
+  const SESSION_KEY="DIGIY_DRIVER_PRO_SESSION";
+  const SESSION_TTL_MS=288e5; // 8h
   function now(){return Date.now()}
-  function getSession(){try{const raw=localStorage.getItem(SESSION_KEY),s=JSON.parse(raw);if(!s||!s.expires_at||now()>s.expires_at)return null;return s}catch{return null}}
+  function getSession(){
+    try{
+      const raw=localStorage.getItem(SESSION_KEY),s=JSON.parse(raw);
+      if(!s||!s.expires_at||now()>s.expires_at) return null;
+      return s
+    }catch{return null}
+  }
   function clearSession(){localStorage.removeItem(SESSION_KEY)}
-  function logout(redirect="./pin.html"){clearSession();const url=new URL(location.href),slug=url.searchParams.get("slug");slug?location.replace(redirect+"?slug="+encodeURIComponent(slug)):location.replace(redirect)}
+  function logout(redirect="./pin.html"){
+    clearSession();
+    const url=new URL(location.href),slug=url.searchParams.get("slug");
+    slug?location.replace(redirect+"?slug="+encodeURIComponent(slug)):location.replace(redirect)
+  }
   window.DIGIY_GUARD={getSession,clearSession,logout}
 })();
 </script>
 
 <script>
-const pillPhone=document.getElementById("pillPhone"),statusEl=document.getElementById("status"),listEl=document.getElementById("list");
+const pillPhone=document.getElementById("pillPhone");
+const statusEl=document.getElementById("status");
+const listEl=document.getElementById("list");
+
 function setStatus(msg){statusEl.textContent=msg||""}
+
 function renderRows(rows){
-  listEl.innerHTML=(rows||[]).map(r=>`<div class="item"><div><div style="font-weight:900">${r.id} — ${r.zone}</div><div class="muted">${r.when}</div></div><div class="tag ${r.status}">${r.label}</div></div>`).join("");
+  listEl.innerHTML=(rows||[]).map(r=>`
+    <div class="item">
+      <div>
+        <div style="font-weight:900">${r.id} — ${r.zone}</div>
+        <div class="muted">${r.when}</div>
+      </div>
+      <div class="tag ${r.status}">${r.label}</div>
+    </div>
+  `).join("");
 }
+
 function demoRows(){
-  renderRows([
+  // ✅ 1) On récupère les secteurs choisis dans driver-zone-now.html
+  const secteursActifs = JSON.parse(localStorage.getItem("digiy_driver_secteurs") || "[]");
+
+  // ✅ 2) Courses démo (plus tard remplacées par Supabase)
+  const courses = [
     {id:"C-1001",zone:"Saly Centre",when:"Maintenant",status:"new",label:"🔥 Nouvelle !"},
     {id:"C-1002",zone:"Ngaparou",when:"Dans 30 min",status:"soon",label:"⏰ Bientôt"},
     {id:"C-1003",zone:"Dakar Plateau",when:"Demain",status:"planned",label:"📅 Programmée"}
-  ]);
+  ];
+
+  // ✅ 3) Filtre DIGIY : afficher seulement les zones actives (si sélection)
+  const filtered = secteursActifs.length
+    ? courses.filter(c => secteursActifs.includes(c.zone))
+    : courses;
+
+  // ✅ 4) Si rien → message terrain
+  if(filtered.length === 0){
+    listEl.innerHTML = `
+      <div class="item">
+        <div>
+          <div style="font-weight:900">Aucune course dans tes secteurs frérot</div>
+          <div class="muted">Va dans 📍 Secteurs et active tes zones</div>
+        </div>
+        <div class="tag soon">📍</div>
+      </div>
+    `;
+    return;
+  }
+
+  // ✅ 5) Affichage final
+  renderRows(filtered);
 }
+
 async function boot(){
   const session=window.DIGIY_GUARD.getSession();
   if(!session||!session.owner_id){
@@ -103,12 +154,18 @@ async function boot(){
     location.replace(slug?`./pin.html?slug=${encodeURIComponent(slug)}`:"./pin.html");
     return;
   }
+
   pillPhone.textContent="📱 "+(session.phone||session.slug||"Connecté");
   setStatus(`✅ Connecté ${session.title||"frérot"} 🦅`);
+
   demoRows();
 }
+
 document.getElementById("btnRefresh").addEventListener("click",()=>boot());
-document.getElementById("btnLogout").addEventListener("click",()=>{confirm("Tu veux vraiment te déconnecter frérot ?")&&window.DIGIY_GUARD.logout()});
+document.getElementById("btnLogout").addEventListener("click",()=>{
+  confirm("Tu veux vraiment te déconnecter frérot ?") && window.DIGIY_GUARD.logout()
+});
+
 boot();
 </script>
 </body>
