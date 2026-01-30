@@ -8,7 +8,7 @@
 
   <!-- Supabase + Guard -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-20260130-5"></script>
+  <script src="./guard.js?v=driver-20260130-6"></script>
 
   <style>
     :root{
@@ -90,7 +90,7 @@
 
     .row{display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;}
 
-    a.btn{
+    a.btn, button.btn{
       display:inline-flex;
       align-items:center;
       justify-content:center;
@@ -143,7 +143,7 @@
 
     @media(max-width:640px){
       .row{flex-direction:column;}
-      a.btn{width:100%;}
+      a.btn, button.btn{width:100%;}
     }
   </style>
 </head>
@@ -173,7 +173,9 @@
           <a class="btn secondary" data-nav="mes-lieux.html" href="./mes-lieux.html">📍 Mes lieux</a>
         </div>
 
+        <!-- ✅ Bouton test (ouvre courses avec flag) -->
         <div class="row" style="margin-top:12px">
+          <button class="btn secondary" id="btnMakeTest" type="button">➕ Course test</button>
           <a class="btn ghost" id="btnLogout" href="./pin.html">🚪 Me déconnecter</a>
         </div>
 
@@ -234,17 +236,24 @@
     const titleEl = document.getElementById("driverTitle");
     if (titleEl) titleEl.textContent = session.title || "chauffeur";
 
-    // ✅ MINI BRIQUE : patch tous les boutons data-nav pour injecter ?slug=
+    // ✅ MINI BRIQUE : patch boutons data-nav (+ logout)
     if (slug) {
       document.querySelectorAll("a[data-nav]").forEach(a => {
         const file = a.getAttribute("data-nav");
         a.href = "./" + file + "?slug=" + encodeURIComponent(slug);
       });
-
-      // logout conserve slug
       const btnLogout = document.getElementById("btnLogout");
       if (btnLogout) btnLogout.href = "./pin.html?slug=" + encodeURIComponent(slug);
     }
+
+    // ✅ Course test → ouvre courses.html?make_test=1 (la page courses gère la création)
+    document.getElementById("btnMakeTest").addEventListener("click", () => {
+      if (!confirm("Créer une course test maintenant frérot ?")) return;
+      const target = new URL("./courses.html", location.href);
+      if (slug) target.searchParams.set("slug", slug);
+      target.searchParams.set("make_test", "1");
+      location.href = target.toString();
+    });
 
     // ✅ logout (clear session)
     document.getElementById("btnLogout").addEventListener("click", (e) => {
