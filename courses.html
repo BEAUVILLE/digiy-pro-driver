@@ -6,8 +6,10 @@
   <title>Mes Courses — DIGIY DRIVER PRO</title>
   <meta name="theme-color" content="#061b14"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js"></script>
+
   <style>
-    :root{--bg:#061b14;--card:#0b2a1f;--line:rgba(255,255,255,.14);--text:#eafff1;--muted:rgba(234,255,241,.78);--r:18px}
+    :root{--bg:#061b14;--card:#0b2a1f;--line:rgba(255,255,255,.14);--text:#eafff1;--muted:rgba(234,255,241,.78);--r:18px;--green:#16a34a;--gold:#facc15}
     *{box-sizing:border-box}
     body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(900px 500px at 10% -10%,rgba(34,197,94,.20),transparent 60%),radial-gradient(900px 500px at 110% 0%,rgba(250,204,21,.14),transparent 55%),var(--bg);color:var(--text)}
     header{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:rgba(6,27,20,.75);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -26,9 +28,20 @@
     .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
     .muted{color:var(--muted);font-size:13px}
     .list{margin-top:10px;display:grid;gap:10px}
+
     .item{border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px;background:rgba(0,0,0,.18);display:flex;justify-content:space-between;gap:12px;align-items:flex-start;transition:all .2s}
     .item:hover{border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.08);transform:translateY(-2px)}
+    .left{min-width:220px}
+    .topline{font-weight:1000}
+    .subline{color:var(--muted);font-size:13px;margin-top:4px;line-height:1.35}
+    .right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
     .tag{font-size:12px;padding:6px 10px;border-radius:999px;white-space:nowrap;font-weight:900;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:rgba(234,255,241,.9)}
+    .tag.new{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.12);color:#86efac}
+    .tag.done{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.12);color:#bfdbfe}
+    .tag.cancel{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.12);color:#fecaca}
+    .amount{font-weight:1100}
+    .empty{border:2px dashed rgba(255,255,255,.14);border-radius:16px;padding:18px;text-align:center;color:var(--muted)}
+    .small{font-size:12px;color:var(--muted)}
   </style>
 </head>
 <body>
@@ -51,161 +64,147 @@
         <button class="btn" id="btnRefresh">🔄 Actualiser</button>
         <button class="btn2" id="btnLogout">🚪 Me déconnecter</button>
       </div>
-      <p class="muted" style="margin-top:10px">Tu restes connecté pendant 8h - GO GO GO !</p>
+      <p class="muted" style="margin-top:10px">Tes secteurs filtrent l’affichage (pickup_zone). Sinon tu vois tout.</p>
     </section>
 
     <section class="card half">
       <h1>Tes courses 🔥</h1>
-      <p class="muted">LIVE : on affiche tes courses (filtrées par tes secteurs si tu en as).</p>
+      <p class="muted" id="subInfo">LIVE : chargement…</p>
       <div class="list" id="list"></div>
+      <div class="small" id="foot"></div>
     </section>
 
     <section class="card">
       <h1>Comment ça marche</h1>
-      <p>✅ Secteurs activés = tu vois surtout les courses de tes zones<br>✅ Session expire = retour PIN<br>💰 0% commission - Tout pour toi frérot !</p>
+      <p>✅ Tu te connectes par PIN<br>✅ Tu choisis tes secteurs<br>✅ Les courses s’affichent (par zone de prise en charge)<br>💰 0% commission - Tout pour toi frérot !</p>
     </section>
   </div>
 </main>
 
 <script>
 (function(){
-  const SUPABASE_URL="https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-  const SESSION_KEY="DIGIY_DRIVER_PRO_SESSION";
-  const SESSION_TTL_MS=288e5;
+  const pillPhone=document.getElementById("pillPhone");
+  const statusEl=document.getElementById("status");
+  const listEl=document.getElementById("list");
+  const subInfo=document.getElementById("subInfo");
+  const foot=document.getElementById("foot");
 
-  function now(){return Date.now()}
-  function getSession(){
-    try{
-      const raw=localStorage.getItem(SESSION_KEY), s=JSON.parse(raw);
-      if(!s||!s.expires_at||now()>s.expires_at) return null;
-      return s;
-    }catch{return null}
+  function setStatus(msg){ statusEl.textContent = msg||""; }
+  function secteursActifs(){ return JSON.parse(localStorage.getItem("digiy_driver_secteurs") || "[]"); }
+  function money(n){ const x=parseInt(n||0,10)||0; return x.toLocaleString("fr-FR")+" FCFA"; }
+  function dt(ts){
+    if(!ts) return "";
+    const s=String(ts).slice(0,19).replace("T"," ");
+    return s;
   }
-  function clearSession(){localStorage.removeItem(SESSION_KEY)}
-  function logout(redirect="./pin.html"){
-    clearSession();
-    const url=new URL(location.href),slug=url.searchParams.get("slug");
-    slug ? location.replace(redirect+"?slug="+encodeURIComponent(slug)) : location.replace(redirect);
+
+  function tagClass(status){
+    const s=(status||"").toLowerCase();
+    if(s.includes("cancel")) return "cancel";
+    if(s.includes("done")||s.includes("complete")) return "done";
+    if(s.includes("new")||s.includes("pending")) return "new";
+    return "";
   }
-  function setSession(data){
-    const session={...data,created_at:now(),expires_at:now()+SESSION_TTL_MS};
-    localStorage.setItem(SESSION_KEY,JSON.stringify(session));
-    return session;
+  function tagLabel(status){
+    const s=(status||"").toLowerCase();
+    if(s.includes("cancel")) return "❌ Annulée";
+    if(s.includes("done")||s.includes("complete")) return "🏁 Terminée";
+    if(s.includes("accepted")||s.includes("assigned")) return "✅ Acceptée";
+    if(s.includes("new")||s.includes("pending")) return "🔥 Nouvelle";
+    return "📌 "+(status||"Course");
   }
-  function sb(){
-    if(!window.__digiy_sb__) window.__digiy_sb__=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-    return window.__digiy_sb__;
-  }
-  window.DIGIY_GUARD={getSession,setSession,logout,sb};
-})();
-</script>
 
-<script>
-const pillPhone=document.getElementById("pillPhone");
-const statusEl=document.getElementById("status");
-const listEl=document.getElementById("list");
-
-function setStatus(msg){statusEl.textContent=msg||""}
-function secteursActifs(){ return JSON.parse(localStorage.getItem("digiy_driver_secteurs") || "[]"); }
-
-function tagFor(status){
-  const s=(status||"").toLowerCase();
-  if(s.includes("new")||s.includes("pending")) return "🔥 Nouvelle";
-  if(s.includes("accepted")||s.includes("assigned")) return "✅ Acceptée";
-  if(s.includes("done")||s.includes("completed")) return "🏁 Terminée";
-  if(s.includes("cancel")) return "❌ Annulée";
-  return "📌 "+(status||"Course");
-}
-
-function zoneOf(t){ return t.pickup_zone || t.pickup_city || "Zone"; }
-function whenOf(t){ return t.scheduled_at || t.created_at || ""; }
-function idOf(t){ return (t.id||"").slice(0,8).toUpperCase() || "COURSE"; }
-
-function renderRows(rows){
-  if(!rows || rows.length===0){
-    listEl.innerHTML = `
-      <div class="item">
-        <div>
-          <div style="font-weight:900">Aucune course trouvée frérot</div>
-          <div class="muted">Active tes zones dans 📍 Secteurs ou attends une nouvelle course</div>
+  function render(rows, zones){
+    if(!rows || rows.length===0){
+      listEl.innerHTML = `
+        <div class="empty">
+          <div style="font-size:42px;margin-bottom:8px">🕊️</div>
+          Aucune course pour le moment frérot.<br>
+          <span class="small">Active tes secteurs dans “📍 Secteurs” ou attends une nouvelle.</span>
+        </div>`;
+      return;
+    }
+    listEl.innerHTML = rows.map(t=>{
+      const pz=t.pickup_zone || t.pickup_city || "Zone";
+      const dz=t.dropoff_zone || t.dropoff_city || "Destination";
+      const when = dt(t.scheduled_at || t.created_at);
+      const amt = money(t.amount || t.proposed_price || 0);
+      const tag = tagLabel(t.status);
+      const cls = tagClass(t.status);
+      const code = String(t.id||"").slice(0,8).toUpperCase();
+      return `
+        <div class="item">
+          <div class="left">
+            <div class="topline">${code} — ${pz} → ${dz}</div>
+            <div class="subline">🕒 ${when || "—"}<br>👤 ${t.client_label || "Client"} • ${t.client_phone || ""}</div>
+          </div>
+          <div class="right">
+            <div class="tag ${cls}">${tag}</div>
+            <div class="amount">${amt}</div>
+          </div>
         </div>
-        <div class="tag">⏳</div>
-      </div>
-    `;
-    return;
+      `;
+    }).join("");
+    foot.textContent = zones.length ? ("Filtre secteurs: " + zones.join(", ")) : "Aucun filtre secteur (tu vois tout).";
   }
-  listEl.innerHTML = rows.map(t=>{
-    const zone=zoneOf(t);
-    const when=String(whenOf(t)).slice(0,19).replace('T',' ');
-    const tag=tagFor(t.status);
-    return `
-      <div class="item">
-        <div>
-          <div style="font-weight:900">${idOf(t)} — ${zone}</div>
-          <div class="muted">${when}</div>
-        </div>
-        <div class="tag">${tag}</div>
-      </div>
-    `;
-  }).join("");
-}
 
-async function loadTripsLive(session){
-  const sb=window.DIGIY_GUARD.sb();
-  const zones=secteursActifs();
+  async function loadTrips(session){
+    const zones = secteursActifs();
 
-  setStatus("⏳ Chargement des vraies courses…");
+    pillPhone.textContent = "📱 " + (session.phone || session.slug || "Connecté");
+    setStatus("⏳ Chargement des vraies courses…");
+    subInfo.textContent = zones.length ? `Filtre actif: ${zones.length} secteur(s)` : "Aucun secteur sélectionné (affichage total).";
 
-  // ⚠️ Il faut que session.pin existe (voir note juste après)
-  const { data, error } = await sb.rpc("rpc_driver_trips_list_by_pin", {
-    p_phone: session.phone,
-    p_pin: session.pin,
-    p_module: "DRIVER",
-    p_limit: 50
+    // ✅ PIN vient maintenant du guard.js (session.pin)
+    const pin = session.pin || "";
+    if(!pin){
+      setStatus("⚠️ PIN manquant. Reconnecte-toi.");
+      window.DIGIY_GUARD.logout("./pin.html");
+      return;
+    }
+
+    const sb = window.DIGIY_GUARD.getSb();
+
+    const { data, error } = await sb.rpc("rpc_driver_trips_list_by_pin", {
+      p_phone: session.phone,
+      p_pin: pin,
+      p_module: "DRIVER",
+      p_limit: 50
+    });
+
+    if(error){
+      console.error(error);
+      setStatus("❌ Courses LIVE KO (RPC).");
+      render([], zones);
+      return;
+    }
+
+    const trips = Array.isArray(data) ? data : [];
+
+    // ✅ filtre secteurs sur pickup_zone
+    const filtered = zones.length
+      ? trips.filter(t => zones.includes((t.pickup_zone || t.pickup_city || "").trim()))
+      : trips;
+
+    setStatus(`✅ ${filtered.length} course(s) affichée(s)`);
+    render(filtered, zones);
+  }
+
+  function boot(){
+    const s = window.DIGIY_GUARD.requireSession("./pin.html");
+    if(!s) return;
+    loadTrips(s);
+  }
+
+  document.getElementById("btnRefresh").addEventListener("click",()=>boot());
+  document.getElementById("btnLogout").addEventListener("click",()=>{
+    confirm("Tu veux vraiment te déconnecter frérot ?") && window.DIGIY_GUARD.logout("./pin.html");
   });
 
-  if(error){
-    console.error(error);
-    setStatus("❌ Courses LIVE KO (PIN/session).");
-    renderRows([]);
-    return;
-  }
-
-  const trips = Array.isArray(data) ? data : [];
-  const filtered = zones.length ? trips.filter(t => zones.includes(zoneOf(t))) : trips;
-
-  setStatus(`✅ ${filtered.length} course(s)`);
-  renderRows(filtered);
-}
-
-async function boot(){
-  const session=window.DIGIY_GUARD.getSession();
-  if(!session || !session.owner_id){
-    const url=new URL(location.href),slug=url.searchParams.get("slug");
-    location.replace(slug?`./pin.html?slug=${encodeURIComponent(slug)}`:"./pin.html");
-    return;
-  }
-
-  pillPhone.textContent="📱 "+(session.phone||session.slug||"Connecté");
-
-  if(!session.pin){
-    setStatus("⚠️ Il manque le PIN en session. Reconnecte-toi via PIN.");
-    // sécurité : on force la reconnexion propre
-    window.DIGIY_GUARD.logout("./pin.html");
-    return;
-  }
-
-  setStatus(`✅ Connecté ${session.title||"frérot"} 🦅`);
-  await loadTripsLive(session);
-}
-
-document.getElementById("btnRefresh").addEventListener("click",()=>boot());
-document.getElementById("btnLogout").addEventListener("click",()=>{
-  confirm("Tu veux vraiment te déconnecter frérot ?") && window.DIGIY_GUARD.logout()
-});
-
-boot();
+  // si guard prêt
+  if(window.DIGIY_GUARD?.requireSession) boot();
+  else window.addEventListener("DIGIY_GUARD_READY", boot);
+})();
 </script>
 </body>
 </html>
