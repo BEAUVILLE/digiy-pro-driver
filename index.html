@@ -8,7 +8,7 @@
 
   <!-- Supabase + Guard -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js"></script>
+  <script src="./guard.js?v=driver-20260130-5"></script>
 
   <style>
     :root{
@@ -121,6 +121,13 @@
     }
     .secondary:hover{background:rgba(250,204,21,.20); border-color:rgba(250,204,21,.40);}
 
+    .ghost{
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      color:var(--text);
+    }
+    .ghost:hover{background:rgba(255,255,255,.12);}
+
     .hr{height:1px; background:rgba(255,255,255,.12); margin:20px 0;}
 
     .note{
@@ -144,62 +151,6 @@
 <body>
   <div id="guard_status">🔐 Vérification...</div>
 
-  <script>
-    (async () => {
-      // ✅ Attendre que guard.js soit chargé
-      let attempts = 0;
-      while (!window.DIGIY_GUARD && attempts < 50) {
-        await new Promise(r => setTimeout(r, 100));
-        attempts++;
-      }
-
-      if (!window.DIGIY_GUARD) {
-        document.getElementById("guard_status").textContent = "❌ Erreur: guard.js non chargé";
-        console.error("DIGIY_GUARD non trouvé");
-        return;
-      }
-
-      // ✅ Vérifier la session
-      const session = window.DIGIY_GUARD.getSession();
-      
-      if (!session || !session.owner_id) {
-        // ❌ Pas de session → redirection vers pin.html
-        const url = new URL(location.href);
-        const slug = url.searchParams.get("slug");
-        const pinUrl = slug ? `./pin.html?slug=${slug}` : "./pin.html";
-        
-        console.log("❌ Pas de session, redirection vers:", pinUrl);
-        location.replace(pinUrl);
-        return;
-      }
-
-      // ✅ Session OK
-      console.log("✅ Session OK, owner_id:", session.owner_id);
-      
-      // Afficher l'app
-      document.documentElement.classList.add('access-ok');
-      
-      // Mettre à jour le status
-      const s = document.getElementById("guard_status");
-      if (s) {
-        s.textContent = "✅ Connecté";
-        setTimeout(() => s.style.display = "none", 700);
-      }
-
-      // Afficher le téléphone
-      const phoneEl = document.getElementById("userPhone");
-      if (phoneEl && session.phone) {
-        phoneEl.textContent = session.phone;
-      }
-
-      // Afficher le titre
-      const titleEl = document.getElementById("driverTitle");
-      if (titleEl && session.title) {
-        titleEl.textContent = session.title;
-      }
-    })();
-  </script>
-
   <div class="app">
     <div class="wrap">
       <div class="card">
@@ -210,17 +161,22 @@
         </p>
 
         <div class="pill">
-          ✅ <span id="userPhone">+221 77 XXX XX XX</span> • Abonnement actif
+          ✅ <span id="userPhone">+221…</span> • Abonnement actif
         </div>
 
         <div class="hr"></div>
 
         <div class="row">
-  <a class="btn primary" href="./driver-zone-now.html">🚗 Entrer dans la zone</a>
-  <a class="btn secondary" href="./courses.html">📋 Voir les courses</a>
-  <a class="btn secondary" href="./profil-chauffeur.html">👤 Mon profil</a>
-  <a class="btn secondary" href="./mes-lieux.html">📍 Mes lieux</a>
-</div>
+          <a class="btn primary" data-nav="driver-zone-now.html" href="./driver-zone-now.html">🚗 Entrer dans la zone</a>
+          <a class="btn secondary" data-nav="courses.html" href="./courses.html">📋 Voir les courses</a>
+          <a class="btn secondary" data-nav="profil-chauffeur.html" href="./profil-chauffeur.html">👤 Mon profil</a>
+          <a class="btn secondary" data-nav="mes-lieux.html" href="./mes-lieux.html">📍 Mes lieux</a>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <a class="btn ghost" id="btnLogout" href="./pin.html">🚪 Me déconnecter</a>
+        </div>
+
         <div class="note">
           <strong>📦 Ton abonnement DRIVER PRO</strong><br>
           • Prix : <strong>9,900 FCFA / mois</strong><br>
@@ -231,5 +187,73 @@
       </div>
     </div>
   </div>
+
+  <script>
+  (async () => {
+    // ✅ attendre guard
+    let attempts = 0;
+    while (!window.DIGIY_GUARD && attempts < 50) {
+      await new Promise(r => setTimeout(r, 100));
+      attempts++;
+    }
+    if (!window.DIGIY_GUARD) {
+      document.getElementById("guard_status").textContent = "❌ guard.js non chargé";
+      return;
+    }
+
+    // ✅ slug depuis URL ou session
+    const u = new URL(location.href);
+    const s0 = window.DIGIY_GUARD.getSession?.();
+    const slug = (u.searchParams.get("slug") || s0?.slug || "").trim().toLowerCase();
+
+    // ✅ session check
+    const session = window.DIGIY_GUARD.getSession?.();
+    if (!session || !session.owner_id) {
+      const pinUrl = slug ? `./pin.html?slug=${encodeURIComponent(slug)}` : "./pin.html";
+      console.log("❌ Pas de session, redirection vers:", pinUrl);
+      location.replace(pinUrl);
+      return;
+    }
+
+    console.log("✅ Session OK, owner_id:", session.owner_id);
+
+    // ✅ afficher app
+    document.documentElement.classList.add("access-ok");
+
+    // ✅ status badge
+    const gs = document.getElementById("guard_status");
+    if (gs) {
+      gs.textContent = "✅ Connecté";
+      setTimeout(() => gs.style.display = "none", 700);
+    }
+
+    // ✅ infos
+    const phoneEl = document.getElementById("userPhone");
+    if (phoneEl) phoneEl.textContent = session.phone || "+221…";
+
+    const titleEl = document.getElementById("driverTitle");
+    if (titleEl) titleEl.textContent = session.title || "chauffeur";
+
+    // ✅ MINI BRIQUE : patch tous les boutons data-nav pour injecter ?slug=
+    if (slug) {
+      document.querySelectorAll("a[data-nav]").forEach(a => {
+        const file = a.getAttribute("data-nav");
+        a.href = "./" + file + "?slug=" + encodeURIComponent(slug);
+      });
+
+      // logout conserve slug
+      const btnLogout = document.getElementById("btnLogout");
+      if (btnLogout) btnLogout.href = "./pin.html?slug=" + encodeURIComponent(slug);
+    }
+
+    // ✅ logout (clear session)
+    document.getElementById("btnLogout").addEventListener("click", (e) => {
+      e.preventDefault();
+      if (confirm("Tu veux vraiment te déconnecter frérot ?")) {
+        window.DIGIY_GUARD.logout("./pin.html");
+      }
+    });
+  })();
+  </script>
 </body>
 </html>
