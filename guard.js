@@ -1,6 +1,7 @@
 /* =========================
-   DIGIY DRIVER PRO — GUARD SIMPLIFIÉ
+   DIGIY DRIVER PRO — GUARD SIMPLIFIÉ (PATCH PRO)
    Slug + PIN (4 derniers chiffres) → owner_id → Session 8h
+   ✅ Ajout: pin stocké en session (et clé fallback)
 ========================= */
 (function () {
   "use strict";
@@ -15,9 +16,14 @@
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
   const SESSION_KEY = "DIGIY_DRIVER_PRO_SESSION";
+  const PIN_KEY = "DIGIY_DRIVER_PRO_PIN";
   const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8h
 
   function now() { return Date.now(); }
+
+  function normalizePin(p) {
+    return String(p || "").replace(/\D/g, "").slice(0, 4);
+  }
 
   // =============================
   // SESSION
@@ -43,18 +49,33 @@
   }
 
   function setSession(data) {
+    // ⚠️ garde le PIN existant si non fourni (anti-écrasement)
+    const prev = (() => {
+      try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }
+      catch { return null; }
+    })();
+
     const session = {
       ...data,
+      pin: data?.pin ? normalizePin(data.pin) : (prev?.pin || localStorage.getItem(PIN_KEY) || ""),
       created_at: now(),
       expires_at: now() + SESSION_TTL_MS
     };
+
     localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+
+    // fallback PIN (optionnel mais utile)
+    if (session.pin) {
+      localStorage.setItem(PIN_KEY, session.pin);
+    }
+
     console.log("🔐 Session créée:", session.owner_id);
     return session;
   }
 
   function clearSession() {
     localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(PIN_KEY);
     console.log("🔐 Session supprimée");
   }
 
@@ -82,11 +103,14 @@
     if (!sb) return { ok: false, error: "Supabase non initialisé" };
 
     slug = (slug || "").trim();
-    pin = (pin || "").trim();
+    pin = normalizePin(pin);
 
-    if (!slug || !pin) return { ok: false, error: "Slug et PIN requis" };
+    if (!slug || !pin || pin.length < 4) {
+      return { ok: false, error: "Slug et PIN requis (4 chiffres)" };
+    }
 
-    // ✅ Appel RPC verify_access_pin(slug, pin)
+    // ✅ Appel RPC verify_access_pin(slug, pin, module)
+    // NOTE: ta fonction existe aussi en version "verify_access_pin_by_slug" mais tu utilises verify_access_pin
     const { data, error } = await sb.rpc("verify_access_pin", {
       p_slug: slug,
       p_pin: pin
@@ -105,13 +129,15 @@
       return { ok: false, error: result?.error || "PIN invalide" };
     }
 
-    // ✅ STOCKER owner_id + infos en session
+    // ✅ STOCKER owner_id + infos + PIN en session
     const session = setSession({
       ok: true,
       owner_id: result.owner_id,
-      slug: result.slug,
-      title: result.title,
-      phone: result.phone
+      slug: result.slug || slug,
+      title: result.title || "Driver",
+      phone: result.phone || "",
+      pin: pin,            // ✅ AJOUT CRITIQUE
+      module: "DRIVER"
     });
 
     console.log("🔐 Login OK:", session);
@@ -149,12 +175,13 @@
     requireSession,
     logout,
     getSession,
+    setSession,  // ✅ export utile (pin.html / autres pages)
     getSb
   };
 
   console.log("✅ DIGIY_GUARD chargé et prêt !");
-  
+
   // ✅ Dispatch event pour signaler que GUARD est prêt
-  window.dispatchEvent(new Event('DIGIY_GUARD_READY'));
+  window.dispatchEvent(new Event("DIGIY_GUARD_READY"));
 
 })();
