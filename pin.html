@@ -6,9 +6,9 @@
   <title>DIGIY DRIVER PRO 🦅 — Accès</title>
   <meta name="theme-color" content="#16a34a"/>
 
-  <!-- Supabase + Guard -->
+  <!-- Supabase + Guard (ANTI-CACHE) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js"></script>
+  <script src="./guard.js?v=driver-20260130-3"></script>
 
   <style>
     :root{
@@ -99,7 +99,7 @@
 
     <div class="card">
       <label>4 derniers chiffres de ton téléphone</label>
-      <input id="pin" type="tel" inputmode="numeric" autocomplete="off" placeholder="4999" maxlength="4" />
+      <input id="pin" type="tel" inputmode="numeric" autocomplete="off" placeholder="5785" maxlength="4" />
 
       <div class="row" style="margin-top:12px">
         <button class="btn primary" id="btnLogin" type="button">🚗 Entrer dans la zone</button>
@@ -121,31 +121,26 @@
     el.style.display = msg ? "block" : "none";
   }
 
-  // --- SLUG (identifiant chauffeur / pro) ---
   const u = new URL(location.href);
   const SLUG = (u.searchParams.get("slug") || "").trim().replace(/\/+$/,"").toLowerCase();
-
   $("pillLieu").textContent = "Chauffeur : " + (SLUG || "—");
 
   if(!SLUG){
-    show("⚠️ Lien incomplet.\n➡️ Contacte ton admin pour obtenir ton lien d'accès.", "bad");
+    show("⚠️ Lien incomplet.\n➡️ Ajoute ?slug=... à l'URL.", "bad");
   }
 
-  // ✅ helpers
-  function normalizePin(p){
-    return String(p||"").replace(/\D/g,"").slice(0,4);
-  }
+  function normalizePin(p){ return String(p||"").replace(/\D/g,"").slice(0,4); }
 
   async function doLogin(){
+    console.log("🟨 CLICK login");
     if(!SLUG){
       show("❌ Identifiant chauffeur manquant.\n➡️ Contacte ton admin.", "bad");
       return;
     }
 
     const pin = normalizePin(($("pin").value || "").trim());
-
-    if(!pin || pin.length < 4){
-      show("⚠️ Entre les 4 derniers chiffres de ton téléphone.", "warn");
+    if(pin.length < 4){
+      show("⚠️ Entre 4 chiffres frérot.", "warn");
       return;
     }
 
@@ -153,60 +148,22 @@
     show("⏳ Vérification…", "warn");
 
     try{
-      // ✅ Appel guard (existant)
-      const res = await window.DIGIY_GUARD.loginWithPin(SLUG, pin);
-
-      if(!res || !res.ok){
-        show("❌ PIN incorrect.\n➡️ Vérifie les 4 derniers chiffres de ton téléphone.", "bad");
+      if(!window.DIGIY_GUARD?.loginWithPin){
+        show("❌ Guard non chargé.\n➡️ Recharge la page.", "bad");
         $("btnLogin").disabled = false;
         return;
       }
 
-      // ✅ On enrichit la session avec PIN + slug + phone (si dispo)
-      // Important pour courses.html LIVE (RPC list_by_pin)
-      const baseSession = res.session || {};
-      const phoneGuess =
-        baseSession.phone ||
-        baseSession.owner_phone ||
-        baseSession.pin_phone ||
-        baseSession.profile_phone ||
-        ""; // si ton guard renvoie un phone, on le prend
+      const res = await window.DIGIY_GUARD.loginWithPin(SLUG, pin);
 
-      // On force une session propre qui contient pin
-      // (si guard a déjà setSession, on l'écrase avec la même + pin)
-      if(window.DIGIY_GUARD.setSession){
-        window.DIGIY_GUARD.setSession({
-          ...baseSession,
-          ok: true,
-          slug: SLUG,
-          phone: phoneGuess || baseSession.phone || "",
-          pin: pin,
-          module: "DRIVER"
-        });
-      } else {
-        // fallback ultra simple si jamais setSession n'existe pas dans guard.js
-        try{
-          const SESSION_KEY="DIGIY_DRIVER_PRO_SESSION";
-          const SESSION_TTL_MS=288e5;
-          const now=Date.now();
-          localStorage.setItem(SESSION_KEY, JSON.stringify({
-            ...baseSession,
-            ok:true,
-            slug: SLUG,
-            phone: phoneGuess || baseSession.phone || "",
-            pin: pin,
-            module: "DRIVER",
-            created_at: now,
-            expires_at: now + SESSION_TTL_MS
-          }));
-        }catch(_e){}
+      if(!res || !res.ok){
+        show("❌ PIN incorrect ou accès refusé.\n➡️ Vérifie tes 4 chiffres.", "bad");
+        $("btnLogin").disabled = false;
+        return;
       }
-
-      console.log("✅ Login OK. Session enrichie avec PIN + SLUG.");
 
       show("✅ OK. Entrée dans la zone…", "ok");
 
-      // ✅ Redirection vers dashboard
       setTimeout(() => {
         const dashboardUrl = new URL("./index.html", location.href);
         dashboardUrl.searchParams.set("slug", SLUG);
@@ -214,17 +171,17 @@
       }, 600);
 
     }catch(e){
-      console.error(e);
-      show("❌ Problème technique.\n➡️ Réessaie dans 10 secondes.\nDétail: " + (e?.message || e), "bad");
+      console.error("LOGIN EX:", e);
+      show("❌ Problème technique.\n➡️ Réessaie.\nDétail: " + (e?.message || e), "bad");
       $("btnLogin").disabled = false;
     }
   }
 
   $("btnLogin").addEventListener("click", doLogin);
   $("pin").addEventListener("keydown", (e)=>{ if(e.key==="Enter") doLogin(); });
-
   setTimeout(()=> $("pin").focus(), 120);
 })();
 </script>
 </body>
 </html>
+
