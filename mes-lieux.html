@@ -49,39 +49,311 @@
   <div class="title">📍 Mes Lieux de Travail</div>
   <div class="pill" id="pillPhone">📱 …</div>
 </header>
+
 <main>
   <div class="card">
     <h1>Tous tes lieux 🦅</h1>
     <p>Gère tous tes points de travail. Clique sur "Activer" pour bosser depuis ce lieu.</p>
+
     <div id="listContainer">
       <div class="empty">
         <div style="font-size:48px;margin-bottom:12px">⏳</div>
         Chargement frérot...
       </div>
     </div>
+
     <div class="row" style="margin-top:16px">
       <button class="btn-secondary" id="btnShowAdd">➕ Créer un lieu</button>
       <a class="btn-ghost" href="./index.html">← Retour accueil</a>
     </div>
   </div>
+
   <div class="card add-form" id="addForm">
     <h1>Nouveau lieu de travail</h1>
     <p>Crée un nouveau point d'activité (ville, zone, quartier...)</p>
+
     <label>Nom du lieu *</label>
     <input id="inputTitle" placeholder="Ex: Moussa VTC Dakar, Transport Saly Centre..."/>
     <p style="font-size:12px;color:var(--muted);margin-top:4px">Le slug sera généré automatiquement</p>
+
     <div class="row">
       <button class="btn-primary" id="btnCreate">✅ C'est bon, créer</button>
       <button class="btn-ghost" id="btnCancelAdd">Annuler</button>
     </div>
+
     <div class="status" id="addStatus"></div>
   </div>
 </main>
+
+<!-- ✅ GUARD (session + supabase client) -->
 <script>
-(function(){const SUPABASE_URL="https://wesqmwjjtsefyjnluosj.supabase.co",SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA",SESSION_KEY="DIGIY_DRIVER_PRO_SESSION",SESSION_TTL_MS=288e5;function now(){return Date.now()}function getSession(){try{const raw=localStorage.getItem(SESSION_KEY),s=JSON.parse(raw);if(!s||!s.expires_at||now()>s.expires_at)return null;return s}catch{return null}}function setSession(data){const session={...data,created_at:now(),expires_at:now()+SESSION_TTL_MS};localStorage.setItem(SESSION_KEY,JSON.stringify(session));return session}function clearSession(){localStorage.removeItem(SESSION_KEY)}function getSb(){if(!window.__digiy_sb__)window.__digiy_sb__=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);return window.__digiy_sb__}window.DIGIY_GUARD={getSession,setSession,clearSession,getSb}})();
+(function(){
+  const SUPABASE_URL="https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+
+  const SESSION_KEY="DIGIY_DRIVER_PRO_SESSION";
+  const SESSION_TTL_MS=288e5; // 8h
+
+  function now(){ return Date.now(); }
+
+  function getSession(){
+    try{
+      const raw = localStorage.getItem(SESSION_KEY);
+      const s = JSON.parse(raw);
+      if(!s || !s.expires_at || now()>s.expires_at) return null;
+      return s;
+    }catch{
+      return null;
+    }
+  }
+
+  function setSession(data){
+    const session = { ...data, created_at: now(), expires_at: now()+SESSION_TTL_MS };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    return session;
+  }
+
+  function clearSession(){
+    localStorage.removeItem(SESSION_KEY);
+  }
+
+  function getSb(){
+    if(!window.__digiy_sb__) window.__digiy_sb__ = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return window.__digiy_sb__;
+  }
+
+  window.DIGIY_GUARD = { getSession, setSession, clearSession, getSb };
+})();
 </script>
+
+<!-- ✅ APP -->
 <script>
-(async()=>{const session=window.DIGIY_GUARD.getSession();if(!session||!session.owner_id){const url=new URL(location.href),slug=url.searchParams.get("slug");location.replace(slug?`./pin.html?slug=${slug}`:"./pin.html");return}const sb=window.DIGIY_GUARD.getSb(),owner_id=session.owner_id,current_slug=session.slug;const pillPhone=document.getElementById("pillPhone"),listContainer=document.getElementById("listContainer"),addForm=document.getElementById("addForm"),addStatus=document.getElementById("addStatus"),inputTitle=document.getElementById("inputTitle");pillPhone.textContent="📱 "+(session.phone||"Connecté");function showStatus(msg,type="ok"){addStatus.className=`status show ${type}`;addStatus.textContent=msg}function hideStatus(){addStatus.className="status"}async function loadLieux(){try{const{data,error}=await sb.rpc("get_owner_slugs",{p_owner_id:owner_id});if(error)throw error;if(!data||data.length===0){listContainer.innerHTML='<div class="empty"><div style="font-size:48px;margin-bottom:12px">📍</div>Aucun lieu trouvé frérot.<br>Clique sur "Créer un lieu" pour commencer.</div>';return}listContainer.innerHTML=`<div class="list">${data.map(lieu=>`<div class="lieu-item ${lieu.slug===current_slug?"active":""}"><div class="lieu-info"><div class="lieu-name">${escapeHtml(lieu.title)}</div><div class="lieu-slug">${lieu.slug}</div></div><div class="lieu-actions">${lieu.slug===current_slug?'<button class="btn-active">✅ Actif ici</button>':`<button class="btn-primary" onclick="activerLieu('${lieu.slug}','${escapeHtml(lieu.title)}','${lieu.phone}')">Activer</button>`}<button class="btn-danger" onclick="supprimerLieu('${lieu.slug}','${escapeHtml(lieu.title)}',${lieu.slug===current_slug})">🗑️</button></div></div>`).join("")}</div>`}catch(err){console.error(err);listContainer.innerHTML=`<div class="empty"><div style="font-size:48px;margin-bottom:12px">❌</div>Erreur de chargement frérot<br><small>${err.message}</small></div>`}}function escapeHtml(text){const div=document.createElement("div");div.textContent=text;return div.innerHTML}window.activerLieu=function(slug,title,phone){window.DIGIY_GUARD.setSession({ok:true,owner_id:owner_id,slug:slug,title:title,phone:phone});console.log("✅ Lieu activé:",slug);location.reload()};window.supprimerLieu=async function(slug,title,isActive){let confirmMsg;if(isActive){confirmMsg=`⚠️ ATTENTION frérot !\n\nTu vas supprimer ton lieu ACTIF "${title}".\n\n• S'il reste d'autres lieux → basculement auto\n• Si c'est le dernier → déconnexion\n\nContinuer ?`}else{confirmMsg=`Supprimer "${title}" ?\n\nC'est irréversible frérot.`}if(!confirm(confirmMsg))return;try{const{data,error}=await sb.rpc("delete_slug",{p_slug:slug,p_owner_id:owner_id});if(error)throw error;const result=typeof data==="string"?JSON.parse(data):data;if(!result.ok)throw new Error(result.error||"Erreur lors de la suppression");console.log("✅ Lieu supprimé:",slug,result);if(isActive){if(result.was_last){console.log("🔴 Dernier lieu supprimé → déconnexion");window.DIGIY_GUARD.clearSession();alert("Dernier lieu supprimé frérot. Redirection vers la connexion.");location.replace("./pin.html");return}if(result.next_slug){console.log("🔄 Switch auto vers:",result.next_slug);const{data:nextLieuData}=await sb.rpc("get_owner_slugs",{p_owner_id:owner_id});const nextLieu=nextLieuData.find(l=>l.slug===result.next_slug);if(nextLieu){window.DIGIY_GUARD.setSession({ok:true,owner_id:owner_id,slug:nextLieu.slug,title:nextLieu.title,phone:nextLieu.phone});alert(`Lieu supprimé.\nBasculement auto vers: ${nextLieu.title}`);location.reload()}else{location.reload()}return}}loadLieux()}catch(err){console.error(err);alert("❌ Erreur frérot : "+err.message)}};document.getElementById("btnShowAdd").addEventListener("click",()=>{addForm.classList.add("show");inputTitle.focus();hideStatus()});document.getElementById("btnCancelAdd").addEventListener("click",()=>{addForm.classList.remove("show");inputTitle.value="";hideStatus()});document.getElementById("btnCreate").addEventListener("click",async()=>{const title=inputTitle.value.trim();if(!title){showStatus("⚠️ Entre un nom frérot","error");return}try{hideStatus();document.getElementById("btnCreate").disabled=true;document.getElementById("btnCreate").textContent="⏳ Création...";const{data,error}=await sb.rpc("create_new_slug",{p_owner_id:owner_id,p_title:title,p_phone:session.phone,p_module:"DRIVER"});if(error)throw error;const result=typeof data==="string"?JSON.parse(data):data;if(!result.ok)throw new Error(result.error||"Erreur création");showStatus(`✅ Lieu créé : ${result.slug}`,"ok");setTimeout(()=>{inputTitle.value="";addForm.classList.remove("show");loadLieux()},1500)}catch(err){console.error(err);showStatus("❌ Erreur : "+err.message,"error")}finally{document.getElementById("btnCreate").disabled=false;document.getElementById("btnCreate").textContent="✅ C'est bon, créer"}});loadLieux()})();
+(async()=>{
+  const session = window.DIGIY_GUARD.getSession();
+  if(!session || !session.owner_id){
+    const url = new URL(location.href);
+    const slug = url.searchParams.get("slug");
+    location.replace(slug ? `./pin.html?slug=${encodeURIComponent(slug)}` : "./pin.html");
+    return;
+  }
+
+  const sb = window.DIGIY_GUARD.getSb();
+  const owner_id = session.owner_id;
+  const current_slug = session.slug;
+
+  const pillPhone = document.getElementById("pillPhone");
+  const listContainer = document.getElementById("listContainer");
+  const addForm = document.getElementById("addForm");
+  const addStatus = document.getElementById("addStatus");
+  const inputTitle = document.getElementById("inputTitle");
+  const btnCreate = document.getElementById("btnCreate");
+
+  pillPhone.textContent = "📱 " + (session.phone || "Connecté");
+
+  function escapeHtml(text){
+    const div = document.createElement("div");
+    div.textContent = (text ?? "");
+    return div.innerHTML;
+  }
+
+  function showStatus(msg,type="ok"){
+    addStatus.className = `status show ${type}`;
+    addStatus.textContent = msg;
+  }
+  function hideStatus(){
+    addStatus.className = "status";
+    addStatus.textContent = "";
+  }
+
+  // ✅ expose pour l'event delegation delete
+  window.supprimerLieu = async function(slug, title, isActive){
+    let confirmMsg;
+    if(isActive){
+      confirmMsg =
+        `⚠️ ATTENTION frérot !\n\n`+
+        `Tu vas supprimer ton lieu ACTIF "${title}".\n\n`+
+        `• S'il reste d'autres lieux → basculement auto\n`+
+        `• Si c'est le dernier → déconnexion\n\n`+
+        `Continuer ?`;
+    }else{
+      confirmMsg = `Supprimer "${title}" ?\n\nC'est irréversible frérot.`;
+    }
+    if(!confirm(confirmMsg)) return;
+
+    try{
+      const { data, error } = await sb.rpc("delete_slug", { p_slug: slug, p_owner_id: owner_id });
+      if(error) throw error;
+
+      const result = (typeof data === "string") ? JSON.parse(data) : data;
+      if(!result?.ok) throw new Error(result?.error || "Erreur lors de la suppression");
+
+      if(isActive){
+        if(result.was_last){
+          window.DIGIY_GUARD.clearSession();
+          alert("Dernier lieu supprimé frérot. Redirection vers la connexion.");
+          location.replace("./pin.html");
+          return;
+        }
+
+        if(result.next_slug){
+          // Recharger lieux et basculer auto vers next_slug
+          const { data: lieuxData, error: e2 } = await sb.rpc("get_owner_slugs", { p_owner_id: owner_id });
+          if(e2) throw e2;
+
+          const nextLieu = (lieuxData || []).find(l => l.slug === result.next_slug);
+          if(nextLieu){
+            window.DIGIY_GUARD.setSession({
+              ok:true,
+              owner_id,
+              slug: nextLieu.slug,
+              title: nextLieu.title,
+              phone: nextLieu.phone
+            });
+            alert(`Lieu supprimé.\nBasculement auto vers: ${nextLieu.title}`);
+          }
+          location.reload();
+          return;
+        }
+      }
+
+      await loadLieux();
+    }catch(err){
+      console.error(err);
+      alert("❌ Erreur frérot : " + (err?.message || "inconnue"));
+    }
+  };
+
+  async function loadLieux(){
+    try{
+      const { data, error } = await sb.rpc("get_owner_slugs", { p_owner_id: owner_id });
+      if(error) throw error;
+
+      if(!data || data.length === 0){
+        listContainer.innerHTML =
+          '<div class="empty"><div style="font-size:48px;margin-bottom:12px">📍</div>'+
+          'Aucun lieu trouvé frérot.<br>Clique sur "Créer un lieu" pour commencer.</div>';
+        return;
+      }
+
+      listContainer.innerHTML = `
+        <div class="list">
+          ${data.map(lieu => {
+            const isActive = lieu.slug === current_slug;
+            return `
+              <div class="lieu-item ${isActive ? "active" : ""}">
+                <div class="lieu-info">
+                  <div class="lieu-name">${escapeHtml(lieu.title)}</div>
+                  <div class="lieu-slug">${escapeHtml(lieu.slug)}</div>
+                </div>
+
+                <div class="lieu-actions">
+                  ${
+                    isActive
+                      ? `<button class="btn-active" disabled>✅ Actif ici</button>`
+                      : `<button class="btn-primary js-activer"
+                            data-slug="${escapeHtml(lieu.slug)}"
+                            data-title="${escapeHtml(lieu.title)}"
+                            data-phone="${escapeHtml(lieu.phone || "")}"
+                          >Activer</button>`
+                  }
+
+                  <button class="btn-danger js-supprimer"
+                    data-slug="${escapeHtml(lieu.slug)}"
+                    data-title="${escapeHtml(lieu.title)}"
+                    data-active="${isActive ? "1" : "0"}"
+                  >🗑️</button>
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }catch(err){
+      console.error(err);
+      listContainer.innerHTML =
+        `<div class="empty"><div style="font-size:48px;margin-bottom:12px">❌</div>`+
+        `Erreur de chargement frérot<br><small>${escapeHtml(err?.message || "inconnue")}</small></div>`;
+    }
+  }
+
+  // ✅ Event delegation (plus de onclick inline)
+  listContainer.addEventListener("click", async (e) => {
+    const actBtn = e.target.closest(".js-activer");
+    if(actBtn){
+      const slug = actBtn.dataset.slug;
+      const title = actBtn.dataset.title;
+      const phone = actBtn.dataset.phone || session.phone || "";
+      window.DIGIY_GUARD.setSession({ ok:true, owner_id, slug, title, phone });
+      location.reload();
+      return;
+    }
+
+    const delBtn = e.target.closest(".js-supprimer");
+    if(delBtn){
+      const slug = delBtn.dataset.slug;
+      const title = delBtn.dataset.title;
+      const isActive = delBtn.dataset.active === "1";
+      await window.supprimerLieu(slug, title, isActive);
+      return;
+    }
+  });
+
+  // UI add form
+  document.getElementById("btnShowAdd").addEventListener("click", () => {
+    addForm.classList.add("show");
+    inputTitle.focus();
+    hideStatus();
+  });
+
+  document.getElementById("btnCancelAdd").addEventListener("click", () => {
+    addForm.classList.remove("show");
+    inputTitle.value = "";
+    hideStatus();
+  });
+
+  btnCreate.addEventListener("click", async () => {
+    const title = inputTitle.value.trim();
+    if(!title){
+      showStatus("⚠️ Entre un nom frérot", "error");
+      return;
+    }
+
+    try{
+      hideStatus();
+      btnCreate.disabled = true;
+      btnCreate.textContent = "⏳ Création...";
+
+      const { data, error } = await sb.rpc("create_new_slug", {
+        p_owner_id: owner_id,
+        p_title: title,
+        p_phone: session.phone,
+        p_module: "DRIVER"
+      });
+      if(error) throw error;
+
+      const result = (typeof data === "string") ? JSON.parse(data) : data;
+      if(!result?.ok) throw new Error(result?.error || "Erreur création");
+
+      showStatus(`✅ Lieu créé : ${result.slug}`, "ok");
+
+      setTimeout(async () => {
+        inputTitle.value = "";
+        addForm.classList.remove("show");
+        await loadLieux();
+      }, 900);
+
+    }catch(err){
+      console.error(err);
+      showStatus("❌ Erreur : " + (err?.message || "inconnue"), "error");
+    }finally{
+      btnCreate.disabled = false;
+      btnCreate.textContent = "✅ C'est bon, créer";
+    }
+  });
+
+  // GO
+  await loadLieux();
+})();
 </script>
 </body>
 </html>
