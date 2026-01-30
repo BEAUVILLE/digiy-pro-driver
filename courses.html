@@ -165,12 +165,12 @@
 
     const sb = window.DIGIY_GUARD.getSb();
 
-    const { data, error } = await sb.rpc("rpc_driver_trips_list_by_pin", {
-      p_phone: session.phone,
-      p_pin: pin,
-      p_module: "DRIVER",
-      p_limit: 50
-    });
+    const { data, error } = await sb.rpc("verify_access_pin_by_slug", {
+  p_slug: slug,
+  p_pin: pin,
+  p_module: "DRIVER"
+});
+
 
     if(error){
       console.error(error);
