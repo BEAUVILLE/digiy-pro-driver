@@ -121,7 +121,7 @@
     el.style.display = msg ? "block" : "none";
   }
 
-  // --- SLUG (identifiant chauffeur) ---
+  // --- SLUG (identifiant chauffeur / pro) ---
   const u = new URL(location.href);
   const SLUG = (u.searchParams.get("slug") || "").trim().replace(/\/+$/,"").toLowerCase();
 
@@ -131,13 +131,18 @@
     show("⚠️ Lien incomplet.\n➡️ Contacte ton admin pour obtenir ton lien d'accès.", "bad");
   }
 
+  // ✅ helpers
+  function normalizePin(p){
+    return String(p||"").replace(/\D/g,"").slice(0,4);
+  }
+
   async function doLogin(){
     if(!SLUG){
       show("❌ Identifiant chauffeur manquant.\n➡️ Contacte ton admin.", "bad");
       return;
     }
 
-    const pin = ($("pin").value || "").trim();
+    const pin = normalizePin(($("pin").value || "").trim());
 
     if(!pin || pin.length < 4){
       show("⚠️ Entre les 4 derniers chiffres de ton téléphone.", "warn");
@@ -148,7 +153,7 @@
     show("⏳ Vérification…", "warn");
 
     try{
-      // ✅ Appel simplifié : loginWithPin(slug, pin)
+      // ✅ Appel guard (existant)
       const res = await window.DIGIY_GUARD.loginWithPin(SLUG, pin);
 
       if(!res || !res.ok){
@@ -157,16 +162,56 @@
         return;
       }
 
-      console.log("✅ Login OK, owner_id:", res.session?.owner_id);
+      // ✅ On enrichit la session avec PIN + slug + phone (si dispo)
+      // Important pour courses.html LIVE (RPC list_by_pin)
+      const baseSession = res.session || {};
+      const phoneGuess =
+        baseSession.phone ||
+        baseSession.owner_phone ||
+        baseSession.pin_phone ||
+        baseSession.profile_phone ||
+        ""; // si ton guard renvoie un phone, on le prend
+
+      // On force une session propre qui contient pin
+      // (si guard a déjà setSession, on l'écrase avec la même + pin)
+      if(window.DIGIY_GUARD.setSession){
+        window.DIGIY_GUARD.setSession({
+          ...baseSession,
+          ok: true,
+          slug: SLUG,
+          phone: phoneGuess || baseSession.phone || "",
+          pin: pin,
+          module: "DRIVER"
+        });
+      } else {
+        // fallback ultra simple si jamais setSession n'existe pas dans guard.js
+        try{
+          const SESSION_KEY="DIGIY_DRIVER_PRO_SESSION";
+          const SESSION_TTL_MS=288e5;
+          const now=Date.now();
+          localStorage.setItem(SESSION_KEY, JSON.stringify({
+            ...baseSession,
+            ok:true,
+            slug: SLUG,
+            phone: phoneGuess || baseSession.phone || "",
+            pin: pin,
+            module: "DRIVER",
+            created_at: now,
+            expires_at: now + SESSION_TTL_MS
+          }));
+        }catch(_e){}
+      }
+
+      console.log("✅ Login OK. Session enrichie avec PIN + SLUG.");
 
       show("✅ OK. Entrée dans la zone…", "ok");
-      
-      // ✅ Redirige vers index.html
+
+      // ✅ Redirection vers dashboard
       setTimeout(() => {
         const dashboardUrl = new URL("./index.html", location.href);
         dashboardUrl.searchParams.set("slug", SLUG);
         location.replace(dashboardUrl.toString());
-      }, 800);
+      }, 600);
 
     }catch(e){
       console.error(e);
