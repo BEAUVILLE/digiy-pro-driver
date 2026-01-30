@@ -10,9 +10,10 @@
     :root{--bg:#061b14;--card:#0b2a1f;--line:rgba(255,255,255,.14);--text:#eafff1;--muted:rgba(234,255,241,.78);--green:#16a34a;--gold:#facc15;--r:18px}
     *{box-sizing:border-box}
     body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(900px 500px at 10% -10%,rgba(34,197,94,.20),transparent 60%),radial-gradient(900px 500px at 110% 0%,rgba(250,204,21,.14),transparent 55%),var(--bg);color:var(--text)}
-    header{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:rgba(6,27,20,.75);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:rgba(6,27,20,.75);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
     .title{font-weight:900;letter-spacing:.2px;font-size:18px}
-    .pill{padding:8px 10px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--muted);background:rgba(0,0,0,.22);display:flex;gap:8px;align-items:center;white-space:nowrap}
+    .pill{padding:8px 10px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--muted);background:rgba(0,0,0,.22);display:inline-flex;gap:8px;align-items:center;white-space:nowrap}
+    a.pill{text-decoration:none}
     main{padding:16px;max-width:980px;margin:0 auto}
     .grid{display:grid;gap:12px;grid-template-columns:repeat(12,1fr)}
     .card{grid-column:span 12;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 12px 40px rgba(0,0,0,.32)}
@@ -36,7 +37,14 @@
 <body>
 <header>
   <div class="title">🚗 Mes Courses</div>
-  <div class="pill" id="pillPhone">📱 …</div>
+
+  <!-- ✅ NAV LIBERTÉ (pas de prison) -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+    <a class="pill" href="./index.html">🏠 Dashboard</a>
+    <a class="pill" href="./driver-zone-kiff.html">📍 Secteurs</a>
+    <a class="pill" href="./mes-lieux-kiff.html">📌 Mes lieux</a>
+    <div class="pill" id="pillPhone">📱 …</div>
+  </div>
 </header>
 
 <main>
