@@ -1,16 +1,10 @@
 /* =========================
-   digiy-pro-driver— GUARD CONSOLIDÉ (FINAL PROPRE) ✅ GITHUB PAGES SAFE
+   digiy-pro-driver — GUARD CONSOLIDÉ (FINAL PROPRE) ✅ GITHUB PAGES SAFE
    - Session 8h
-   - RPC verify_access_pin(p_slug,p_pin) -> {ok, owner_id, slug, title, phone, error?}
-     + ✅ Fallback compat (legacy signatures)
-   - Slug source of truth: URL > session > localStorage
-   - Sync slug localStorage si URL.slug existe (anti slug fantôme)
-   - Compat session keys (V1/V2) -> migration auto vers clé unifiée
-   - Supabase ready lock (évite: "Supabase pas prêt")
-   - No crash: fallback redirect propre si Supabase CDN KO
-   - ✅ GitHub Pages SAFE: navigation relative + basePath auto
-     -> Fix: custom domain safe (évite /planning.html/ )
-   - ✅ withSlug safe: URLs absolues + ancres # non cassées
+   - ✅ DRIVER: verify_access_pin(p_phone,p_pin,p_module) PRIORITY
+     -> module = "driver_pro"
+     -> slug envoyé dans p_phone (compat ta fonction 3 args)
+   - Fallback: verify_access_pin(p_slug,p_pin) si besoin
 ========================= */
 (function () {
   "use strict";
@@ -22,20 +16,23 @@
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
+  // ✅ IMPORTANT: module ID exact (table digiy_pro_access)
+  const DIGIY_MODULE = "driver_pro";
+
   const SESSION_KEY = "DIGIY_DRIVER_PRO_SESSION"; // ✅ driver unifié
-const SESSION_KEYS_COMPAT = [
-  "DIGIY_DRIVER_PRO_SESSION_V1",
-  "DIGIY_DRIVER_PRO_SESSION_V2",
-  "DIGIY_DRIVER_PRO_SESSION_V1_8H",
-];
+  const SESSION_KEYS_COMPAT = [
+    "DIGIY_DRIVER_PRO_SESSION_V1",
+    "DIGIY_DRIVER_PRO_SESSION_V2",
+    "DIGIY_DRIVER_PRO_SESSION_V1_8H",
+  ];
   const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8h
 
   const LS = {
-  SLUG: "DIGIY_DRIVER_SLUG",
-  PRO_ID: "DIGIY_DRIVER_PRO_ID",
-  TITLE: "DIGIY_DRIVER_TITLE",
-  PHONE: "DIGIY_DRIVER_PHONE",
-};
+    SLUG: "DIGIY_DRIVER_SLUG",
+    PRO_ID: "DIGIY_DRIVER_PRO_ID",
+    TITLE: "DIGIY_DRIVER_TITLE",
+    PHONE: "DIGIY_DRIVER_PHONE",
+  };
 
   function now() {
     return Date.now();
@@ -101,11 +98,9 @@ const SESSION_KEYS_COMPAT = [
   }
 
   function getSessionUnsafe() {
-    // 1) clé unifiée
     const primary = parseSession(lsGet(SESSION_KEY));
     if (primary) return primary;
 
-    // 2) compat: V1/V2 -> migrate
     for (const k of SESSION_KEYS_COMPAT) {
       const s = parseSession(lsGet(k));
       if (s) {
@@ -156,20 +151,15 @@ const SESSION_KEYS_COMPAT = [
     return u;
   }
 
-  // 🔥 sync asap (anti slug fantôme)
   syncSlugFromUrl();
 
   // =============================
-  // GITHUB PAGES SAFE BASE PATH ✅ (custom domain safe)
+  // GITHUB PAGES SAFE BASE PATH ✅
   // =============================
   function basePath() {
     const parts = location.pathname.split("/").filter(Boolean);
     const isGithubPages = /\.github\.io$/i.test(location.hostname);
-
-    // ✅ Repo site: https://user.github.io/<repo>/...
     if (isGithubPages && parts.length > 0) return "/" + parts[0] + "/";
-
-    // ✅ Custom domain / normal hosting
     return "/";
   }
 
@@ -177,19 +167,13 @@ const SESSION_KEYS_COMPAT = [
     const s = getSlug();
     let clean = String(url || "").trim();
 
-    // ✅ URL absolue: ne pas casser
     if (/^https?:\/\//i.test(clean)) return clean;
-
-    // ✅ ancre seule
     if (clean.startsWith("#")) return clean;
 
-    // ✅ force relatif
     clean = clean.replace(/^\/+/, "");
     if (!clean) clean = "index.html";
 
-    if (s) {
-      clean += (clean.includes("?") ? "&" : "?") + "slug=" + encodeURIComponent(s);
-    }
+    if (s) clean += (clean.includes("?") ? "&" : "?") + "slug=" + encodeURIComponent(s);
 
     return basePath() + clean;
   }
@@ -254,7 +238,6 @@ const SESSION_KEYS_COMPAT = [
     return window.__digiy_sb__;
   }
 
-  // version sync (peut être null si pas prêt)
   function getSb() {
     if (!window.supabase?.createClient) return null;
     if (!window.__digiy_sb__) {
@@ -264,27 +247,33 @@ const SESSION_KEYS_COMPAT = [
   }
 
   // =============================
-  // RPC COMPAT: verify_access_pin
+  // ✅ RPC DRIVER: verify_access_pin
   // =============================
   async function rpcVerifyAccessPin(sb, slug, pin) {
-    // A) signature moderne: (p_slug, p_pin)
-    let res = await sb.rpc("verify_access_pin", { p_slug: slug, p_pin: pin });
+    const s = cleanSlug(slug);
+    const p = String(pin || "").trim();
 
-    if (res?.error) {
-      const msg = String(res.error.message || "");
-      const shouldFallback =
-        /not exist|function|parameter|argument|p_phone|p_module|expects|unknown/i.test(msg);
+    // ✅ PRIORITY: signature 3 args (p_phone,p_pin,p_module)
+    // Chez toi: on met le slug dans p_phone.
+    let res = await sb.rpc("verify_access_pin", {
+      p_phone: s,
+      p_pin: p,
+      p_module: DIGIY_MODULE,
+    });
 
-      if (shouldFallback) {
-        // B) fallback legacy: (p_phone, p_pin, p_module)
-        // ⚠️ Si ton legacy n'est pas ça, adapte ici une seule fois.
-        res = await sb.rpc("verify_access_pin", {
-          p_phone: slug,
-          p_pin: pin,
-          p_module: "pro-driver",
-        });
-      }
+    if (!res?.error) return res;
+
+    // ✅ fallback: signature 2 args (p_slug,p_pin)
+    // utile si un jour tu relies un module à la version 2 args.
+    const msg = String(res.error.message || "");
+    const canTry2 =
+      /not exist|function|parameter|argument|expects|unknown|p_phone|p_module/i.test(msg);
+
+    if (canTry2) {
+      res = await sb.rpc("verify_access_pin", { p_slug: s, p_pin: p });
+      return res;
     }
+
     return res;
   }
 
@@ -325,16 +314,15 @@ const SESSION_KEYS_COMPAT = [
       return { ok: false, error: result?.error || "PIN invalide" };
     }
 
-    // ✅ session
     const session = setSession({
       ok: true,
       owner_id: ownerId,
       slug: cleanSlug(result.slug || s),
       title: result.title || "",
       phone: result.phone || "",
+      module: DIGIY_MODULE,
     });
 
-    // ✅ sync LS utile
     lsSet(LS.PRO_ID, session.owner_id);
     lsSet(LS.SLUG, session.slug);
     if (session.title) lsSet(LS.TITLE, session.title);
@@ -348,7 +336,6 @@ const SESSION_KEYS_COMPAT = [
   // REQUIRE SESSION
   // =============================
   function requireSession(redirect = "pin.html") {
-    // 🔥 autorité URL slug -> écrase LS
     syncSlugFromUrl();
 
     const s = getSessionUnsafe();
@@ -365,11 +352,9 @@ const SESSION_KEYS_COMPAT = [
   async function boot(options) {
     const loginUrl = options?.login || "pin.html";
 
-    // session required
     const s = requireSession(loginUrl);
     if (!s) return { ok: false };
 
-    // ensure supabase is ready for the app
     try {
       await getSbAsync();
       markReady();
@@ -398,13 +383,13 @@ const SESSION_KEYS_COMPAT = [
     requireSession,
     logout,
     getSession,
-    getSb, // sync (nullable)
-    getSbAsync, // ✅ recommended
-    ready, // ✅ await guard readiness
+    getSb,
+    getSbAsync,
+    ready,
     getSlug,
     withSlug,
     go,
     syncSlugFromUrl,
-    basePath, // ✅ debug utile
+    basePath,
   };
 })();
