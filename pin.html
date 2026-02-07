@@ -3,212 +3,367 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>🦅 PORTE PIN — DIGIY PRO DRIVER</title>
   <meta name="theme-color" content="#061b14"/>
-  <title>DIGIY QR PRO — Porte PIN</title>
+
+  <!-- Supabase CDN (guard en dépend) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- ✅ Guard (doit être dans le même repo / même dossier que pin.html) -->
+  <script src="./guard.js?v=driver-pin-final"></script>
 
   <style>
     :root{
       --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
       --text:#eafff1; --muted:rgba(234,255,241,.72);
-      --gold:#facc15; --ok:#22c55e; --bad:#fb7185;
+      --gold:#facc15; --green:#22c55e; --red:#fb7185;
       --shadow:0 18px 55px rgba(0,0,0,.45); --r:18px;
     }
     *{box-sizing:border-box}
     body{
       margin:0; min-height:100vh; display:grid; place-items:center;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto;
-      background:radial-gradient(circle at top, rgba(250,204,21,.10), transparent 55%),
-                 linear-gradient(135deg,#04160f,#0a2b1f);
-      color:var(--text); padding:18px;
-    }
-    .card{
-      width:min(520px,92vw);
-      background:linear-gradient(145deg,rgba(11,42,31,.96),rgba(6,35,25,.96));
-      border:1px solid var(--line);
-      border-radius:22px;
-      box-shadow:var(--shadow);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:
+        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
+        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
+        var(--bg);
+      color:var(--text);
       padding:18px;
     }
-    .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-    .brand{display:flex;align-items:center;gap:10px}
-    .ico{
-      width:46px;height:46px;border-radius:50%;
-      display:grid;place-items:center;
-      background:radial-gradient(circle at 30% 0,var(--gold),transparent 60%);
-      color:#062015;font-weight:1000;
-      border:1px solid rgba(250,204,21,.35);
-    }
-    .t{font-weight:1000;letter-spacing:.12em;font-size:12px}
-    .sub{font-size:12px;color:var(--muted);margin-top:4px}
-    .pill{
+    .wrap{width:100%; max-width:560px}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--line);
-      background:rgba(250,204,21,.10);
-      padding:7px 10px;border-radius:999px;
-      font-size:12px;font-weight:900;
+      border-radius:var(--r);
+      padding:22px;
+      box-shadow:var(--shadow);
     }
-    .sep{height:1px;background:var(--line);margin:14px 0}
-    label{display:block;font-size:12px;color:var(--muted);margin:8px 0 6px}
+    .top{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      margin-bottom:14px;
+    }
+    .brand{
+      display:flex; flex-direction:column; gap:4px;
+    }
+    h1{
+      margin:0;
+      font-size:22px;
+      letter-spacing:.2px;
+      font-weight:950;
+      background:linear-gradient(135deg, var(--green), var(--gold));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-weight:750;
+      line-height:1.45;
+      font-size:13px;
+    }
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      color:rgba(234,255,241,.92);
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .chip b{color:var(--gold)}
+    .hr{height:1px; background:rgba(255,255,255,.12); margin:14px 0}
+    .label{
+      font-size:13px;
+      font-weight:900;
+      color:rgba(234,255,241,.92);
+      margin:0 0 8px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .label small{
+      color:rgba(234,255,241,.70);
+      font-weight:800;
+    }
+    .row{
+      display:flex; gap:10px; align-items:stretch;
+    }
     input{
-      width:100%; padding:14px 14px;
-      border-radius:14px; border:1px solid var(--line);
-      background:rgba(0,0,0,.22); color:var(--text);
-      font-size:16px; font-weight:900; letter-spacing:.14em;
+      flex:1;
+      width:100%;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.22);
+      color:var(--text);
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:.22em;
       outline:none;
     }
-    button{
-      width:100%; margin-top:12px; padding:14px 14px;
-      border-radius:14px; border:none;
-      background:linear-gradient(90deg,var(--ok),var(--gold));
-      color:#062015; font-weight:1000; font-size:15px;
+    input:focus{border-color:rgba(250,204,21,.55)}
+    .iconbtn{
+      width:56px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      font-weight:950;
       cursor:pointer;
     }
-    button:disabled{opacity:.6; cursor:not-allowed}
-    .msg{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.5}
-    .ok{color:var(--ok); font-weight:900}
-    .bad{color:var(--bad); font-weight:900}
-    .mini{margin-top:10px; font-size:12px; color:var(--muted)}
-    .mini b{color:var(--text)}
+    .btn{
+      width:100%;
+      margin-top:12px;
+      border:0;
+      border-radius:14px;
+      padding:14px 16px;
+      font-size:16px;
+      font-weight:950;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      transition:transform .18s ease, box-shadow .18s ease;
+    }
+    .btn:active{transform:scale(.99)}
+    .primary{
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
+      color:#042012;
+      box-shadow:0 8px 22px rgba(34,197,94,.25);
+    }
+    .primary:hover{box-shadow:0 12px 28px rgba(34,197,94,.35)}
+    .ghost{
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      color:var(--text);
+      box-shadow:none;
+    }
+    .msg{
+      margin-top:12px;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.22);
+      color:var(--muted);
+      font-weight:800;
+      line-height:1.55;
+      font-size:13px;
+    }
+    .msg.ok{border-color:rgba(34,197,94,.35); color:rgba(187,247,208,.95)}
+    .msg.bad{border-color:rgba(251,113,133,.35); color:rgba(254,202,202,.95)}
+    .tiny{
+      margin-top:10px;
+      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      color:rgba(234,255,241,.70);
+      font-weight:800;
+      font-size:12px;
+    }
+    .a{
+      color:var(--gold);
+      text-decoration:none;
+      font-weight:950;
+    }
+    .a:hover{text-decoration:underline}
   </style>
 </head>
 
 <body>
-  <div class="card">
-    <div class="top">
-      <div class="brand">
-        <div class="ico">🦅</div>
-        <div>
-          <div class="t" id="title">PORTE PIN</div>
-          <div class="sub" id="subtitle">Chargement…</div>
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div class="brand">
+          <h1>🦅 PORTE PIN — DIGIY PRO DRIVER</h1>
+          <p class="sub">Accès sécurisé — PIN requis</p>
+        </div>
+        <div class="chip">
+          <span>MODULE</span> <b>driver_pro</b>
         </div>
       </div>
-      <div class="pill" id="modPill">—</div>
+
+      <div class="chip" style="width:100%; justify-content:space-between">
+        <span>SLUG :</span>
+        <b id="slugText">—</b>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="label">
+        <span>Entre ton PIN</span>
+        <small id="hint">••••</small>
+      </div>
+
+      <div class="row">
+        <input id="pin" inputmode="numeric" autocomplete="one-time-code" placeholder="••••" maxlength="8" />
+        <button class="iconbtn" id="toggle" type="button" aria-label="Afficher/masquer PIN">👁️</button>
+      </div>
+
+      <button class="btn primary" id="btnEnter" type="button">🚀 ENTRER</button>
+      <button class="btn ghost" id="btnBack" type="button">⬅️ Retour</button>
+
+      <div class="msg" id="msg">
+        🔒 Entre ton PIN pour ouvrir ton espace DRIVER PRO.
+      </div>
+
+      <div class="tiny">
+        <span>Support : <a class="a" href="https://wa.me/221771342889" target="_blank" rel="noopener noreferrer">WhatsApp</a></span>
+        <span id="guardState">Guard: …</span>
+      </div>
     </div>
-
-    <div class="sep"></div>
-
-    <div class="mini">
-      SLUG : <b id="slugBox">—</b>
-    </div>
-
-    <label for="pin">Entre ton PIN</label>
-    <input id="pin" type="password" inputmode="numeric" autocomplete="one-time-code" placeholder="••••" maxlength="8"/>
-
-    <button id="go">🚀 ENTRER</button>
-
-    <div class="msg" id="msg"></div>
   </div>
 
-<script>
-(async () => {
-  // =========================
-  // ✅ MODULE QR PRO
-  // =========================
-  const MODULE_CODE = "qr_pro";
-  const NEXT_URL    = "index.html";
+  <script>
+  (function(){
+    "use strict";
 
-  // =========================
-  // SUPABASE (TES CLÉS)
-  // =========================
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const $ = (id)=>document.getElementById(id);
+    const pinEl = $("pin");
+    const slugText = $("slugText");
+    const msg = $("msg");
+    const btnEnter = $("btnEnter");
+    const btnBack = $("btnBack");
+    const toggle = $("toggle");
+    const guardState = $("guardState");
+    const hint = $("hint");
 
-  const $ = (id)=>document.getElementById(id);
-  $("modPill").textContent = MODULE_CODE;
-  $("title").textContent = "PORTE PIN — " + MODULE_CODE.toUpperCase();
-
-  // slug depuis URL ?slug=
-  const url = new URL(location.href);
-  const slug = (url.searchParams.get("slug") || "").trim().toLowerCase();
-
-  $("slugBox").textContent = slug || "—";
-  $("subtitle").textContent = slug ? "Accès sécurisé — PIN requis" : "SLUG manquant";
-
-  const msg = (html)=>{ $("msg").innerHTML = html; };
-
-  if(!slug){
-    msg(`<span class="bad">❌ SLUG manquant.</span><br>Reviens depuis ton Espace PRO / QR Factory (lien avec ?slug=...).`);
-    $("go").disabled = true;
-    return;
-  }
-
-  setTimeout(()=>$("pin").focus(), 150);
-
-  function saveSessions(payload){
-    const session = {
-      slug: payload.slug || slug,
-      phone: payload.phone || null,
-      owner_id: payload.owner_id,
-      module: payload.module || MODULE_CODE,
-      ts: Date.now()
-    };
-
-    // ✅ session universelle (HUB)
-    localStorage.setItem("DIGIY_ACCESS", JSON.stringify({
-      slug: session.slug,
-      phone: session.phone,
-      owner_id: session.owner_id,
-      ts: session.ts
-    }));
-
-    // ✅ session module
-    localStorage.setItem("DIGIY_SESSION_" + MODULE_CODE.toUpperCase(), JSON.stringify(session));
-  }
-
-  async function enter(){
-    const pin = $("pin").value.trim();
-    if(pin.length < 3){
-      msg(`<span class="bad">❌ PIN invalide.</span>`);
-      return;
+    function setMsg(text, kind){
+      msg.classList.remove("ok","bad");
+      if(kind) msg.classList.add(kind);
+      msg.textContent = text;
     }
 
-    $("go").disabled = true;
-    msg(`Vérification en cours…`);
-
-    const { data, error } = await sb.rpc("digiy_verify_access", {
-      p_slug: slug,
-      p_pin: pin,
-      p_module: MODULE_CODE
-    });
-
-    if(error){
-      $("go").disabled = false;
-      msg(`<span class="bad">❌ Erreur.</span><br>${String(error.message || error)}`);
-      return;
+    async function waitGuard(timeoutMs=6000){
+      const t0 = Date.now();
+      while(Date.now()-t0 < timeoutMs){
+        if(window.DIGIY_GUARD && typeof window.DIGIY_GUARD.getSlug === "function") return true;
+        await new Promise(r=>setTimeout(r, 50));
+      }
+      return false;
     }
 
-    if(!data?.ok){
-      $("go").disabled = false;
+    function go(url, mode){
+      try{
+        if(window.DIGIY_GUARD?.go) return window.DIGIY_GUARD.go(url, mode || "assign");
+      }catch(_){}
+      // fallback
+      location.href = url;
+    }
 
-      if(data?.reason === "module_inactive"){
-        msg(`<span class="bad">🔒 Module non actif.</span><br>
-             Ce module n’est pas encore activé pour ce pro.<br>
-             <span style="opacity:.85">Modules actifs: ${(data.modules_active||[]).join(", ")}</span>`);
+    function smartBack(){
+      // Si il y a une session, retour index, sinon page publique/Hub
+      const s = window.DIGIY_GUARD?.getSession?.();
+      if(s?.owner_id){
+        go("./index.html","replace");
+      }else{
+        // tu peux changer ici si tu veux renvoyer vers une vitrine
+        go("./index.html","replace");
+      }
+    }
+
+    function looksLikeLocSlug(slug){
+      // juste un warning soft (ça évite de se tromper de module)
+      const s = String(slug||"").toLowerCase();
+      return s.startsWith("chez-") || s.includes("logement") || s.includes("villa") || s.includes("appart") || s.includes("studio");
+    }
+
+    async function boot(){
+      const ok = await waitGuard(7000);
+      if(!ok){
+        guardState.textContent = "Guard: ❌ non chargé";
+        setMsg("❌ guard.js non chargé (fichier introuvable ou erreur).", "bad");
+        return;
+      }
+      guardState.textContent = "Guard: ✅ prêt";
+
+      // sync slug URL -> LS
+      try{ window.DIGIY_GUARD.syncSlugFromUrl?.(); }catch(_){}
+
+      const slug = (window.DIGIY_GUARD.getSlug?.() || "").trim();
+      slugText.textContent = slug || "—";
+
+      if(!slug){
+        setMsg("⚠️ Slug manquant. Ouvre la porte avec ?slug=ton-slug", "bad");
+      }else if(looksLikeLocSlug(slug)){
+        setMsg("⚠️ Ce slug ressemble à un logement (LOC). Si tu veux DRIVER, utilise le slug chauffeur.", "bad");
+      }else{
+        setMsg("🔒 Entre ton PIN pour ouvrir ton espace DRIVER PRO.", null);
+      }
+
+      // si déjà connecté → direct index
+      const s = window.DIGIY_GUARD.getSession?.();
+      if(s?.owner_id){
+        setMsg("✅ Session déjà active. Redirection…", "ok");
+        go("./index.html","replace");
         return;
       }
 
-      msg(`<span class="bad">❌ Accès refusé.</span><br>PIN incorrect.`);
-      return;
+      pinEl.focus();
+
+      // UX: masque/affiche
+      toggle.addEventListener("click", ()=>{
+        const isPwd = pinEl.getAttribute("type") !== "text";
+        pinEl.setAttribute("type", isPwd ? "text" : "password");
+        toggle.textContent = isPwd ? "🙈" : "👁️";
+        hint.textContent = isPwd ? pinEl.value : "••••";
+      });
+
+      pinEl.addEventListener("input", ()=>{
+        // garde seulement chiffres
+        const v0 = pinEl.value;
+        const v = v0.replace(/[^\d]/g,"");
+        if(v !== v0) pinEl.value = v;
+        hint.textContent = "••••";
+      });
+
+      pinEl.addEventListener("keydown", (e)=>{
+        if(e.key === "Enter") doLogin();
+      });
+
+      btnEnter.addEventListener("click", doLogin);
+      btnBack.addEventListener("click", smartBack);
     }
 
-    // ✅ OK
-    saveSessions(data);
-    msg(`<span class="ok">✅ Accès validé.</span> Ouverture…`);
+    async function doLogin(){
+      btnEnter.disabled = true;
+      const slug = (window.DIGIY_GUARD.getSlug?.() || "").trim();
+      const pin = String(pinEl.value||"").trim();
 
-    setTimeout(()=>{
-      const next = new URL(NEXT_URL, location.href);
-      next.searchParams.set("slug", slug);
-      location.href = next.toString();
-    }, 450);
-  }
+      if(!slug){
+        setMsg("❌ SLUG manquant. Mets ?slug=...", "bad");
+        btnEnter.disabled = false;
+        return;
+      }
+      if(!pin || pin.length < 3){
+        setMsg("❌ PIN trop court.", "bad");
+        btnEnter.disabled = false;
+        return;
+      }
 
-  $("go").addEventListener("click", enter);
-  $("pin").addEventListener("keydown", (e)=>{
-    if(e.key === "Enter") enter();
-  });
+      setMsg("⏳ Vérification…", null);
 
-})();
-</script>
+      try{
+        const res = await window.DIGIY_GUARD.loginWithPin(slug, pin);
+        if(!res?.ok){
+          setMsg("❌ " + (res?.error || "PIN invalide."), "bad");
+          btnEnter.disabled = false;
+          return;
+        }
+
+        setMsg("✅ Accès OK. Ouverture…", "ok");
+        // ✅ garde le slug (go() ajoute automatiquement ?slug=)
+        go("./index.html","replace");
+      }catch(e){
+        console.error(e);
+        setMsg("❌ Erreur: " + (e?.message || e), "bad");
+        btnEnter.disabled = false;
+      }
+    }
+
+    // default type password
+    pinEl.setAttribute("type","password");
+    boot();
+  })();
+  </script>
 </body>
 </html>
+
