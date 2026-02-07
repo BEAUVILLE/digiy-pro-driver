@@ -8,7 +8,7 @@
 
   <!-- Supabase + Guard -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-20260130-6"></script>
+  <script src="./guard.js?v=driver-pro-final"></script>
 
   <style>
     :root{
@@ -167,16 +167,15 @@
         <div class="hr"></div>
 
         <div class="row">
-          <a class="btn primary" data-nav="driver-zone-now.html" href="./driver-zone-now.html">🚗 Entrer dans la zone</a>
-          <a class="btn secondary" data-nav="courses.html" href="./courses.html">📋 Voir les courses</a>
-          <a class="btn secondary" data-nav="profil-chauffeur.html" href="./profil-chauffeur.html">👤 Mon profil</a>
-          <a class="btn secondary" data-nav="mes-lieux.html" href="./mes-lieux.html">📍 Mes lieux</a>
+          <a class="btn primary" data-go="./driver-zone-now.html" href="#">🚗 Entrer dans la zone</a>
+          <a class="btn secondary" data-go="./courses.html" href="#">📋 Voir les courses</a>
+          <a class="btn secondary" data-go="./profil-chauffeur.html" href="#">👤 Mon profil</a>
+          <a class="btn secondary" data-go="./mes-lieux.html" href="#">📍 Mes lieux</a>
         </div>
 
-        <!-- ✅ Bouton test (ouvre courses avec flag) -->
         <div class="row" style="margin-top:12px">
           <button class="btn secondary" id="btnMakeTest" type="button">➕ Course test</button>
-          <a class="btn ghost" id="btnLogout" href="./pin.html">🚪 Me déconnecter</a>
+          <button class="btn ghost" id="btnLogout" type="button">🚪 Me déconnecter</button>
         </div>
 
         <div class="note">
@@ -191,39 +190,85 @@
   </div>
 
   <script>
-  (async () => {
-    // ✅ attendre guard
-    let attempts = 0;
-    while (!window.DIGIY_GUARD && attempts < 50) {
-      await new Promise(r => setTimeout(r, 100));
-      attempts++;
+  /* =========================================================
+     ✅ DIGIY NAV AUTO — QR SAFE (data-go) + Actions (data-action)
+     - data-go="./page.html" => window.DIGIY_GUARD.go(page)
+  ========================================================= */
+  (function(){
+    "use strict";
+
+    function go(target, mode){
+      try{
+        if(window.DIGIY_GUARD?.go) return window.DIGIY_GUARD.go(target, mode || "assign");
+      }catch(_){}
+      // fallback
+      const u = (window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug(target) : target);
+      if((mode||"assign")==="replace") location.replace(u);
+      else location.href = u;
     }
-    if (!window.DIGIY_GUARD) {
-      document.getElementById("guard_status").textContent = "❌ guard.js non chargé";
+
+    function bindNav(){
+      document.querySelectorAll("[data-go]").forEach((el)=>{
+        if(el.__digiy_go_bound) return;
+        el.__digiy_go_bound = true;
+        el.addEventListener("click", (e)=>{
+          e.preventDefault();
+          const target = (el.getAttribute("data-go") || "").trim();
+          const mode = (el.getAttribute("data-mode") || "assign").trim();
+          if(!target) return;
+          go(target, mode);
+        });
+      });
+    }
+
+    bindNav();
+    const mo = new MutationObserver(()=>bindNav());
+    mo.observe(document.documentElement, { childList:true, subtree:true });
+
+    window.DIGIY_NAV = { go };
+  })();
+  </script>
+
+  <script>
+  (async () => {
+    const MODULE = "driver";
+    const PAY_URL = "https://beauville.github.io/commencer-a-payer/"; // change si page dédiée driver
+
+    const gs = document.getElementById("guard_status");
+
+    // ✅ Guard prêt ?
+    if(!window.DIGIY_GUARD || typeof window.DIGIY_GUARD.boot !== "function"){
+      if(gs) gs.textContent = "❌ guard.js non chargé";
       return;
     }
 
-    // ✅ slug depuis URL ou session
-    const u = new URL(location.href);
-    const s0 = window.DIGIY_GUARD.getSession?.();
-    const slug = (u.searchParams.get("slug") || s0?.slug || "").trim().toLowerCase();
+    // ✅ BOOT GUARD (comme LOC)
+    const guardRes = await window.DIGIY_GUARD.boot({
+      module: MODULE,
+      dashboard: "./index.html",
+      login: "./pin.html",
+      pay: PAY_URL,
+      requireSlug: true,
+      checkSubscription: true
+    });
 
-    // ✅ session check
-    const session = window.DIGIY_GUARD.getSession?.();
-    if (!session || !session.owner_id) {
-      const pinUrl = slug ? `./pin.html?slug=${encodeURIComponent(slug)}` : "./pin.html";
-      console.log("❌ Pas de session, redirection vers:", pinUrl);
+    if(!guardRes?.ok){
+      if(gs) gs.textContent = "❌ Accès refusé";
+      return;
+    }
+
+    const session = window.DIGIY_GUARD.getSession?.() || null;
+    if(!session?.owner_id){
+      if(gs) gs.textContent = "❌ Session invalide";
+      const pinUrl = window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug("./pin.html") : "./pin.html";
       location.replace(pinUrl);
       return;
     }
-
-    console.log("✅ Session OK, owner_id:", session.owner_id);
 
     // ✅ afficher app
     document.documentElement.classList.add("access-ok");
 
     // ✅ status badge
-    const gs = document.getElementById("guard_status");
     if (gs) {
       gs.textContent = "✅ Connecté";
       setTimeout(() => gs.style.display = "none", 700);
@@ -234,33 +279,26 @@
     if (phoneEl) phoneEl.textContent = session.phone || "+221…";
 
     const titleEl = document.getElementById("driverTitle");
-    if (titleEl) titleEl.textContent = session.title || "chauffeur";
+    if (titleEl) titleEl.textContent = session.title || session.business_name || "chauffeur";
 
-    // ✅ MINI BRIQUE : patch boutons data-nav (+ logout)
-    if (slug) {
-      document.querySelectorAll("a[data-nav]").forEach(a => {
-        const file = a.getAttribute("data-nav");
-        a.href = "./" + file + "?slug=" + encodeURIComponent(slug);
-      });
-      const btnLogout = document.getElementById("btnLogout");
-      if (btnLogout) btnLogout.href = "./pin.html?slug=" + encodeURIComponent(slug);
-    }
-
-    // ✅ Course test → ouvre courses.html?make_test=1 (la page courses gère la création)
-    document.getElementById("btnMakeTest").addEventListener("click", () => {
+    // ✅ Course test → ouvre courses.html?make_test=1
+    document.getElementById("btnMakeTest")?.addEventListener("click", () => {
       if (!confirm("Créer une course test maintenant frérot ?")) return;
       const target = new URL("./courses.html", location.href);
-      if (slug) target.searchParams.set("slug", slug);
       target.searchParams.set("make_test", "1");
+      // le slug est ajouté par GUARD.go/withSlug, mais ici on garde safe:
+      try{
+        const s = window.DIGIY_GUARD.getSlug?.();
+        if(s) target.searchParams.set("slug", s);
+      }catch(_){}
       location.href = target.toString();
     });
 
-    // ✅ logout (clear session)
-    document.getElementById("btnLogout").addEventListener("click", (e) => {
-      e.preventDefault();
-      if (confirm("Tu veux vraiment te déconnecter frérot ?")) {
-        window.DIGIY_GUARD.logout("./pin.html");
-      }
+    // ✅ logout
+    document.getElementById("btnLogout")?.addEventListener("click", () => {
+      if (!confirm("Tu veux vraiment te déconnecter frérot ?")) return;
+      const pinUrl = window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug("./pin.html") : "./pin.html";
+      window.DIGIY_GUARD.logout(pinUrl);
     });
   })();
   </script>
