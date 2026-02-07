@@ -225,8 +225,8 @@
 
   async function loadLieux(){
     try{
-      const { data, error } = await sb.rpc("get_owner_slugs", { p_owner_id: owner_id });
-      if(error) throw error;
+      const { data, error } = await sb.rpc("get_owner_slugs_text", { p_owner_id: owner_id });
+if (error) throw error;
 
       if(!data || data.length === 0){
         listContainer.innerHTML =
@@ -323,13 +323,13 @@
       btnCreate.disabled = true;
       btnCreate.textContent = "⏳ Création...";
 
-      const { data, error } = await sb.rpc("create_new_slug", {
-        p_owner_id: owner_id,
-        p_title: title,
-        p_phone: session.phone,
-        p_module: "DRIVER"
-      });
-      if(error) throw error;
+     const { data, error } = await sb.rpc("create_new_slug", {
+  p_owner_id: owner_id,
+  p_title: title,
+  p_phone: session.phone,
+  p_module: "DRIVER"
+});
+if (error) throw error;
 
       const result = (typeof data === "string") ? JSON.parse(data) : data;
       if(!result?.ok) throw new Error(result?.error || "Erreur création");
