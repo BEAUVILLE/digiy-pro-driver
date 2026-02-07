@@ -281,7 +281,7 @@ const SESSION_KEYS_COMPAT = [
         res = await sb.rpc("verify_access_pin", {
           p_phone: slug,
           p_pin: pin,
-          p_module: "driver_pro",
+          p_module: "pro-driver",
         });
       }
     }
