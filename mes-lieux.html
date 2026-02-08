@@ -280,13 +280,25 @@ if (error) throw error;
   listContainer.addEventListener("click", async (e) => {
     const actBtn = e.target.closest(".js-activer");
     if(actBtn){
-      const slug = actBtn.dataset.slug;
-      const title = actBtn.dataset.title;
-      const phone = actBtn.dataset.phone || session.phone || "";
-      window.DIGIY_GUARD.setSession({ ok:true, owner_id, slug, title, phone });
-      location.reload();
-      return;
-    }
+  const slug = actBtn.dataset.slug;
+  const title = actBtn.dataset.title;
+  const phone = actBtn.dataset.phone || session.phone || "";
+
+  // ✅ met à jour la session
+  window.DIGIY_GUARD.setSession({
+    ok:true,
+    owner_id,
+    slug,
+    title,
+    phone
+  });
+
+  // 🚗 GO DIRECT DANS LA ZONE (flux terrain naturel)
+  const target = new URL("./driver-zone-now.html", location.href);
+  target.searchParams.set("slug", slug);
+  location.replace(target.toString());
+  return;
+}
 
     const delBtn = e.target.closest(".js-supprimer");
     if(delBtn){
