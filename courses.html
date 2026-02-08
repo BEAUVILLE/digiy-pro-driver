@@ -1,296 +1,118 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Mes Courses — DIGIY DRIVER PRO</title>
-  <meta name="theme-color" content="#061b14"/>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Mes Courses — DIGIY DRIVER PRO</title>
+<meta name="theme-color" content="#061b14"/>
 
-  <!-- Supabase + Guard -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-20260208-rpc1"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./guard.js?v=driver-live-final"></script>
 
-  <style>
-    :root{--bg:#061b14;--card:#0b2a1f;--line:rgba(255,255,255,.14);--text:#eafff1;--muted:rgba(234,255,241,.78);--green:#16a34a;--gold:#facc15;--r:18px}
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(900px 500px at 10% -10%,rgba(34,197,94,.20),transparent 60%),radial-gradient(900px 500px at 110% 0%,rgba(250,204,21,.14),transparent 55%),var(--bg);color:var(--text)}
-    header{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:rgba(6,27,20,.75);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .title{font-weight:900;letter-spacing:.2px;font-size:18px}
-    .pill{padding:8px 10px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--muted);background:rgba(0,0,0,.22);display:flex;gap:8px;align-items:center;white-space:nowrap}
-    main{padding:16px;max-width:980px;margin:0 auto}
-    .grid{display:grid;gap:12px;grid-template-columns:repeat(12,1fr)}
-    .card{grid-column:span 12;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 12px 40px rgba(0,0,0,.32)}
-    @media(min-width:860px){.card.half{grid-column:span 6}}
-    h1{margin:0 0 8px;font-size:20px}
-    p{margin:0;color:var(--muted);line-height:1.45}
-    button,a.btn{border:0;cursor:pointer;padding:12px 14px;border-radius:14px;font-weight:900;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
-    .btn{background:linear-gradient(135deg,rgba(34,197,94,.95),rgba(16,185,129,.85));color:#042012}
-    .btn2{background:rgba(250,204,21,.14);color:var(--text);border:1px solid rgba(250,204,21,.25)}
-    .btnGhost{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line)}
-    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    .muted{color:var(--muted);font-size:13px}
-    .list{margin-top:10px;display:grid;gap:10px}
-    .item{border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px;background:rgba(0,0,0,.18);display:flex;justify-content:space-between;gap:12px;align-items:flex-start;transition:all .2s}
-    .item:hover{border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.08);transform:translateY(-2px)}
-    .tag{font-size:12px;padding:6px 10px;border-radius:999px;white-space:nowrap;font-weight:900}
-    .tag.new{border:1px solid rgba(34,197,94,.35);background:rgba(34,197,94,.12);color:rgba(234,255,241,.92)}
-    .tag.soon{border:1px solid rgba(250,204,21,.35);background:rgba(250,204,21,.12);color:rgba(254,243,199,.92)}
-    .tag.planned{border:1px solid rgba(59,130,246,.35);background:rgba(59,130,246,.12);color:rgba(191,219,254,.92)}
-    .tag.done{border:1px solid rgba(148,163,184,.35);background:rgba(148,163,184,.12);color:#e5e7eb}
-    .tag.cancel{border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.12);color:#fecaca}
-    .empty{border:2px dashed rgba(255,255,255,.14);border-radius:16px;padding:18px;text-align:center;color:var(--muted)}
-    code{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#bbf7d0}
-    .warn{margin-top:10px;padding:12px;border-radius:14px;border:1px solid rgba(250,204,21,.25);background:rgba(250,204,21,.10);color:#fde68a;font-weight:800}
-    .ok{margin-top:10px;padding:12px;border-radius:14px;border:1px solid rgba(34,197,94,.25);background:rgba(34,197,94,.10);color:#bbf7d0;font-weight:800}
-  </style>
+<style>
+:root{--bg:#061b14;--card:#0b2a1f;--line:rgba(255,255,255,.14);--text:#eafff1;--muted:rgba(234,255,241,.78);--green:#16a34a;--gold:#facc15;--r:18px}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:system-ui;background:radial-gradient(900px 500px at 10% -10%,rgba(34,197,94,.20),transparent 60%),radial-gradient(900px 500px at 110% 0%,rgba(250,204,21,.14),transparent 55%),var(--bg);color:var(--text)}
+header{position:sticky;top:0;background:rgba(6,27,20,.75);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;justify-content:space-between}
+main{padding:16px;max-width:980px;margin:0 auto}
+.card{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+button{padding:12px;border-radius:12px;border:0;font-weight:900;cursor:pointer}
+.btn{background:linear-gradient(135deg,#16a34a,#10b981);color:#042012}
+.item{border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;margin-top:10px}
+.muted{color:var(--muted);font-size:13px}
+</style>
 </head>
 
 <body>
 <header>
-  <div class="title">🚗 Mes Courses</div>
-  <div class="pill" id="pillPhone">📱 …</div>
+  <strong>🚗 Mes Courses</strong>
+  <button id="btnLogout">Déconnexion</button>
 </header>
 
 <main>
-  <div class="grid">
-    <section class="card half">
-      <h1 id="headline">T'es en ligne frérot ! 🦅</h1>
-      <p id="status">Chargement…</p>
+  <div class="card">
+    <div id="status">Connexion…</div>
+    <div class="muted">Slug: <span id="slugBox"></span></div>
+    <button class="btn" id="btnRefresh">Actualiser</button>
+  </div>
 
-      <div class="row">
-        <button class="btn" id="btnRefresh">🔄 Actualiser</button>
-        <a class="btnGhost" id="btnDashboard" href="./index.html">🏠 Dashboard</a>
-        <button class="btn2" id="btnLogout">🚪 Me déconnecter</button>
-      </div>
-
-      <p class="muted" style="margin-top:10px">
-        Session: <code>8h</code> • Slug: <code id="slugBox">—</code> • Owner: <code id="ownerBox">—</code>
-      </p>
-
-      <div id="debug" class="muted" style="margin-top:10px"></div>
-    </section>
-
-    <section class="card half">
-      <h1>Tes courses 🔥</h1>
-      <p class="muted">On charge via RPC (terrain safe) : pas de dépendance UUID auth.</p>
-      <div class="list" id="list"></div>
-    </section>
-
-    <section class="card">
-      <h1>Comment ça marche</h1>
-      <p>
-        ✅ Tu te connectes par PIN<br>
-        ✅ Ton cockpit charge les courses via <b>driver_slug</b><br>
-        ✅ 0% commission — tout pour toi frérot<br>
-        ✅ Prochain step : accepter / terminer en 1 clic + matching zone
-      </p>
-    </section>
+  <div class="card">
+    <strong>Courses LIVE</strong>
+    <div id="list"></div>
   </div>
 </main>
 
 <script>
 (async()=>{
-  const statusEl = document.getElementById("status");
-  const pillPhone = document.getElementById("pillPhone");
-  const listEl = document.getElementById("list");
-  const slugBox = document.getElementById("slugBox");
-  const ownerBox = document.getElementById("ownerBox");
-  const debugEl = document.getElementById("debug");
 
-  // ✅ Guard session
-  const session = window.DIGIY_GUARD?.requireSession?.("./pin.html");
-  if(!session) return;
+const session = window.DIGIY_GUARD.requireSession("./pin.html");
+if(!session) return;
 
-  const url = new URL(location.href);
-  const slug = (url.searchParams.get("slug") || session.slug || "").trim().toLowerCase();
-  slugBox.textContent = slug || "—";
-  ownerBox.textContent = (session.owner_id || "—");
+const sb = await window.DIGIY_GUARD.getSbAsync();
+const list = document.getElementById("list");
+const slugBox = document.getElementById("slugBox");
+const statusEl = document.getElementById("status");
 
-  // dashboard conserve slug
-  const dash = new URL("./index.html", location.href);
-  if(slug) dash.searchParams.set("slug", slug);
-  document.getElementById("btnDashboard").href = dash.toString();
+slugBox.textContent = session.slug;
+statusEl.textContent = "✅ Connecté";
 
-  pillPhone.textContent = "📱 " + (session.phone || session.slug || "Connecté");
-  statusEl.textContent = `✅ Connecté ${session.title || "chauffeur"} 🦅`;
-
-  const sb = window.DIGIY_GUARD.getSb();
-
-  function escapeHtml(str){
-    const d = document.createElement("div");
-    d.textContent = String(str ?? "");
-    return d.innerHTML;
+function renderTrips(rows){
+  if(!rows.length){
+    list.innerHTML="<div class='muted'>Aucune course pour le moment</div>";
+    return;
   }
 
-  function fmtWhen(t){
-    if(!t) return "—";
-    try{
-      const d = new Date(t);
-      return d.toLocaleString("fr-FR", { dateStyle:"medium", timeStyle:"short" });
-    }catch{ return String(t); }
-  }
+  list.innerHTML = rows.map(tr=>`
+    <div class="item">
+      <b>${tr.pickup_city || "—"} → ${tr.dropoff_city || "—"}</b><br>
+      ${tr.amount || tr.proposed_price || "—"} FCFA<br>
+      <span class="muted">${new Date(tr.created_at).toLocaleString()}</span>
+    </div>
+  `).join("");
+}
 
-  function tagFromTrip(tr){
-    if(tr.cancelled_at) return {cls:"cancel", label:"❌ Annulée"};
-    if(tr.completed_at) return {cls:"done", label:"✅ Terminée"};
-    if(tr.accepted_at) return {cls:"new", label:"🟢 Acceptée"};
-    if(tr.scheduled_at) return {cls:"planned", label:"📅 Programmée"};
-    return {cls:"soon", label:"⏰ À venir"};
-  }
-
-  function renderTrips(rows){
-    if(!rows || !rows.length){
-      const demo = [
-        {
-          id:"DEMO-1001",
-          pickup_city:"Saly",
-          pickup_zone:"Saly Centre",
-          dropoff_city:"Ngaparou",
-          dropoff_zone:"Route principale",
-          amount:2500,
-          scheduled_at:new Date().toISOString()
-        },
-        {
-          id:"DEMO-1002",
-          pickup_city:"Somone",
-          pickup_zone:"Lagune",
-          dropoff_city:"Saly",
-          dropoff_zone:"Nianing",
-          proposed_price:3500,
-          scheduled_at:new Date(Date.now()+30*60*1000).toISOString()
-        },
-        {
-          id:"DEMO-1003",
-          pickup_city:"AIBD",
-          pickup_zone:"Arrivées",
-          dropoff_city:"Dakar",
-          dropoff_zone:"Plateau",
-          amount:15000,
-          scheduled_at:new Date(Date.now()+24*60*60*1000).toISOString()
-        }
-      ];
-
-      listEl.innerHTML = `
-        <div class="empty">
-          Aucune course trouvée pour l’instant frérot.<br><br>
-          <span class="muted">En attendant, voilà 3 démos (le live arrive).</span>
-        </div>
-        <div style="height:10px"></div>
-      ` + demo.map(tr=>{
-        const from = [tr.pickup_city, tr.pickup_zone].filter(Boolean).join(" • ");
-        const to   = [tr.dropoff_city, tr.dropoff_zone].filter(Boolean).join(" • ");
-        const when = tr.scheduled_at;
-        const amount = (tr.amount!=null) ? `${tr.amount} FCFA` : (tr.proposed_price!=null ? `${tr.proposed_price} FCFA` : "—");
-        return `
-          <div class="item">
-            <div>
-              <div style="font-weight:900">${escapeHtml(tr.id)} — ${escapeHtml(from)} → ${escapeHtml(to)}</div>
-              <div class="muted">${escapeHtml(fmtWhen(when))} • ${escapeHtml(amount)}</div>
-            </div>
-            <div class="tag soon">⏰ À venir</div>
-          </div>
-        `;
-      }).join("");
-
-      return;
-    }
-
-    listEl.innerHTML = rows.map(tr=>{
-      const tag = tagFromTrip(tr);
-      const from = [tr.pickup_city, tr.pickup_zone].filter(Boolean).join(" • ") || "Départ";
-      const to   = [tr.dropoff_city, tr.dropoff_zone].filter(Boolean).join(" • ") || "Arrivée";
-      const when = tr.scheduled_at || tr.created_at || tr.updated_at;
-      const idShort = (tr.id||"").toString().slice(0,8).toUpperCase();
-      const amount = (tr.amount!=null) ? `${tr.amount} FCFA` : (tr.proposed_price!=null ? `${tr.proposed_price} FCFA` : "—");
-
-      return `
-        <div class="item">
-          <div>
-            <div style="font-weight:900">${escapeHtml(idShort)} — ${escapeHtml(from)} → ${escapeHtml(to)}</div>
-            <div class="muted">${escapeHtml(fmtWhen(when))} • ${escapeHtml(amount)}</div>
-          </div>
-          <div class="tag ${escapeHtml(tag.cls)}">${escapeHtml(tag.label)}</div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  // ✅ Create test trip when ?make_test=1
-  async function maybeCreateTestTrip(){
-    const want = url.searchParams.get("make_test");
-    if(want !== "1") return false;
-
-    // évite re-create au refresh
-    url.searchParams.delete("make_test");
-    history.replaceState(null, "", url.toString());
-
-    try{
-      debugEl.className = "warn";
-      debugEl.textContent = "⏳ Création course test...";
-
-      const { data, error } = await sb.rpc("digiy_driver_trip_create_test", {
-        p_driver_slug: slug,
-        p_owner_id: session.owner_id
-      });
-
-      if(error) throw error;
-
-      debugEl.className = "ok";
-      debugEl.textContent = "✅ Course test créée: " + String(data || "OK");
-      return true;
-
-    }catch(e){
-      console.warn("❌ CREATE test trip KO:", e);
-      debugEl.className = "warn";
-      debugEl.textContent = "⚠️ Course test refusée (RPC). Détail: " + (e?.message || "inconnu");
-      return false;
-    }
-  }
-
-  async function loadTrips(){
-    // 1) test trip si demandé
-    await maybeCreateTestTrip();
-
-    // 2) RPC list
-    try{
-      const { data, error } = await sb.rpc("digiy_driver_trips_list", {
-        p_driver_slug: slug,
-        p_owner_id: session.owner_id,
-        p_limit: 30
-      });
-
-      if(error) throw error;
-
-      renderTrips(data || []);
-
-      // debug ok si pas déjà set par test trip
-      if(!debugEl.textContent || debugEl.className === "muted"){
-        debugEl.className = "ok";
-        debugEl.textContent = "✅ LIVE via RPC digiy_driver_trips_list (slug).";
-      }else{
-        // si un message existe (test trip), on n’écrase pas
-      }
-
-    }catch(e){
-      console.warn("❌ RPC list trips KO:", e);
-      renderTrips([]);
-      debugEl.className = "warn";
-      debugEl.textContent = "⚠️ Impossible de charger les courses via RPC. Détail: " + (e?.message || "inconnu");
-    }
-  }
-
-  document.getElementById("btnRefresh").addEventListener("click", loadTrips);
-
-  document.getElementById("btnLogout").addEventListener("click", ()=>{
-    if(confirm("Tu veux vraiment te déconnecter frérot ?")){
-      window.DIGIY_GUARD.logout("./pin.html");
-    }
+async function createTestTrip(){
+  // ⚠️ IMPORTANT : auth_user_id doit être UUID
+  // donc on appelle une RPC SECURITY DEFINER
+  const { error } = await sb.rpc("create_driver_test_trip", {
+    p_driver_slug: session.slug
   });
 
-  // GO
-  await loadTrips();
+  if(error) console.warn("Insert test KO:", error);
+}
+
+async function loadTrips(){
+
+  // création course test si demandé
+  const url = new URL(location.href);
+  if(url.searchParams.get("make_test")==="1"){
+    await createTestTrip();
+    url.searchParams.delete("make_test");
+    history.replaceState(null,"",url.toString());
+  }
+
+  const { data, error } = await sb
+    .from("driver_trips")
+    .select("*")
+    .eq("driver_slug", session.slug)
+    .order("created_at", { ascending:false })
+    .limit(20);
+
+  if(error){
+    list.innerHTML = "<div class='muted'>RLS bloque la table → normal</div>";
+    console.warn(error);
+    return;
+  }
+
+  renderTrips(data || []);
+}
+
+document.getElementById("btnRefresh").onclick = loadTrips;
+document.getElementById("btnLogout").onclick = ()=>window.DIGIY_GUARD.logout("./pin.html");
+
+await loadTrips();
+
 })();
 </script>
 </body>
 </html>
-
