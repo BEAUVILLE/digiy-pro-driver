@@ -141,6 +141,62 @@
       border:1px solid rgba(255,255,255,.08);
     }
 
+    /* =========================================================
+       ✅ VIEWER IFRAME (cockpit -> générateur fiche)
+    ========================================================= */
+    .module-viewer{
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.16), transparent 60%),
+        radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
+        var(--bg);
+      z-index: 9998;
+      display:flex;
+      flex-direction:column;
+    }
+    .module-viewer.hidden{display:none;}
+    .viewer-topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.22);
+      backdrop-filter: blur(6px);
+    }
+    .viewer-topbar .title{
+      font-weight:900;
+      letter-spacing:.2px;
+      color:rgba(234,255,241,.92);
+      font-size:14px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .viewer-topbar .actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .viewer-topbar button{
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .viewer-topbar button:hover{background:rgba(255,255,255,.12);}
+    #moduleFrame{
+      width:100%;
+      flex:1;
+      border:none;
+      background:#000;
+    }
+
     @media(max-width:640px){
       .row{flex-direction:column;}
       a.btn, button.btn{width:100%;}
@@ -173,7 +229,9 @@
           <a class="btn secondary" data-go="./mes-lieux.html" href="#">📍 Mes lieux</a>
         </div>
 
+        <!-- ✅ NOUVELLE LIGNE : GÉNÉRATEUR DE FICHE (dans le cockpit) -->
         <div class="row" style="margin-top:12px">
+          <button class="btn secondary" id="btnGenerator" type="button">🧾 Générer ma fiche</button>
           <button class="btn secondary" id="btnMakeTest" type="button">➕ Course test</button>
           <button class="btn ghost" id="btnLogout" type="button">🚪 Me déconnecter</button>
         </div>
@@ -187,6 +245,19 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- =========================================================
+       ✅ VIEWER OVERLAY (IFRAME)
+  ========================================================== -->
+  <div id="moduleViewer" class="module-viewer hidden" aria-hidden="true">
+    <div class="viewer-topbar">
+      <div class="title">🧾 Générateur — Fiche Chauffeur</div>
+      <div class="actions">
+        <button type="button" id="btnViewerClose">← Retour cockpit</button>
+      </div>
+    </div>
+    <iframe id="moduleFrame" title="DIGIY DRIVER — Générateur"></iframe>
   </div>
 
   <script>
@@ -230,9 +301,58 @@
   </script>
 
   <script>
+  /* =========================================================
+     ✅ COCKPIT VIEWER : OUVRIR / FERMER IFRAME
+     - Le générateur doit être accessible seulement si guard ok
+     - On injecte le slug via withSlug() (hyper important)
+  ========================================================= */
+  (function(){
+    "use strict";
+
+    const viewer = document.getElementById("moduleViewer");
+    const frame  = document.getElementById("moduleFrame");
+
+    function openViewer(src, title){
+      if(!viewer || !frame) return;
+
+      const safeSrc = (window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug(src) : src);
+      frame.src = safeSrc;
+
+      const titleEl = viewer.querySelector(".viewer-topbar .title");
+      if(titleEl && title) titleEl.textContent = title;
+
+      viewer.classList.remove("hidden");
+      viewer.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeViewer(){
+      if(!viewer || !frame) return;
+      frame.src = "";
+      viewer.classList.add("hidden");
+      viewer.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    // expose
+    window.DIGIY_VIEWER = { openViewer, closeViewer };
+
+    // close buttons
+    document.getElementById("btnViewerClose")?.addEventListener("click", closeViewer);
+
+    // close on ESC
+    window.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape" && !viewer.classList.contains("hidden")) closeViewer();
+    });
+
+    // click outside topbar? (optionnel) -> ici non, on garde safe.
+  })();
+  </script>
+
+  <script>
   (async () => {
     const MODULE = "driver";
-    const PAY_URL = "https://beauville.github.io/commencer-a-payer/"; // change si page dédiée driver
+    const PAY_URL = "https://beauville.github.io/commencer-a-payer/"; // page paiement
 
     const gs = document.getElementById("guard_status");
 
@@ -242,7 +362,7 @@
       return;
     }
 
-    // ✅ BOOT GUARD (comme LOC)
+    // ✅ BOOT GUARD (checkSubscription=true => paywall actif)
     const guardRes = await window.DIGIY_GUARD.boot({
       module: MODULE,
       dashboard: "./index.html",
@@ -280,6 +400,13 @@
 
     const titleEl = document.getElementById("driverTitle");
     if (titleEl) titleEl.textContent = session.title || session.business_name || "chauffeur";
+
+    // ✅ OUVRIR GÉNÉRATEUR (dans le cockpit) — accessible seulement si guard ok (donc payé)
+    document.getElementById("btnGenerator")?.addEventListener("click", () => {
+      // ton fichier avec espaces -> encodé
+      const gen = "./generateur%20digiy%20driver.html";
+      window.DIGIY_VIEWER?.openViewer(gen, "🧾 Générateur — Fiche Chauffeur");
+    });
 
     // ✅ Course test → ouvre courses.html?make_test=1
     document.getElementById("btnMakeTest")?.addEventListener("click", () => {
