@@ -5,8 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Mes Courses — DIGIY DRIVER PRO</title>
   <meta name="theme-color" content="#061b14"/>
+
+  <!-- Supabase + Guard -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-20260130-7"></script>
+  <script src="./guard.js?v=driver-20260208-rpc1"></script>
+
   <style>
     :root{--bg:#061b14;--card:#0b2a1f;--line:rgba(255,255,255,.14);--text:#eafff1;--muted:rgba(234,255,241,.78);--green:#16a34a;--gold:#facc15;--r:18px}
     *{box-sizing:border-box}
@@ -37,8 +40,11 @@
     .tag.cancel{border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.12);color:#fecaca}
     .empty{border:2px dashed rgba(255,255,255,.14);border-radius:16px;padding:18px;text-align:center;color:var(--muted)}
     code{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#bbf7d0}
+    .warn{margin-top:10px;padding:12px;border-radius:14px;border:1px solid rgba(250,204,21,.25);background:rgba(250,204,21,.10);color:#fde68a;font-weight:800}
+    .ok{margin-top:10px;padding:12px;border-radius:14px;border:1px solid rgba(34,197,94,.25);background:rgba(34,197,94,.10);color:#bbf7d0;font-weight:800}
   </style>
 </head>
+
 <body>
 <header>
   <div class="title">🚗 Mes Courses</div>
@@ -50,31 +56,34 @@
     <section class="card half">
       <h1 id="headline">T'es en ligne frérot ! 🦅</h1>
       <p id="status">Chargement…</p>
+
       <div class="row">
         <button class="btn" id="btnRefresh">🔄 Actualiser</button>
         <a class="btnGhost" id="btnDashboard" href="./index.html">🏠 Dashboard</a>
         <button class="btn2" id="btnLogout">🚪 Me déconnecter</button>
       </div>
+
       <p class="muted" style="margin-top:10px">
-        Session 8h. Slug: <code id="slugBox">—</code>
-        • Owner: <code id="ownerBox">—</code>
+        Session: <code>8h</code> • Slug: <code id="slugBox">—</code> • Owner: <code id="ownerBox">—</code>
       </p>
+
+      <div id="debug" class="muted" style="margin-top:10px"></div>
     </section>
 
     <section class="card half">
       <h1>Tes courses 🔥</h1>
-      <p class="muted">Live si RLS le permet. Sinon, on branchera une RPC “list trips”.</p>
+      <p class="muted">On charge via RPC (terrain safe) : pas de dépendance UUID auth.</p>
       <div class="list" id="list"></div>
     </section>
 
     <section class="card">
       <h1>Comment ça marche</h1>
       <p>
-        ✅ Tu es connecté = tu vois tes courses<br>
+        ✅ Tu te connectes par PIN<br>
+        ✅ Ton cockpit charge les courses via <b>driver_slug</b><br>
         ✅ 0% commission — tout pour toi frérot<br>
-        ✅ Prochain step: accepter/terminer en 1 clic + matching secteurs
+        ✅ Prochain step : accepter / terminer en 1 clic + matching zone
       </p>
-      <p class="muted" style="margin-top:10px" id="debug"></p>
     </section>
   </div>
 </main>
@@ -88,6 +97,7 @@
   const ownerBox = document.getElementById("ownerBox");
   const debugEl = document.getElementById("debug");
 
+  // ✅ Guard session
   const session = window.DIGIY_GUARD?.requireSession?.("./pin.html");
   if(!session) return;
 
@@ -96,7 +106,7 @@
   slugBox.textContent = slug || "—";
   ownerBox.textContent = (session.owner_id || "—");
 
-  // dashboard link conserve le slug
+  // dashboard conserve slug
   const dash = new URL("./index.html", location.href);
   if(slug) dash.searchParams.set("slug", slug);
   document.getElementById("btnDashboard").href = dash.toString();
@@ -106,10 +116,11 @@
 
   const sb = window.DIGIY_GUARD.getSb();
 
-  // ✅ UUID detector (terrain safe)
-  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  const ownerIsUuid = UUID_RE.test(String(session.owner_id || "").trim());
-  const driverKey = ownerIsUuid ? String(session.owner_id).trim() : slug;
+  function escapeHtml(str){
+    const d = document.createElement("div");
+    d.textContent = String(str ?? "");
+    return d.innerHTML;
+  }
 
   function fmtWhen(t){
     if(!t) return "—";
@@ -130,15 +141,39 @@
   function renderTrips(rows){
     if(!rows || !rows.length){
       const demo = [
-        { id:"DEMO-1001", pickup_city:"Saly", pickup_zone:"Saly Centre", dropoff_city:"Ngaparou", dropoff_zone:"Route principale", amount:2500, scheduled_at:new Date().toISOString() },
-        { id:"DEMO-1002", pickup_city:"Somone", pickup_zone:"Lagune", dropoff_city:"Saly", dropoff_zone:"Nianing", proposed_price:3500, scheduled_at:new Date(Date.now()+30*60*1000).toISOString() },
-        { id:"DEMO-1003", pickup_city:"AIBD", pickup_zone:"Arrivées", dropoff_city:"Dakar", dropoff_zone:"Plateau", amount:15000, scheduled_at:new Date(Date.now()+24*60*60*1000).toISOString() }
+        {
+          id:"DEMO-1001",
+          pickup_city:"Saly",
+          pickup_zone:"Saly Centre",
+          dropoff_city:"Ngaparou",
+          dropoff_zone:"Route principale",
+          amount:2500,
+          scheduled_at:new Date().toISOString()
+        },
+        {
+          id:"DEMO-1002",
+          pickup_city:"Somone",
+          pickup_zone:"Lagune",
+          dropoff_city:"Saly",
+          dropoff_zone:"Nianing",
+          proposed_price:3500,
+          scheduled_at:new Date(Date.now()+30*60*1000).toISOString()
+        },
+        {
+          id:"DEMO-1003",
+          pickup_city:"AIBD",
+          pickup_zone:"Arrivées",
+          dropoff_city:"Dakar",
+          dropoff_zone:"Plateau",
+          amount:15000,
+          scheduled_at:new Date(Date.now()+24*60*60*1000).toISOString()
+        }
       ];
 
       listEl.innerHTML = `
         <div class="empty">
           Aucune course trouvée pour l’instant frérot.<br><br>
-          <span class="muted">En attendant, voilà 3 démos KIFF (le live arrive).</span>
+          <span class="muted">En attendant, voilà 3 démos (le live arrive).</span>
         </div>
         <div style="height:10px"></div>
       ` + demo.map(tr=>{
@@ -149,13 +184,14 @@
         return `
           <div class="item">
             <div>
-              <div style="font-weight:900">${tr.id} — ${from} → ${to}</div>
-              <div class="muted">${fmtWhen(when)} • ${amount}</div>
+              <div style="font-weight:900">${escapeHtml(tr.id)} — ${escapeHtml(from)} → ${escapeHtml(to)}</div>
+              <div class="muted">${escapeHtml(fmtWhen(when))} • ${escapeHtml(amount)}</div>
             </div>
             <div class="tag soon">⏰ À venir</div>
           </div>
         `;
       }).join("");
+
       return;
     }
 
@@ -166,13 +202,14 @@
       const when = tr.scheduled_at || tr.created_at || tr.updated_at;
       const idShort = (tr.id||"").toString().slice(0,8).toUpperCase();
       const amount = (tr.amount!=null) ? `${tr.amount} FCFA` : (tr.proposed_price!=null ? `${tr.proposed_price} FCFA` : "—");
+
       return `
         <div class="item">
           <div>
-            <div style="font-weight:900">${idShort} — ${from} → ${to}</div>
-            <div class="muted">${fmtWhen(when)} • ${amount}</div>
+            <div style="font-weight:900">${escapeHtml(idShort)} — ${escapeHtml(from)} → ${escapeHtml(to)}</div>
+            <div class="muted">${escapeHtml(fmtWhen(when))} • ${escapeHtml(amount)}</div>
           </div>
-          <div class="tag ${tag.cls}">${tag.label}</div>
+          <div class="tag ${escapeHtml(tag.cls)}">${escapeHtml(tag.label)}</div>
         </div>
       `;
     }).join("");
@@ -183,105 +220,77 @@
     const want = url.searchParams.get("make_test");
     if(want !== "1") return false;
 
-    // anti double insert si refresh
+    // évite re-create au refresh
     url.searchParams.delete("make_test");
     history.replaceState(null, "", url.toString());
 
     try{
+      debugEl.className = "warn";
       debugEl.textContent = "⏳ Création course test...";
 
-      // ✅ payload: on met auth_user_id UNIQUEMENT si UUID
-      // ✅ + on met toujours driver_slug (terrain king)
-      const payload = {
-        status: "new",
-        driver_slug: slug || null,         // ✅ clé terrain
-        pickup_city: "Saly",
-        pickup_zone: "Saly Centre",
-        dropoff_city: "Ngaparou",
-        dropoff_zone: "Route principale",
-        distance_km: 6.2,
-        duration_min: 18,
-        fare_base: 500,
-        fare_per_km: 300,
-        amount: 2500,
-        client_label: "Client test",
-        client_phone: "+221770000000",
-        notes: "Test DIGIY DRIVER PRO",
-        scheduled_at: new Date().toISOString()
-      };
-
-      if(ownerIsUuid){
-        payload.auth_user_id = String(session.owner_id).trim();
-      }
-
-      const { data, error } = await sb
-        .from("driver_trips")
-        .insert(payload)
-        .select("id")
-        .single();
+      const { data, error } = await sb.rpc("digiy_driver_trip_create_test", {
+        p_driver_slug: slug,
+        p_owner_id: session.owner_id
+      });
 
       if(error) throw error;
 
-      debugEl.textContent = "✅ Course test créée: " + (data?.id || "OK");
+      debugEl.className = "ok";
+      debugEl.textContent = "✅ Course test créée: " + String(data || "OK");
       return true;
 
     }catch(e){
-      console.warn("❌ INSERT course test KO:", e);
-      debugEl.textContent =
-        "⚠️ Course test refusée (RLS / schéma). " +
-        "Solution propre: RPC SECURITY DEFINER create_driver_test_trip. " +
-        "Détail: " + (e?.message || e);
+      console.warn("❌ CREATE test trip KO:", e);
+      debugEl.className = "warn";
+      debugEl.textContent = "⚠️ Course test refusée (RPC). Détail: " + (e?.message || "inconnu");
       return false;
     }
   }
 
   async function loadTrips(){
+    // 1) test trip si demandé
     await maybeCreateTestTrip();
-    debugEl.textContent = "";
 
-    // ✅ SELECT direct driver_trips (si RLS OK)
+    // 2) RPC list
     try{
-      let q = sb
-        .from("driver_trips")
-        .select("id, driver_slug, auth_user_id, pickup_city, pickup_zone, dropoff_city, dropoff_zone, amount, proposed_price, scheduled_at, accepted_at, completed_at, cancelled_at, created_at, updated_at")
-        .order("created_at", { ascending: false })
-        .limit(30);
+      const { data, error } = await sb.rpc("digiy_driver_trips_list", {
+        p_driver_slug: slug,
+        p_owner_id: session.owner_id,
+        p_limit: 30
+      });
 
-      // ✅ filtre intelligent : UUID -> auth_user_id, sinon -> driver_slug
-      if(ownerIsUuid){
-        q = q.eq("auth_user_id", driverKey);
-        debugEl.textContent = "🔎 Filtre: auth_user_id (UUID)";
-      } else {
-        q = q.eq("driver_slug", driverKey);
-        debugEl.textContent = "🔎 Filtre: driver_slug (slug terrain)";
-      }
-
-      const { data, error } = await q;
       if(error) throw error;
 
       renderTrips(data || []);
-      debugEl.textContent = "✅ LIVE via table driver_trips (RLS OK). " + debugEl.textContent;
-      return;
+
+      // debug ok si pas déjà set par test trip
+      if(!debugEl.textContent || debugEl.className === "muted"){
+        debugEl.className = "ok";
+        debugEl.textContent = "✅ LIVE via RPC digiy_driver_trips_list (slug).";
+      }else{
+        // si un message existe (test trip), on n’écrase pas
+      }
 
     }catch(e){
-      console.warn("❌ LIVE table driver_trips KO:", e);
-      debugEl.textContent =
-        "⚠️ RLS / schéma bloque driver_trips. " +
-        "Plan PRO: RPC list_driver_trips(p_driver_slug ou p_owner_id) SECURITY DEFINER.";
+      console.warn("❌ RPC list trips KO:", e);
+      renderTrips([]);
+      debugEl.className = "warn";
+      debugEl.textContent = "⚠️ Impossible de charger les courses via RPC. Détail: " + (e?.message || "inconnu");
     }
-
-    renderTrips([]);
   }
 
   document.getElementById("btnRefresh").addEventListener("click", loadTrips);
+
   document.getElementById("btnLogout").addEventListener("click", ()=>{
     if(confirm("Tu veux vraiment te déconnecter frérot ?")){
       window.DIGIY_GUARD.logout("./pin.html");
     }
   });
 
+  // GO
   await loadTrips();
 })();
 </script>
 </body>
 </html>
+
