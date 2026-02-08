@@ -55,7 +55,10 @@
         <a class="btnGhost" id="btnDashboard" href="./index.html">🏠 Dashboard</a>
         <button class="btn2" id="btnLogout">🚪 Me déconnecter</button>
       </div>
-      <p class="muted" style="margin-top:10px">Session 8h. Slug: <code id="slugBox">—</code></p>
+      <p class="muted" style="margin-top:10px">
+        Session 8h. Slug: <code id="slugBox">—</code>
+        • Owner: <code id="ownerBox">—</code>
+      </p>
     </section>
 
     <section class="card half">
@@ -82,6 +85,7 @@
   const pillPhone = document.getElementById("pillPhone");
   const listEl = document.getElementById("list");
   const slugBox = document.getElementById("slugBox");
+  const ownerBox = document.getElementById("ownerBox");
   const debugEl = document.getElementById("debug");
 
   const session = window.DIGIY_GUARD?.requireSession?.("./pin.html");
@@ -90,6 +94,7 @@
   const url = new URL(location.href);
   const slug = (url.searchParams.get("slug") || session.slug || "").trim().toLowerCase();
   slugBox.textContent = slug || "—";
+  ownerBox.textContent = (session.owner_id || "—");
 
   // dashboard link conserve le slug
   const dash = new URL("./index.html", location.href);
@@ -100,6 +105,11 @@
   statusEl.textContent = `✅ Connecté ${session.title || "chauffeur"} 🦅`;
 
   const sb = window.DIGIY_GUARD.getSb();
+
+  // ✅ UUID detector (terrain safe)
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const ownerIsUuid = UUID_RE.test(String(session.owner_id || "").trim());
+  const driverKey = ownerIsUuid ? String(session.owner_id).trim() : slug;
 
   function fmtWhen(t){
     if(!t) return "—";
@@ -120,33 +130,9 @@
   function renderTrips(rows){
     if(!rows || !rows.length){
       const demo = [
-        {
-          id:"DEMO-1001",
-          pickup_city:"Saly",
-          pickup_zone:"Saly Centre",
-          dropoff_city:"Ngaparou",
-          dropoff_zone:"Route principale",
-          amount:2500,
-          scheduled_at:new Date().toISOString()
-        },
-        {
-          id:"DEMO-1002",
-          pickup_city:"Somone",
-          pickup_zone:"Lagune",
-          dropoff_city:"Saly",
-          dropoff_zone:"Nianing",
-          proposed_price:3500,
-          scheduled_at:new Date(Date.now()+30*60*1000).toISOString()
-        },
-        {
-          id:"DEMO-1003",
-          pickup_city:"AIBD",
-          pickup_zone:"Arrivées",
-          dropoff_city:"Dakar",
-          dropoff_zone:"Plateau",
-          amount:15000,
-          scheduled_at:new Date(Date.now()+24*60*60*1000).toISOString()
-        }
+        { id:"DEMO-1001", pickup_city:"Saly", pickup_zone:"Saly Centre", dropoff_city:"Ngaparou", dropoff_zone:"Route principale", amount:2500, scheduled_at:new Date().toISOString() },
+        { id:"DEMO-1002", pickup_city:"Somone", pickup_zone:"Lagune", dropoff_city:"Saly", dropoff_zone:"Nianing", proposed_price:3500, scheduled_at:new Date(Date.now()+30*60*1000).toISOString() },
+        { id:"DEMO-1003", pickup_city:"AIBD", pickup_zone:"Arrivées", dropoff_city:"Dakar", dropoff_zone:"Plateau", amount:15000, scheduled_at:new Date(Date.now()+24*60*60*1000).toISOString() }
       ];
 
       listEl.innerHTML = `
@@ -170,7 +156,6 @@
           </div>
         `;
       }).join("");
-
       return;
     }
 
@@ -198,15 +183,18 @@
     const want = url.searchParams.get("make_test");
     if(want !== "1") return false;
 
-    // On évite de recréer si refresh
+    // anti double insert si refresh
     url.searchParams.delete("make_test");
     history.replaceState(null, "", url.toString());
 
     try{
       debugEl.textContent = "⏳ Création course test...";
+
+      // ✅ payload: on met auth_user_id UNIQUEMENT si UUID
+      // ✅ + on met toujours driver_slug (terrain king)
       const payload = {
-        auth_user_id: session.owner_id,
         status: "new",
+        driver_slug: slug || null,         // ✅ clé terrain
         pickup_city: "Saly",
         pickup_zone: "Saly Centre",
         dropoff_city: "Ngaparou",
@@ -222,6 +210,10 @@
         scheduled_at: new Date().toISOString()
       };
 
+      if(ownerIsUuid){
+        payload.auth_user_id = String(session.owner_id).trim();
+      }
+
       const { data, error } = await sb
         .from("driver_trips")
         .insert(payload)
@@ -236,40 +228,48 @@
     }catch(e){
       console.warn("❌ INSERT course test KO:", e);
       debugEl.textContent =
-        "⚠️ Course test refusée (RLS INSERT). " +
-        "On fera une RPC SECURITY DEFINER pour créer une course test propre. " +
+        "⚠️ Course test refusée (RLS / schéma). " +
+        "Solution propre: RPC SECURITY DEFINER create_driver_test_trip. " +
         "Détail: " + (e?.message || e);
       return false;
     }
   }
 
   async function loadTrips(){
-    // ✅ Try create test trip first (if requested)
     await maybeCreateTestTrip();
-
     debugEl.textContent = "";
 
     // ✅ SELECT direct driver_trips (si RLS OK)
     try{
-      const { data, error } = await sb
+      let q = sb
         .from("driver_trips")
-        .select("id, pickup_city, pickup_zone, dropoff_city, dropoff_zone, amount, proposed_price, scheduled_at, accepted_at, completed_at, cancelled_at, created_at, updated_at")
-        .eq("auth_user_id", session.owner_id)
+        .select("id, driver_slug, auth_user_id, pickup_city, pickup_zone, dropoff_city, dropoff_zone, amount, proposed_price, scheduled_at, accepted_at, completed_at, cancelled_at, created_at, updated_at")
         .order("created_at", { ascending: false })
         .limit(30);
 
+      // ✅ filtre intelligent : UUID -> auth_user_id, sinon -> driver_slug
+      if(ownerIsUuid){
+        q = q.eq("auth_user_id", driverKey);
+        debugEl.textContent = "🔎 Filtre: auth_user_id (UUID)";
+      } else {
+        q = q.eq("driver_slug", driverKey);
+        debugEl.textContent = "🔎 Filtre: driver_slug (slug terrain)";
+      }
+
+      const { data, error } = await q;
       if(error) throw error;
 
       renderTrips(data || []);
-      debugEl.textContent = "✅ LIVE via table driver_trips (RLS OK).";
+      debugEl.textContent = "✅ LIVE via table driver_trips (RLS OK). " + debugEl.textContent;
       return;
 
     }catch(e){
       console.warn("❌ LIVE table driver_trips KO:", e);
-      debugEl.textContent = "⚠️ RLS bloque driver_trips en SELECT. On peut créer une RPC list_driver_trips_by_owner pour ouvrir propre.";
+      debugEl.textContent =
+        "⚠️ RLS / schéma bloque driver_trips. " +
+        "Plan PRO: RPC list_driver_trips(p_driver_slug ou p_owner_id) SECURITY DEFINER.";
     }
 
-    // fallback démo
     renderTrips([]);
   }
 
@@ -285,4 +285,3 @@
 </script>
 </body>
 </html>
-
