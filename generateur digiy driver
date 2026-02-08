@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>🚗 GÉNÉRATEUR DIGIY DRIVER — Créer ta fiche chauffeur</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<!-- Supabase + Guard -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./guard.js?v=generator-driver-1"></script>
+
+<style>
+:root{
+  --bg:#0b1020;
+  --card:#020617;
+  --accent:#facc15;
+  --driver-green:#00853F;
+  --ink:#f9fafb;
+  --muted:#9ca3af;
+  --line:#1f2937;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(circle at top,#111827 0,#020617 55%);
+  color:var(--ink);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  padding:20px;
+}
+
+.container{max-width:900px;margin:0 auto}
+
+.header{text-align:center;margin-bottom:30px}
+.header h1{font-size:34px;font-weight:900;color:var(--accent);margin:0 0 10px}
+.header p{font-size:16px;color:var(--muted);margin:0}
+
+.badge{
+  display:inline-block;padding:8px 16px;
+  background:var(--driver-green);color:#fff;
+  border-radius:999px;font-weight:800;font-size:14px;margin-top:10px;
+}
+
+.form-card{
+  background:var(--card);border-radius:20px;
+  border:1px solid var(--line);padding:26px;
+  box-shadow:0 20px 40px rgba(0,0,0,.6);margin-bottom:20px;
+}
+
+.section-title{
+  font-size:22px;font-weight:900;color:var(--accent);
+  margin:0 0 18px;padding-bottom:10px;border-bottom:2px solid var(--line);
+}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+@media(max-width:768px){.form-grid{grid-template-columns:1fr}}
+
+.form-group{display:flex;flex-direction:column}
+.form-group.full{grid-column:1/-1}
+
+label{
+  font-weight:800;font-size:14px;color:var(--ink);
+  margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
+label .required{color:#ef4444;font-size:18px}
+
+input, textarea, select{
+  padding:12px;border-radius:10px;border:1px solid var(--line);
+  background:#111827;color:var(--ink);font-size:14px;font-weight:600;
+}
+input:focus, textarea:focus, select:focus{outline:none;border-color:var(--accent)}
+
+textarea{min-height:100px;resize:vertical;font-family:inherit}
+
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+
+.btn{
+  border:none;border-radius:999px;padding:16px 18px;
+  font-size:16px;font-weight:950;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:10px;transition:all 0.2s;
+}
+
+.btn-generate{
+  background:linear-gradient(135deg,var(--driver-green),#006B32);
+  color:#fff;width:100%;
+  box-shadow:0 10px 30px rgba(0,133,63,0.35);
+}
+.btn-generate:hover{
+  transform:translateY(-2px);
+  box-shadow:0 15px 40px rgba(0,133,63,0.55);
+}
+
+.btn-back{
+  background:rgba(255,255,255,0.08);color:var(--ink);
+  border:1px solid var(--line);width:100%;margin-top:10px;
+}
+
+.success-msg{
+  display:none;background:rgba(34,197,94,0.1);
+  border:2px solid #22c55e;border-radius:12px;
+  padding:18px;margin-top:18px;text-align:center;
+}
+.success-msg.show{display:block}
+.success-msg h3{margin:0 0 10px;color:#22c55e;font-size:22px;font-weight:950}
+.eagle{font-size:46px;display:block;margin:10px 0}
+
+.loading{text-align:center;padding:50px;color:#fff;font-size:18px;font-weight:800}
+.smallNote{
+  margin-top:10px;
+  font-size:12px;
+  color:rgba(249,250,251,.8);
+  opacity:.9;
+}
+.smallNote code{font-family:ui-monospace,Menlo,monospace;color:#bbf7d0}
+</style>
+</head>
+
+<body>
+
+<div id="loading" class="loading">🔒 Vérification accès...</div>
+
+<div id="app" style="display:none;">
+  <div class="container">
+    <div class="header">
+      <h1>🦅 GÉNÉRATEUR DIGIY DRIVER</h1>
+      <p>Crée ta fiche chauffeur en 2 minutes — et direct dans le cockpit.</p>
+      <div class="badge">∞ 0% commission — Tu gardes 100% ∞</div>
+      <div class="smallNote" id="slugInfo"></div>
+    </div>
+
+    <div class="form-card">
+      <h2 class="section-title">👤 Infos chauffeur</h2>
+
+      <form id="formChauffeur">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nom complet <span class="required">*</span></label>
+            <input type="text" name="nom_complet" id="nom_complet" placeholder="Ex: Mamadou DIOP" required>
+          </div>
+
+          <div class="form-group">
+            <label>WhatsApp / Téléphone <span class="required">*</span></label>
+            <input type="tel" name="phone" id="phone" placeholder="+221 77 123 45 67" required>
+          </div>
+
+          <div class="form-group">
+            <label>Ville principale <span class="required">*</span></label>
+            <input type="text" name="ville" id="ville" placeholder="Ex: Dakar" required>
+          </div>
+
+          <div class="form-group">
+            <label>Années d'expérience</label>
+            <input type="number" name="annees_experience" id="annees_experience" value="5" min="0" max="50">
+          </div>
+
+          <div class="form-group full">
+            <label>Langues parlées</label>
+            <input type="text" name="langues" id="langues" placeholder="Ex: Français, Wolof, Anglais">
+          </div>
+        </div>
+
+        <h2 class="section-title">🚗 Véhicule</h2>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Type de véhicule <span class="required">*</span></label>
+            <select name="vehicule_type" id="vehicule_type" required>
+              <option value="Berline">Berline</option>
+              <option value="4x4">4x4</option>
+              <option value="SUV">SUV</option>
+              <option value="Minibus">Minibus</option>
+              <option value="Moto">Moto</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Marque</label>
+            <input type="text" name="vehicule_marque" id="vehicule_marque" placeholder="Ex: Toyota">
+          </div>
+
+          <div class="form-group">
+            <label>Couleur</label>
+            <input type="text" name="vehicule_couleur" id="vehicule_couleur" placeholder="Ex: Blanc">
+          </div>
+
+          <div class="form-group">
+            <label>Tarif de base (FCFA)</label>
+            <input type="number" name="tarif_base" id="tarif_base" placeholder="Ex: 2000" min="0">
+            <div class="hint">Prix indicatif pour une course courte</div>
+          </div>
+        </div>
+
+        <h2 class="section-title">🎯 Services</h2>
+
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Services proposés</label>
+            <input type="text" name="services" id="services" placeholder="Ex: Ville, Aéroport, Longue distance, Livraison">
+          </div>
+
+          <div class="form-group full">
+            <label>Description / Présentation</label>
+            <textarea name="description" id="description" placeholder="Ex: Chauffeur pro, ponctuel, véhicule climatisé."></textarea>
+          </div>
+        </div>
+
+        <h2 class="section-title">📸 Photos</h2>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Photo profil (URL)</label>
+            <input type="url" name="photo_profil" id="photo_profil" placeholder="https://...">
+            <div class="hint">Ta photo (ou logo)</div>
+          </div>
+
+          <div class="form-group">
+            <label>Photo véhicule (URL)</label>
+            <input type="url" name="photo_vehicule" id="photo_vehicule" placeholder="https://...">
+          </div>
+        </div>
+
+        <button class="btn btn-generate" type="submit">
+          🚀 ENREGISTRER MA FICHE
+        </button>
+
+        <button class="btn btn-back" type="button" id="btnBack">
+          ⬅️ Retour cockpit
+        </button>
+      </form>
+
+      <div class="success-msg" id="successMsg">
+        <span class="eagle">🦅</span>
+        <h3>FICHE ENREGISTRÉE ✅</h3>
+        <p>Ta fiche est prête. Maintenant : GO terrain 🔥</p>
+        <button class="btn btn-back" type="button" id="btnRetour">
+          ✅ Aller au cockpit
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(async function(){
+  const loading = document.getElementById('loading');
+  const app = document.getElementById('app');
+  const form = document.getElementById('formChauffeur');
+  const successMsg = document.getElementById('successMsg');
+  const btnBack = document.getElementById('btnBack');
+  const btnRetour = document.getElementById('btnRetour');
+  const slugInfo = document.getElementById('slugInfo');
+
+  // ---------------------------
+  // Helpers
+  // ---------------------------
+  function normPhone(p){
+    return String(p||"").trim();
+  }
+
+  function safeText(v){
+    return String(v ?? "").trim();
+  }
+
+  // ---------------------------
+  // 1) Guard présent ?
+  // ---------------------------
+  if(!window.DIGIY_GUARD || typeof window.DIGIY_GUARD.boot !== "function"){
+    loading.innerHTML = '❌ Guard non chargé. <a href="pin.html" style="color:#facc15">Se connecter</a>';
+    return;
+  }
+
+  // ---------------------------
+  // 2) Boot (session obligatoire)
+  // ---------------------------
+  const g = await window.DIGIY_GUARD.boot({ login: "pin.html" });
+  if(!g?.ok){
+    loading.innerHTML = '❌ Accès refusé. <a href="pin.html" style="color:#facc15">Se connecter</a>';
+    return;
+  }
+
+  // ---------------------------
+  // 3) Session
+  // ---------------------------
+  const sess = window.DIGIY_GUARD.getSession?.() || null;
+  const ownerId = sess?.owner_id || null;       // (TEXT dans ton système)
+  const slug = (sess?.slug || "").trim().toLowerCase(); // ✅ slug du pro (source de vérité)
+  const phone = normPhone(sess?.phone || localStorage.getItem('DIGIY_DRIVER_PHONE') || localStorage.getItem('DIGIY_PHONE') || "");
+  const title = safeText(sess?.title || localStorage.getItem('DIGIY_DRIVER_TITLE') || "");
+
+  if(!ownerId || !slug){
+    loading.innerHTML = '❌ Session invalide (owner/slug manquant). <a href="pin.html" style="color:#facc15">Se reconnecter</a>';
+    return;
+  }
+
+  slugInfo.innerHTML = `Slug actif: <code>${slug}</code> (ta fiche sera liée à ce slug)`;
+
+  // ---------------------------
+  // 4) Affiche app
+  // ---------------------------
+  loading.style.display = 'none';
+  app.style.display = 'block';
+
+  // ---------------------------
+  // 5) Auto-fill
+  // ---------------------------
+  document.getElementById('nom_complet').value = title || "";
+  document.getElementById('phone').value = phone || "";
+
+  // ---------------------------
+  // 6) Navigation cockpit
+  // ---------------------------
+  function goBack(){
+    const url = window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug("index.html") : "index.html";
+    location.href = url;
+  }
+  btnBack.addEventListener('click', goBack);
+  btnRetour.addEventListener('click', goBack);
+
+  // ---------------------------
+  // 7) Supabase client (async safe)
+  // ---------------------------
+  let sb = null;
+  try{
+    sb = (window.DIGIY_GUARD.getSbAsync)
+      ? await window.DIGIY_GUARD.getSbAsync()
+      : window.DIGIY_GUARD.getSb?.();
+  }catch(e){
+    sb = null;
+  }
+  if(!sb){
+    alert("❌ Supabase non initialisé. Vérifie le CDN / guard.");
+    return;
+  }
+
+  // ---------------------------
+  // 8) Pré-charger si fiche existe déjà (facultatif mais kiff)
+  // ---------------------------
+  async function preloadIfExists(){
+    try{
+      const { data, error } = await sb
+        .from("digiy_driver_chauffeurs")
+        .select("nom_complet, phone, ville, vehicule_type, vehicule_marque, vehicule_couleur, photo_profil, photo_vehicule, annees_experience, langues, services, tarif_base, description, whatsapp")
+        .eq("slug", slug)
+        .maybeSingle();
+
+      if(error) return;
+      if(!data) return;
+
+      // remplit si présent
+      if(data.nom_complet) document.getElementById("nom_complet").value = data.nom_complet;
+      if(data.phone) document.getElementById("phone").value = data.phone;
+      if(data.ville) document.getElementById("ville").value = data.ville;
+
+      if(data.vehicule_type) document.getElementById("vehicule_type").value = data.vehicule_type;
+      if(data.vehicule_marque) document.getElementById("vehicule_marque").value = data.vehicule_marque;
+      if(data.vehicule_couleur) document.getElementById("vehicule_couleur").value = data.vehicule_couleur;
+
+      if(data.tarif_base != null) document.getElementById("tarif_base").value = data.tarif_base;
+      if(data.annees_experience != null) document.getElementById("annees_experience").value = data.annees_experience;
+
+      if(data.langues) document.getElementById("langues").value = data.langues;
+      if(data.services) document.getElementById("services").value = data.services;
+      if(data.description) document.getElementById("description").value = data.description;
+
+      if(data.photo_profil) document.getElementById("photo_profil").value = data.photo_profil;
+      if(data.photo_vehicule) document.getElementById("photo_vehicule").value = data.photo_vehicule;
+    }catch(_){}
+  }
+  await preloadIfExists();
+
+  // ---------------------------
+  // 9) Submit → UPSERT (pas duplicate)
+  // ---------------------------
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const btn = form.querySelector('.btn-generate');
+    btn.disabled = true;
+    btn.textContent = '⏳ Enregistrement...';
+
+    try{
+      const fd = new FormData(form);
+
+      const nom = safeText(fd.get("nom_complet"));
+      const tel = normPhone(fd.get("phone"));
+      const ville = safeText(fd.get("ville"));
+
+      if(!nom || !tel || !ville){
+        throw new Error("Remplis Nom + Téléphone + Ville frérot.");
+      }
+
+      const payload = {
+        // ✅ important : owner_id TEXT dans ta table driver (ton système), donc on met tel quel
+        owner_id: ownerId,
+        slug: slug,
+
+        nom_complet: nom,
+        phone: tel,
+        ville: ville,
+
+        vehicule_type: safeText(fd.get("vehicule_type")) || null,
+        vehicule_marque: safeText(fd.get("vehicule_marque")) || null,
+        vehicule_couleur: safeText(fd.get("vehicule_couleur")) || null,
+
+        photo_profil: safeText(fd.get("photo_profil")) || null,
+        photo_vehicule: safeText(fd.get("photo_vehicule")) || null,
+
+        annees_experience: fd.get("annees_experience") ? parseInt(fd.get("annees_experience"),10) : null,
+        langues: safeText(fd.get("langues")) || null,
+        services: safeText(fd.get("services")) || null,
+
+        tarif_base: fd.get("tarif_base") ? parseInt(fd.get("tarif_base"),10) : null,
+        description: safeText(fd.get("description")) || null,
+
+        whatsapp: tel,
+        status: "actif",
+        is_public: true,
+        updated_at: new Date().toISOString()
+      };
+
+      // ✅ UPSERT sur slug (unique)
+      const { data, error } = await sb
+        .from("digiy_driver_chauffeurs")
+        .upsert(payload, { onConflict: "slug" })
+        .select("slug, nom_complet")
+        .single();
+
+      if(error) throw error;
+
+      // UI
+      form.style.display = 'none';
+      successMsg.classList.add('show');
+
+      console.log("✅ DRIVER fiche upsert:", data);
+
+    }catch(err){
+      console.error("❌ Erreur upsert fiche driver:", err);
+      alert("❌ Erreur: " + (err?.message || err));
+      btn.disabled = false;
+      btn.textContent = '🚀 ENREGISTRER MA FICHE';
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
