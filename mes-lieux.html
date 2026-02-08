@@ -322,8 +322,7 @@ if (error) throw error;
       hideStatus();
       btnCreate.disabled = true;
       btnCreate.textContent = "⏳ Création...";
-
-     const { data, error } = await sb.rpc("create_new_slug", {
+const { data, error } = await sb.rpc("create_new_slug_text", {
   p_owner_id: owner_id,
   p_title: title,
   p_phone: session.phone,
