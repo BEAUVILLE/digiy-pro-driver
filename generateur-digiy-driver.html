@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Générateur fiche — DIGIY DRIVER PRO</title>
+  <meta name="theme-color" content="#061b14"/>
+
+  <!-- Supabase + Guard -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=driver-generator-v2"></script>
+
+  <style>
+    :root{
+      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
+      --text:#eafff1; --muted:rgba(234,255,241,.74);
+      --gold:#facc15; --green:#22c55e; --orange:#f59e0b; --red:#fb7185;
+      --shadow:0 18px 55px rgba(0,0,0,.45); --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:
+        radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      padding:18px;
+    }
+
+    #guard_status{
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      padding: 10px 14px;
+      background: rgba(0,0,0,.88);
+      color:#fff;
+      border-radius: 12px;
+      font-weight: 900;
+      font-size: 13px;
+      z-index: 9999;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .app{display:none;}
+    html.access-ok .app{display:block;}
+
+    .wrap{max-width:1100px;margin:0 auto;}
+    .topbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+      margin:10px 0 16px;
+    }
+    .brand{
+      display:flex; gap:12px; align-items:center;
+    }
+    .badge{
+      width:42px;height:42px;border-radius:16px;
+      display:grid;place-items:center;
+      font-weight:1000;
+      color:#04160f;
+      background:radial-gradient(circle at 30% 20%, var(--gold), #f97316);
+      box-shadow:0 10px 28px rgba(250,204,21,.30);
+    }
+    h1{
+      margin:0;
+      font-size:22px;
+      letter-spacing:.2px;
+    }
+    .sub{color:var(--muted);font-weight:800;font-size:13px;margin-top:2px}
+
+    .pill{
+      display:inline-flex; gap:10px; align-items:center;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      color:rgba(234,255,241,.92);
+      font-size:13px;
+      font-weight:900;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:14px;
+      align-items:start;
+    }
+    @media(max-width:980px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .sectionTitle{
+      font-size:16px;
+      font-weight:1000;
+      margin:0 0 12px;
+      color:rgba(234,255,241,.96);
+    }
+
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(max-width:680px){ .row{grid-template-columns:1fr} }
+
+    label{display:block;font-size:12px;font-weight:950;color:rgba(234,255,241,.9);margin:10px 0 6px}
+    input, textarea{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.22);
+      color:var(--text);
+      outline:none;
+      font-weight:850;
+    }
+    textarea{min-height:120px;resize:vertical;line-height:1.5}
+
+    .hint{font-size:12px;color:rgba(234,255,241,.70);line-height:1.5;margin-top:6px}
+
+    .actions{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:1000;
+      text-decoration:none;
+      border:0;
+      cursor:pointer;
+      font-size:14px;
+      transition:all .2s;
+      flex:1; min-width:190px;
+    }
+    .primary{
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
+      color:#042012;
+      box-shadow:0 4px 16px rgba(34,197,94,.30);
+    }
+    .primary:hover{transform:translateY(-2px); box-shadow:0 8px 24px rgba(34,197,94,.40);}
+    .secondary{
+      background:rgba(250,204,21,.14);
+      border:1px solid rgba(250,204,21,.25);
+      color:var(--text);
+    }
+    .secondary:hover{background:rgba(250,204,21,.20); border-color:rgba(250,204,21,.40);}
+    .ghost{
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      color:var(--text);
+    }
+    .ghost:hover{background:rgba(255,255,255,.12);}
+    .danger{
+      background:rgba(251,113,133,.12);
+      border:1px solid rgba(251,113,133,.22);
+      color:var(--text);
+    }
+    .danger:hover{background:rgba(251,113,133,.16); border-color:rgba(251,113,133,.32);}
+
+    .hr{height:1px;background:rgba(255,255,255,.12);margin:14px 0}
+
+    /* PREVIEW CARD (comme vitrine) */
+    .pgrid{display:grid;gap:12px}
+    .pCard{
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.22);
+      border-radius:18px;
+      padding:14px;
+    }
+    .pTop{display:flex;gap:12px;align-items:center}
+    .pAvatar{
+      width:44px;height:44px;border-radius:14px;
+      display:grid;place-items:center;
+      background:rgba(250,204,21,.14);
+      border:1px solid rgba(250,204,21,.25);
+      font-weight:1000;
+      overflow:hidden;
+      flex:0 0 auto;
+    }
+    .pAvatar img{width:100%;height:100%;object-fit:cover;display:block}
+    .pName{margin:0;font-weight:1000;font-size:16px}
+    .pMeta{margin:2px 0 0;color:rgba(234,255,241,.75);font-weight:850;font-size:13px}
+    .pBadges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .pBadge{
+      font-size:12px;font-weight:950;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:rgba(234,255,241,.86);
+    }
+    .pBio{margin:10px 0 0;color:rgba(234,255,241,.86);font-weight:850;line-height:1.5;font-size:14px}
+    .pActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .pBtn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:10px 12px;border-radius:999px;
+      font-weight:1000;font-size:13px;
+      text-decoration:none;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+    }
+    .pBtn.green{
+      border:none;
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
+      color:#042012;
+    }
+
+    .toast{
+      margin-top:12px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.22);
+      color:rgba(234,255,241,.92);
+      font-weight:900;
+      font-size:13px;
+      display:none;
+    }
+    .toast.ok{border-color:rgba(34,197,94,.30);background:rgba(34,197,94,.12)}
+    .toast.bad{border-color:rgba(251,113,133,.30);background:rgba(251,113,133,.12)}
+  </style>
+</head>
+
+<body>
+  <div id="guard_status">🔐 Vérification…</div>
+
+  <div class="app">
+    <div class="wrap">
+
+      <div class="topbar">
+        <div class="brand">
+          <div class="badge">D</div>
+          <div>
+            <h1>Générateur fiche — DIGIY DRIVER PRO</h1>
+            <div class="sub">Ta vitrine perso (publiée dans le listing)</div>
+          </div>
+        </div>
+
+        <div class="pill">
+          ✅ <span id="mePhone">+221…</span> • <span id="meSlug">slug</span>
+        </div>
+      </div>
+
+      <div class="grid">
+
+        <!-- LEFT: FORM -->
+        <div class="card">
+          <div class="sectionTitle">🧾 Ta fiche chauffeur</div>
+
+          <div class="row">
+            <div>
+              <label>Nom affiché</label>
+              <input id="f_display_name" placeholder="Ex: Lamine" />
+            </div>
+            <div>
+              <label>Ville</label>
+              <input id="f_city" placeholder="Ex: Saly / Dakar" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>WhatsApp</label>
+              <input id="f_whatsapp" placeholder="Ex: 221784413680" />
+              <div class="hint">Format sans “+”. Exemple : 22177xxxxxxx</div>
+            </div>
+            <div>
+              <label>Photo (URL)</label>
+              <input id="f_photo_url" placeholder="https://..." />
+              <div class="hint">Optionnel. Sinon on met les initiales.</div>
+            </div>
+          </div>
+
+          <label>Carte partenaire (URL)</label>
+          <input id="f_profile_url" placeholder="https://... (ta carte)" />
+
+          <label>Bio</label>
+          <textarea id="f_bio" placeholder="Ex: Transferts AIBD, circuits touristiques, dispo sur demande…"></textarea>
+
+          <div class="row">
+            <div>
+              <label>Zones (séparées par virgule)</label>
+              <input id="f_zones" placeholder="Saly, Petite Côte, Dakar, AIBD" />
+            </div>
+            <div>
+              <label>Tags (séparés par virgule)</label>
+              <input id="f_tags" placeholder="AIBD, Transfert, Circuit, 24/7" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>Priorité (1 = en haut)</label>
+              <input id="f_priority" type="number" min="1" value="100" />
+            </div>
+            <div>
+              <label>Statut</label>
+              <div class="row" style="grid-template-columns:1fr 1fr;gap:10px">
+                <div style="display:flex;gap:10px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22);border-radius:14px;padding:12px">
+                  <input id="f_is_active" type="checkbox" checked style="width:18px;height:18px;margin:0" />
+                  <div style="font-weight:1000">Actif</div>
+                </div>
+                <div style="display:flex;gap:10px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22);border-radius:14px;padding:12px">
+                  <input id="f_is_published" type="checkbox" style="width:18px;height:18px;margin:0" />
+                  <div style="font-weight:1000">Publié</div>
+                </div>
+              </div>
+              <div class="hint">Publié = visible sur la vitrine publique.</div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="actions">
+            <button class="btn ghost" id="btnLoad" type="button">↻ Charger ma fiche</button>
+            <button class="btn secondary" id="btnSaveDraft" type="button">💾 Enregistrer (brouillon)</button>
+            <button class="btn primary" id="btnPublish" type="button">🚀 Publier sur la vitrine</button>
+            <button class="btn danger" id="btnUnpublish" type="button">🙈 Dépublier</button>
+          </div>
+
+          <div id="toast" class="toast"></div>
+
+          <div class="hint" style="margin-top:12px">
+            🔐 Accès réservé aux chauffeurs activés (paiement OK). <br/>
+            Une fois publié, ta fiche sort automatiquement sur <strong>digiy-driver</strong> (listing Supabase).
+          </div>
+        </div>
+
+        <!-- RIGHT: PREVIEW -->
+        <div class="card">
+          <div class="sectionTitle">👀 Aperçu vitrine (live)</div>
+
+          <div class="pgrid">
+            <div class="pCard" id="previewCard">
+              <div class="pTop">
+                <div class="pAvatar" id="pAvatar">DR</div>
+                <div>
+                  <p class="pName" id="pName">Chauffeur</p>
+                  <p class="pMeta" id="pMeta">Ville • Zones</p>
+                </div>
+              </div>
+
+              <div class="pBadges" id="pBadges"></div>
+              <p class="pBio" id="pBio">Ta bio apparaîtra ici.</p>
+
+              <div class="pActions">
+                <a class="pBtn" id="pCardBtn" href="#" target="_blank" rel="noopener">Voir la carte</a>
+                <a class="pBtn green" id="pWaBtn" href="#" target="_blank" rel="noopener">WhatsApp</a>
+              </div>
+            </div>
+
+            <div class="hint">
+              ⚡ Ce preview sert à voir le rendu. Le listing public affiche seulement les profils <strong>publiés + actifs</strong>.
+            </div>
+
+            <div class="actions">
+              <a class="btn ghost" href="./index.html" id="btnBack">← Retour cockpit</a>
+              <button class="btn ghost" id="btnLogout" type="button">🚪 Me déconnecter</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    "use strict";
+
+    const TABLE = "digiy_driver_public_profiles";
+    const PAY_URL = "https://beauville.github.io/commencer-a-payer/?module=DRIVER&offre=DRIVER";
+    const MODULE = "driver";
+
+    // ✅ TES VRAIES VALEURS SUPABASE (public listing + upsert via session si auth dispo)
+    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+
+    const $ = (id)=>document.getElementById(id);
+    const gs = $("guard_status");
+    const toast = $("toast");
+
+    function showToast(msg, ok){
+      if(!toast) return;
+      toast.textContent = msg;
+      toast.className = "toast " + (ok ? "ok" : "bad");
+      toast.style.display = "block";
+      setTimeout(()=>{ toast.style.display = "none"; }, 3200);
+    }
+
+    function cleanCsv(s){
+      return String(s||"")
+        .split(",")
+        .map(x=>x.trim())
+        .filter(Boolean)
+        .slice(0, 12);
+    }
+
+    function slugify(s){
+      return String(s||"")
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+        .replace(/[^a-z0-9]+/g,"-")
+        .replace(/(^-|-$)/g,"")
+        .slice(0, 64);
+    }
+
+    function initials(name){
+      const s = (name||"").trim();
+      if(!s) return "DR";
+      const parts = s.split(/\s+/).slice(0,2);
+      return parts.map(p => (p[0]||"").toUpperCase()).join("");
+    }
+
+    function waLink(whatsapp, name){
+      const w = String(whatsapp||"").replace(/[^\d]/g,"");
+      if(!w) return "#";
+      const msg = encodeURIComponent(`Salut ${name||""}, je viens de DIGIY DRIVER. Tu es dispo ?`);
+      return `https://wa.me/${w}?text=${msg}`;
+    }
+
+    function setAvatar(url, name){
+      const av = $("pAvatar");
+      if(!av) return;
+      av.innerHTML = "";
+      const u = String(url||"").trim();
+      if(u){
+        const img = new Image();
+        img.src = u;
+        img.alt = "";
+        img.onload = ()=>{ av.innerHTML=""; av.appendChild(img); };
+        img.onerror = ()=>{ av.textContent = initials(name); };
+        av.appendChild(img);
+      }else{
+        av.textContent = initials(name);
+      }
+    }
+
+    function refreshPreview(){
+      const name = $("f_display_name").value.trim() || "Chauffeur";
+      const city = $("f_city").value.trim();
+      const zones = cleanCsv($("f_zones").value);
+      const tags = cleanCsv($("f_tags").value);
+      const bio = $("f_bio").value.trim() || "Ta bio apparaîtra ici.";
+      const whatsapp = $("f_whatsapp").value.trim();
+      const photo = $("f_photo_url").value.trim();
+      const profileUrl = $("f_profile_url").value.trim();
+
+      $("pName").textContent = name;
+      $("pMeta").textContent = (city ? city : "Sénégal") + (zones.length ? (" • " + zones.slice(0,3).join(" • ")) : "");
+      $("pBio").textContent = bio;
+
+      const badges = [];
+      if(city) badges.push(city);
+      zones.slice(0,3).forEach(z=>badges.push(z));
+      tags.slice(0,3).forEach(t=>badges.push(t));
+
+      const box = $("pBadges");
+      box.innerHTML = badges.map(b=>`<span class="pBadge">${b}</span>`).join("");
+
+      $("pWaBtn").href = waLink(whatsapp, name);
+      $("pCardBtn").href = profileUrl || "#";
+      $("pCardBtn").style.opacity = profileUrl ? "1" : ".55";
+      $("pCardBtn").style.pointerEvents = profileUrl ? "auto" : "none";
+
+      setAvatar(photo, name);
+    }
+
+    // bind preview
+    ["f_display_name","f_city","f_whatsapp","f_photo_url","f_profile_url","f_bio","f_zones","f_tags","f_priority","f_is_active","f_is_published"]
+      .forEach(id => $(id).addEventListener("input", refreshPreview));
+
+    // Build supabase client (flexible)
+    function getSb(){
+      try{
+        if(window.DIGIY_GUARD?.sb) return window.DIGIY_GUARD.sb;
+      }catch(_){}
+      return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    function getSessionSafe(){
+      try{
+        return window.DIGIY_GUARD?.getSession?.() || null;
+      }catch(_){
+        return null;
+      }
+    }
+
+    // Upsert helper
+    async function upsertProfile({ publish }){
+      const sb = getSb();
+      const session = getSessionSafe();
+
+      if(!session?.owner_id){
+        showToast("Session invalide : owner_id manquant.", false);
+        return;
+      }
+
+      const display_name = $("f_display_name").value.trim();
+      if(!display_name){
+        showToast("Nom affiché obligatoire.", false);
+        return;
+      }
+
+      // slug: priorité au slug session, sinon slugify(display_name)
+      const slug = (session.slug ? String(session.slug).trim() : "") || slugify(display_name);
+      if(!slug){
+        showToast("Slug invalide.", false);
+        return;
+      }
+
+      const payload = {
+        owner_id: session.owner_id,
+        slug,
+        display_name,
+        city: $("f_city").value.trim() || null,
+        whatsapp: $("f_whatsapp").value.trim() || null,
+        photo_url: $("f_photo_url").value.trim() || null,
+        profile_url: $("f_profile_url").value.trim() || null,
+        bio: $("f_bio").value.trim() || null,
+        zones: cleanCsv($("f_zones").value),
+        tags: cleanCsv($("f_tags").value),
+        priority: Number($("f_priority").value || 100),
+        is_active: !!$("f_is_active").checked,
+        is_published: publish ? true : !!$("f_is_published").checked
+      };
+
+      // garder checkbox sync si publish action
+      if(publish) $("f_is_published").checked = true;
+
+      const { error } = await sb
+        .from(TABLE)
+        .upsert(payload, { onConflict: "slug" });
+
+      if(error){
+        console.error("upsert error", error);
+        showToast("Erreur sauvegarde: " + (error.message || "inconnue"), false);
+        return;
+      }
+
+      showToast(publish ? "🚀 Publié ! Ta fiche est en vitrine." : "💾 Enregistré (brouillon).", true);
+    }
+
+    async function unpublishProfile(){
+      const sb = getSb();
+      const session = getSessionSafe();
+
+      const display_name = $("f_display_name").value.trim();
+      const slug = (session?.slug ? String(session.slug).trim() : "") || slugify(display_name);
+
+      if(!slug){
+        showToast("Slug introuvable pour dépublier.", false);
+        return;
+      }
+
+      const { error } = await sb
+        .from(TABLE)
+        .update({ is_published: false })
+        .eq("slug", slug);
+
+      if(error){
+        console.error("unpublish error", error);
+        showToast("Erreur dépublication: " + (error.message || "inconnue"), false);
+        return;
+      }
+
+      $("f_is_published").checked = false;
+      showToast("🙈 Dépublié. La fiche n'apparaît plus sur la vitrine.", true);
+    }
+
+    async function loadMyProfile(){
+      const sb = getSb();
+      const session = getSessionSafe();
+
+      const fallbackName = $("f_display_name").value.trim();
+      const slug = (session?.slug ? String(session.slug).trim() : "") || slugify(fallbackName);
+
+      if(!slug){
+        showToast("Entre ton nom pour générer le slug, puis recharge.", false);
+        return;
+      }
+
+      const { data, error } = await sb
+        .from(TABLE)
+        .select("slug, display_name, city, whatsapp, photo_url, profile_url, bio, zones, tags, is_published, is_active, priority")
+        .eq("slug", slug)
+        .limit(1)
+        .maybeSingle();
+
+      if(error){
+        console.error("load error", error);
+        showToast("Erreur chargement: " + (error.message || "inconnue"), false);
+        return;
+      }
+
+      if(!data){
+        showToast("Aucune fiche trouvée. Remplis puis Enregistre.", true);
+        refreshPreview();
+        return;
+      }
+
+      $("f_display_name").value = data.display_name || "";
+      $("f_city").value = data.city || "";
+      $("f_whatsapp").value = data.whatsapp || "";
+      $("f_photo_url").value = data.photo_url || "";
+      $("f_profile_url").value = data.profile_url || "";
+      $("f_bio").value = data.bio || "";
+      $("f_zones").value = Array.isArray(data.zones) ? data.zones.join(", ") : "";
+      $("f_tags").value = Array.isArray(data.tags) ? data.tags.join(", ") : "";
+      $("f_is_published").checked = !!data.is_published;
+      $("f_is_active").checked = (data.is_active !== false);
+      $("f_priority").value = Number(data.priority || 100);
+
+      showToast("↻ Fiche chargée.", true);
+      refreshPreview();
+    }
+
+    // Buttons
+    $("btnSaveDraft").addEventListener("click", ()=>upsertProfile({ publish:false }));
+    $("btnPublish").addEventListener("click", ()=>{
+      if(!confirm("Publier ta fiche sur la vitrine maintenant ?")) return;
+      upsertProfile({ publish:true });
+    });
+    $("btnUnpublish").addEventListener("click", ()=>{
+      if(!confirm("Dépublier ta fiche (elle disparaît de la vitrine) ?")) return;
+      unpublishProfile();
+    });
+    $("btnLoad").addEventListener("click", ()=>loadMyProfile());
+
+    $("btnLogout").addEventListener("click", ()=>{
+      if(!confirm("Tu veux te déconnecter frérot ?")) return;
+      const pinUrl = window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug("./pin.html") : "./pin.html";
+      window.DIGIY_GUARD.logout(pinUrl);
+    });
+
+    // Boot guard + init
+    (async function boot(){
+      if(!window.DIGIY_GUARD || typeof window.DIGIY_GUARD.boot !== "function"){
+        if(gs) gs.textContent = "❌ guard.js non chargé";
+        return;
+      }
+
+      const res = await window.DIGIY_GUARD.boot({
+        module: MODULE,
+        dashboard: "./index.html",
+        login: "./pin.html",
+        pay: PAY_URL,
+        requireSlug: true,
+        checkSubscription: true
+      });
+
+      if(!res?.ok){
+        if(gs) gs.textContent = "❌ Accès refusé";
+        return;
+      }
+
+      const session = getSessionSafe();
+      if(!session?.owner_id){
+        if(gs) gs.textContent = "❌ Session invalide";
+        const pinUrl = window.DIGIY_GUARD?.withSlug ? window.DIGI_GUARD.withSlug("./pin.html") : "./pin.html";
+        location.replace(pinUrl);
+        return;
+      }
+
+      // show app
+      document.documentElement.classList.add("access-ok");
+
+      // status badge
+      if(gs){
+        gs.textContent = "✅ OK";
+        setTimeout(()=>gs.style.display="none", 700);
+      }
+
+      // top pill
+      $("mePhone").textContent = session.phone || "+221…";
+      const sSlug = (session.slug || "").toString() || "slug";
+      $("meSlug").textContent = sSlug;
+
+      // prefill name if session has title / business_name
+      const preName = (session.title || session.business_name || "").toString();
+      if(preName && !$("f_display_name").value.trim()) $("f_display_name").value = preName;
+
+      // prefill whatsapp if session phone looks like senegal
+      if(session.phone && !$("f_whatsapp").value.trim()){
+        const digits = String(session.phone).replace(/[^\d]/g,"");
+        if(digits.startsWith("221")) $("f_whatsapp").value = digits;
+      }
+
+      refreshPreview();
+      // auto-load profile if exists
+      await loadMyProfile();
+    })();
+
+  })();
+  </script>
+</body>
+</html>
