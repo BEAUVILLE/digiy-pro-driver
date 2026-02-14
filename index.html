@@ -86,6 +86,7 @@
       font-size:14px;
       font-weight:800;
       margin:14px 0;
+      flex-wrap:wrap;
     }
 
     .row{display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;}
@@ -174,6 +175,7 @@
       display:flex;
       align-items:center;
       gap:10px;
+      min-width:0;
     }
     .viewer-topbar .actions{
       display:flex;
@@ -188,6 +190,7 @@
       padding:10px 12px;
       font-weight:900;
       cursor:pointer;
+      white-space:nowrap;
     }
     .viewer-topbar button:hover{background:rgba(255,255,255,.12);}
     #moduleFrame{
@@ -216,8 +219,13 @@
           <strong>0% commission</strong> sur toutes tes courses.
         </p>
 
+        <!-- ✅ Pill enriched (HUB phone + slug) -->
         <div class="pill">
-          ✅ <span id="userPhone">+221…</span> • Abonnement actif
+          ✅ <span id="userPhone">+221…</span>
+          <span id="pillSep1">•</span>
+          <span id="pillSlug">Lieu : —</span>
+          <span id="pillSep2">•</span>
+          <span>Abonnement actif</span>
         </div>
 
         <div class="hr"></div>
@@ -229,7 +237,6 @@
           <a class="btn secondary" data-go="./mes-lieux.html" href="#">📍 Mes lieux</a>
         </div>
 
-        <!-- ✅ NOUVELLE LIGNE : GÉNÉRATEUR DE FICHE (dans le cockpit) -->
         <div class="row" style="margin-top:12px">
           <button class="btn secondary" id="btnGenerator" type="button">🧾 Générer ma fiche</button>
           <button class="btn secondary" id="btnMakeTest" type="button">➕ Course test</button>
@@ -262,20 +269,63 @@
 
   <script>
   /* =========================================================
-     ✅ DIGIY NAV AUTO — QR SAFE (data-go) + Actions (data-action)
-     - data-go="./page.html" => window.DIGIY_GUARD.go(page)
+     ✅ HUB PHONE PASS + NAV SAFE
+     - On récupère ?phone=... (venant du HUB ROYAL)
+     - On le conserve (sessionStorage) pour les pages suivantes
+     - On ajoute ?phone=... sur tous les data-go (comme LOC PRO)
   ========================================================= */
   (function(){
     "use strict";
 
-    function go(target, mode){
+    function normPhone(p){
+      if(!p) return "";
+      let s = String(p).trim();
+      s = s.replace(/[^\d+]/g, "");
+      if (s && !s.startsWith("+")) {
+        if (s.startsWith("221")) s = "+" + s;
+      }
+      return s;
+    }
+
+    function getUrlParam(name){
       try{
-        if(window.DIGIY_GUARD?.go) return window.DIGIY_GUARD.go(target, mode || "assign");
+        return (new URL(location.href)).searchParams.get(name) || "";
       }catch(_){}
-      // fallback
-      const u = (window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug(target) : target);
-      if((mode||"assign")==="replace") location.replace(u);
-      else location.href = u;
+      return "";
+    }
+
+    const HUB_PHONE = normPhone(getUrlParam("phone"));
+    if (HUB_PHONE) {
+      try { sessionStorage.setItem("DIGIY_DRIVER_HUB_PHONE", HUB_PHONE); } catch(_){}
+      window.DIGIY_DRIVER_HUB_PHONE = HUB_PHONE;
+    } else {
+      try { window.DIGIY_DRIVER_HUB_PHONE = sessionStorage.getItem("DIGIY_DRIVER_HUB_PHONE") || ""; } catch(_){}
+    }
+
+    function withPhoneParam(target){
+      const phone = window.DIGIY_DRIVER_HUB_PHONE || "";
+      if(!phone) return target;
+      try{
+        const u = new URL(target, location.href);
+        if(!u.searchParams.get("phone")) u.searchParams.set("phone", phone);
+        // relative if same origin
+        if (u.origin === location.origin) return u.pathname + u.search + u.hash;
+        return u.toString();
+      }catch(_){
+        const sep = target.includes("?") ? "&" : "?";
+        return target + sep + "phone=" + encodeURIComponent(phone);
+      }
+    }
+
+    function go(target, mode){
+      const t = withPhoneParam(target);
+      try{
+        if(window.DIGIY_GUARD?.go) return window.DIGIY_GUARD.go(t, mode || "assign");
+      }catch(_){}
+      // fallback with slug (guard) then phone
+      const base = (window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug(t) : t);
+      if((mode||"assign")==="replace") location.replace(base);
+      else location.href = base;
     }
 
     function bindNav(){
@@ -303,8 +353,7 @@
   <script>
   /* =========================================================
      ✅ COCKPIT VIEWER : OUVRIR / FERMER IFRAME
-     - Le générateur doit être accessible seulement si guard ok
-     - On injecte le slug via withSlug() (hyper important)
+     - On injecte slug + phone sur l'URL de l'iframe (important)
   ========================================================= */
   (function(){
     "use strict";
@@ -312,10 +361,27 @@
     const viewer = document.getElementById("moduleViewer");
     const frame  = document.getElementById("moduleFrame");
 
+    function withPhone(url){
+      const p = window.DIGIY_DRIVER_HUB_PHONE || "";
+      if(!p) return url;
+      try{
+        const u = new URL(url, location.href);
+        if(!u.searchParams.get("phone")) u.searchParams.set("phone", p);
+        if (u.origin === location.origin) return u.pathname + u.search + u.hash;
+        return u.toString();
+      }catch(_){
+        const sep = url.includes("?") ? "&" : "?";
+        return url + sep + "phone=" + encodeURIComponent(p);
+      }
+    }
+
     function openViewer(src, title){
       if(!viewer || !frame) return;
 
-      const safeSrc = (window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug(src) : src);
+      // slug first, then phone
+      const withSlug = (window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug(src) : src);
+      const safeSrc = withPhone(withSlug);
+
       frame.src = safeSrc;
 
       const titleEl = viewer.querySelector(".viewer-topbar .title");
@@ -334,18 +400,13 @@
       document.body.style.overflow = "";
     }
 
-    // expose
     window.DIGIY_VIEWER = { openViewer, closeViewer };
 
-    // close buttons
     document.getElementById("btnViewerClose")?.addEventListener("click", closeViewer);
 
-    // close on ESC
     window.addEventListener("keydown", (e)=>{
       if(e.key === "Escape" && !viewer.classList.contains("hidden")) closeViewer();
     });
-
-    // click outside topbar? (optionnel) -> ici non, on garde safe.
   })();
   </script>
 
@@ -355,6 +416,11 @@
     const PAY_URL = "https://beauville.github.io/commencer-a-payer/"; // page paiement
 
     const gs = document.getElementById("guard_status");
+
+    function getUrlParam(name){
+      try{ return (new URL(location.href)).searchParams.get(name) || ""; }catch(_){}
+      return "";
+    }
 
     // ✅ Guard prêt ?
     if(!window.DIGIY_GUARD || typeof window.DIGIY_GUARD.boot !== "function"){
@@ -394,30 +460,31 @@
       setTimeout(() => gs.style.display = "none", 700);
     }
 
-    // ✅ infos
+    // ✅ slug + phone (HUB) display
+    const slug = window.DIGIY_GUARD.getSlug?.() || getUrlParam("slug") || "";
+    const pillSlug = document.getElementById("pillSlug");
+    if (pillSlug) pillSlug.textContent = "Lieu : " + (slug || "—");
+
+    const hubPhone = window.DIGIY_DRIVER_HUB_PHONE || "";
     const phoneEl = document.getElementById("userPhone");
-    if (phoneEl) phoneEl.textContent = session.phone || "+221…";
+    if (phoneEl) phoneEl.textContent = session.phone || hubPhone || "+221…";
 
     const titleEl = document.getElementById("driverTitle");
     if (titleEl) titleEl.textContent = session.title || session.business_name || "chauffeur";
 
-    // ✅ OUVRIR GÉNÉRATEUR (dans le cockpit) — accessible seulement si guard ok (donc payé)
+    // ✅ OUVRIR GÉNÉRATEUR (dans le cockpit)
     document.getElementById("btnGenerator")?.addEventListener("click", () => {
-      // ton fichier avec espaces -> encodé
       const gen = "./generateur%20digiy%20driver.html";
       window.DIGIY_VIEWER?.openViewer(gen, "🧾 Générateur — Fiche Chauffeur");
     });
 
-    // ✅ Course test → ouvre courses.html?make_test=1
+    // ✅ Course test → ouvre courses.html?make_test=1 (+slug +phone)
     document.getElementById("btnMakeTest")?.addEventListener("click", () => {
       if (!confirm("Créer une course test maintenant frérot ?")) return;
       const target = new URL("./courses.html", location.href);
       target.searchParams.set("make_test", "1");
-      // le slug est ajouté par GUARD.go/withSlug, mais ici on garde safe:
-      try{
-        const s = window.DIGIY_GUARD.getSlug?.();
-        if(s) target.searchParams.set("slug", s);
-      }catch(_){}
+      if (slug) target.searchParams.set("slug", slug);
+      if (hubPhone) target.searchParams.set("phone", hubPhone);
       location.href = target.toString();
     });
 
