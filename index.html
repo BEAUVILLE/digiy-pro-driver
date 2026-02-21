@@ -142,9 +142,6 @@
       border:1px solid rgba(255,255,255,.08);
     }
 
-    /* =========================================================
-       ✅ VIEWER IFRAME (cockpit -> générateur fiche)
-    ========================================================= */
     .module-viewer{
       position:fixed;
       inset:0;
@@ -219,7 +216,6 @@
           <strong>0% commission</strong> sur toutes tes courses.
         </p>
 
-        <!-- ✅ Pill enriched (HUB phone + slug) -->
         <div class="pill">
           ✅ <span id="userPhone">+221…</span>
           <span id="pillSep1">•</span>
@@ -245,7 +241,7 @@
 
         <div class="note">
           <strong>📦 Ton abonnement DRIVER PRO</strong><br>
-          • Prix : <strong>9,900 FCFA / mois</strong><br>
+          • Prix : <strong>12 900 FCFA / mois</strong><br>
           • Paiement : <strong>Wave</strong><br>
           • Commission : <strong>0%</strong> (tu gardes 100%)<br>
           • Support : <strong>JB BEAUVILLE</strong> — WhatsApp <strong>+221 77 134 28 89</strong>
@@ -254,9 +250,6 @@
     </div>
   </div>
 
-  <!-- =========================================================
-       ✅ VIEWER OVERLAY (IFRAME)
-  ========================================================== -->
   <div id="moduleViewer" class="module-viewer hidden" aria-hidden="true">
     <div class="viewer-topbar">
       <div class="title">🧾 Générateur — Fiche Chauffeur</div>
@@ -268,15 +261,8 @@
   </div>
 
   <script>
-  /* =========================================================
-     ✅ HUB PHONE PASS + NAV SAFE
-     - On récupère ?phone=... (venant du HUB ROYAL)
-     - On le conserve (sessionStorage) pour les pages suivantes
-     - On ajoute ?phone=... sur tous les data-go (comme LOC PRO)
-  ========================================================= */
   (function(){
     "use strict";
-
     function normPhone(p){
       if(!p) return "";
       let s = String(p).trim();
@@ -286,14 +272,10 @@
       }
       return s;
     }
-
     function getUrlParam(name){
-      try{
-        return (new URL(location.href)).searchParams.get(name) || "";
-      }catch(_){}
+      try{ return (new URL(location.href)).searchParams.get(name) || ""; }catch(_){}
       return "";
     }
-
     const HUB_PHONE = normPhone(getUrlParam("phone"));
     if (HUB_PHONE) {
       try { sessionStorage.setItem("DIGIY_DRIVER_HUB_PHONE", HUB_PHONE); } catch(_){}
@@ -301,14 +283,12 @@
     } else {
       try { window.DIGIY_DRIVER_HUB_PHONE = sessionStorage.getItem("DIGIY_DRIVER_HUB_PHONE") || ""; } catch(_){}
     }
-
     function withPhoneParam(target){
       const phone = window.DIGIY_DRIVER_HUB_PHONE || "";
       if(!phone) return target;
       try{
         const u = new URL(target, location.href);
         if(!u.searchParams.get("phone")) u.searchParams.set("phone", phone);
-        // relative if same origin
         if (u.origin === location.origin) return u.pathname + u.search + u.hash;
         return u.toString();
       }catch(_){
@@ -316,18 +296,15 @@
         return target + sep + "phone=" + encodeURIComponent(phone);
       }
     }
-
     function go(target, mode){
       const t = withPhoneParam(target);
       try{
         if(window.DIGIY_GUARD?.go) return window.DIGIY_GUARD.go(t, mode || "assign");
       }catch(_){}
-      // fallback with slug (guard) then phone
       const base = (window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug(t) : t);
       if((mode||"assign")==="replace") location.replace(base);
       else location.href = base;
     }
-
     function bindNav(){
       document.querySelectorAll("[data-go]").forEach((el)=>{
         if(el.__digiy_go_bound) return;
@@ -341,26 +318,18 @@
         });
       });
     }
-
     bindNav();
     const mo = new MutationObserver(()=>bindNav());
     mo.observe(document.documentElement, { childList:true, subtree:true });
-
     window.DIGIY_NAV = { go };
   })();
   </script>
 
   <script>
-  /* =========================================================
-     ✅ COCKPIT VIEWER : OUVRIR / FERMER IFRAME
-     - On injecte slug + phone sur l'URL de l'iframe (important)
-  ========================================================= */
   (function(){
     "use strict";
-
     const viewer = document.getElementById("moduleViewer");
     const frame  = document.getElementById("moduleFrame");
-
     function withPhone(url){
       const p = window.DIGIY_DRIVER_HUB_PHONE || "";
       if(!p) return url;
@@ -374,24 +343,17 @@
         return url + sep + "phone=" + encodeURIComponent(p);
       }
     }
-
     function openViewer(src, title){
       if(!viewer || !frame) return;
-
-      // slug first, then phone
       const withSlug = (window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug(src) : src);
       const safeSrc = withPhone(withSlug);
-
       frame.src = safeSrc;
-
       const titleEl = viewer.querySelector(".viewer-topbar .title");
       if(titleEl && title) titleEl.textContent = title;
-
       viewer.classList.remove("hidden");
       viewer.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
     }
-
     function closeViewer(){
       if(!viewer || !frame) return;
       frame.src = "";
@@ -399,11 +361,8 @@
       viewer.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
     }
-
     window.DIGIY_VIEWER = { openViewer, closeViewer };
-
     document.getElementById("btnViewerClose")?.addEventListener("click", closeViewer);
-
     window.addEventListener("keydown", (e)=>{
       if(e.key === "Escape" && !viewer.classList.contains("hidden")) closeViewer();
     });
@@ -413,22 +372,16 @@
   <script>
   (async () => {
     const MODULE = "driver";
-    const PAY_URL = "https://beauville.github.io/commencer-a-payer/"; // page paiement
-
+    const PAY_URL = "https://beauville.github.io/commencer-a-payer/";
     const gs = document.getElementById("guard_status");
-
     function getUrlParam(name){
       try{ return (new URL(location.href)).searchParams.get(name) || ""; }catch(_){}
       return "";
     }
-
-    // ✅ Guard prêt ?
     if(!window.DIGIY_GUARD || typeof window.DIGIY_GUARD.boot !== "function"){
       if(gs) gs.textContent = "❌ guard.js non chargé";
       return;
     }
-
-    // ✅ BOOT GUARD (checkSubscription=true => paywall actif)
     const guardRes = await window.DIGIY_GUARD.boot({
       module: MODULE,
       dashboard: "./index.html",
@@ -437,12 +390,10 @@
       requireSlug: true,
       checkSubscription: true
     });
-
     if(!guardRes?.ok){
       if(gs) gs.textContent = "❌ Accès refusé";
       return;
     }
-
     const session = window.DIGIY_GUARD.getSession?.() || null;
     if(!session?.owner_id){
       if(gs) gs.textContent = "❌ Session invalide";
@@ -450,35 +401,23 @@
       location.replace(pinUrl);
       return;
     }
-
-    // ✅ afficher app
     document.documentElement.classList.add("access-ok");
-
-    // ✅ status badge
     if (gs) {
       gs.textContent = "✅ Connecté";
       setTimeout(() => gs.style.display = "none", 700);
     }
-
-    // ✅ slug + phone (HUB) display
     const slug = window.DIGIY_GUARD.getSlug?.() || getUrlParam("slug") || "";
     const pillSlug = document.getElementById("pillSlug");
     if (pillSlug) pillSlug.textContent = "Lieu : " + (slug || "—");
-
     const hubPhone = window.DIGIY_DRIVER_HUB_PHONE || "";
     const phoneEl = document.getElementById("userPhone");
     if (phoneEl) phoneEl.textContent = session.phone || hubPhone || "+221…";
-
     const titleEl = document.getElementById("driverTitle");
     if (titleEl) titleEl.textContent = session.title || session.business_name || "chauffeur";
-
-    // ✅ OUVRIR GÉNÉRATEUR (dans le cockpit)
     document.getElementById("btnGenerator")?.addEventListener("click", () => {
       const gen = "./generateur%20digiy%20driver.html";
       window.DIGIY_VIEWER?.openViewer(gen, "🧾 Générateur — Fiche Chauffeur");
     });
-
-    // ✅ Course test → ouvre courses.html?make_test=1 (+slug +phone)
     document.getElementById("btnMakeTest")?.addEventListener("click", () => {
       if (!confirm("Créer une course test maintenant frérot ?")) return;
       const target = new URL("./courses.html", location.href);
@@ -487,8 +426,6 @@
       if (hubPhone) target.searchParams.set("phone", hubPhone);
       location.href = target.toString();
     });
-
-    // ✅ logout
     document.getElementById("btnLogout")?.addEventListener("click", () => {
       if (!confirm("Tu veux vraiment te déconnecter frérot ?")) return;
       const pinUrl = window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug("./pin.html") : "./pin.html";
@@ -496,5 +433,10 @@
     });
   })();
   </script>
+
+  <!-- ✅ DIGIY KNOWLEDGE — Assistant DRIVER PRO -->
+  <div data-digiy-module="DRIVER"></div>
+  <script defer src="https://knowledge.digiylyfe.com/widget/digiy-widget-pro.js"></script>
+
 </body>
 </html>
