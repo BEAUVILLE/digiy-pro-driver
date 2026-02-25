@@ -142,6 +142,24 @@
       border:1px solid rgba(255,255,255,.08);
     }
 
+    /* ✅ KPI Cockpit */
+    .kpis{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:12px;
+      margin:16px 0 6px;
+    }
+    .kpi{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.16);
+      border-radius:14px;
+      padding:12px;
+    }
+    .kpi .label{font-size:12px; color:rgba(234,255,241,.72); font-weight:800;}
+    .kpi .value{font-size:18px; font-weight:1000; margin-top:6px;}
+    .kpi.small .value{font-size:14px; font-weight:900;}
+    @media(max-width:640px){ .kpis{grid-template-columns:1fr;} }
+
     .module-viewer{
       position:fixed;
       inset:0;
@@ -226,6 +244,54 @@
 
         <div class="hr"></div>
 
+        <!-- ✅ KPI COCKPIT -->
+        <div class="kpis" aria-label="KPI Cockpit Chauffeur">
+          <div class="kpi">
+            <div class="label">Courses aujourd’hui</div>
+            <div class="value" id="kpiTripsToday">—</div>
+          </div>
+          <div class="kpi">
+            <div class="label">CA aujourd’hui</div>
+            <div class="value" id="kpiRevenueToday">—</div>
+          </div>
+
+          <div class="kpi">
+            <div class="label">Courses 7 jours</div>
+            <div class="value" id="kpiTrips7d">—</div>
+          </div>
+          <div class="kpi">
+            <div class="label">CA 7 jours</div>
+            <div class="value" id="kpiRevenue7d">—</div>
+          </div>
+
+          <div class="kpi">
+            <div class="label">Courses 30 jours</div>
+            <div class="value" id="kpiTrips30d">—</div>
+          </div>
+          <div class="kpi">
+            <div class="label">CA 30 jours</div>
+            <div class="value" id="kpiRevenue30d">—</div>
+          </div>
+
+          <div class="kpi">
+            <div class="label">Total courses</div>
+            <div class="value" id="kpiTripsTotal">—</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Total CA</div>
+            <div class="value" id="kpiRevenueTotal">—</div>
+          </div>
+
+          <div class="kpi small">
+            <div class="label">Statut / Zone</div>
+            <div class="value"><span id="kpiDriverStatus">—</span> • <span id="kpiZone">—</span></div>
+          </div>
+          <div class="kpi small">
+            <div class="label">Dernière course</div>
+            <div class="value" id="kpiLastTripAt">—</div>
+          </div>
+        </div>
+
         <div class="row">
           <a class="btn primary" data-go="./driver-zone-now.html" href="#">🚗 Entrer dans la zone</a>
           <a class="btn secondary" data-go="./courses.html" href="#">📋 Voir les courses</a>
@@ -244,7 +310,10 @@
           • Prix : <strong>12 900 FCFA / mois</strong><br>
           • Paiement : <strong>Wave</strong><br>
           • Commission : <strong>0%</strong> (tu gardes 100%)<br>
-          • Support : <strong>JB BEAUVILLE</strong> — WhatsApp <strong>+221 77 134 28 89</strong>
+          • Support : <strong>JB BEAUVILLE</strong> — WhatsApp <strong>+221 77 134 28 89</strong><br>
+          <span style="display:inline-block;margin-top:6px;opacity:.92">
+            ⚠️ <strong>Péage autoroute non inclus</strong> — le client paie directement au poste.
+          </span>
         </div>
       </div>
     </div>
@@ -371,6 +440,59 @@
   })();
   </script>
 
+  <!-- ✅ Cockpit Stats Loader (RPC cockpit_driver_stats_me) -->
+  <script>
+  (function(){
+    "use strict";
+
+    const money = (n) => `${Number(n || 0).toLocaleString("fr-FR")} FCFA`;
+    const set = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = (val ?? "—");
+    };
+
+    async function loadOnce(){
+      try{
+        if(!document.documentElement.classList.contains("access-ok")) return;
+        if(!window.DIGIY_GUARD?.rpc) return;
+
+        const res = await window.DIGIY_GUARD.rpc("cockpit_driver_stats_me", {});
+        // selon guard.js: parfois res = {data,error} ; parfois data direct
+        const payload = res?.data ?? res;
+        const row = Array.isArray(payload) ? payload[0] : payload?.[0] || payload;
+        if(!row) return;
+
+        set("kpiTripsToday", row.trips_today ?? 0);
+        set("kpiRevenueToday", money(row.revenue_today_fcfa));
+
+        set("kpiTrips7d", row.trips_7d ?? 0);
+        set("kpiRevenue7d", money(row.revenue_7d_fcfa));
+
+        set("kpiTrips30d", row.trips_30d ?? 0);
+        set("kpiRevenue30d", money(row.revenue_30d_fcfa));
+
+        set("kpiTripsTotal", row.trips_total ?? 0);
+        set("kpiRevenueTotal", money(row.revenue_total_fcfa));
+
+        set("kpiDriverStatus", row.driver_status || "—");
+        set("kpiZone", row.zone_slug || "—");
+        set("kpiLastTripAt", row.last_trip_at ? new Date(row.last_trip_at).toLocaleString("fr-FR") : "—");
+      }catch(e){
+        console.error("cockpit stats error:", e);
+      }
+    }
+
+    function startAuto(){
+      loadOnce();
+      setInterval(loadOnce, 30000);
+      document.addEventListener("visibilitychange", () => { if(!document.hidden) loadOnce(); });
+      window.addEventListener("focus", loadOnce);
+    }
+
+    window.DIGIY_COCKPIT_STATS = { loadOnce, startAuto };
+  })();
+  </script>
+
   <!-- App boot + ✅ Heartbeat PRO -->
   <script>
   (async () => {
@@ -463,8 +585,12 @@
     const titleEl = document.getElementById("driverTitle");
     if (titleEl) titleEl.textContent = session.title || session.business_name || "chauffeur";
 
+    // ✅ Lancer KPI cockpit (auto refresh)
+    try { window.DIGIY_COCKPIT_STATS?.startAuto?.(); } catch(_){}
+
     document.getElementById("btnGenerator")?.addEventListener("click", () => {
-      const gen = encodeURI("./generateur digiy driver.html");
+      // ✅ nom de fichier propre (sans espaces) — adapte si ton repo a un autre nom
+      const gen = "./generateur-driver-digiy.html";
       window.DIGIY_VIEWER?.openViewer(gen, "🧾 Générateur — Fiche Chauffeur");
     });
 
