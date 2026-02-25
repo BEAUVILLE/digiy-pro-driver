@@ -42,7 +42,12 @@
     code{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#bbf7d0}
     .warn{margin-top:10px;padding:12px;border-radius:14px;border:1px solid rgba(250,204,21,.25);background:rgba(250,204,21,.10);color:#fde68a;font-weight:800}
     .ok{margin-top:10px;padding:12px;border-radius:14px;border:1px solid rgba(34,197,94,.25);background:rgba(34,197,94,.10);color:#bbf7d0;font-weight:800}
-    .itemActions{display:flex;flex-direction:column;gap:8px;align-items:flex-end;min-width:150px}
+
+    .itemMain{min-width:0}
+    .itemTitle{font-weight:900}
+    .itemSub{margin-top:6px;display:grid;gap:4px}
+    .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#bbf7d0}
+    .itemActions{display:flex;flex-direction:column;gap:8px;align-items:flex-end;min-width:170px}
     .mini{padding:10px 12px;border-radius:12px;font-weight:900;font-size:14px}
     .mini.accept{background:linear-gradient(135deg,rgba(34,197,94,.95),rgba(16,185,129,.85));color:#042012;border:0}
     .mini.disabled{opacity:.6;cursor:not-allowed}
@@ -76,7 +81,7 @@
 
     <section class="card half">
       <h1>Tes courses 🔥</h1>
-      <p class="muted">On charge via RPC (terrain safe) : token maison (pas de dépendance auth.uid).</p>
+      <p class="muted">LIVE via RPC V2 (offer_id + offer_status) — token maison.</p>
       <div class="list" id="list"></div>
     </section>
 
@@ -84,9 +89,9 @@
       <h1>Comment ça marche</h1>
       <p>
         ✅ Tu te connectes par PIN<br>
-        ✅ Ton cockpit maintient la présence via <b>driver_heartbeat_pro</b><br>
-        ✅ Cette page charge les courses via RPC + slug<br>
-        ✅ Prochain step : matching zone + acceptation 1 clic
+        ✅ Présence online via <b>driver_heartbeat_pro</b><br>
+        ✅ Liste des courses via <b>digiy_driver_trips_list_v2</b><br>
+        ✅ Acceptation via <b>accept_offer_pro(token, offer_id)</b>
       </p>
     </section>
   </div>
@@ -105,6 +110,13 @@
   const session = window.DIGIY_GUARD?.requireSession?.("./pin.html");
   if(!session) return;
 
+  const sb = window.DIGIY_GUARD.getSb?.();
+  if(!sb){
+    debugEl.className = "warn";
+    debugEl.textContent = "⚠️ Supabase client introuvable (guard).";
+    return;
+  }
+
   // ✅ token maison (doit être stocké par guard au login)
   const token = window.DIGIY_GUARD.getDriverToken?.() || "";
 
@@ -122,9 +134,6 @@
   pillPhone.textContent = "📱 " + (session.phone || session.slug || "Connecté");
   statusEl.textContent = `✅ Connecté ${session.title || "chauffeur"} 🦅`;
 
-  // Supabase client
-  const sb = window.DIGIY_GUARD.getSb();
-
   function escapeHtml(str){
     const d = document.createElement("div");
     d.textContent = String(str ?? "");
@@ -139,12 +148,22 @@
     }catch{ return String(t); }
   }
 
-  function tagFromTrip(tr){
-    if(tr.cancelled_at) return {cls:"cancel", label:"❌ Annulée"};
-    if(tr.completed_at) return {cls:"done", label:"✅ Terminée"};
-    if(tr.accepted_at) return {cls:"new", label:"🟢 Acceptée"};
-    if(tr.scheduled_at) return {cls:"planned", label:"📅 Programmée"};
-    return {cls:"soon", label:"⏰ À venir"};
+  function fmtCoord(x){
+    if(x==null || x===undefined) return "—";
+    const n = Number(x);
+    if(Number.isNaN(n)) return String(x);
+    return n.toFixed(5);
+  }
+
+  function tagFromRow(r){
+    // selon ton pipeline actuel
+    const st = (r.status || "").toLowerCase();
+    if(st === "cancelled") return {cls:"cancel", label:"❌ Annulée"};
+    if(st === "completed") return {cls:"done", label:"✅ Terminée"};
+    if(st === "accepted") return {cls:"new", label:"🟢 Acceptée"};
+    if(st === "offered") return {cls:"soon", label:"📩 Offre envoyée"};
+    if(st === "pending") return {cls:"soon", label:"⏳ En attente"};
+    return {cls:"soon", label:"⏰ À traiter"};
   }
 
   function getVilleFromSlug(slug){
@@ -173,7 +192,7 @@
   document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) heartbeatPro(); });
   window.addEventListener("focus", heartbeatPro);
 
-  // ✅ Accept offer (token) — nécessite offer_id dans les rows
+  // ✅ Accept offer (token)
   async function acceptOffer(offerId){
     if(!token){
       debugEl.className = "warn";
@@ -182,7 +201,7 @@
     }
     if(!offerId){
       debugEl.className = "warn";
-      debugEl.textContent = "⚠️ Offer ID manquant (la RPC ne renvoie pas offer_id).";
+      debugEl.textContent = "⚠️ Offer ID manquant.";
       return;
     }
 
@@ -211,88 +230,59 @@
     }
   }
 
-  function renderTrips(rows){
+  function renderRows(rows){
     if(!rows || !rows.length){
-      const demo = [
-        {
-          id:"DEMO-1001",
-          pickup_city:"Saly",
-          pickup_zone:"Saly Centre",
-          dropoff_city:"Ngaparou",
-          dropoff_zone:"Route principale",
-          amount:2500,
-          scheduled_at:new Date().toISOString()
-        },
-        {
-          id:"DEMO-1002",
-          pickup_city:"Somone",
-          pickup_zone:"Lagune",
-          dropoff_city:"Saly",
-          dropoff_zone:"Nianing",
-          proposed_price:3500,
-          scheduled_at:new Date(Date.now()+30*60*1000).toISOString()
-        },
-        {
-          id:"DEMO-1003",
-          pickup_city:"AIBD",
-          pickup_zone:"Arrivées",
-          dropoff_city:"Dakar",
-          dropoff_zone:"Plateau",
-          amount:15000,
-          scheduled_at:new Date(Date.now()+24*60*60*1000).toISOString()
-        }
-      ];
-
       listEl.innerHTML = `
         <div class="empty">
-          Aucune course trouvée pour l’instant frérot.<br><br>
-          <span class="muted">En attendant, voilà 3 démos (le live arrive).</span>
+          Aucune course assignée pour l’instant frérot.<br><br>
+          <span class="muted">Dès qu’un client demande une course, tu la verras ici.</span>
         </div>
-        <div style="height:10px"></div>
-      ` + demo.map(tr=>{
-        const from = [tr.pickup_city, tr.pickup_zone].filter(Boolean).join(" • ");
-        const to   = [tr.dropoff_city, tr.dropoff_zone].filter(Boolean).join(" • ");
-        const when = tr.scheduled_at;
-        const amount = (tr.amount!=null) ? `${tr.amount} FCFA` : (tr.proposed_price!=null ? `${tr.proposed_price} FCFA` : "—");
-        return `
-          <div class="item">
-            <div>
-              <div style="font-weight:900">${escapeHtml(tr.id)} — ${escapeHtml(from)} → ${escapeHtml(to)}</div>
-              <div class="muted">${escapeHtml(fmtWhen(when))} • ${escapeHtml(amount)}</div>
-            </div>
-            <div class="tag soon">⏰ À venir</div>
-          </div>
-        `;
-      }).join("");
-
+      `;
       return;
     }
 
-    listEl.innerHTML = rows.map(tr=>{
-      const tag = tagFromTrip(tr);
-      const from = [tr.pickup_city, tr.pickup_zone].filter(Boolean).join(" • ") || "Départ";
-      const to   = [tr.dropoff_city, tr.dropoff_zone].filter(Boolean).join(" • ") || "Arrivée";
-      const when = tr.scheduled_at || tr.created_at || tr.updated_at;
-      const idShort = (tr.id||"").toString().slice(0,8).toUpperCase();
-      const amount = (tr.amount!=null) ? `${tr.amount} FCFA` : (tr.proposed_price!=null ? `${tr.proposed_price} FCFA` : "—");
+    listEl.innerHTML = rows.map(r=>{
+      const tag = tagFromRow(r);
+      const idShort = (r.ride_request_id||"").toString().slice(0,8).toUpperCase();
 
-      // ✅ on supporte plusieurs noms possibles venant de la RPC
-      const offerId = tr.offer_id || tr.current_offer_id || tr.active_offer_id || null;
-      const offerStatus = (tr.offer_status || tr.offer_state || "").toString().toLowerCase();
+      const pickup = `📍 Pickup: <span class="mono">${escapeHtml(fmtCoord(r.pickup_lat))}, ${escapeHtml(fmtCoord(r.pickup_lng))}</span>`;
+      const drop   = `🎯 Drop: <span class="mono">${escapeHtml(fmtCoord(r.drop_lat))}, ${escapeHtml(fmtCoord(r.drop_lng))}</span>`;
 
-      const canAccept = !!offerId && (offerStatus === "sent" || offerStatus === "viewed" || offerStatus === "offered" || offerStatus === "");
+      const when = r.updated_at || r.created_at;
+      const attempts = (r.attempts!=null) ? String(r.attempts) : "0";
+
+      const offerId = r.offer_id || null;
+      const offerStatus = (r.offer_status || "").toLowerCase();
+      const isExpired = r.offer_expires_at ? (Date.now() > new Date(r.offer_expires_at).getTime()) : false;
+
+      const canAccept =
+        !!offerId &&
+        !isExpired &&
+        (offerStatus === "sent" || offerStatus === "viewed" || offerStatus === "offered" || offerStatus === "");
+
+      const offerLine = offerId
+        ? `<div class="muted">Offer: <code>${escapeHtml(String(offerId))}</code> • <span class="muted">${escapeHtml(offerStatus || "—")}</span> • exp: <span class="muted">${escapeHtml(fmtWhen(r.offer_expires_at))}</span></div>`
+        : `<div class="muted">Offer: —</div>`;
 
       return `
         <div class="item">
-          <div>
-            <div style="font-weight:900">${escapeHtml(idShort)} — ${escapeHtml(from)} → ${escapeHtml(to)}</div>
-            <div class="muted">${escapeHtml(fmtWhen(when))} • ${escapeHtml(amount)}</div>
-            ${offerId ? `<div class="muted">Offer: <code>${escapeHtml(String(offerId))}</code></div>` : ``}
+          <div class="itemMain">
+            <div class="itemTitle">${escapeHtml(idShort)} — <span class="muted">${escapeHtml(r.status || "—")}</span></div>
+            <div class="itemSub">
+              <div class="muted">${pickup}</div>
+              <div class="muted">${drop}</div>
+              <div class="muted">🕒 ${escapeHtml(fmtWhen(when))} • attempts: <span class="mono">${escapeHtml(attempts)}</span></div>
+              ${offerLine}
+            </div>
           </div>
 
           <div class="itemActions">
             <div class="tag ${escapeHtml(tag.cls)}">${escapeHtml(tag.label)}</div>
-            ${canAccept ? `<button class="mini accept" data-accept="${escapeHtml(String(offerId))}">✅ Accepter</button>` : ``}
+            ${
+              canAccept
+                ? `<button class="mini accept" data-accept="${escapeHtml(String(offerId))}">✅ Accepter</button>`
+                : (offerId ? `<button class="mini disabled" disabled>⏳ Indispo</button>` : ``)
+            }
           </div>
         </div>
       `;
@@ -309,43 +299,9 @@
     });
   }
 
-  // ✅ Create test trip when ?make_test=1
-  async function maybeCreateTestTrip(){
-    const want = url.searchParams.get("make_test");
-    if(want !== "1") return false;
-
-    // évite re-create au refresh
-    url.searchParams.delete("make_test");
-    history.replaceState(null, "", url.toString());
-
-    try{
-      debugEl.className = "warn";
-      debugEl.textContent = "⏳ Création course test...";
-
-      const { data, error } = await sb.rpc("digiy_driver_trip_create_test", {
-        p_driver_slug: slug,
-        p_owner_id: session.owner_id
-      });
-
-      if(error) throw error;
-
-      debugEl.className = "ok";
-      debugEl.textContent = "✅ Course test créée: " + String(data || "OK");
-      return true;
-
-    }catch(e){
-      console.warn("❌ CREATE test trip KO:", e);
-      debugEl.className = "warn";
-      debugEl.textContent = "⚠️ Course test refusée (RPC). Détail: " + (e?.message || "inconnu");
-      return false;
-    }
-  }
-
   async function loadTrips(){
-    await maybeCreateTestTrip();
-
     try{
-      const { data, error } = await sb.rpc("digiy_driver_trips_list", {
+      const { data, error } = await sb.rpc("digiy_driver_trips_list_v2", {
         p_driver_slug: slug,
         p_owner_id: session.owner_id,
         p_limit: 30
@@ -353,20 +309,18 @@
 
       if(error) throw error;
 
-      renderTrips(data || []);
+      renderRows(data || []);
 
-      if(!debugEl.textContent || debugEl.className === "muted"){
-        debugEl.className = "ok";
-        debugEl.textContent = token
-          ? "✅ LIVE via RPC digiy_driver_trips_list + token OK."
-          : "✅ LIVE via RPC digiy_driver_trips_list (mais token manquant).";
-      }
+      debugEl.className = "ok";
+      debugEl.textContent = token
+        ? "✅ OK — trips_list_v2 + token OK (presence online)."
+        : "✅ OK — trips_list_v2 (mais token manquant).";
 
     }catch(e){
-      console.warn("❌ RPC list trips KO:", e);
-      renderTrips([]);
+      console.warn("❌ RPC list v2 KO:", e);
+      renderRows([]);
       debugEl.className = "warn";
-      debugEl.textContent = "⚠️ Impossible de charger les courses via RPC. Détail: " + (e?.message || "inconnu");
+      debugEl.textContent = "⚠️ Impossible de charger les courses via RPC V2. Détail: " + (e?.message || "inconnu");
     }
   }
 
