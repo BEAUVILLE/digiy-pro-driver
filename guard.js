@@ -5,6 +5,10 @@
      -> module = "driver_pro"
      -> slug envoyé dans p_phone (compat ta fonction 3 args)
    - Fallback: verify_access_pin(p_slug,p_pin) si besoin
+
+   ✅ + Token maison (8h) pour actions PRO (heartbeat/accept) sans Supabase Auth
+     - issue_driver_token(p_slug,p_pin,p_module,p_ttl_minutes)
+     - stocké en localStorage: DIGIY_DRIVER_PRO_TOKEN
 ========================= */
 (function () {
   "use strict";
@@ -26,6 +30,10 @@
     "DIGIY_DRIVER_PRO_SESSION_V1_8H",
   ];
   const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8h
+
+  // ✅ Token maison (8h)
+  const TOKEN_KEY = "DIGIY_DRIVER_PRO_TOKEN";
+  const TOKEN_TTL_MINUTES = 480;
 
   const LS = {
     SLUG: "DIGIY_DRIVER_SLUG",
@@ -130,6 +138,21 @@
   function clearSession() {
     lsDel(SESSION_KEY);
     for (const k of SESSION_KEYS_COMPAT) lsDel(k);
+  }
+
+  // =============================
+  // TOKEN (maison)
+  // =============================
+  function setDriverToken(token) {
+    const t = String(token || "").trim();
+    if (!t) return;
+    lsSet(TOKEN_KEY, t);
+  }
+  function getDriverToken() {
+    return String(lsGet(TOKEN_KEY) || "").trim();
+  }
+  function clearDriverToken() {
+    lsDel(TOKEN_KEY);
   }
 
   function getSlug() {
@@ -246,6 +269,12 @@
     return window.__digiy_sb__;
   }
 
+  // Helper RPC (simple)
+  async function rpc(fn, args) {
+    const sb = await getSbAsync();
+    return sb.rpc(fn, args || {});
+  }
+
   // =============================
   // ✅ RPC DRIVER: verify_access_pin
   // =============================
@@ -264,7 +293,6 @@
     if (!res?.error) return res;
 
     // ✅ fallback: signature 2 args (p_slug,p_pin)
-    // utile si un jour tu relies un module à la version 2 args.
     const msg = String(res.error.message || "");
     const canTry2 =
       /not exist|function|parameter|argument|expects|unknown|p_phone|p_module/i.test(msg);
@@ -275,6 +303,28 @@
     }
 
     return res;
+  }
+
+  // =============================
+  // ✅ Token maison: issue_driver_token (après PIN ok)
+  // =============================
+  async function issueToken(sb, slug, pin) {
+    const s = cleanSlug(slug);
+    const p = String(pin || "").trim();
+    if (!s || !p) return { ok: false, error: "slug/pin requis" };
+
+    const res = await sb.rpc("issue_driver_token", {
+      p_slug: s,
+      p_pin: p,
+      p_module: DIGIY_MODULE,
+      p_ttl_minutes: TOKEN_TTL_MINUTES,
+    });
+
+    if (res?.error) return { ok: false, error: res.error.message || String(res.error) };
+    if (!res?.data?.ok || !res.data.token) return { ok: false, error: res?.data?.error || "token refusé" };
+
+    setDriverToken(res.data.token);
+    return { ok: true, token: res.data.token };
   }
 
   // =============================
@@ -328,6 +378,11 @@
     if (session.title) lsSet(LS.TITLE, session.title);
     if (session.phone) lsSet(LS.PHONE, session.phone);
 
+    // ✅ Token maison (best effort) — ne bloque pas le login si ça échoue
+    try {
+      await issueToken(sb, session.slug, p);
+    } catch (_) {}
+
     markReady();
     return { ok: true, session };
   }
@@ -371,6 +426,7 @@
   // =============================
   function logout(redirect = "index.html") {
     clearSession();
+    clearDriverToken();
     go(redirect, "replace");
   }
 
@@ -385,6 +441,10 @@
     getSession,
     getSb,
     getSbAsync,
+    rpc, // ✅ helper RPC
+    setDriverToken,
+    getDriverToken,
+    clearDriverToken,
     ready,
     getSlug,
     withSlug,
