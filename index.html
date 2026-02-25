@@ -413,6 +413,65 @@
       gs.textContent = "✅ Connecté";
       setTimeout(() => gs.style.display = "none", 700);
     }
+    // ================================
+// ✅ DRIVER PRESENCE (Saly/Mbour)
+// crée / met à jour digiy_driver_drivers + heartbeat
+// ================================
+function getVilleFromSlug(slug){
+  const s = (slug || "").toLowerCase();
+  if (s.includes("saly")) return "Saly";
+  if (s.includes("mbour")) return "Mbour";
+  if (s.includes("somone")) return "Somone";
+  if (s.includes("ngaparou")) return "Ngaparou";
+  return slug || null;
+}
+
+async function callRpcSafe(fn, args){
+  // On essaie plusieurs points d’entrée sans casser ton flow
+  try{
+    if (window.DIGIY_GUARD?.rpc) return await window.DIGIY_GUARD.rpc(fn, args);
+  }catch(_){}
+  try{
+    const sb = window.DIGIY_GUARD?.supabase
+      || window.DIGIY_GUARD?.sb
+      || window.supabaseClient
+      || null;
+    if (sb?.rpc) return await sb.rpc(fn, args);
+  }catch(_){}
+  // si on n'a pas de client dispo : on ne bloque pas l'UI
+  return { error: "no_supabase_client" };
+}
+
+const ville = getVilleFromSlug(slug);
+
+// 1) Upsert driver runtime dès connexion (crée ligne + active)
+(async ()=>{
+  const payload = {
+    p_display_name: session.title || session.business_name || "chauffeur",
+    p_driver_phone: session.phone || hubPhone || null,
+    p_vehicle_label: null,
+    p_vehicle_plate: null,
+    p_ville: ville
+  };
+  const res = await callRpcSafe("upsert_driver_presence", payload);
+  // Optionnel: debug discret
+  // console.log("upsert_driver_presence", res);
+})();
+
+// 2) Heartbeat régulier (évite no_driver_available)
+let hbTimer = null;
+async function heartbeat(){
+  const res = await callRpcSafe("driver_heartbeat", {});
+  // console.log("driver_heartbeat", res);
+}
+hbTimer = setInterval(heartbeat, 25 * 1000);
+heartbeat();
+
+// 3) Heartbeat quand l’onglet revient (mobile / économie batterie)
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) heartbeat();
+});
+window.addEventListener("focus", heartbeat);
 
     const slug = window.DIGIY_GUARD.getSlug?.() || getUrlParam("slug") || "";
     const pillSlug = document.getElementById("pillSlug");
