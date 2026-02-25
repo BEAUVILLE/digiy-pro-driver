@@ -1,3 +1,9 @@
+<!-- ✅ COURSES.HTML — FINAL COMPLET (V2 + token + heartbeat + auto-refresh terrain safe)
+     - RPC: digiy_driver_trips_list_v2
+     - Accept: accept_offer_pro(p_token, p_offer_id)
+     - Presence: driver_heartbeat_pro(p_token, ...)
+     - Auto-refresh: poll intelligent + refresh on focus/visibility
+-->
 <!doctype html>
 <html lang="fr">
 <head>
@@ -91,7 +97,8 @@
         ✅ Tu te connectes par PIN<br>
         ✅ Présence online via <b>driver_heartbeat_pro</b><br>
         ✅ Liste des courses via <b>digiy_driver_trips_list_v2</b><br>
-        ✅ Acceptation via <b>accept_offer_pro(token, offer_id)</b>
+        ✅ Acceptation via <b>accept_offer_pro(token, offer_id)</b><br>
+        ✅ Auto-refresh terrain safe (8s) + focus/visibility
       </p>
     </section>
   </div>
@@ -156,7 +163,6 @@
   }
 
   function tagFromRow(r){
-    // selon ton pipeline actuel
     const st = (r.status || "").toLowerCase();
     if(st === "cancelled") return {cls:"cancel", label:"❌ Annulée"};
     if(st === "completed") return {cls:"done", label:"✅ Terminée"};
@@ -188,7 +194,7 @@
     }catch(_){}
   }
   heartbeatPro();
-  setInterval(heartbeatPro, 25000);
+  const hbTimer = setInterval(heartbeatPro, 25 * 1000);
   document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) heartbeatPro(); });
   window.addEventListener("focus", heartbeatPro);
 
@@ -223,7 +229,7 @@
 
       debugEl.className = "ok";
       debugEl.textContent = "✅ Course acceptée !";
-      await loadTrips();
+      await loadTrips(true);
     }catch(e){
       debugEl.className = "warn";
       debugEl.textContent = "⚠️ Acceptation KO: " + (e?.message || "inconnu");
@@ -299,7 +305,13 @@
     });
   }
 
-  async function loadTrips(){
+  let isLoading = false;
+  let lastAutoAt = 0;
+
+  async function loadTrips(isManual=false){
+    if(isLoading) return;
+    isLoading = true;
+
     try{
       const { data, error } = await sb.rpc("digiy_driver_trips_list_v2", {
         p_driver_slug: slug,
@@ -316,24 +328,45 @@
         ? "✅ OK — trips_list_v2 + token OK (presence online)."
         : "✅ OK — trips_list_v2 (mais token manquant).";
 
+      if(isManual) lastAutoAt = Date.now();
     }catch(e){
       console.warn("❌ RPC list v2 KO:", e);
       renderRows([]);
       debugEl.className = "warn";
       debugEl.textContent = "⚠️ Impossible de charger les courses via RPC V2. Détail: " + (e?.message || "inconnu");
+    }finally{
+      isLoading = false;
     }
   }
 
-  document.getElementById("btnRefresh").addEventListener("click", loadTrips);
+  document.getElementById("btnRefresh").addEventListener("click", ()=>loadTrips(true));
 
   document.getElementById("btnLogout").addEventListener("click", ()=>{
     if(confirm("Tu veux vraiment te déconnecter frérot ?")){
+      try{ clearInterval(hbTimer); }catch(_){}
+      try{ clearInterval(autoTimer); }catch(_){}
       window.DIGIY_GUARD.logout("./pin.html");
     }
   });
 
-  // GO
-  await loadTrips();
+  // ✅ GO
+  await loadTrips(true);
+
+  // ✅ Auto-refresh terrain safe (8s)
+  // - ne spam pas si onglet caché
+  // - refresh immédiat au retour
+  // - évite double refresh après un clic manuel
+  let autoTimer = setInterval(() => {
+    if (document.hidden) return;
+    const now = Date.now();
+    if (now - lastAutoAt < 2500) return; // anti double-ping
+    loadTrips(false);
+  }, 8000);
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) loadTrips(false);
+  });
+  window.addEventListener("focus", () => loadTrips(false));
 })();
 </script>
 </body>
