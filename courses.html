@@ -42,6 +42,10 @@
     code{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#bbf7d0}
     .warn{margin-top:10px;padding:12px;border-radius:14px;border:1px solid rgba(250,204,21,.25);background:rgba(250,204,21,.10);color:#fde68a;font-weight:800}
     .ok{margin-top:10px;padding:12px;border-radius:14px;border:1px solid rgba(34,197,94,.25);background:rgba(34,197,94,.10);color:#bbf7d0;font-weight:800}
+    .itemActions{display:flex;flex-direction:column;gap:8px;align-items:flex-end;min-width:150px}
+    .mini{padding:10px 12px;border-radius:12px;font-weight:900;font-size:14px}
+    .mini.accept{background:linear-gradient(135deg,rgba(34,197,94,.95),rgba(16,185,129,.85));color:#042012;border:0}
+    .mini.disabled{opacity:.6;cursor:not-allowed}
   </style>
 </head>
 
@@ -72,7 +76,7 @@
 
     <section class="card half">
       <h1>Tes courses 🔥</h1>
-      <p class="muted">On charge via RPC (terrain safe) : pas de dépendance UUID auth.</p>
+      <p class="muted">On charge via RPC (terrain safe) : token maison (pas de dépendance auth.uid).</p>
       <div class="list" id="list"></div>
     </section>
 
@@ -80,9 +84,9 @@
       <h1>Comment ça marche</h1>
       <p>
         ✅ Tu te connectes par PIN<br>
-        ✅ Ton cockpit charge les courses via <b>driver_slug</b><br>
-        ✅ 0% commission — tout pour toi frérot<br>
-        ✅ Prochain step : accepter / terminer en 1 clic + matching zone
+        ✅ Ton cockpit maintient la présence via <b>driver_heartbeat_pro</b><br>
+        ✅ Cette page charge les courses via RPC + slug<br>
+        ✅ Prochain step : matching zone + acceptation 1 clic
       </p>
     </section>
   </div>
@@ -101,8 +105,12 @@
   const session = window.DIGIY_GUARD?.requireSession?.("./pin.html");
   if(!session) return;
 
+  // ✅ token maison (doit être stocké par guard au login)
+  const token = window.DIGIY_GUARD.getDriverToken?.() || "";
+
   const url = new URL(location.href);
   const slug = (url.searchParams.get("slug") || session.slug || "").trim().toLowerCase();
+
   slugBox.textContent = slug || "—";
   ownerBox.textContent = (session.owner_id || "—");
 
@@ -114,6 +122,7 @@
   pillPhone.textContent = "📱 " + (session.phone || session.slug || "Connecté");
   statusEl.textContent = `✅ Connecté ${session.title || "chauffeur"} 🦅`;
 
+  // Supabase client
   const sb = window.DIGIY_GUARD.getSb();
 
   function escapeHtml(str){
@@ -136,6 +145,70 @@
     if(tr.accepted_at) return {cls:"new", label:"🟢 Acceptée"};
     if(tr.scheduled_at) return {cls:"planned", label:"📅 Programmée"};
     return {cls:"soon", label:"⏰ À venir"};
+  }
+
+  function getVilleFromSlug(slug){
+    const s = (slug || "").toLowerCase();
+    if (s.includes("saly")) return "Saly";
+    if (s.includes("mbour")) return "Mbour";
+    if (s.includes("somone")) return "Somone";
+    if (s.includes("ngaparou")) return "Ngaparou";
+    return slug || null;
+  }
+
+  // ✅ Presence PRO (heartbeat)
+  async function heartbeatPro(){
+    if(!token) return;
+    try{
+      await window.DIGIY_GUARD.rpc("driver_heartbeat_pro", {
+        p_token: token,
+        p_display_name: session.title || "chauffeur",
+        p_driver_phone: session.phone || null,
+        p_ville: getVilleFromSlug(slug)
+      });
+    }catch(_){}
+  }
+  heartbeatPro();
+  setInterval(heartbeatPro, 25000);
+  document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) heartbeatPro(); });
+  window.addEventListener("focus", heartbeatPro);
+
+  // ✅ Accept offer (token) — nécessite offer_id dans les rows
+  async function acceptOffer(offerId){
+    if(!token){
+      debugEl.className = "warn";
+      debugEl.textContent = "⚠️ Token manquant. Reconnecte-toi (PIN) pour générer le token.";
+      return;
+    }
+    if(!offerId){
+      debugEl.className = "warn";
+      debugEl.textContent = "⚠️ Offer ID manquant (la RPC ne renvoie pas offer_id).";
+      return;
+    }
+
+    try{
+      debugEl.className = "warn";
+      debugEl.textContent = "⏳ Acceptation en cours…";
+
+      const { data, error } = await sb.rpc("accept_offer_pro", {
+        p_token: token,
+        p_offer_id: offerId
+      });
+      if(error) throw error;
+
+      if(!data?.ok){
+        debugEl.className = "warn";
+        debugEl.textContent = "⚠️ Refus: " + (data?.error || "inconnu");
+        return;
+      }
+
+      debugEl.className = "ok";
+      debugEl.textContent = "✅ Course acceptée !";
+      await loadTrips();
+    }catch(e){
+      debugEl.className = "warn";
+      debugEl.textContent = "⚠️ Acceptation KO: " + (e?.message || "inconnu");
+    }
   }
 
   function renderTrips(rows){
@@ -203,16 +276,37 @@
       const idShort = (tr.id||"").toString().slice(0,8).toUpperCase();
       const amount = (tr.amount!=null) ? `${tr.amount} FCFA` : (tr.proposed_price!=null ? `${tr.proposed_price} FCFA` : "—");
 
+      // ✅ on supporte plusieurs noms possibles venant de la RPC
+      const offerId = tr.offer_id || tr.current_offer_id || tr.active_offer_id || null;
+      const offerStatus = (tr.offer_status || tr.offer_state || "").toString().toLowerCase();
+
+      const canAccept = !!offerId && (offerStatus === "sent" || offerStatus === "viewed" || offerStatus === "offered" || offerStatus === "");
+
       return `
         <div class="item">
           <div>
             <div style="font-weight:900">${escapeHtml(idShort)} — ${escapeHtml(from)} → ${escapeHtml(to)}</div>
             <div class="muted">${escapeHtml(fmtWhen(when))} • ${escapeHtml(amount)}</div>
+            ${offerId ? `<div class="muted">Offer: <code>${escapeHtml(String(offerId))}</code></div>` : ``}
           </div>
-          <div class="tag ${escapeHtml(tag.cls)}">${escapeHtml(tag.label)}</div>
+
+          <div class="itemActions">
+            <div class="tag ${escapeHtml(tag.cls)}">${escapeHtml(tag.label)}</div>
+            ${canAccept ? `<button class="mini accept" data-accept="${escapeHtml(String(offerId))}">✅ Accepter</button>` : ``}
+          </div>
         </div>
       `;
     }).join("");
+
+    // bind accept buttons
+    listEl.querySelectorAll("[data-accept]").forEach(btn=>{
+      btn.addEventListener("click", async (e)=>{
+        const offerId = e.currentTarget.getAttribute("data-accept");
+        if(!offerId) return;
+        if(!confirm("Accepter cette course maintenant ?")) return;
+        await acceptOffer(offerId);
+      });
+    });
   }
 
   // ✅ Create test trip when ?make_test=1
@@ -248,10 +342,8 @@
   }
 
   async function loadTrips(){
-    // 1) test trip si demandé
     await maybeCreateTestTrip();
 
-    // 2) RPC list
     try{
       const { data, error } = await sb.rpc("digiy_driver_trips_list", {
         p_driver_slug: slug,
@@ -263,12 +355,11 @@
 
       renderTrips(data || []);
 
-      // debug ok si pas déjà set par test trip
       if(!debugEl.textContent || debugEl.className === "muted"){
         debugEl.className = "ok";
-        debugEl.textContent = "✅ LIVE via RPC digiy_driver_trips_list (slug).";
-      }else{
-        // si un message existe (test trip), on n’écrase pas
+        debugEl.textContent = token
+          ? "✅ LIVE via RPC digiy_driver_trips_list + token OK."
+          : "✅ LIVE via RPC digiy_driver_trips_list (mais token manquant).";
       }
 
     }catch(e){
