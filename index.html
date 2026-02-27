@@ -3,17 +3,21 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>DIGIY PRO — Entrée</title>
+  <title>DIGIY DRIVER PRO — Entrée</title>
 </head>
 <body>
 <script>
   const url = new URL(location.href);
-  const slug = url.searchParams.get("slug");
+  const slug  = url.searchParams.get("slug")  || "";
+  const phone = url.searchParams.get("phone") || "";
 
-  if(slug){
-    location.href = "./pin.html?slug=" + encodeURIComponent(slug);
+  // ✅ PRO identifié (slug/phone) → porte PIN
+  if (slug || phone) {
+    if (slug) location.replace("./pin.html?slug=" + encodeURIComponent(slug));
+    else      location.replace("./pin.html?phone=" + encodeURIComponent(phone));
   } else {
-    location.href = "./pin.html";
+    // 👤 visiteur / client → inscription pro
+    location.replace("https://inscription-pro.digiylyfe.com/?module=DRIVER");
   }
 </script>
 </body>
