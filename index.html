@@ -147,7 +147,6 @@
 <body>
   <div class="wrap">
 
-    <!-- HEADER -->
     <div class="topbar">
       <div class="brand">
         <div class="logo">♾</div>
@@ -170,7 +169,7 @@
     <h1>Mon espace pro</h1>
     <p class="sub">Activités du jour</p>
 
-    <!-- ✅ PORTE DOUCE (PAS DE REDIRECTION AUTOMATIQUE) -->
+    <!-- ✅ PORTE DOUCE -->
     <div class="card gate" id="gate">
       <h2>Entrer dans mon espace</h2>
       <div class="hint">Colle ton slug chauffeur (ex: <span class="mono">driver-22177...</span>)</div>
@@ -182,7 +181,6 @@
       <div class="actions" style="margin-top:12px">
         <button class="btn primary full" id="btnEnter" type="button">🚀 Ouvrir mon espace</button>
         <button class="btn" id="btnUseSaved" type="button">Utiliser mon slug mémorisé</button>
-        <button class="btn gold" id="btnGoPay" type="button">Activer (optionnel)</button>
       </div>
 
       <div class="hint" id="gateMsg" style="margin-top:10px">
@@ -192,7 +190,6 @@
 
     <div class="grid">
 
-      <!-- GAUCHE -->
       <div class="card">
         <h2>Activités du jour</h2>
         <div class="hint">SQL = moteur. Zéro blabla.</div>
@@ -221,7 +218,6 @@
         </div>
       </div>
 
-      <!-- DROITE -->
       <div class="card">
         <h2>Ma fiche publique</h2>
         <div class="hint">Lien officiel à partager</div>
@@ -254,9 +250,7 @@
     "use strict";
 
     // ========= CONFIG =========
-    const MODULE_CODE = "DRIVER";
     const STORAGE_KEY = "digiy_driver_slug";
-    const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
 
     const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
     const SUPABASE_ANON_KEY =
@@ -287,26 +281,17 @@
       const dot = $("statusDot");
       const txt = $("statusText");
       if(!dot || !txt) return;
-      if(kind === "active"){
-        dot.style.background = "var(--primary)";
-        txt.textContent = "Actif";
-      }else if(kind === "pending"){
-        dot.style.background = "var(--warn)";
-        txt.textContent = "À activer";
-      }else{
-        dot.style.background = "var(--danger)";
-        txt.textContent = "Expiré";
-      }
+      if(kind === "active"){ dot.style.background="var(--primary)"; txt.textContent="Actif"; }
+      else if(kind === "pending"){ dot.style.background="var(--warn)"; txt.textContent="À activer"; }
+      else { dot.style.background="var(--danger)"; txt.textContent="Expiré"; }
     }
 
-    // ========= SLUG RESOLUTION (NO REDIRECT AUTO) =========
+    // ========= SLUG (NO ABOS AUTO) =========
     const qs = new URLSearchParams(location.search);
     let slug = (qs.get("slug") || "").trim();
     const savedSlug = (localStorage.getItem(STORAGE_KEY) || "").trim();
-
     if(!slug && savedSlug) slug = savedSlug;
 
-    // si on a un slug -> mémorise et garde URL propre
     if(slug){
       localStorage.setItem(STORAGE_KEY, slug);
       try{
@@ -321,7 +306,6 @@
       if(msg) $("gateMsg").textContent = msg;
       set("techState", "state: gate");
       setStatus("pending");
-      // UI placeholders
       set("slugText","slug: —");
       set("publicLink","digiylyfe.com/—");
       const box = $("todayList");
@@ -339,32 +323,16 @@
 
     function goWithSlug(s){
       const clean = String(s||"").trim();
-      if(!clean){
-        toast("Slug vide");
-        return;
-      }
+      if(!clean) return toast("Slug vide");
       localStorage.setItem(STORAGE_KEY, clean);
       const u = new URL(location.origin + "/");
       u.searchParams.set("slug", clean);
       location.assign(u.toString());
     }
 
-    function goPayOptional(){
-      // ✅ pas auto. uniquement bouton.
-      const u = new URL(PAY_URL);
-      u.searchParams.set("module", MODULE_CODE);
-      const phone = ""; // optionnel si tu veux le passer plus tard
-      if(phone) u.searchParams.set("phone", phone);
-      const s = (slug || $("gateSlug")?.value || "").trim();
-      if(s) u.searchParams.set("slug", s);
-      u.searchParams.set("return", location.origin + "/?slug=" + encodeURIComponent(s || "driver-..."));
-      window.open(u.toString(), "_blank");
-    }
-
-    // ========= LOAD DATA (SQL drives) =========
+    // ========= LOAD =========
     async function load(){
       if(!slug){
-        // ✅ PAS DE REDIRECT. On ouvre la porte douce.
         openGate(savedSlug ? "Ton slug est mémorisé. Clique « Utiliser mon slug mémorisé »." : "Aucun slug détecté. Colle ton slug chauffeur.");
         return;
       }
@@ -381,14 +349,11 @@
       if(e1){
         console.error("stats error", e1);
         const msg = (e1.message || "").toLowerCase();
-
-        // Si pas accès → on ne boucle pas. On montre gate + bouton activer.
         if(msg.includes("not allowed")){
           setStatus("pending");
-          openGate("Accès non actif pour ce slug. Tu peux activer (bouton) ou revenir plus tard.");
+          openGate("Accès non actif pour ce slug (abonnement).");
           return;
         }
-
         setStatus("pending");
         openGate("Erreur stats. Vérifie le slug et réessaie.");
         return;
@@ -447,7 +412,22 @@
       set("techState","state: ok");
     }
 
-    // ========= BUTTONS =========
+    // ========= BUTTONS (BRANCHÉS ✅) =========
+    $("btnMainAction")?.addEventListener("click", ()=>{
+      if(!slug) return toast("Slug requis");
+      location.href = "./courses.html?slug=" + encodeURIComponent(slug);
+    });
+
+    $("btnSecondary1")?.addEventListener("click", ()=>{
+      if(!slug) return toast("Slug requis");
+      location.href = "./driver-zone-now.html?slug=" + encodeURIComponent(slug);
+    });
+
+    $("btnSecondary2")?.addEventListener("click", ()=>{
+      if(!slug) return toast("Slug requis");
+      location.href = "./profil-chauffeur.html?slug=" + encodeURIComponent(slug);
+    });
+
     $("btnSupport")?.addEventListener("click", ()=> window.open("https://wa.me/221771342889", "_blank"));
     $("btnShare")?.addEventListener("click", async ()=>{
       const link = $("publicLink")?.textContent || "";
@@ -464,7 +444,7 @@
       }catch(_){ toast("Copie impossible"); }
     });
 
-    // Gate buttons
+    // Gate
     $("btnEnter")?.addEventListener("click", ()=>{
       const s = ($("gateSlug")?.value || "").trim();
       goWithSlug(s);
@@ -474,12 +454,6 @@
       if(!s) return toast("Aucun slug mémorisé");
       goWithSlug(s);
     });
-    $("btnGoPay")?.addEventListener("click", goPayOptional);
-
-    // Actions (à brancher)
-    $("btnMainAction")?.addEventListener("click", ()=> toast("Nouvelle course (à brancher)"));
-    $("btnSecondary1")?.addEventListener("click", ()=> toast("Zone (à brancher)"));
-    $("btnSecondary2")?.addEventListener("click", ()=> toast("Tarifs (à brancher)"));
 
     // GO
     load().catch((e)=>{ console.error(e); set("techState","state: crash"); toast("Crash JS"); });
