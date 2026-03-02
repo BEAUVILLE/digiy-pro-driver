@@ -42,9 +42,7 @@
       display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
       margin-bottom:14px;
     }
-    .brand{
-      display:flex; flex-direction:column; gap:4px;
-    }
+    .brand{display:flex; flex-direction:column; gap:4px;}
     h1{
       margin:0;
       font-size:22px;
@@ -81,13 +79,8 @@
       margin:0 0 8px;
       display:flex; align-items:center; justify-content:space-between; gap:10px;
     }
-    .label small{
-      color:rgba(234,255,241,.70);
-      font-weight:800;
-    }
-    .row{
-      display:flex; gap:10px; align-items:stretch;
-    }
+    .label small{color:rgba(234,255,241,.70); font-weight:800;}
+    .row{display:flex; gap:10px; align-items:stretch;}
     input{
       flex:1;
       width:100%;
@@ -159,11 +152,7 @@
       font-weight:800;
       font-size:12px;
     }
-    .a{
-      color:var(--gold);
-      text-decoration:none;
-      font-weight:950;
-    }
+    .a{color:var(--gold); text-decoration:none; font-weight:950;}
     .a:hover{text-decoration:underline}
   </style>
 </head>
@@ -216,6 +205,10 @@
   (function(){
     "use strict";
 
+    // ✅ CONFIG : page cockpit cible
+    // Mets ici ta vraie page cockpit si ce n'est pas cockpit.html
+    const COCKPIT_PAGE = "./cockpit.html";
+
     const $ = (id)=>document.getElementById(id);
     const pinEl = $("pin");
     const slugText = $("slugText");
@@ -232,7 +225,7 @@
       msg.textContent = text;
     }
 
-    async function waitGuard(timeoutMs=6000){
+    async function waitGuard(timeoutMs=7000){
       const t0 = Date.now();
       while(Date.now()-t0 < timeoutMs){
         if(window.DIGIY_GUARD && typeof window.DIGIY_GUARD.getSlug === "function") return true;
@@ -245,25 +238,65 @@
       try{
         if(window.DIGIY_GUARD?.go) return window.DIGIY_GUARD.go(url, mode || "assign");
       }catch(_){}
-      // fallback
-      location.href = url;
+      if(mode === "replace") location.replace(url);
+      else location.href = url;
     }
 
     function smartBack(){
-      // Si il y a une session, retour index, sinon page publique/Hub
-      const s = window.DIGIY_GUARD?.getSession?.();
-      if(s?.owner_id){
-        go("./index.html","replace");
-      }else{
-        // tu peux changer ici si tu veux renvoyer vers une vitrine
-        go("./index.html","replace");
-      }
+      go("./index.html","replace");
     }
 
     function looksLikeLocSlug(slug){
-      // juste un warning soft (ça évite de se tromper de module)
       const s = String(slug||"").toLowerCase();
       return s.startsWith("chez-") || s.includes("logement") || s.includes("villa") || s.includes("appart") || s.includes("studio");
+    }
+
+    async function resolvePhoneFromSlug(slug){
+      // 1) si ton guard expose un resolver, on l'utilise
+      try{
+        if(window.DIGIY_GUARD?.resolvePhoneFromSlug){
+          const p = await window.DIGIY_GUARD.resolvePhoneFromSlug(slug);
+          if(p) return String(p);
+        }
+      }catch(_){}
+
+      // 2) fallback RPC publique
+      try{
+        if(window.DIGIY_GUARD?.rpc){
+          const r = await window.DIGIY_GUARD.rpc("digiy_subscriptions_public_by_slug", { p_slug: slug });
+          const data = r?.data ?? r;
+          const row = Array.isArray(data) ? data[0] : data;
+          return row?.phone ? String(row.phone) : "";
+        }
+      }catch(e){
+        console.warn("resolvePhoneFromSlug fallback error:", e);
+      }
+      return "";
+    }
+
+    async function hasAccessDriver(phone){
+      // ⚠️ si ta signature diffère, ajuste ici (mais chez toi on l'a déjà utilisée côté SQL)
+      const r = await window.DIGIY_GUARD.rpc("digiy_has_access", { p_phone: phone, p_module: "DRIVER" });
+      return (r?.data ?? r) === true;
+    }
+
+    async function bypassIfActive(slug){
+      try{
+        if(!slug || !window.DIGIY_GUARD?.rpc) return false;
+
+        const phone = await resolvePhoneFromSlug(slug);
+        if(!phone) return false;
+
+        const ok = await hasAccessDriver(phone);
+        if(ok){
+          setMsg("✅ Abonnement actif. Entrée directe…", "ok");
+          go(COCKPIT_PAGE + "?slug=" + encodeURIComponent(slug), "replace");
+          return true;
+        }
+      }catch(e){
+        console.warn("bypassIfActive error:", e);
+      }
+      return false;
     }
 
     async function boot(){
@@ -289,12 +322,18 @@
         setMsg("🔒 Entre ton PIN pour ouvrir ton espace DRIVER PRO.", null);
       }
 
-      // si déjà connecté → direct index
+      // ✅ Si session déjà active : cockpit direct (pas index)
       const s = window.DIGIY_GUARD.getSession?.();
       if(s?.owner_id){
-        setMsg("✅ Session déjà active. Redirection…", "ok");
-        go("./index.html","replace");
+        setMsg("✅ Session déjà active. Ouverture cockpit…", "ok");
+        go(COCKPIT_PAGE + "?slug=" + encodeURIComponent(slug), "replace");
         return;
+      }
+
+      // ✅ BYPASS si abonnement actif
+      if(slug){
+        const bypassed = await bypassIfActive(slug);
+        if(bypassed) return;
       }
 
       pinEl.focus();
@@ -308,7 +347,6 @@
       });
 
       pinEl.addEventListener("input", ()=>{
-        // garde seulement chiffres
         const v0 = pinEl.value;
         const v = v0.replace(/[^\d]/g,"");
         if(v !== v0) pinEl.value = v;
@@ -325,6 +363,7 @@
 
     async function doLogin(){
       btnEnter.disabled = true;
+
       const slug = (window.DIGIY_GUARD.getSlug?.() || "").trim();
       const pin = String(pinEl.value||"").trim();
 
@@ -349,9 +388,8 @@
           return;
         }
 
-        setMsg("✅ Accès OK. Ouverture…", "ok");
-        // ✅ garde le slug (go() ajoute automatiquement ?slug=)
-        go("./index.html","replace");
+        setMsg("✅ Accès OK. Ouverture cockpit…", "ok");
+        go(COCKPIT_PAGE + "?slug=" + encodeURIComponent(slug), "replace");
       }catch(e){
         console.error(e);
         setMsg("❌ Erreur: " + (e?.message || e), "bad");
@@ -366,4 +404,3 @@
   </script>
 </body>
 </html>
-
