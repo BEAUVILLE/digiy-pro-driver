@@ -66,6 +66,12 @@
       background:rgba(250,204,21,.12);
       color:var(--gold);
     }
+    .btn.danger{
+      border:1px solid rgba(239,68,68,.45);
+      background:rgba(239,68,68,.10);
+      color:#fecaca;
+    }
+    .btn.small{padding:8px 10px; border-radius:12px; font-size:12px}
     h1{margin:18px 4px 6px; font-size:26px; font-weight:1050}
     .sub{margin:0 4px 14px; color:var(--muted); font-weight:800}
 
@@ -141,6 +147,39 @@
       font-weight:900;
       outline:none;
     }
+
+    /* ✅ Modal Accept */
+    .modal{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.70);
+      display:none; align-items:center; justify-content:center;
+      z-index:9998; padding:14px;
+    }
+    .modal.show{display:flex}
+    .modalCard{
+      width:min(560px, 96vw);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(15,23,42,.92), rgba(2,6,23,.92));
+      box-shadow:0 22px 70px rgba(0,0,0,.55);
+      padding:14px;
+    }
+    .modalHead{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,.10);
+    }
+    .modalTitle{font-weight:1050}
+    .modalBody{padding-top:10px}
+    .kv{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+    .kv .box{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.18);
+      border-radius:16px; padding:12px;
+    }
+    .kv .lab{font-size:12px; color:var(--muted); font-weight:900}
+    .kv .val{margin-top:6px; font-weight:1050}
+    .modalActions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
+    .modalActions .btn{flex:1; min-width:140px}
   </style>
 </head>
 
@@ -161,17 +200,13 @@
           <span class="dot" id="statusDot"></span>
           <span id="statusText">Prêt</span>
         </div>
-
-        <!-- ✅ PATCH #1 : bouton SLUG permanent -->
-        <button class="btn" id="btnSlug" type="button">🔑 Slug</button>
-
         <button class="btn gold" id="btnShare" type="button">Partager</button>
         <button class="btn" id="btnSupport" type="button">Support</button>
       </div>
     </div>
 
     <h1>Mon espace pro</h1>
-    <p class="sub">Activités du jour</p>
+    <p class="sub">Activités du jour + demandes en direct</p>
 
     <!-- ✅ PORTE DOUCE -->
     <div class="card gate" id="gate">
@@ -179,11 +214,7 @@
       <div class="hint">Colle ton slug chauffeur (ex: <span class="mono">driver-22177...</span>)</div>
 
       <div style="margin-top:10px">
-        <!-- ✅ PATCH #4 : mobile safe -->
-        <input class="in" id="gateSlug"
-          placeholder="driver-221770000111"
-          autocapitalize="none" autocorrect="off" spellcheck="false"
-        />
+        <input class="in" id="gateSlug" placeholder="driver-221770000111" />
       </div>
 
       <div class="actions" style="margin-top:12px">
@@ -224,6 +255,28 @@
             <div class="right">—<small>—</small></div>
           </div>
         </div>
+
+        <!-- ✅ PATCH #4 : DEMANDES EN DIRECT (Realtime) -->
+        <div style="margin-top:16px; display:flex; align-items:end; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+          <div>
+            <h2 style="margin:0 2px 6px; font-size:16px; font-weight:1000;">Demandes en direct</h2>
+            <div class="hint" style="margin:0 2px;">Tu vois les nouvelles courses (tel client masqué). Accepte = tel complet.</div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="btn small" id="btnRefreshLive" type="button">⟲ Rafraîchir</button>
+          </div>
+        </div>
+
+        <div class="list" id="liveRequests">
+          <div class="item">
+            <div>
+              <div class="title">En attente…</div>
+              <div class="meta">Si rien n’apparaît : aucune demande “new”.</div>
+            </div>
+            <div class="right">—<small>—</small></div>
+          </div>
+        </div>
+
       </div>
 
       <div class="card">
@@ -242,7 +295,9 @@
         </div>
 
         <div class="footer">
-          <span>Support WhatsApp : <a class="btn" style="text-decoration:none" href="https://wa.me/221771342889" target="_blank" rel="noopener">+221 77 134 28 89</a></span>
+          <span>Support WhatsApp :
+            <a class="btn" style="text-decoration:none" href="https://wa.me/221771342889" target="_blank" rel="noopener">+221 77 134 28 89</a>
+          </span>
           <span id="techState" class="mono">state: init</span>
         </div>
       </div>
@@ -252,6 +307,46 @@
   </div>
 
   <div class="toast" id="toast">OK</div>
+
+  <!-- ✅ Modal accept (tel complet + itinéraire) -->
+  <div class="modal" id="acceptModal" aria-hidden="true">
+    <div class="modalCard">
+      <div class="modalHead">
+        <div class="modalTitle">✅ Course acceptée</div>
+        <button class="btn small" id="btnCloseModal" type="button">✕</button>
+      </div>
+      <div class="modalBody">
+        <div class="kv">
+          <div class="box">
+            <div class="lab">Client (tel)</div>
+            <div class="val mono" id="mClientPhone">—</div>
+          </div>
+          <div class="box">
+            <div class="lab">Prix</div>
+            <div class="val" id="mPrice">—</div>
+          </div>
+          <div class="box">
+            <div class="lab">Départ → Destination</div>
+            <div class="val" id="mRoute">—</div>
+          </div>
+          <div class="box">
+            <div class="lab">Ville / Véhicule</div>
+            <div class="val" id="mMeta">—</div>
+          </div>
+        </div>
+
+        <div class="modalActions">
+          <button class="btn primary" id="btnCallClient" type="button">📞 Appeler client</button>
+          <button class="btn" id="btnOpenMaps" type="button">🗺️ Itinéraire</button>
+          <button class="btn gold" id="btnCopyClientPhone" type="button">📋 Copier tel</button>
+        </div>
+
+        <div class="hint" style="margin-top:10px">
+          Astuce terrain : si le client galère, demande-lui d’envoyer sa position WhatsApp / Google Maps.
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
   (function(){
@@ -283,7 +378,7 @@
       t.textContent = msg;
       t.style.display = "block";
       clearTimeout(window.__digiy_toast_t);
-      window.__digiy_toast_t = setTimeout(()=>t.style.display="none", 1200);
+      window.__digiy_toast_t = setTimeout(()=>t.style.display="none", 1400);
     }
 
     function setStatus(kind){
@@ -310,6 +405,40 @@
       }catch(_){}
     }
 
+    // ========= DRIVER PHONE (needed for accept RPC) =========
+    let driverPhone = null;
+
+    async function resolveDriverPhone(){
+      // Best effort: digiy_subscriptions_public (slug -> phone)
+      // Si ça n’existe pas chez toi, on fallback prompt.
+      try{
+        const { data, error } = await sb
+          .from("digiy_subscriptions_public")
+          .select("phone")
+          .eq("slug", slug)
+          .maybeSingle();
+        if(error) throw error;
+        driverPhone = data?.phone || null;
+      }catch(_e){
+        driverPhone = null;
+      }
+
+      if(!driverPhone){
+        // fallback: demander 1 fois (terrain)
+        const p = prompt("Téléphone chauffeur requis (ex: 221771234567 ou +221771234567) :", "");
+        driverPhone = normPhone(p);
+        if(!driverPhone) toast("Téléphone chauffeur manquant");
+      }
+    }
+
+    function normPhone(p){
+      p = (p||"").trim().replace(/\s+/g,"").replace(/[^\d+]/g,"");
+      if(p.startsWith("00221")) p = "+221" + p.slice(5);
+      if(!p.startsWith("+") && p.startsWith("221")) p = "+" + p;
+      if(!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
+      return p || null;
+    }
+
     function openGate(msg){
       $("gate")?.classList.add("show");
       if(msg) $("gateMsg").textContent = msg;
@@ -328,18 +457,177 @@
             <div class="right">—<small>—</small></div>
           </div>`;
       }
+      const live = $("liveRequests");
+      if(live){
+        live.innerHTML = `
+          <div class="item">
+            <div>
+              <div class="title">Slug requis</div>
+              <div class="meta">Entre ton slug pour voir les demandes.</div>
+            </div>
+            <div class="right">—<small>—</small></div>
+          </div>`;
+      }
     }
 
-    // ✅ PATCH #2 : goWithSlug stable (garde la même page + query)
     function goWithSlug(s){
       const clean = String(s||"").trim();
       if(!clean) return toast("Slug vide");
-
       localStorage.setItem(STORAGE_KEY, clean);
-
-      const u = new URL(location.href);
+      const u = new URL(location.origin + "/");
       u.searchParams.set("slug", clean);
       location.assign(u.toString());
+    }
+
+    // ========= LIVE REQUESTS =========
+    let liveChannel = null;
+    let lastAcceptedRide = null;
+
+    async function fetchLiveRequests(){
+      const box = $("liveRequests");
+      if(!box) return;
+
+      // view ride_requests_driver_feed (tel masqué)
+      try{
+        const { data, error } = await sb
+          .from("ride_requests_driver_feed")
+          .select("*")
+          .order("created_at", { ascending:false })
+          .limit(12);
+
+        if(error) throw error;
+
+        if(!Array.isArray(data) || data.length === 0){
+          box.innerHTML = `
+            <div class="item">
+              <div>
+                <div class="title">Aucune demande</div>
+                <div class="meta">Reste visible. Quand une course arrive, elle pop.</div>
+              </div>
+              <div class="right">—<small>—</small></div>
+            </div>`;
+          return;
+        }
+
+        box.innerHTML = data.map(r=>{
+          const title = `${r.pickup_label || "—"} → ${r.drop_label || "—"}`;
+          const meta = `${r.city || "—"} • ${r.vehicle_type || "—"} • tel: ${r.client_phone_masked || "—"}`;
+          return `
+            <div class="item">
+              <div style="min-width:0">
+                <div class="title" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(title)}</div>
+                <div class="meta">${esc(meta)}</div>
+              </div>
+              <div class="right">
+                ${money(r.price_xof)}
+                <small>
+                  <button class="btn small primary" data-accept="${esc(r.id)}">✅ Accepter</button>
+                </small>
+              </div>
+            </div>`;
+        }).join("");
+
+        // bind accept buttons
+        box.querySelectorAll("[data-accept]").forEach(btn=>{
+          btn.addEventListener("click", async ()=>{
+            const id = btn.getAttribute("data-accept");
+            await acceptRide(id);
+          });
+        });
+
+      }catch(e){
+        console.error(e);
+        box.innerHTML = `
+          <div class="item">
+            <div>
+              <div class="title">Erreur demandes</div>
+              <div class="meta">Vérifie la vue + droits SELECT.</div>
+            </div>
+            <div class="right">—<small>—</small></div>
+          </div>`;
+      }
+    }
+
+    function startLiveRealtime(){
+      // realtime sur table ride_requests (INSERT/UPDATE)
+      if(liveChannel){
+        sb.removeChannel(liveChannel);
+        liveChannel = null;
+      }
+
+      liveChannel = sb
+        .channel("digiy_driver_live_requests")
+        .on("postgres_changes", { event:"INSERT", schema:"public", table:"ride_requests" }, (payload)=>{
+          // si status new -> refresh
+          const r = payload.new || {};
+          if(String(r.status||"") === "new"){
+            fetchLiveRequests();
+            toast("📣 Nouvelle demande");
+          }
+        })
+        .on("postgres_changes", { event:"UPDATE", schema:"public", table:"ride_requests" }, (payload)=>{
+          const r = payload.new || {};
+          // si une demande passe de new -> accepted/cancelled etc, on refresh
+          fetchLiveRequests();
+          if(String(r.status||"") === "accepted") toast("✅ Course prise");
+        })
+        .subscribe();
+    }
+
+    async function acceptRide(rideId){
+      if(!rideId) return;
+
+      if(!driverPhone){
+        await resolveDriverPhone();
+        if(!driverPhone) return toast("Téléphone chauffeur requis");
+      }
+
+      toast("Acceptation...");
+      try{
+        const { data, error } = await sb.rpc("digiy_driver_accept_ride", {
+          p_ride_id: rideId,
+          p_driver_phone: driverPhone
+        });
+        if(error) throw error;
+
+        if(!data?.ok){
+          toast(data?.error === "not_available" ? "Déjà prise" : "Refus");
+          await fetchLiveRequests();
+          return;
+        }
+
+        lastAcceptedRide = data.ride || null;
+        showAcceptModal(lastAcceptedRide);
+        await fetchLiveRequests();
+
+      }catch(e){
+        console.error(e);
+        toast("Erreur accept");
+      }
+    }
+
+    function showAcceptModal(ride){
+      if(!ride) return;
+
+      $("mClientPhone").textContent = ride.client_phone || "—";
+      $("mPrice").textContent = money(ride.price_xof);
+      $("mRoute").textContent = `${ride.pickup_label || "—"} → ${ride.drop_label || "—"}`;
+      $("mMeta").textContent = `${ride.city || "—"} • ${ride.vehicle_type || "—"}`;
+
+      $("acceptModal")?.classList.add("show");
+      $("acceptModal")?.setAttribute("aria-hidden","false");
+    }
+
+    function closeAcceptModal(){
+      $("acceptModal")?.classList.remove("show");
+      $("acceptModal")?.setAttribute("aria-hidden","true");
+    }
+
+    function openGoogleMapsToPickup(ride){
+      const lat = ride?.pickup_lat, lng = ride?.pickup_lng;
+      if(lat == null || lng == null) return toast("GPS pickup manquant");
+      const url = `https://www.google.com/maps?q=${encodeURIComponent(lat + "," + lng)}`;
+      window.open(url, "_blank");
     }
 
     // ========= LOAD =========
@@ -356,7 +644,10 @@
       set("slugText", "slug: " + slug);
       set("publicLink", "https://digiylyfe.com/" + slug);
 
-      // KPIs
+      // resolve phone once (best effort)
+      await resolveDriverPhone();
+
+      // KPIs (tes RPC existantes)
       const { data:stats, error:e1 } = await sb.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
       if(e1){
         console.error("stats error", e1);
@@ -387,35 +678,39 @@
       }
 
       const box = $("todayList");
-      if(!box) return;
-
-      if(!Array.isArray(list) || list.length === 0){
-        box.innerHTML = `
-          <div class="item">
-            <div>
-              <div class="title">Aucune activité aujourd’hui</div>
-              <div class="meta">Ton prochain client arrive bientôt.</div>
-            </div>
-            <div class="right">—<small>—</small></div>
-          </div>`;
-      }else{
-        box.innerHTML = list.map(t=>{
-          const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
-          const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
-          const extra = (t.extras_fcfa && t.extras_fcfa > 0) ? `+${t.extras_fcfa} extras` : "—";
-          return `
+      if(box){
+        if(!Array.isArray(list) || list.length === 0){
+          box.innerHTML = `
             <div class="item">
               <div>
-                <div class="title">${esc(title)}</div>
-                <div class="meta">${esc(meta)}</div>
+                <div class="title">Aucune activité aujourd’hui</div>
+                <div class="meta">Ton prochain client arrive bientôt.</div>
               </div>
-              <div class="right">
-                ${money(t.revenue_fcfa)}
-                <small>${esc(extra)}</small>
-              </div>
+              <div class="right">—<small>—</small></div>
             </div>`;
-        }).join("");
+        }else{
+          box.innerHTML = list.map(t=>{
+            const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
+            const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
+            const extra = (t.extras_fcfa && t.extras_fcfa > 0) ? `+${t.extras_fcfa} extras` : "—";
+            return `
+              <div class="item">
+                <div>
+                  <div class="title">${esc(title)}</div>
+                  <div class="meta">${esc(meta)}</div>
+                </div>
+                <div class="right">
+                  ${money(t.revenue_fcfa)}
+                  <small>${esc(extra)}</small>
+                </div>
+              </div>`;
+          }).join("");
+        }
       }
+
+      // Live + realtime
+      await fetchLiveRequests();
+      startLiveRealtime();
 
       set("techState","state: ok");
     }
@@ -437,6 +732,7 @@
     });
 
     $("btnSupport")?.addEventListener("click", ()=> window.open("https://wa.me/221771342889", "_blank"));
+
     $("btnShare")?.addEventListener("click", async ()=>{
       const link = $("publicLink")?.textContent || "";
       try{
@@ -444,6 +740,7 @@
         else window.open("https://wa.me/?text=" + encodeURIComponent(link), "_blank");
       }catch(_){}
     });
+
     $("btnCopyLink")?.addEventListener("click", async ()=>{
       try{
         const link = $("publicLink")?.textContent || "";
@@ -463,19 +760,33 @@
       goWithSlug(s);
     });
 
-    // ✅ PATCH #3 : bouton SLUG = ouvrir/fermer gate quand on veut
-    $("btnSlug")?.addEventListener("click", ()=>{
-      const g = $("gate");
-      if(!g) return;
-      g.classList.toggle("show");
+    // Live buttons
+    $("btnRefreshLive")?.addEventListener("click", ()=> fetchLiveRequests());
 
-      const s = (slug || localStorage.getItem(STORAGE_KEY) || "").trim();
-      const inp = $("gateSlug");
-      if(inp && s) inp.value = s;
+    // Modal actions
+    $("btnCloseModal")?.addEventListener("click", closeAcceptModal);
+    $("acceptModal")?.addEventListener("click", (e)=>{
+      if(e.target && e.target.id === "acceptModal") closeAcceptModal();
+    });
 
-      if(g.classList.contains("show")){
-        g.scrollIntoView({ behavior:"smooth", block:"start" });
-      }
+    $("btnCallClient")?.addEventListener("click", ()=>{
+      const p = lastAcceptedRide?.client_phone;
+      if(!p) return toast("Tel client manquant");
+      location.href = "tel:" + p;
+    });
+
+    $("btnCopyClientPhone")?.addEventListener("click", async ()=>{
+      try{
+        const p = lastAcceptedRide?.client_phone || "";
+        if(!p) return toast("Tel vide");
+        await navigator.clipboard.writeText(p);
+        toast("Tel copié ✅");
+      }catch(_){ toast("Copie impossible"); }
+    });
+
+    $("btnOpenMaps")?.addEventListener("click", ()=>{
+      if(!lastAcceptedRide) return;
+      openGoogleMapsToPickup(lastAcceptedRide);
     });
 
     // GO
