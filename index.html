@@ -3,12 +3,11 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY PRO — Mon espace pro</title>
+  <title>DIGIY DRIVER PRO — Mon espace pro</title>
   <meta name="theme-color" content="#061b14"/>
 
-  <!-- (Option) Supabase + ton guard-pro.js -->
-  <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
-  <!-- <script src="./guard-pro.js?v=1"></script> -->
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root{
@@ -17,8 +16,7 @@
       --text:#eafff1; --muted:rgba(234,255,241,.72);
       --primary:#22c55e; --gold:#facc15; --warn:#f59e0b; --danger:#ef4444; --info:#38bdf8;
       --shadow:0 18px 55px rgba(0,0,0,.42);
-      --r:18px; --r2:14px;
-      --max:980px;
+      --r:18px; --max:980px;
     }
     *{box-sizing:border-box}
     body{
@@ -31,6 +29,7 @@
     }
     a{color:inherit}
     .wrap{max-width:var(--max); margin:0 auto; padding:16px 14px 28px}
+
     .topbar{
       display:flex; align-items:center; justify-content:space-between; gap:10px;
       padding:14px 14px; border:1px solid var(--line); border-radius:22px;
@@ -48,6 +47,7 @@
     .brandtext{min-width:0}
     .brandtext .t1{font-weight:1000; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
     .brandtext .t2{font-size:12px; color:var(--muted); font-weight:800; margin-top:2px}
+
     .right{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end}
     .pill{
       display:inline-flex; align-items:center; gap:8px;
@@ -118,7 +118,6 @@
     .badge.gold{border-color:rgba(250,204,21,.35); color:var(--gold); background:rgba(250,204,21,.10)}
     .badge.warn{border-color:rgba(245,158,11,.35); color:#ffd7a0}
     .badge.red{border-color:rgba(239,68,68,.35); color:#fecaca}
-    .badge.blue{border-color:rgba(56,189,248,.35); color:#bae6fd}
 
     .actions{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
     .actions .btn{min-height:48px; border-radius:16px}
@@ -152,6 +151,21 @@
     .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
     .link{color:var(--gold); text-decoration:none; font-weight:1000}
     .link:hover{text-decoration:underline}
+
+    .toast{
+      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+      background:rgba(0,0,0,.65);
+      border:1px solid rgba(255,255,255,.14);
+      color:rgba(234,255,241,.92);
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:900;
+      font-size:12px;
+      box-shadow:0 16px 40px rgba(0,0,0,.45);
+      display:none;
+      z-index:9999;
+      max-width:min(92vw,680px);
+    }
   </style>
 </head>
 
@@ -164,7 +178,7 @@
         <div class="logo">♾</div>
         <div class="brandtext">
           <div class="t1">DIGIY PRO</div>
-          <div class="t2" id="moduleLabel">Module : <b id="moduleName">—</b></div>
+          <div class="t2">Module : <b id="moduleName">DRIVER</b></div>
         </div>
       </div>
 
@@ -173,8 +187,8 @@
           <span class="dot" id="statusDot"></span>
           <span id="statusText">Actif</span>
         </div>
-        <button class="btn gold" id="btnShare">Partager</button>
-        <button class="btn" id="btnSupport">Support</button>
+        <button class="btn gold" id="btnShare" type="button">Partager</button>
+        <button class="btn" id="btnSupport" type="button">Support</button>
       </div>
     </div>
 
@@ -187,46 +201,45 @@
       <!-- COLONNE GAUCHE : ACTIVITÉS -->
       <div class="card">
         <h2>Activités du jour</h2>
-        <div class="hint">Simple, clair, terrain.</div>
+        <div class="hint">Simple • clair • terrain</div>
 
         <div class="kpis">
           <div class="kpi">
             <div class="lab">Aujourd’hui</div>
-            <div class="val" id="kpiTodayCount">0</div>
+            <div class="val" id="kpiTodayCount">—</div>
           </div>
           <div class="kpi">
             <div class="lab">Aujourd’hui (FCFA)</div>
-            <div class="val" id="kpiTodayMoney">0</div>
+            <div class="val" id="kpiTodayMoney">—</div>
           </div>
           <div class="kpi">
             <div class="lab">7 derniers jours</div>
-            <div class="val" id="kpi7dCount">0</div>
+            <div class="val" id="kpi7dCount">—</div>
           </div>
           <div class="kpi">
             <div class="lab">7 derniers jours (FCFA)</div>
-            <div class="val" id="kpi7dMoney">0</div>
+            <div class="val" id="kpi7dMoney">—</div>
           </div>
         </div>
 
         <div class="badges">
           <span class="badge green" id="badgeAvailable">✅ Disponible</span>
-          <span class="badge warn" id="badgePending">🟠 En attente</span>
+          <span class="badge warn" id="badgePending" style="display:none">🟠 En attente</span>
           <span class="badge red" id="badgeClosed" style="display:none">🔴 Fermé</span>
           <span class="badge gold" id="badgeOffer">⭐ Offre du jour</span>
         </div>
 
         <div class="actions">
-          <button class="btn primary full" id="btnMainAction">➕ Action principale</button>
-          <button class="btn" id="btnSecondary1">➕ Action 2</button>
-          <button class="btn" id="btnSecondary2">➕ Action 3</button>
+          <button class="btn primary full" id="btnMainAction" type="button">➕ Nouvelle course</button>
+          <button class="btn" id="btnSecondary1" type="button">➕ Activer ma zone</button>
+          <button class="btn" id="btnSecondary2" type="button">➕ Ajouter un tarif</button>
         </div>
 
         <div class="list" id="todayList">
-          <!-- items injectés -->
           <div class="item">
             <div class="left">
-              <div class="title">Aucune activité pour le moment</div>
-              <div class="meta">Dès qu’une action arrive, elle apparaît ici.</div>
+              <div class="title">Chargement…</div>
+              <div class="meta">Un instant frérot.</div>
             </div>
             <div class="right">—<small>—</small></div>
           </div>
@@ -250,9 +263,9 @@
           </div>
 
           <div class="actions">
-            <button class="btn primary full" id="btnEditOffer">Modifier l’offre</button>
-            <button class="btn" id="btnToggleOffer">Activer / Désactiver</button>
-            <button class="btn" id="btnBoostOffer">Mettre en avant</button>
+            <button class="btn primary full" id="btnEditOffer" type="button">Modifier l’offre</button>
+            <button class="btn" id="btnToggleOffer" type="button">Activer / Désactiver</button>
+            <button class="btn" id="btnBoostOffer" type="button">Mettre en avant</button>
           </div>
         </div>
 
@@ -264,26 +277,26 @@
           <div class="kpis">
             <div class="kpi">
               <div class="lab">30 derniers jours</div>
-              <div class="val" id="kpi30dCount">0</div>
+              <div class="val" id="kpi30dCount">—</div>
             </div>
             <div class="kpi">
               <div class="lab">30 jours (FCFA)</div>
-              <div class="val" id="kpi30dMoney">0</div>
+              <div class="val" id="kpi30dMoney">—</div>
             </div>
             <div class="kpi">
               <div class="lab">Total</div>
-              <div class="val" id="kpiTotalCount">0</div>
+              <div class="val" id="kpiTotalCount">—</div>
             </div>
             <div class="kpi">
               <div class="lab">Total (FCFA)</div>
-              <div class="val" id="kpiTotalMoney">0</div>
+              <div class="val" id="kpiTotalMoney">—</div>
             </div>
           </div>
 
           <div class="actions">
-            <button class="btn primary full" id="btnViewHistory">Voir l’historique</button>
-            <button class="btn" id="btnExport">Exporter</button>
-            <button class="btn" id="btnSettings">Paramètres</button>
+            <button class="btn primary full" id="btnViewHistory" type="button">Voir l’historique</button>
+            <button class="btn" id="btnExport" type="button">Exporter</button>
+            <button class="btn" id="btnSettings" type="button">Paramètres</button>
           </div>
         </div>
 
@@ -293,7 +306,7 @@
     <!-- FICHE PUBLIQUE -->
     <div class="card" style="margin-top:14px">
       <h2>Ma fiche publique</h2>
-      <div class="hint">Ton lien officiel à partager.</div>
+      <div class="hint">Ton lien officiel à partager</div>
 
       <div class="item">
         <div class="left">
@@ -301,208 +314,298 @@
           <div class="meta mono" id="publicLink">digiylyfe.com/—</div>
         </div>
         <div class="right">
-          <button class="btn gold" id="btnCopyLink">Copier</button>
+          <button class="btn gold" id="btnCopyLink" type="button">Copier</button>
           <small id="slugText" class="mono">slug: —</small>
         </div>
       </div>
 
       <div class="footer">
         <span>Support WhatsApp : <a class="link" href="https://wa.me/221771342889" target="_blank" rel="noopener">+221 77 134 28 89</a></span>
-        <span id="techState" class="mono">state: ui-ready</span>
+        <span id="techState" class="mono">state: init</span>
       </div>
     </div>
 
   </div>
 
+  <div class="toast" id="toast">OK</div>
+
   <script>
   (function(){
     "use strict";
 
-    // ====== CONFIG RAPIDE (par module) ======
-    // Change ça dans chaque repo (DRIVER/RESTO/LOC/...)
+    // =============================
+    // DIGIY CONFIG (DRIVER)
+    // =============================
     const MODULE_CODE = "DRIVER";
-    const MAIN_ACTION_LABEL = "➕ Nouvelle course";
-    const ACTION2_LABEL = "➕ Activer ma zone";
-    const ACTION3_LABEL = "➕ Ajouter un tarif";
+    const STORAGE_KEY = "digiy_driver_slug";
+    const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
 
-    // slug depuis URL
-    const qs = new URLSearchParams(location.search);
-    const slug = (qs.get("slug") || "").trim();
+    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const $ = (id)=>document.getElementById(id);
+    const set = (id,val)=>{ const el=$(id); if(el) el.textContent = (val ?? "—"); };
     const money = (n)=> `${Number(n||0).toLocaleString("fr-FR")} FCFA`;
-    const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = (val ?? "—"); };
 
-    // UI static labels
-    set("moduleName", MODULE_CODE);
-    document.getElementById("btnMainAction").textContent = MAIN_ACTION_LABEL;
-    document.getElementById("btnSecondary1").textContent = ACTION2_LABEL;
-    document.getElementById("btnSecondary2").textContent = ACTION3_LABEL;
-
-    // slug/link
-    set("slugText", "slug: " + (slug || "—"));
-    const pub = slug ? ("https://digiylyfe.com/" + slug) : "digiylyfe.com/—";
-    set("publicLink", pub);
-
-    // Copie lien
-    document.getElementById("btnCopyLink").addEventListener("click", async ()=>{
-      try{
-        await navigator.clipboard.writeText(pub);
-        document.getElementById("btnCopyLink").textContent = "Copié ✅";
-        setTimeout(()=>document.getElementById("btnCopyLink").textContent="Copier", 900);
-      }catch(_){}
-    });
-
-    // Share (mobile)
-    document.getElementById("btnShare").addEventListener("click", async ()=>{
-      try{
-        if(navigator.share) await navigator.share({ title:"DIGIY", text:"Mon lien DIGIY", url: pub });
-        else window.open("https://wa.me/?text=" + encodeURIComponent(pub), "_blank");
-      }catch(_){}
-    });
-
-    // Support
-    document.getElementById("btnSupport").addEventListener("click", ()=>{
-      window.open("https://wa.me/221771342889", "_blank");
-    });
-
-    // ====== BRANCHEMENT DONNÉES (tu remplaces par tes RPC) ======
-    // Ici on met des valeurs demo. Demain tu plug: stats RPC + list RPC.
-    function demoFill(){
-      // KPIs
-      set("kpiTodayCount", 2);
-      set("kpiTodayMoney", money(7200));
-      set("kpi7dCount", 2);
-      set("kpi7dMoney", money(7200));
-      set("kpi30dCount", 3);
-      set("kpi30dMoney", money(19400));
-      set("kpiTotalCount", 3);
-      set("kpiTotalMoney", money(19400));
-
-      // Liste activités
-      const list = document.getElementById("todayList");
-      list.innerHTML = `
-        <div class="item">
-          <div class="left">
-            <div class="title">Saly Centre → Dakar Plateau</div>
-            <div class="meta">Terminée • Paiement OK</div>
-          </div>
-          <div class="right">${money(7500)}<small>+500 extras</small></div>
-        </div>
-        <div class="item">
-          <div class="left">
-            <div class="title">AIBD → Saly</div>
-            <div class="meta">Terminée • Paiement OK</div>
-          </div>
-          <div class="right">${money(12000)}<small>—</small></div>
-        </div>
-      `;
+    function esc(s){
+      return String(s||"")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;")
+        .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
 
-    demoFill();
-  })();
-  </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-(function(){
-  "use strict";
+    function toast(msg){
+      const t = $("toast");
+      if(!t) return;
+      t.textContent = msg;
+      t.style.display = "block";
+      clearTimeout(window.__digiy_toast_t);
+      window.__digiy_toast_t = setTimeout(()=>t.style.display="none", 1200);
+    }
 
-  // 🔐 CONFIG
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const qs = new URLSearchParams(location.search);
-  const slug = (qs.get("slug") || "").trim();
-
-  const money = (n)=> `${Number(n||0).toLocaleString("fr-FR")} FCFA`;
-  const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = (val ?? "—"); };
-
-  function esc(s){
-    return String(s||"")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-
-  async function load(){
+    // =============================
+    // SLUG RESOLUTION (no friction)
+    // =============================
+    const qs = new URLSearchParams(location.search);
+    let slug = (qs.get("slug") || "").trim();
 
     if(!slug){
-      console.warn("Slug manquant");
-      return;
+      slug = (localStorage.getItem(STORAGE_KEY) || "").trim();
     }
 
-    // 🔥 1) KPI
-    const { data:stats, error:e1 } =
-      await sb.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
-
-    if(e1){
-      console.error("Stats error:", e1);
-      return;
+    if(slug){
+      localStorage.setItem(STORAGE_KEY, slug);
+      try{
+        const clean = new URL(location.href);
+        clean.searchParams.set("slug", slug);
+        history.replaceState({}, "", clean.toString());
+      }catch(_){}
     }
 
-    const s = Array.isArray(stats) ? stats[0] : stats;
+    window.DIGIY_SLUG = slug;
 
-    set("kpiTodayCount", s.trips_today);
-    set("kpiTodayMoney", money(s.revenue_today_fcfa));
-    set("kpi7dCount", s.trips_7d);
-    set("kpi7dMoney", money(s.revenue_7d_fcfa));
-    set("kpi30dCount", s.trips_30d);
-    set("kpi30dMoney", money(s.revenue_30d_fcfa));
-    set("kpiTotalCount", s.trips_total);
-    set("kpiTotalMoney", money(s.revenue_total_fcfa));
+    function goPay(){
+      const u = new URL(PAY_URL);
+      u.searchParams.set("module", MODULE_CODE);
 
-    // 🔥 2) Activités du jour
-    const { data:list, error:e2 } =
-      await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
+      // si on a un slug, on le passe
+      if(slug) u.searchParams.set("slug", slug);
 
-    if(e2){
-      console.error("List error:", e2);
-      return;
+      // return → revient vers cockpit AVEC slug
+      const ret = new URL(location.origin + "/");
+      if(slug) ret.searchParams.set("slug", slug);
+      u.searchParams.set("return", ret.toString());
+
+      location.replace(u.toString());
     }
 
-    const box = document.getElementById("todayList");
-    if(!box) return;
+    // =============================
+    // UI HELPERS
+    // =============================
+    function setStatus(kind){
+      // kind: active | pending | expired
+      const dot = $("statusDot");
+      const txt = $("statusText");
 
-    if(!Array.isArray(list) || list.length === 0){
+      if(!dot || !txt) return;
+
+      if(kind === "active"){
+        dot.style.background = "var(--primary)";
+        txt.textContent = "Actif";
+        $("badgeAvailable").style.display = "";
+        $("badgePending").style.display = "none";
+        $("badgeClosed").style.display = "none";
+      }else if(kind === "pending"){
+        dot.style.background = "var(--warn)";
+        txt.textContent = "À activer";
+        $("badgeAvailable").style.display = "none";
+        $("badgePending").style.display = "";
+        $("badgeClosed").style.display = "none";
+      }else{
+        dot.style.background = "var(--danger)";
+        txt.textContent = "Expiré";
+        $("badgeAvailable").style.display = "none";
+        $("badgePending").style.display = "none";
+        $("badgeClosed").style.display = "";
+      }
+    }
+
+    function renderEmpty(box, title, meta){
       box.innerHTML = `
-        <div class="item">
-          <div class="left">
-            <div class="title">Aucune activité aujourd’hui</div>
-            <div class="meta">Ton prochain client arrive bientôt.</div>
-          </div>
-          <div class="right">—<small>—</small></div>
-        </div>`;
-      return;
-    }
-
-    box.innerHTML = list.map(t=>{
-      const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
-      const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
-      const extra = (t.extras_fcfa && t.extras_fcfa > 0)
-        ? `+${t.extras_fcfa} extras`
-        : "—";
-
-      return `
         <div class="item">
           <div class="left">
             <div class="title">${esc(title)}</div>
             <div class="meta">${esc(meta)}</div>
           </div>
-          <div class="right">
-            ${money(t.revenue_fcfa)}
-            <small>${esc(extra)}</small>
-          </div>
+          <div class="right">—<small>—</small></div>
         </div>`;
-    }).join("");
-  }
+    }
 
-  load().catch(console.error);
+    function renderTrips(box, list){
+      box.innerHTML = list.map(t=>{
+        const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
+        const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
+        const extra = (t.extras_fcfa && t.extras_fcfa > 0) ? `+${t.extras_fcfa} extras` : "—";
+        return `
+          <div class="item">
+            <div class="left">
+              <div class="title">${esc(title)}</div>
+              <div class="meta">${esc(meta)}</div>
+            </div>
+            <div class="right">
+              ${money(t.revenue_fcfa)}
+              <small>${esc(extra)}</small>
+            </div>
+          </div>`;
+      }).join("");
+    }
 
-})();
-</script>  
+    // =============================
+    // LOAD DATA (SQL drives)
+    // =============================
+    async function load(){
+      set("techState", "state: loading");
+
+      // si pas de slug → on part vers ABOS
+      if(!slug){
+        set("techState", "state: no-slug → pay");
+        goPay();
+        return;
+      }
+
+      // fiche publique
+      set("slugText", "slug: " + slug);
+      const pub = "https://digiylyfe.com/" + slug;
+      set("publicLink", pub);
+
+      // KPIs
+      const { data:stats, error:e1 } =
+        await sb.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
+
+      if(e1){
+        console.error("stats error", e1);
+
+        // si not allowed → pay
+        const msg = (e1.message || "").toLowerCase();
+        if(msg.includes("not allowed")){
+          setStatus("pending");
+          set("techState", "state: not-allowed → pay");
+          goPay();
+          return;
+        }
+
+        setStatus("pending");
+        set("techState", "state: stats-error");
+        toast("Erreur stats");
+        return;
+      }
+
+      const s = Array.isArray(stats) ? stats[0] : stats;
+
+      // Statut (simple)
+      setStatus("active");
+
+      set("kpiTodayCount", s.trips_today ?? 0);
+      set("kpiTodayMoney", money(s.revenue_today_fcfa ?? 0));
+      set("kpi7dCount", s.trips_7d ?? 0);
+      set("kpi7dMoney", money(s.revenue_7d_fcfa ?? 0));
+      set("kpi30dCount", s.trips_30d ?? 0);
+      set("kpi30dMoney", money(s.revenue_30d_fcfa ?? 0));
+      set("kpiTotalCount", s.trips_total ?? 0);
+      set("kpiTotalMoney", money(s.revenue_total_fcfa ?? 0));
+
+      // Activités du jour
+      const box = $("todayList");
+      const { data:list, error:e2 } =
+        await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
+
+      if(e2){
+        console.error("list error", e2);
+        set("techState", "state: list-error");
+        toast("Erreur liste");
+        if(box) renderEmpty(box, "Impossible de charger les activités", "Réessaie dans un instant.");
+        return;
+      }
+
+      if(box){
+        if(!Array.isArray(list) || list.length === 0){
+          renderEmpty(box, "Aucune activité aujourd’hui", "Ton prochain client arrive bientôt.");
+        }else{
+          renderTrips(box, list);
+        }
+      }
+
+      set("techState", "state: ok");
+    }
+
+    // =============================
+    // BUTTONS
+    // =============================
+    $("btnCopyLink")?.addEventListener("click", async ()=>{
+      try{
+        const pub = $("publicLink")?.textContent || "";
+        await navigator.clipboard.writeText(pub);
+        toast("Copié ✅");
+      }catch(_){
+        toast("Copie impossible");
+      }
+    });
+
+    $("btnShare")?.addEventListener("click", async ()=>{
+      const pub = $("publicLink")?.textContent || "";
+      try{
+        if(navigator.share){
+          await navigator.share({ title:"DIGIY", text:"Mon lien DIGIY", url: pub });
+        }else{
+          window.open("https://wa.me/?text=" + encodeURIComponent(pub), "_blank");
+        }
+      }catch(_){}
+    });
+
+    $("btnSupport")?.addEventListener("click", ()=>{
+      window.open("https://wa.me/221771342889", "_blank");
+    });
+
+    // Actions (tu peux remplacer par tes pages)
+    $("btnMainAction")?.addEventListener("click", ()=>{
+      toast("Nouvelle course (à brancher)");
+      // location.href = "./courses.html?slug=" + encodeURIComponent(slug);
+    });
+    $("btnSecondary1")?.addEventListener("click", ()=>{
+      toast("Zone (à brancher)");
+      // location.href = "./driver-zone-now.html?slug=" + encodeURIComponent(slug);
+    });
+    $("btnSecondary2")?.addEventListener("click", ()=>{
+      toast("Tarifs (à brancher)");
+      // location.href = "./profil-chauffeur.html?slug=" + encodeURIComponent(slug);
+    });
+
+    $("btnViewHistory")?.addEventListener("click", ()=>{
+      toast("Historique (à brancher)");
+      // location.href = "./courses.html?slug=" + encodeURIComponent(slug);
+    });
+    $("btnExport")?.addEventListener("click", ()=>{
+      toast("Export (à faire)");
+    });
+    $("btnSettings")?.addEventListener("click", ()=>{
+      toast("Paramètres (à brancher)");
+    });
+
+    $("btnEditOffer")?.addEventListener("click", ()=>toast("Offre (à brancher)"));
+    $("btnToggleOffer")?.addEventListener("click", ()=>toast("Offre (à brancher)"));
+    $("btnBoostOffer")?.addEventListener("click", ()=>toast("Boost (à brancher)"));
+
+    // GO
+    load().catch((e)=>{
+      console.error(e);
+      set("techState", "state: crash");
+      toast("Crash JS");
+    });
+
+  })();
+  </script>
 </body>
 </html>
