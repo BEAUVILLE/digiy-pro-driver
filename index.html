@@ -161,6 +161,10 @@
           <span class="dot" id="statusDot"></span>
           <span id="statusText">Prêt</span>
         </div>
+
+        <!-- ✅ PATCH #1 : bouton SLUG permanent -->
+        <button class="btn" id="btnSlug" type="button">🔑 Slug</button>
+
         <button class="btn gold" id="btnShare" type="button">Partager</button>
         <button class="btn" id="btnSupport" type="button">Support</button>
       </div>
@@ -175,7 +179,11 @@
       <div class="hint">Colle ton slug chauffeur (ex: <span class="mono">driver-22177...</span>)</div>
 
       <div style="margin-top:10px">
-        <input class="in" id="gateSlug" placeholder="driver-221770000111" />
+        <!-- ✅ PATCH #4 : mobile safe -->
+        <input class="in" id="gateSlug"
+          placeholder="driver-221770000111"
+          autocapitalize="none" autocorrect="off" spellcheck="false"
+        />
       </div>
 
       <div class="actions" style="margin-top:12px">
@@ -265,7 +273,8 @@
     function esc(s){
       return String(s||"")
         .replaceAll("&","&amp;").replaceAll("<","&lt;")
-        .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
     }
     function toast(msg){
@@ -321,11 +330,14 @@
       }
     }
 
+    // ✅ PATCH #2 : goWithSlug stable (garde la même page + query)
     function goWithSlug(s){
       const clean = String(s||"").trim();
       if(!clean) return toast("Slug vide");
+
       localStorage.setItem(STORAGE_KEY, clean);
-      const u = new URL(location.origin + "/");
+
+      const u = new URL(location.href);
       u.searchParams.set("slug", clean);
       location.assign(u.toString());
     }
@@ -364,10 +376,6 @@
       set("kpiTodayMoney", money(s.revenue_today_fcfa ?? 0));
       set("kpi7dCount", s.trips_7d ?? 0);
       set("kpi7dMoney", money(s.revenue_7d_fcfa ?? 0));
-      set("kpi30dCount", s.trips_30d ?? 0);
-      set("kpi30dMoney", money(s.revenue_30d_fcfa ?? 0));
-      set("kpiTotalCount", s.trips_total ?? 0);
-      set("kpiTotalMoney", money(s.revenue_total_fcfa ?? 0));
 
       // Liste du jour
       const { data:list, error:e2 } = await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
@@ -453,6 +461,21 @@
       const s = (localStorage.getItem(STORAGE_KEY) || "").trim();
       if(!s) return toast("Aucun slug mémorisé");
       goWithSlug(s);
+    });
+
+    // ✅ PATCH #3 : bouton SLUG = ouvrir/fermer gate quand on veut
+    $("btnSlug")?.addEventListener("click", ()=>{
+      const g = $("gate");
+      if(!g) return;
+      g.classList.toggle("show");
+
+      const s = (slug || localStorage.getItem(STORAGE_KEY) || "").trim();
+      const inp = $("gateSlug");
+      if(inp && s) inp.value = s;
+
+      if(g.classList.contains("show")){
+        g.scrollIntoView({ behavior:"smooth", block:"start" });
+      }
     });
 
     // GO
