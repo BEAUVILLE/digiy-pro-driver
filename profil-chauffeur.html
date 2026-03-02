@@ -3,256 +3,93 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER PRO — Profil</title>
+  <title>DIGIY DRIVER PRO — Mes tarifs</title>
   <meta name="theme-color" content="#061b14"/>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./guard-pro.js?v=1"></script>
   <style>
-    :root{
-      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
-      --text:#eafff1; --muted:rgba(234,255,241,.78);
-      --green:#16a34a; --gold:#facc15; --r:18px;
-    }
+    :root{--bg:#061b14;--card:#0b2a1f;--line:rgba(255,255,255,.12);--text:#eafff1;--muted:rgba(234,255,241,.72);--primary:#22c55e;--shadow:0 18px 55px rgba(0,0,0,.42);--r:18px;--max:860px;}
     *{box-sizing:border-box}
-    body{
-      margin:0; min-height:100vh;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-      background:radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
-                 radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
-                 var(--bg);
-      color:var(--text);
-    }
-    header{
-      position:sticky; top:0; z-index:10;
-      backdrop-filter: blur(10px);
-      background:rgba(6,27,20,.75);
-      border-bottom:1px solid var(--line);
-      padding:14px 16px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px;
-    }
-    .title{font-weight:900;}
-    .pill{
-      padding:8px 10px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      font-size:13px;
-      color:var(--muted);
-      background:rgba(0,0,0,.22);
-      white-space:nowrap;
-    }
-    main{padding:16px; max-width:980px; margin:0 auto;}
-    .grid{display:grid; gap:12px; grid-template-columns: repeat(12, 1fr);}
-    .card{
-      grid-column: span 12;
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      padding:16px;
-      box-shadow:0 12px 40px rgba(0,0,0,.32);
-    }
-    @media(min-width:860px){
-      .card.half{grid-column: span 6;}
-    }
-    h1{margin:0 0 8px; font-size:20px;}
-    label{display:block; font-size:13px; color:rgba(234,255,241,.75); margin:10px 0 6px}
-    input{
-      width:100%; padding:12px 12px; border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.22);
-      color:var(--text);
-      font-size:16px; outline:none;
-    }
-    input:focus{border-color:rgba(34,197,94,.55); box-shadow:0 0 0 3px rgba(34,197,94,.15)}
-    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-    button,a.btn{
-      border:0; cursor:pointer;
-      padding:12px 14px;
-      border-radius:14px;
-      font-weight:900;
-      font-size:15px;
-      text-decoration:none;
-      display:inline-flex; align-items:center; justify-content:center;
-    }
-    .btn{
-      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
-      color:#042012;
-    }
-    .btn2{
-      background:rgba(250,204,21,.14);
-      color:var(--text);
-      border:1px solid rgba(250,204,21,.25);
-    }
-    .muted{color:rgba(234,255,241,.72); font-size:13px; line-height:1.45}
+    body{margin:0;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);padding:16px}
+    .wrap{max-width:var(--max);margin:0 auto}
+    .card{border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));box-shadow:var(--shadow);padding:16px}
+    h1{margin:0 0 6px;font-size:22px;font-weight:1000}
+    .muted{color:var(--muted);font-weight:800}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .btn{border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);padding:12px 14px;border-radius:14px;font-weight:950;cursor:pointer}
+    .btn.primary{border-color:rgba(34,197,94,.45);background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.88));color:#042012}
+    .in{width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.12);color:var(--text);font-size:15px;font-weight:900;outline:none}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
   </style>
 </head>
 <body>
+<div class="wrap">
+  <div class="card">
+    <h1>Ajouter un tarif</h1>
+    <div class="muted">Tarifs simples, terrain. (SQL après.)</div>
 
-<header>
-  <div class="title">🧑🏾‍✈️ Profil Chauffeur</div>
-  <div class="pill" id="pillPhone">📱 …</div>
-</header>
+    <div class="muted" style="margin-top:10px" id="slugText">slug: —</div>
 
-<main>
-  <div class="grid">
-    <section class="card half">
-      <h1>Identité</h1>
-
-      <label>Nom (local)</label>
-      <input id="name" placeholder="Ex: Lamine" />
-
-      <label>Ville</label>
-      <input id="city" placeholder="Ex: Saly" />
-
-      <label>Véhicule</label>
-      <input id="car" placeholder="Ex: Toyota — Noir" />
-
+    <div id="gate" style="margin-top:14px; display:none">
+      <div class="muted">Slug requis. Colle ton slug puis ouvre.</div>
+      <div style="margin-top:10px"><input class="in" id="gateSlug" placeholder="driver-221770000111"/></div>
       <div class="row">
-        <button class="btn" id="btnSave">Enregistrer</button>
-        <button class="btn2" id="btnClear">Effacer</button>
+        <button class="btn primary" id="btnOpen">🚀 Ouvrir</button>
+        <button class="btn" id="btnBack">⬅️ Retour</button>
       </div>
+    </div>
 
-      <p class="muted" id="status" style="margin-top:10px;"></p>
-    </section>
-
-    <section class="card half">
-      <h1>Accès</h1>
-      <p class="muted">
-        Session active : 8 heures depuis ta dernière connexion.
-        Déconnexion automatique après expiration.
-      </p>
-
-      <div class="row" style="margin-top:12px;">
-        <a class="btn2" href="./driver-zone-now.html">Zone maintenant</a>
-        <a class="btn2" href="./courses.html">Courses</a>
-        <a class="btn2" href="./index.html">Accueil</a>
+    <div id="content" style="margin-top:14px; display:none">
+      <div class="grid">
+        <div>
+          <div class="muted">Nom</div>
+          <input class="in" id="name" placeholder="Saly → Dakar"/>
+        </div>
+        <div>
+          <div class="muted">Prix (FCFA)</div>
+          <input class="in" id="price" inputmode="numeric" placeholder="7000"/>
+        </div>
       </div>
-
-      <div class="row" style="margin-top:12px;">
-        <button class="btn2" id="btnLogout">Déconnexion</button>
+      <div class="row">
+        <button class="btn primary" id="btnSave">💾 Enregistrer</button>
+        <button class="btn" id="btnBack2">⬅️ Retour</button>
       </div>
-    </section>
+      <div class="muted" style="margin-top:10px" id="msg">Prêt.</div>
+    </div>
+
   </div>
-</main>
-
-<!-- ✅ GUARD INTÉGRÉ -->
-<script>
-  (function () {
-    "use strict";
-
-    const SESSION_KEY = "DIGIY_DRIVER_PRO_SESSION";
-    const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8h
-
-    function now() { return Date.now(); }
-
-    function getSession() {
-      try {
-        const raw = localStorage.getItem(SESSION_KEY);
-        const s = JSON.parse(raw);
-        if (!s || !s.expires_at || now() > s.expires_at) return null;
-        return s;
-      } catch {
-        return null;
-      }
-    }
-
-    function clearSession() {
-      localStorage.removeItem(SESSION_KEY);
-    }
-
-    function logout(redirect = "pin.html") {
-      clearSession();
-      const url = new URL(location.href);
-      const slug = url.searchParams.get("slug");
-      if (slug) {
-        location.replace(redirect + "?slug=" + slug);
-      } else {
-        location.replace(redirect);
-      }
-    }
-
-    window.DIGIY_GUARD = { getSession, clearSession, logout };
-  })();
-</script>
+</div>
 
 <script>
-  const pillPhone = document.getElementById("pillPhone");
-  const statusEl = document.getElementById("status");
-  const nameEl = document.getElementById("name");
-  const cityEl = document.getElementById("city");
-  const carEl  = document.getElementById("car");
+(function(){
+  "use strict";
+  const qs = new URLSearchParams(location.search);
+  const slug = (qs.get("slug")||"").trim();
+  const $ = (id)=>document.getElementById(id);
 
-  const LS_PROFILE = "digiy_driver_profile";
+  $("slugText").textContent = "slug: " + (slug || "—");
 
-  function setStatus(msg){ statusEl.textContent = msg || ""; }
+  function goBack(){ location.href = "./?slug=" + encodeURIComponent(slug || ""); }
 
-  function loadProfile(){
-    try{
-      const raw = localStorage.getItem(LS_PROFILE);
-      if(!raw) return;
-      const p = JSON.parse(raw);
-      nameEl.value = p.name || "";
-      cityEl.value = p.city || "";
-      carEl.value  = p.car  || "";
-    }catch(e){}
-  }
-
-  function saveProfile(){
-    const p = { 
-      name: nameEl.value.trim(), 
-      city: cityEl.value.trim(), 
-      car: carEl.value.trim() 
+  if(!slug){
+    $("gate").style.display = "block";
+    $("btnOpen").onclick = ()=> {
+      const s = ($("gateSlug").value||"").trim();
+      if(!s) return;
+      location.href = "./profil-chauffeur.html?slug=" + encodeURIComponent(s);
     };
-    localStorage.setItem(LS_PROFILE, JSON.stringify(p));
+    $("btnBack").onclick = ()=> location.href="./";
+    return;
   }
 
-  async function boot(){
-    // ✅ Vérifier la session
-    const session = window.DIGIY_GUARD.getSession();
-    
-    if (!session || !session.owner_id) {
-      // ❌ Pas de session → redirection vers pin.html
-      const url = new URL(location.href);
-      const slug = url.searchParams.get("slug");
-      const pinUrl = slug ? `./pin.html?slug=${slug}` : "./pin.html";
-      
-      console.log("❌ Session expirée, redirection vers:", pinUrl);
-      location.replace(pinUrl);
-      return;
-    }
+  $("content").style.display = "block";
+  $("btnBack2").onclick = goBack;
 
-    // ✅ Session OK
-    console.log("✅ Session OK, owner_id:", session.owner_id);
-
-    // Afficher le téléphone
-    pillPhone.textContent = "📱 " + (session.phone || session.slug || "Connecté");
-
-    // Charger le profil local
-    loadProfile();
-    
-    setStatus(`✅ Profil de ${session.title || "Chauffeur"} prêt.`);
-  }
-
-  document.getElementById("btnSave").addEventListener("click", () => {
-    saveProfile();
-    setStatus("✅ Profil enregistré.");
-  });
-
-  document.getElementById("btnClear").addEventListener("click", () => {
-    nameEl.value = ""; 
-    cityEl.value = ""; 
-    carEl.value = "";
-    localStorage.removeItem(LS_PROFILE);
-    setStatus("Profil effacé.");
-  });
-
-  document.getElementById("btnLogout").addEventListener("click", () => {
-    window.DIGIY_GUARD.logout();
-  });
-
-  boot();
+  $("btnSave").onclick = ()=>{
+    const name = ($("name").value||"").trim();
+    const price = ($("price").value||"").trim();
+    $("msg").textContent = (name && price) ? "✅ Tarif enregistré (mock). Prochaine étape: SQL." : "⚠️ Remplis nom + prix.";
+  };
+})();
 </script>
-
 </body>
 </html>
