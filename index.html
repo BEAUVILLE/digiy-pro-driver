@@ -5,16 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>DIGIY DRIVER PRO — Mon espace pro</title>
   <meta name="theme-color" content="#061b14"/>
-
-  <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root{
-      --bg:#061b14; --card:#0b2a1f; --card2:#082318;
+      --bg:#061b14; --card:#0b2a1f;
       --line:rgba(255,255,255,.12);
       --text:#eafff1; --muted:rgba(234,255,241,.72);
-      --primary:#22c55e; --gold:#facc15; --warn:#f59e0b; --danger:#ef4444; --info:#38bdf8;
+      --primary:#22c55e; --gold:#facc15; --warn:#f59e0b; --danger:#ef4444;
       --shadow:0 18px 55px rgba(0,0,0,.42);
       --r:18px; --max:980px;
     }
@@ -27,9 +25,7 @@
         radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
         var(--bg);
     }
-    a{color:inherit}
     .wrap{max-width:var(--max); margin:0 auto; padding:16px 14px 28px}
-
     .topbar{
       display:flex; align-items:center; justify-content:space-between; gap:10px;
       padding:14px 14px; border:1px solid var(--line); border-radius:22px;
@@ -38,25 +34,19 @@
     }
     .brand{display:flex; align-items:center; gap:10px; min-width:0}
     .logo{
-      width:44px; height:44px; border-radius:14px;
-      display:grid; place-items:center;
-      border:1px solid rgba(250,204,21,.22);
-      background:rgba(0,0,0,.18);
+      width:44px; height:44px; border-radius:14px; display:grid; place-items:center;
+      border:1px solid rgba(250,204,21,.22); background:rgba(0,0,0,.18);
       font-weight:950; color:var(--gold);
     }
-    .brandtext{min-width:0}
-    .brandtext .t1{font-weight:1000; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .brandtext .t1{font-weight:1000; letter-spacing:.3px}
     .brandtext .t2{font-size:12px; color:var(--muted); font-weight:800; margin-top:2px}
-
     .right{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end}
     .pill{
       display:inline-flex; align-items:center; gap:8px;
-      padding:10px 12px; border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.18);
-      font-weight:950; font-size:12px;
+      padding:10px 12px; border-radius:999px; border:1px solid var(--line);
+      background:rgba(0,0,0,.18); font-weight:950; font-size:12px;
     }
-    .dot{width:10px; height:10px; border-radius:999px; background:var(--primary)}
+    .dot{width:10px; height:10px; border-radius:999px; background:var(--warn)}
     .btn{
       border:1px solid var(--line);
       background:rgba(255,255,255,.07);
@@ -76,14 +66,11 @@
       background:rgba(250,204,21,.12);
       color:var(--gold);
     }
-
-    h1{margin:18px 4px 6px; font-size:26px; font-weight:1050; letter-spacing:.2px}
+    h1{margin:18px 4px 6px; font-size:26px; font-weight:1050}
     .sub{margin:0 4px 14px; color:var(--muted); font-weight:800}
 
     .grid{display:grid; gap:14px}
-    @media(min-width:860px){
-      .grid{grid-template-columns: 1.2fr .8fr}
-    }
+    @media(min-width:860px){ .grid{grid-template-columns: 1.2fr .8fr} }
 
     .card{
       border:1px solid var(--line);
@@ -93,7 +80,7 @@
       padding:14px;
     }
     .card h2{margin:2px 2px 10px; font-size:16px; font-weight:1000}
-    .card .hint{font-size:12px; color:var(--muted); font-weight:800; margin-top:-6px}
+    .hint{font-size:12px; color:var(--muted); font-weight:800; margin-top:-6px}
 
     .kpis{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
     .kpi{
@@ -103,55 +90,31 @@
       padding:12px;
     }
     .kpi .lab{font-size:12px; color:var(--muted); font-weight:900}
-    .kpi .val{margin-top:6px; font-size:20px; font-weight:1050; letter-spacing:.2px}
-
-    .badges{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
-    .badge{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 10px; border-radius:999px;
-      font-size:12px; font-weight:950;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.18);
-      color:rgba(234,255,241,.92);
-    }
-    .badge.green{border-color:rgba(34,197,94,.35); color:rgba(187,247,208,.95)}
-    .badge.gold{border-color:rgba(250,204,21,.35); color:var(--gold); background:rgba(250,204,21,.10)}
-    .badge.warn{border-color:rgba(245,158,11,.35); color:#ffd7a0}
-    .badge.red{border-color:rgba(239,68,68,.35); color:#fecaca}
-
-    .actions{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
-    .actions .btn{min-height:48px; border-radius:16px}
-    .actions .btn.full{grid-column:1 / -1}
+    .kpi .val{margin-top:6px; font-size:20px; font-weight:1050}
 
     .list{display:grid; gap:10px; margin-top:10px}
     .item{
       display:flex; justify-content:space-between; gap:10px; align-items:center;
-      padding:12px;
-      border-radius:16px;
+      padding:12px; border-radius:16px;
       border:1px solid rgba(255,255,255,.10);
       background:rgba(0,0,0,.16);
     }
-    .item .left{min-width:0}
     .item .title{font-weight:1000}
     .item .meta{margin-top:3px; color:var(--muted); font-weight:800; font-size:12px}
     .item .right{text-align:right; font-weight:1000}
     .item .right small{display:block; color:var(--muted); font-weight:800; margin-top:2px}
 
-    .two{display:grid; gap:14px}
-    @media(min-width:860px){
-      .two{grid-template-columns:1fr 1fr}
-    }
+    .actions{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
+    .actions .btn{min-height:48px; border-radius:16px}
+    .actions .btn.full{grid-column:1 / -1}
 
+    .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
     .footer{
       margin-top:14px;
       display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center;
       color:rgba(234,255,241,.72);
       font-weight:800; font-size:12px;
     }
-    .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
-    .link{color:var(--gold); text-decoration:none; font-weight:1000}
-    .link:hover{text-decoration:underline}
-
     .toast{
       position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
       background:rgba(0,0,0,.65);
@@ -159,12 +122,24 @@
       color:rgba(234,255,241,.92);
       padding:10px 12px;
       border-radius:14px;
-      font-weight:900;
-      font-size:12px;
+      font-weight:900; font-size:12px;
       box-shadow:0 16px 40px rgba(0,0,0,.45);
-      display:none;
-      z-index:9999;
+      display:none; z-index:9999;
       max-width:min(92vw,680px);
+    }
+
+    /* ✅ Porte douce (dans le cockpit) */
+    .gate{display:none}
+    .gate.show{display:block}
+    .in{
+      width:100%;
+      padding:12px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.12);
+      color:var(--text);
+      font-size:15px;
+      font-weight:900;
+      outline:none;
     }
   </style>
 </head>
@@ -178,55 +153,55 @@
         <div class="logo">♾</div>
         <div class="brandtext">
           <div class="t1">DIGIY PRO</div>
-          <div class="t2">Module : <b id="moduleName">DRIVER</b></div>
+          <div class="t2">Module : <b>DRIVER</b></div>
         </div>
       </div>
 
       <div class="right">
-        <div class="pill" id="subStatus">
+        <div class="pill">
           <span class="dot" id="statusDot"></span>
-          <span id="statusText">Actif</span>
+          <span id="statusText">Prêt</span>
         </div>
         <button class="btn gold" id="btnShare" type="button">Partager</button>
         <button class="btn" id="btnSupport" type="button">Support</button>
       </div>
     </div>
 
-    <!-- TITRE -->
     <h1>Mon espace pro</h1>
-    <p class="sub" id="pageSubtitle">Activités du jour</p>
+    <p class="sub">Activités du jour</p>
+
+    <!-- ✅ PORTE DOUCE (PAS DE REDIRECTION AUTOMATIQUE) -->
+    <div class="card gate" id="gate">
+      <h2>Entrer dans mon espace</h2>
+      <div class="hint">Colle ton slug chauffeur (ex: <span class="mono">driver-22177...</span>)</div>
+
+      <div style="margin-top:10px">
+        <input class="in" id="gateSlug" placeholder="driver-221770000111" />
+      </div>
+
+      <div class="actions" style="margin-top:12px">
+        <button class="btn primary full" id="btnEnter" type="button">🚀 Ouvrir mon espace</button>
+        <button class="btn" id="btnUseSaved" type="button">Utiliser mon slug mémorisé</button>
+        <button class="btn gold" id="btnGoPay" type="button">Activer (optionnel)</button>
+      </div>
+
+      <div class="hint" id="gateMsg" style="margin-top:10px">
+        Astuce : une fois ouvert une fois, le slug reste mémorisé.
+      </div>
+    </div>
 
     <div class="grid">
 
-      <!-- COLONNE GAUCHE : ACTIVITÉS -->
+      <!-- GAUCHE -->
       <div class="card">
         <h2>Activités du jour</h2>
-        <div class="hint">Simple • clair • terrain</div>
+        <div class="hint">SQL = moteur. Zéro blabla.</div>
 
         <div class="kpis">
-          <div class="kpi">
-            <div class="lab">Aujourd’hui</div>
-            <div class="val" id="kpiTodayCount">—</div>
-          </div>
-          <div class="kpi">
-            <div class="lab">Aujourd’hui (FCFA)</div>
-            <div class="val" id="kpiTodayMoney">—</div>
-          </div>
-          <div class="kpi">
-            <div class="lab">7 derniers jours</div>
-            <div class="val" id="kpi7dCount">—</div>
-          </div>
-          <div class="kpi">
-            <div class="lab">7 derniers jours (FCFA)</div>
-            <div class="val" id="kpi7dMoney">—</div>
-          </div>
-        </div>
-
-        <div class="badges">
-          <span class="badge green" id="badgeAvailable">✅ Disponible</span>
-          <span class="badge warn" id="badgePending" style="display:none">🟠 En attente</span>
-          <span class="badge red" id="badgeClosed" style="display:none">🔴 Fermé</span>
-          <span class="badge gold" id="badgeOffer">⭐ Offre du jour</span>
+          <div class="kpi"><div class="lab">Aujourd’hui</div><div class="val" id="kpiTodayCount">—</div></div>
+          <div class="kpi"><div class="lab">Aujourd’hui (FCFA)</div><div class="val" id="kpiTodayMoney">—</div></div>
+          <div class="kpi"><div class="lab">7 derniers jours</div><div class="val" id="kpi7dCount">—</div></div>
+          <div class="kpi"><div class="lab">7 jours (FCFA)</div><div class="val" id="kpi7dMoney">—</div></div>
         </div>
 
         <div class="actions">
@@ -237,92 +212,37 @@
 
         <div class="list" id="todayList">
           <div class="item">
-            <div class="left">
+            <div>
               <div class="title">Chargement…</div>
-              <div class="meta">Un instant frérot.</div>
+              <div class="meta">Si tu vois ça trop longtemps : slug manquant.</div>
             </div>
             <div class="right">—<small>—</small></div>
           </div>
         </div>
       </div>
 
-      <!-- COLONNE DROITE : OFFRE + PERF -->
-      <div class="two">
+      <!-- DROITE -->
+      <div class="card">
+        <h2>Ma fiche publique</h2>
+        <div class="hint">Lien officiel à partager</div>
 
-        <!-- OFFRE DU JOUR -->
-        <div class="card">
-          <h2>Offre du jour</h2>
-          <div class="hint">Promo • Bonus • Offre groupée</div>
-
-          <div class="item">
-            <div class="left">
-              <div class="title" id="offerTitle">Offre groupée</div>
-              <div class="meta" id="offerMeta">À définir — simple et rentable</div>
-            </div>
-            <div class="right"><span class="badge gold" id="offerBadge">🔥 Promo</span></div>
+        <div class="item">
+          <div>
+            <div class="title">Lien</div>
+            <div class="meta mono" id="publicLink">digiylyfe.com/—</div>
           </div>
-
-          <div class="actions">
-            <button class="btn primary full" id="btnEditOffer" type="button">Modifier l’offre</button>
-            <button class="btn" id="btnToggleOffer" type="button">Activer / Désactiver</button>
-            <button class="btn" id="btnBoostOffer" type="button">Mettre en avant</button>
+          <div class="right">
+            <button class="btn gold" id="btnCopyLink" type="button">Copier</button>
+            <small id="slugText" class="mono">slug: —</small>
           </div>
         </div>
 
-        <!-- PERFORMANCE -->
-        <div class="card">
-          <h2>Performance</h2>
-          <div class="hint">Aujourd’hui • 30 jours • Total</div>
-
-          <div class="kpis">
-            <div class="kpi">
-              <div class="lab">30 derniers jours</div>
-              <div class="val" id="kpi30dCount">—</div>
-            </div>
-            <div class="kpi">
-              <div class="lab">30 jours (FCFA)</div>
-              <div class="val" id="kpi30dMoney">—</div>
-            </div>
-            <div class="kpi">
-              <div class="lab">Total</div>
-              <div class="val" id="kpiTotalCount">—</div>
-            </div>
-            <div class="kpi">
-              <div class="lab">Total (FCFA)</div>
-              <div class="val" id="kpiTotalMoney">—</div>
-            </div>
-          </div>
-
-          <div class="actions">
-            <button class="btn primary full" id="btnViewHistory" type="button">Voir l’historique</button>
-            <button class="btn" id="btnExport" type="button">Exporter</button>
-            <button class="btn" id="btnSettings" type="button">Paramètres</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- FICHE PUBLIQUE -->
-    <div class="card" style="margin-top:14px">
-      <h2>Ma fiche publique</h2>
-      <div class="hint">Ton lien officiel à partager</div>
-
-      <div class="item">
-        <div class="left">
-          <div class="title">Lien</div>
-          <div class="meta mono" id="publicLink">digiylyfe.com/—</div>
-        </div>
-        <div class="right">
-          <button class="btn gold" id="btnCopyLink" type="button">Copier</button>
-          <small id="slugText" class="mono">slug: —</small>
+        <div class="footer">
+          <span>Support WhatsApp : <a class="btn" style="text-decoration:none" href="https://wa.me/221771342889" target="_blank" rel="noopener">+221 77 134 28 89</a></span>
+          <span id="techState" class="mono">state: init</span>
         </div>
       </div>
 
-      <div class="footer">
-        <span>Support WhatsApp : <a class="link" href="https://wa.me/221771342889" target="_blank" rel="noopener">+221 77 134 28 89</a></span>
-        <span id="techState" class="mono">state: init</span>
-      </div>
     </div>
 
   </div>
@@ -333,9 +253,7 @@
   (function(){
     "use strict";
 
-    // =============================
-    // DIGIY CONFIG (DRIVER)
-    // =============================
+    // ========= CONFIG =========
     const MODULE_CODE = "DRIVER";
     const STORAGE_KEY = "digiy_driver_slug";
     const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
@@ -356,7 +274,6 @@
         .replaceAll(">","&gt;").replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
     }
-
     function toast(msg){
       const t = $("toast");
       if(!t) return;
@@ -366,148 +283,118 @@
       window.__digiy_toast_t = setTimeout(()=>t.style.display="none", 1200);
     }
 
-    // =============================
-    // SLUG RESOLUTION (no friction)
-    // =============================
-    const qs = new URLSearchParams(location.search);
-    let slug = (qs.get("slug") || "").trim();
-
-    if(!slug){
-      slug = (localStorage.getItem(STORAGE_KEY) || "").trim();
-    }
-
-    if(slug){
-      localStorage.setItem(STORAGE_KEY, slug);
-      try{
-        const clean = new URL(location.href);
-        clean.searchParams.set("slug", slug);
-        history.replaceState({}, "", clean.toString());
-      }catch(_){}
-    }
-
-    window.DIGIY_SLUG = slug;
-
-    function goPay(){
-      const u = new URL(PAY_URL);
-      u.searchParams.set("module", MODULE_CODE);
-
-      // si on a un slug, on le passe
-      if(slug) u.searchParams.set("slug", slug);
-
-      // return → revient vers cockpit AVEC slug
-      const ret = new URL(location.origin + "/");
-      if(slug) ret.searchParams.set("slug", slug);
-      u.searchParams.set("return", ret.toString());
-
-      location.replace(u.toString());
-    }
-
-    // =============================
-    // UI HELPERS
-    // =============================
     function setStatus(kind){
-      // kind: active | pending | expired
       const dot = $("statusDot");
       const txt = $("statusText");
-
       if(!dot || !txt) return;
-
       if(kind === "active"){
         dot.style.background = "var(--primary)";
         txt.textContent = "Actif";
-        $("badgeAvailable").style.display = "";
-        $("badgePending").style.display = "none";
-        $("badgeClosed").style.display = "none";
       }else if(kind === "pending"){
         dot.style.background = "var(--warn)";
         txt.textContent = "À activer";
-        $("badgeAvailable").style.display = "none";
-        $("badgePending").style.display = "";
-        $("badgeClosed").style.display = "none";
       }else{
         dot.style.background = "var(--danger)";
         txt.textContent = "Expiré";
-        $("badgeAvailable").style.display = "none";
-        $("badgePending").style.display = "none";
-        $("badgeClosed").style.display = "";
       }
     }
 
-    function renderEmpty(box, title, meta){
-      box.innerHTML = `
-        <div class="item">
-          <div class="left">
-            <div class="title">${esc(title)}</div>
-            <div class="meta">${esc(meta)}</div>
-          </div>
-          <div class="right">—<small>—</small></div>
-        </div>`;
+    // ========= SLUG RESOLUTION (NO REDIRECT AUTO) =========
+    const qs = new URLSearchParams(location.search);
+    let slug = (qs.get("slug") || "").trim();
+    const savedSlug = (localStorage.getItem(STORAGE_KEY) || "").trim();
+
+    if(!slug && savedSlug) slug = savedSlug;
+
+    // si on a un slug -> mémorise et garde URL propre
+    if(slug){
+      localStorage.setItem(STORAGE_KEY, slug);
+      try{
+        const u = new URL(location.href);
+        u.searchParams.set("slug", slug);
+        history.replaceState({}, "", u.toString());
+      }catch(_){}
     }
 
-    function renderTrips(box, list){
-      box.innerHTML = list.map(t=>{
-        const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
-        const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
-        const extra = (t.extras_fcfa && t.extras_fcfa > 0) ? `+${t.extras_fcfa} extras` : "—";
-        return `
+    function openGate(msg){
+      $("gate")?.classList.add("show");
+      if(msg) $("gateMsg").textContent = msg;
+      set("techState", "state: gate");
+      setStatus("pending");
+      // UI placeholders
+      set("slugText","slug: —");
+      set("publicLink","digiylyfe.com/—");
+      const box = $("todayList");
+      if(box){
+        box.innerHTML = `
           <div class="item">
-            <div class="left">
-              <div class="title">${esc(title)}</div>
-              <div class="meta">${esc(meta)}</div>
+            <div>
+              <div class="title">Slug requis</div>
+              <div class="meta">Entre ton slug pour charger tes stats.</div>
             </div>
-            <div class="right">
-              ${money(t.revenue_fcfa)}
-              <small>${esc(extra)}</small>
-            </div>
+            <div class="right">—<small>—</small></div>
           </div>`;
-      }).join("");
+      }
     }
 
-    // =============================
-    // LOAD DATA (SQL drives)
-    // =============================
-    async function load(){
-      set("techState", "state: loading");
+    function goWithSlug(s){
+      const clean = String(s||"").trim();
+      if(!clean){
+        toast("Slug vide");
+        return;
+      }
+      localStorage.setItem(STORAGE_KEY, clean);
+      const u = new URL(location.origin + "/");
+      u.searchParams.set("slug", clean);
+      location.assign(u.toString());
+    }
 
-      // si pas de slug → on part vers ABOS
+    function goPayOptional(){
+      // ✅ pas auto. uniquement bouton.
+      const u = new URL(PAY_URL);
+      u.searchParams.set("module", MODULE_CODE);
+      const phone = ""; // optionnel si tu veux le passer plus tard
+      if(phone) u.searchParams.set("phone", phone);
+      const s = (slug || $("gateSlug")?.value || "").trim();
+      if(s) u.searchParams.set("slug", s);
+      u.searchParams.set("return", location.origin + "/?slug=" + encodeURIComponent(s || "driver-..."));
+      window.open(u.toString(), "_blank");
+    }
+
+    // ========= LOAD DATA (SQL drives) =========
+    async function load(){
       if(!slug){
-        set("techState", "state: no-slug → pay");
-        goPay();
+        // ✅ PAS DE REDIRECT. On ouvre la porte douce.
+        openGate(savedSlug ? "Ton slug est mémorisé. Clique « Utiliser mon slug mémorisé »." : "Aucun slug détecté. Colle ton slug chauffeur.");
         return;
       }
 
-      // fiche publique
+      $("gate")?.classList.remove("show");
+      set("techState", "state: loading");
+      setStatus("active");
+
       set("slugText", "slug: " + slug);
-      const pub = "https://digiylyfe.com/" + slug;
-      set("publicLink", pub);
+      set("publicLink", "https://digiylyfe.com/" + slug);
 
       // KPIs
-      const { data:stats, error:e1 } =
-        await sb.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
-
+      const { data:stats, error:e1 } = await sb.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
       if(e1){
         console.error("stats error", e1);
-
-        // si not allowed → pay
         const msg = (e1.message || "").toLowerCase();
+
+        // Si pas accès → on ne boucle pas. On montre gate + bouton activer.
         if(msg.includes("not allowed")){
           setStatus("pending");
-          set("techState", "state: not-allowed → pay");
-          goPay();
+          openGate("Accès non actif pour ce slug. Tu peux activer (bouton) ou revenir plus tard.");
           return;
         }
 
         setStatus("pending");
-        set("techState", "state: stats-error");
-        toast("Erreur stats");
+        openGate("Erreur stats. Vérifie le slug et réessaie.");
         return;
       }
 
       const s = Array.isArray(stats) ? stats[0] : stats;
-
-      // Statut (simple)
-      setStatus("active");
-
       set("kpiTodayCount", s.trips_today ?? 0);
       set("kpiTodayMoney", money(s.revenue_today_fcfa ?? 0));
       set("kpi7dCount", s.trips_7d ?? 0);
@@ -517,93 +404,85 @@
       set("kpiTotalCount", s.trips_total ?? 0);
       set("kpiTotalMoney", money(s.revenue_total_fcfa ?? 0));
 
-      // Activités du jour
-      const box = $("todayList");
-      const { data:list, error:e2 } =
-        await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
-
+      // Liste du jour
+      const { data:list, error:e2 } = await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
       if(e2){
         console.error("list error", e2);
         set("techState", "state: list-error");
         toast("Erreur liste");
-        if(box) renderEmpty(box, "Impossible de charger les activités", "Réessaie dans un instant.");
         return;
       }
 
-      if(box){
-        if(!Array.isArray(list) || list.length === 0){
-          renderEmpty(box, "Aucune activité aujourd’hui", "Ton prochain client arrive bientôt.");
-        }else{
-          renderTrips(box, list);
-        }
+      const box = $("todayList");
+      if(!box) return;
+
+      if(!Array.isArray(list) || list.length === 0){
+        box.innerHTML = `
+          <div class="item">
+            <div>
+              <div class="title">Aucune activité aujourd’hui</div>
+              <div class="meta">Ton prochain client arrive bientôt.</div>
+            </div>
+            <div class="right">—<small>—</small></div>
+          </div>`;
+      }else{
+        box.innerHTML = list.map(t=>{
+          const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
+          const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
+          const extra = (t.extras_fcfa && t.extras_fcfa > 0) ? `+${t.extras_fcfa} extras` : "—";
+          return `
+            <div class="item">
+              <div>
+                <div class="title">${esc(title)}</div>
+                <div class="meta">${esc(meta)}</div>
+              </div>
+              <div class="right">
+                ${money(t.revenue_fcfa)}
+                <small>${esc(extra)}</small>
+              </div>
+            </div>`;
+        }).join("");
       }
 
-      set("techState", "state: ok");
+      set("techState","state: ok");
     }
 
-    // =============================
-    // BUTTONS
-    // =============================
-    $("btnCopyLink")?.addEventListener("click", async ()=>{
-      try{
-        const pub = $("publicLink")?.textContent || "";
-        await navigator.clipboard.writeText(pub);
-        toast("Copié ✅");
-      }catch(_){
-        toast("Copie impossible");
-      }
-    });
-
+    // ========= BUTTONS =========
+    $("btnSupport")?.addEventListener("click", ()=> window.open("https://wa.me/221771342889", "_blank"));
     $("btnShare")?.addEventListener("click", async ()=>{
-      const pub = $("publicLink")?.textContent || "";
+      const link = $("publicLink")?.textContent || "";
       try{
-        if(navigator.share){
-          await navigator.share({ title:"DIGIY", text:"Mon lien DIGIY", url: pub });
-        }else{
-          window.open("https://wa.me/?text=" + encodeURIComponent(pub), "_blank");
-        }
+        if(navigator.share) await navigator.share({ title:"DIGIY", text:"Mon lien DIGIY", url: link });
+        else window.open("https://wa.me/?text=" + encodeURIComponent(link), "_blank");
       }catch(_){}
     });
-
-    $("btnSupport")?.addEventListener("click", ()=>{
-      window.open("https://wa.me/221771342889", "_blank");
+    $("btnCopyLink")?.addEventListener("click", async ()=>{
+      try{
+        const link = $("publicLink")?.textContent || "";
+        await navigator.clipboard.writeText(link);
+        toast("Copié ✅");
+      }catch(_){ toast("Copie impossible"); }
     });
 
-    // Actions (tu peux remplacer par tes pages)
-    $("btnMainAction")?.addEventListener("click", ()=>{
-      toast("Nouvelle course (à brancher)");
-      // location.href = "./courses.html?slug=" + encodeURIComponent(slug);
+    // Gate buttons
+    $("btnEnter")?.addEventListener("click", ()=>{
+      const s = ($("gateSlug")?.value || "").trim();
+      goWithSlug(s);
     });
-    $("btnSecondary1")?.addEventListener("click", ()=>{
-      toast("Zone (à brancher)");
-      // location.href = "./driver-zone-now.html?slug=" + encodeURIComponent(slug);
+    $("btnUseSaved")?.addEventListener("click", ()=>{
+      const s = (localStorage.getItem(STORAGE_KEY) || "").trim();
+      if(!s) return toast("Aucun slug mémorisé");
+      goWithSlug(s);
     });
-    $("btnSecondary2")?.addEventListener("click", ()=>{
-      toast("Tarifs (à brancher)");
-      // location.href = "./profil-chauffeur.html?slug=" + encodeURIComponent(slug);
-    });
+    $("btnGoPay")?.addEventListener("click", goPayOptional);
 
-    $("btnViewHistory")?.addEventListener("click", ()=>{
-      toast("Historique (à brancher)");
-      // location.href = "./courses.html?slug=" + encodeURIComponent(slug);
-    });
-    $("btnExport")?.addEventListener("click", ()=>{
-      toast("Export (à faire)");
-    });
-    $("btnSettings")?.addEventListener("click", ()=>{
-      toast("Paramètres (à brancher)");
-    });
-
-    $("btnEditOffer")?.addEventListener("click", ()=>toast("Offre (à brancher)"));
-    $("btnToggleOffer")?.addEventListener("click", ()=>toast("Offre (à brancher)"));
-    $("btnBoostOffer")?.addEventListener("click", ()=>toast("Boost (à brancher)"));
+    // Actions (à brancher)
+    $("btnMainAction")?.addEventListener("click", ()=> toast("Nouvelle course (à brancher)"));
+    $("btnSecondary1")?.addEventListener("click", ()=> toast("Zone (à brancher)"));
+    $("btnSecondary2")?.addEventListener("click", ()=> toast("Tarifs (à brancher)"));
 
     // GO
-    load().catch((e)=>{
-      console.error(e);
-      set("techState", "state: crash");
-      toast("Crash JS");
-    });
+    load().catch((e)=>{ console.error(e); set("techState","state: crash"); toast("Crash JS"); });
 
   })();
   </script>
