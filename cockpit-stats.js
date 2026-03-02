@@ -3,6 +3,7 @@
   "use strict";
 
   const money = (n) => `${Number(n || 0).toLocaleString("fr-FR")} FCFA`;
+
   const set = (id, val) => {
     const el = document.getElementById(id);
     if (el) el.textContent = (val ?? "—");
@@ -10,13 +11,25 @@
 
   async function load(){
     try{
-      // On passe par DIGIY_GUARD.rpc (comme ton heartbeat)
-      if(!window.DIGIY_GUARD?.rpc) return;
+      if(!window.DIGIY_GUARD?.rpc) {
+        console.warn("DIGIY_GUARD.rpc not ready");
+        return;
+      }
 
-      const res = await window.DIGIY_GUARD.rpc("cockpit_driver_stats_me", {});
-      const data = res?.data || res; // selon ton wrapper guard.js
+      const slug = new URLSearchParams(location.search).get("slug");
+      if(!slug) {
+        console.warn("No slug in URL");
+        return;
+      }
 
-      const s = Array.isArray(data) ? data[0] : data?.[0] || data;
+      const res = await window.DIGIY_GUARD.rpc(
+        "cockpit_driver_stats_by_slug",
+        { p_slug: slug }
+      );
+
+      const data = res?.data ?? res;
+      const s = Array.isArray(data) ? data[0] : data;
+
       if(!s) return;
 
       set("kpiTripsToday", s.trips_today ?? 0);
@@ -33,11 +46,19 @@
 
       set("kpiDriverStatus", s.driver_status || "—");
       set("kpiZone", s.zone_slug || "—");
-      set("kpiLastTripAt", s.last_trip_at ? new Date(s.last_trip_at).toLocaleString("fr-FR") : "—");
-    }catch(e){
+      set("kpiLastTripAt",
+        s.last_trip_at
+          ? new Date(s.last_trip_at).toLocaleString("fr-FR")
+          : "—"
+      );
+
+    } catch(e){
       console.error("cockpit-stats load error:", e);
     }
   }
 
+  document.addEventListener("DOMContentLoaded", load);
+
   window.DIGIY_COCKPIT_STATS = { load };
+
 })();
