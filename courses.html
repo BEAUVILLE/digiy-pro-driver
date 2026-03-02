@@ -1,373 +1,325 @@
-<!-- ✅ COURSES.HTML — FINAL COMPLET (V2 + token + heartbeat + auto-refresh terrain safe)
-     - RPC: digiy_driver_trips_list_v2
-     - Accept: accept_offer_pro(p_token, p_offer_id)
-     - Presence: driver_heartbeat_pro(p_token, ...)
-     - Auto-refresh: poll intelligent + refresh on focus/visibility
--->
 <!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Mes Courses — DIGIY DRIVER PRO</title>
+  <title>DIGIY DRIVER PRO — Nouvelle course</title>
   <meta name="theme-color" content="#061b14"/>
 
-  <!-- Supabase + Guard -->
+  <!-- ✅ Supabase JS (pour SQL/RPC) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./guard-pro.js?v=1"></script>
-<script src="./cockpit-stats.js?v=1"></script>
 
   <style>
-    :root{--bg:#061b14;--card:#0b2a1f;--line:rgba(255,255,255,.14);--text:#eafff1;--muted:rgba(234,255,241,.78);--green:#16a34a;--gold:#facc15;--r:18px}
+    :root{
+      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.12);
+      --text:#eafff1; --muted:rgba(234,255,241,.72);
+      --primary:#22c55e; --gold:#facc15; --warn:#f59e0b; --danger:#ef4444;
+      --shadow:0 18px 55px rgba(0,0,0,.42);
+      --r:18px; --max:980px;
+    }
     *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(900px 500px at 10% -10%,rgba(34,197,94,.20),transparent 60%),radial-gradient(900px 500px at 110% 0%,rgba(250,204,21,.14),transparent 55%),var(--bg);color:var(--text)}
-    header{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:rgba(6,27,20,.75);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .title{font-weight:900;letter-spacing:.2px;font-size:18px}
-    .pill{padding:8px 10px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--muted);background:rgba(0,0,0,.22);display:flex;gap:8px;align-items:center;white-space:nowrap}
-    main{padding:16px;max-width:980px;margin:0 auto}
-    .grid{display:grid;gap:12px;grid-template-columns:repeat(12,1fr)}
-    .card{grid-column:span 12;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 12px 40px rgba(0,0,0,.32)}
-    @media(min-width:860px){.card.half{grid-column:span 6}}
-    h1{margin:0 0 8px;font-size:20px}
-    p{margin:0;color:var(--muted);line-height:1.45}
-    button,a.btn{border:0;cursor:pointer;padding:12px 14px;border-radius:14px;font-weight:900;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
-    .btn{background:linear-gradient(135deg,rgba(34,197,94,.95),rgba(16,185,129,.85));color:#042012}
-    .btn2{background:rgba(250,204,21,.14);color:var(--text);border:1px solid rgba(250,204,21,.25)}
-    .btnGhost{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line)}
-    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    .muted{color:var(--muted);font-size:13px}
-    .list{margin-top:10px;display:grid;gap:10px}
-    .item{border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px;background:rgba(0,0,0,.18);display:flex;justify-content:space-between;gap:12px;align-items:flex-start;transition:all .2s}
-    .item:hover{border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.08);transform:translateY(-2px)}
-    .tag{font-size:12px;padding:6px 10px;border-radius:999px;white-space:nowrap;font-weight:900}
-    .tag.new{border:1px solid rgba(34,197,94,.35);background:rgba(34,197,94,.12);color:rgba(234,255,241,.92)}
-    .tag.soon{border:1px solid rgba(250,204,21,.35);background:rgba(250,204,21,.12);color:rgba(254,243,199,.92)}
-    .tag.planned{border:1px solid rgba(59,130,246,.35);background:rgba(59,130,246,.12);color:rgba(191,219,254,.92)}
-    .tag.done{border:1px solid rgba(148,163,184,.35);background:rgba(148,163,184,.12);color:#e5e7eb}
-    .tag.cancel{border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.12);color:#fecaca}
-    .empty{border:2px dashed rgba(255,255,255,.14);border-radius:16px;padding:18px;text-align:center;color:var(--muted)}
-    code{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#bbf7d0}
-    .warn{margin-top:10px;padding:12px;border-radius:14px;border:1px solid rgba(250,204,21,.25);background:rgba(250,204,21,.10);color:#fde68a;font-weight:800}
-    .ok{margin-top:10px;padding:12px;border-radius:14px;border:1px solid rgba(34,197,94,.25);background:rgba(34,197,94,.10);color:#bbf7d0;font-weight:800}
-
-    .itemMain{min-width:0}
-    .itemTitle{font-weight:900}
-    .itemSub{margin-top:6px;display:grid;gap:4px}
-    .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#bbf7d0}
-    .itemActions{display:flex;flex-direction:column;gap:8px;align-items:flex-end;min-width:170px}
-    .mini{padding:10px 12px;border-radius:12px;font-weight:900;font-size:14px}
-    .mini.accept{background:linear-gradient(135deg,rgba(34,197,94,.95),rgba(16,185,129,.85));color:#042012;border:0}
-    .mini.disabled{opacity:.6;cursor:not-allowed}
+    body{
+      margin:0; color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
+        var(--bg);
+      padding:16px;
+    }
+    .wrap{max-width:var(--max); margin:0 auto}
+    .top{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      border:1px solid var(--line); border-radius:22px; padding:14px;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow:var(--shadow);
+    }
+    .title{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    h1{margin:0; font-size:22px; font-weight:1050}
+    .muted{color:var(--muted); font-weight:800; font-size:13px}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:999px; border:1px solid var(--line);
+      background:rgba(0,0,0,.18); font-weight:950; font-size:12px;
+    }
+    .btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:950;
+      cursor:pointer;
+      min-height:44px;
+    }
+    .btn.primary{
+      border:1px solid rgba(34,197,94,.45);
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.88));
+      color:#042012;
+    }
+    .grid{display:grid; gap:14px; margin-top:14px}
+    @media(min-width:900px){ .grid{grid-template-columns: 1fr 1fr} }
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .card h2{margin:0 0 10px; font-size:16px; font-weight:1000}
+    .in{
+      width:100%;
+      padding:12px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.12);
+      color:var(--text);
+      font-size:15px;
+      font-weight:900;
+      outline:none;
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .row > *{flex:1}
+    .list{display:grid; gap:10px; margin-top:10px}
+    .item{
+      display:flex; justify-content:space-between; gap:10px; align-items:center;
+      padding:12px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+    }
+    .item .t{font-weight:1000}
+    .item .m{margin-top:3px; font-size:12px; color:var(--muted); font-weight:800}
+    .item .r{text-align:right; font-weight:1000}
+    .item .r small{display:block; color:var(--muted); font-weight:800; margin-top:2px}
+    .msg{
+      margin-top:10px;
+      font-size:13px;
+      font-weight:900;
+      color:rgba(234,255,241,.85);
+    }
+    .msg.ok{color:rgba(187,247,208,.95)}
+    .msg.bad{color:rgba(254,202,202,.95)}
+    .gate{display:none}
+    .gate.show{display:block}
   </style>
 </head>
 
 <body>
-<header>
-  <div class="title">🚗 Mes Courses</div>
-  <div class="pill" id="pillPhone">📱 …</div>
-</header>
+  <div class="wrap">
 
-<main>
-  <div class="grid">
-    <section class="card half">
-      <h1 id="headline">T'es en ligne frérot ! 🦅</h1>
-      <p id="status">Chargement…</p>
-
-      <div class="row">
-        <button class="btn" id="btnRefresh">🔄 Actualiser</button>
-        <a class="btnGhost" id="btnDashboard" href="./index.html">🏠 Dashboard</a>
-        <button class="btn2" id="btnLogout">🚪 Me déconnecter</button>
+    <div class="top">
+      <div class="title">
+        <h1>Nouvelle course</h1>
+        <div class="muted">Crée une course, encaisse, avance. (Zéro friction)</div>
       </div>
 
-      <p class="muted" style="margin-top:10px">
-        Session: <code>8h</code> • Slug: <code id="slugBox">—</code> • Owner: <code id="ownerBox">—</code>
-      </p>
+      <div class="row" style="flex:0 0 auto; gap:10px">
+        <div class="pill" id="slugPill">slug: —</div>
+        <button class="btn" id="btnBack" type="button">⬅️ Retour</button>
+      </div>
+    </div>
 
-      <div id="debug" class="muted" style="margin-top:10px"></div>
-    </section>
+    <!-- ✅ Gate slug -->
+    <div class="card gate" id="gate" style="margin-top:14px">
+      <h2>Slug requis</h2>
+      <div class="muted">Colle ton slug chauffeur pour accéder à tes courses.</div>
+      <div style="margin-top:10px">
+        <input class="in" id="gateSlug" placeholder="driver-221770000111"/>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="btnOpen">🚀 Ouvrir</button>
+        <button class="btn" id="btnHome">🏠 Accueil</button>
+      </div>
+      <div class="msg" id="gateMsg">Astuce : après ouverture, on garde ton slug dans l’URL.</div>
+    </div>
 
-    <section class="card half">
-      <h1>Tes courses 🔥</h1>
-      <p class="muted">LIVE via RPC V2 (offer_id + offer_status) — token maison.</p>
-      <div class="list" id="list"></div>
-    </section>
+    <div class="grid" id="content" style="display:none">
 
-    <section class="card">
-      <h1>Comment ça marche</h1>
-      <p>
-        ✅ Tu te connectes par PIN<br>
-        ✅ Présence online via <b>driver_heartbeat_pro</b><br>
-        ✅ Liste des courses via <b>digiy_driver_trips_list_v2</b><br>
-        ✅ Acceptation via <b>accept_offer_pro(token, offer_id)</b><br>
-        ✅ Auto-refresh terrain safe (8s) + focus/visibility
-      </p>
-    </section>
+      <div class="card">
+        <h2>Créer une course</h2>
+
+        <div class="row">
+          <div>
+            <div class="muted" style="margin:0 0 6px">Départ</div>
+            <input class="in" id="pickup" placeholder="Ex: Saly Centre"/>
+          </div>
+          <div>
+            <div class="muted" style="margin:0 0 6px">Arrivée</div>
+            <input class="in" id="drop" placeholder="Ex: Dakar Plateau"/>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div>
+            <div class="muted" style="margin:0 0 6px">Prix (FCFA)</div>
+            <input class="in" id="price" inputmode="numeric" placeholder="7000"/>
+          </div>
+          <div>
+            <div class="muted" style="margin:0 0 6px">Extras (FCFA)</div>
+            <input class="in" id="extras" inputmode="numeric" placeholder="0"/>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="btnCreate" type="button">➕ Créer</button>
+          <button class="btn" id="btnReload" type="button">↻ Rafraîchir</button>
+        </div>
+
+        <div class="msg" id="msgCreate">Prêt.</div>
+
+        <div class="muted" style="margin-top:10px;font-size:12px">
+          Note : pour l’instant “Créer” est en mode <b>mock</b>. Quand tu veux, on branche SQL (RPC insert).
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Mes courses du jour</h2>
+        <div class="muted">Affiche les 10 dernières (SQL/RPC).</div>
+
+        <div class="list" id="todayList">
+          <div class="item">
+            <div>
+              <div class="t">Chargement…</div>
+              <div class="m">—</div>
+            </div>
+            <div class="r">—<small>—</small></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
   </div>
-</main>
 
 <script>
-(async()=>{
-  const statusEl = document.getElementById("status");
-  const pillPhone = document.getElementById("pillPhone");
-  const listEl = document.getElementById("list");
-  const slugBox = document.getElementById("slugBox");
-  const ownerBox = document.getElementById("ownerBox");
-  const debugEl = document.getElementById("debug");
+(function(){
+  "use strict";
 
-  // ✅ Guard session
-  const session = window.DIGIY_GUARD?.requireSession?.("./pin.html");
-  if(!session) return;
+  // ✅ Même config que ton index (tu peux centraliser plus tard)
+  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
-  const sb = window.DIGIY_GUARD.getSb?.();
-  if(!sb){
-    debugEl.className = "warn";
-    debugEl.textContent = "⚠️ Supabase client introuvable (guard).";
-    return;
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const qs = new URLSearchParams(location.search);
+  let slug = (qs.get("slug") || "").trim();
+
+  const $ = (id)=>document.getElementById(id);
+  const money = (n)=>`${Number(n||0).toLocaleString("fr-FR")} FCFA`;
+  const setMsg = (txt, kind)=>{
+    const el = $("msgCreate");
+    if(!el) return;
+    el.classList.remove("ok","bad");
+    if(kind) el.classList.add(kind);
+    el.textContent = txt;
+  };
+
+  $("btnBack").onclick = ()=>{
+    // retour cockpit
+    if(slug) location.href = "./?slug=" + encodeURIComponent(slug);
+    else location.href = "./";
+  };
+
+  $("slugPill").textContent = "slug: " + (slug || "—");
+
+  function openGate(){
+    $("gate").classList.add("show");
+    $("content").style.display = "none";
+    $("btnOpen").onclick = ()=>{
+      const s = ($("gateSlug").value||"").trim();
+      if(!s) return;
+      location.href = "./courses.html?slug=" + encodeURIComponent(s);
+    };
+    $("btnHome").onclick = ()=> location.href = "./";
   }
 
-  // ✅ token maison (doit être stocké par guard au login)
-  const token = window.DIGIY_GUARD.getDriverToken?.() || "";
+  async function loadToday(){
+    const box = $("todayList");
+    if(!box) return;
 
-  const url = new URL(location.href);
-  const slug = (url.searchParams.get("slug") || session.slug || "").trim().toLowerCase();
-
-  slugBox.textContent = slug || "—";
-  ownerBox.textContent = (session.owner_id || "—");
-
-  // dashboard conserve slug
-  const dash = new URL("./index.html", location.href);
-  if(slug) dash.searchParams.set("slug", slug);
-  document.getElementById("btnDashboard").href = dash.toString();
-
-  pillPhone.textContent = "📱 " + (session.phone || session.slug || "Connecté");
-  statusEl.textContent = `✅ Connecté ${session.title || "chauffeur"} 🦅`;
-
-  function escapeHtml(str){
-    const d = document.createElement("div");
-    d.textContent = String(str ?? "");
-    return d.innerHTML;
-  }
-
-  function fmtWhen(t){
-    if(!t) return "—";
+    // ✅ Ici on appelle ton RPC (si présent)
+    // cockpit_driver_today_list_by_slug(p_slug text, p_limit int)
     try{
-      const d = new Date(t);
-      return d.toLocaleString("fr-FR", { dateStyle:"medium", timeStyle:"short" });
-    }catch{ return String(t); }
-  }
-
-  function fmtCoord(x){
-    if(x==null || x===undefined) return "—";
-    const n = Number(x);
-    if(Number.isNaN(n)) return String(x);
-    return n.toFixed(5);
-  }
-
-  function tagFromRow(r){
-    const st = (r.status || "").toLowerCase();
-    if(st === "cancelled") return {cls:"cancel", label:"❌ Annulée"};
-    if(st === "completed") return {cls:"done", label:"✅ Terminée"};
-    if(st === "accepted") return {cls:"new", label:"🟢 Acceptée"};
-    if(st === "offered") return {cls:"soon", label:"📩 Offre envoyée"};
-    if(st === "pending") return {cls:"soon", label:"⏳ En attente"};
-    return {cls:"soon", label:"⏰ À traiter"};
-  }
-
-  function getVilleFromSlug(slug){
-    const s = (slug || "").toLowerCase();
-    if (s.includes("saly")) return "Saly";
-    if (s.includes("mbour")) return "Mbour";
-    if (s.includes("somone")) return "Somone";
-    if (s.includes("ngaparou")) return "Ngaparou";
-    return slug || null;
-  }
-
-  // ✅ Presence PRO (heartbeat)
-  async function heartbeatPro(){
-    if(!token) return;
-    try{
-      await window.DIGIY_GUARD.rpc("driver_heartbeat_pro", {
-        p_token: token,
-        p_display_name: session.title || "chauffeur",
-        p_driver_phone: session.phone || null,
-        p_ville: getVilleFromSlug(slug)
-      });
-    }catch(_){}
-  }
-  heartbeatPro();
-  const hbTimer = setInterval(heartbeatPro, 25 * 1000);
-  document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) heartbeatPro(); });
-  window.addEventListener("focus", heartbeatPro);
-
-  // ✅ Accept offer (token)
-  async function acceptOffer(offerId){
-    if(!token){
-      debugEl.className = "warn";
-      debugEl.textContent = "⚠️ Token manquant. Reconnecte-toi (PIN) pour générer le token.";
-      return;
-    }
-    if(!offerId){
-      debugEl.className = "warn";
-      debugEl.textContent = "⚠️ Offer ID manquant.";
-      return;
-    }
-
-    try{
-      debugEl.className = "warn";
-      debugEl.textContent = "⏳ Acceptation en cours…";
-
-      const { data, error } = await sb.rpc("accept_offer_pro", {
-        p_token: token,
-        p_offer_id: offerId
-      });
+      const { data, error } = await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
       if(error) throw error;
 
-      if(!data?.ok){
-        debugEl.className = "warn";
-        debugEl.textContent = "⚠️ Refus: " + (data?.error || "inconnu");
+      if(!Array.isArray(data) || data.length === 0){
+        box.innerHTML = `
+          <div class="item">
+            <div>
+              <div class="t">Aucune course aujourd’hui</div>
+              <div class="m">Crée la première.</div>
+            </div>
+            <div class="r">—<small>—</small></div>
+          </div>`;
         return;
       }
 
-      debugEl.className = "ok";
-      debugEl.textContent = "✅ Course acceptée !";
-      await loadTrips(true);
-    }catch(e){
-      debugEl.className = "warn";
-      debugEl.textContent = "⚠️ Acceptation KO: " + (e?.message || "inconnu");
-    }
-  }
-
-  function renderRows(rows){
-    if(!rows || !rows.length){
-      listEl.innerHTML = `
-        <div class="empty">
-          Aucune course assignée pour l’instant frérot.<br><br>
-          <span class="muted">Dès qu’un client demande une course, tu la verras ici.</span>
-        </div>
-      `;
-      return;
-    }
-
-    listEl.innerHTML = rows.map(r=>{
-      const tag = tagFromRow(r);
-      const idShort = (r.ride_request_id||"").toString().slice(0,8).toUpperCase();
-
-      const pickup = `📍 Pickup: <span class="mono">${escapeHtml(fmtCoord(r.pickup_lat))}, ${escapeHtml(fmtCoord(r.pickup_lng))}</span>`;
-      const drop   = `🎯 Drop: <span class="mono">${escapeHtml(fmtCoord(r.drop_lat))}, ${escapeHtml(fmtCoord(r.drop_lng))}</span>`;
-
-      const when = r.updated_at || r.created_at;
-      const attempts = (r.attempts!=null) ? String(r.attempts) : "0";
-
-      const offerId = r.offer_id || null;
-      const offerStatus = (r.offer_status || "").toLowerCase();
-      const isExpired = r.offer_expires_at ? (Date.now() > new Date(r.offer_expires_at).getTime()) : false;
-
-      const canAccept =
-        !!offerId &&
-        !isExpired &&
-        (offerStatus === "sent" || offerStatus === "viewed" || offerStatus === "offered" || offerStatus === "");
-
-      const offerLine = offerId
-        ? `<div class="muted">Offer: <code>${escapeHtml(String(offerId))}</code> • <span class="muted">${escapeHtml(offerStatus || "—")}</span> • exp: <span class="muted">${escapeHtml(fmtWhen(r.offer_expires_at))}</span></div>`
-        : `<div class="muted">Offer: —</div>`;
-
-      return `
-        <div class="item">
-          <div class="itemMain">
-            <div class="itemTitle">${escapeHtml(idShort)} — <span class="muted">${escapeHtml(r.status || "—")}</span></div>
-            <div class="itemSub">
-              <div class="muted">${pickup}</div>
-              <div class="muted">${drop}</div>
-              <div class="muted">🕒 ${escapeHtml(fmtWhen(when))} • attempts: <span class="mono">${escapeHtml(attempts)}</span></div>
-              ${offerLine}
+      box.innerHTML = data.map(t=>{
+        const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
+        const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
+        const extra = (t.extras_fcfa && t.extras_fcfa > 0) ? `+${t.extras_fcfa} extras` : "—";
+        return `
+          <div class="item">
+            <div>
+              <div class="t">${title}</div>
+              <div class="m">${meta}</div>
             </div>
+            <div class="r">
+              ${money(t.revenue_fcfa)}
+              <small>${extra}</small>
+            </div>
+          </div>`;
+      }).join("");
+
+    } catch(e){
+      console.error("loadToday error", e);
+      box.innerHTML = `
+        <div class="item">
+          <div>
+            <div class="t">Erreur de chargement</div>
+            <div class="m">RPC absent ou erreur SQL.</div>
           </div>
-
-          <div class="itemActions">
-            <div class="tag ${escapeHtml(tag.cls)}">${escapeHtml(tag.label)}</div>
-            ${
-              canAccept
-                ? `<button class="mini accept" data-accept="${escapeHtml(String(offerId))}">✅ Accepter</button>`
-                : (offerId ? `<button class="mini disabled" disabled>⏳ Indispo</button>` : ``)
-            }
-          </div>
-        </div>
-      `;
-    }).join("");
-
-    // bind accept buttons
-    listEl.querySelectorAll("[data-accept]").forEach(btn=>{
-      btn.addEventListener("click", async (e)=>{
-        const offerId = e.currentTarget.getAttribute("data-accept");
-        if(!offerId) return;
-        if(!confirm("Accepter cette course maintenant ?")) return;
-        await acceptOffer(offerId);
-      });
-    });
-  }
-
-  let isLoading = false;
-  let lastAutoAt = 0;
-
-  async function loadTrips(isManual=false){
-    if(isLoading) return;
-    isLoading = true;
-
-    try{
-      const { data, error } = await sb.rpc("digiy_driver_trips_list_v2", {
-        p_driver_slug: slug,
-        p_owner_id: session.owner_id,
-        p_limit: 30
-      });
-
-      if(error) throw error;
-
-      renderRows(data || []);
-
-      debugEl.className = "ok";
-      debugEl.textContent = token
-        ? "✅ OK — trips_list_v2 + token OK (presence online)."
-        : "✅ OK — trips_list_v2 (mais token manquant).";
-
-      if(isManual) lastAutoAt = Date.now();
-    }catch(e){
-      console.warn("❌ RPC list v2 KO:", e);
-      renderRows([]);
-      debugEl.className = "warn";
-      debugEl.textContent = "⚠️ Impossible de charger les courses via RPC V2. Détail: " + (e?.message || "inconnu");
-    }finally{
-      isLoading = false;
+          <div class="r">—<small>—</small></div>
+        </div>`;
     }
   }
 
-  document.getElementById("btnRefresh").addEventListener("click", ()=>loadTrips(true));
+  function openContent(){
+    $("gate").classList.remove("show");
+    $("content").style.display = "grid";
 
-  document.getElementById("btnLogout").addEventListener("click", ()=>{
-    if(confirm("Tu veux vraiment te déconnecter frérot ?")){
-      try{ clearInterval(hbTimer); }catch(_){}
-      try{ clearInterval(autoTimer); }catch(_){}
-      window.DIGIY_GUARD.logout("./pin.html");
-    }
-  });
+    $("btnReload").onclick = loadToday;
 
-  // ✅ GO
-  await loadTrips(true);
+    // ✅ Mock create (pas SQL pour l’instant)
+    $("btnCreate").onclick = async ()=>{
+      const pickup = ($("pickup").value||"").trim();
+      const drop   = ($("drop").value||"").trim();
+      const price  = Number(($("price").value||"0").replace(/[^\d]/g,"") || 0);
+      const extras = Number(($("extras").value||"0").replace(/[^\d]/g,"") || 0);
 
-  // ✅ Auto-refresh terrain safe (8s)
-  // - ne spam pas si onglet caché
-  // - refresh immédiat au retour
-  // - évite double refresh après un clic manuel
-  let autoTimer = setInterval(() => {
-    if (document.hidden) return;
-    const now = Date.now();
-    if (now - lastAutoAt < 2500) return; // anti double-ping
-    loadTrips(false);
-  }, 8000);
+      if(!pickup || !drop || price <= 0){
+        setMsg("⚠️ Remplis départ + arrivée + prix.", "bad");
+        return;
+      }
 
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) loadTrips(false);
-  });
-  window.addEventListener("focus", () => loadTrips(false));
+      // Ici tu brancheras le vrai SQL :
+      // await sb.rpc("driver_trip_create_by_slug", { p_slug: slug, p_pickup_label: pickup, p_drop_label: drop, p_price_fcfa: price, p_extras_fcfa: extras })
+      setMsg("✅ Course créée (mock). Prochaine étape : RPC insert.", "ok");
+
+      // Refresh list
+      await loadToday();
+    };
+
+    loadToday();
+  }
+
+  // GO
+  if(!slug) openGate();
+  else openContent();
+
 })();
 </script>
 </body>
