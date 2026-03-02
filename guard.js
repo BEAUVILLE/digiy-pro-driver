@@ -1,4 +1,4 @@
-// guard-pro.js — DIGIY PRO access gate (slug-first) -> commencer-a-payer
+// guard.js — DIGIY PRO access gate (slug-first) -> commencer-a-payer
 (() => {
   "use strict";
 
@@ -38,9 +38,10 @@
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(params),
+      body: JSON.stringify(params || {}),
     });
 
+    // Supabase RPC renvoie souvent du JSON direct (bool, objet, array)
     const j = await r.json().catch(() => null);
     return { ok: r.ok, status: r.status, data: j };
   }
@@ -67,6 +68,11 @@
   }
 
   function goPay({ phone, slug }) {
+    // évite boucle si on est déjà sur commencer-a-payer
+    try {
+      if (location.href.startsWith(PAY_URL)) return;
+    } catch (_) {}
+
     const u = new URL(PAY_URL);
     u.searchParams.set("module", MODULE_CODE);
 
@@ -82,7 +88,7 @@
     location.replace(u.toString());
   }
 
-  async function go() {
+  async function main() {
     const slug = normSlug(slugQ);
     let phone = normPhone(phoneQ);
 
@@ -92,22 +98,24 @@
     }
 
     // rien -> commencer-a-payer direct
-    if (!phone) return goPay({ phone: "", slug });
+    if (!phone) {
+      goPay({ phone: "", slug });
+      return;
+    }
 
     // check access (backend truth)
     const res = await rpc("digiy_has_access", { p_phone: phone, p_module: MODULE_CODE });
 
     // digiy_has_access renvoie boolean true/false
-    if (res.ok && res.data === true) return; // ✅ accès OK
+    if (res.ok && res.data === true) return; // ✅ accès OK (on ne redirige pas)
 
     // pas accès -> payer
-    return goPay({ phone, slug });
+    goPay({ phone, slug });
   }
 
-  go().catch(() => {
+  main().catch(() => {
     // en cas de réseau down : on renvoie vers payer (safe)
     goPay({ phone: phoneQ, slug: slugQ });
   });
-})();
-  go();
+
 })();
