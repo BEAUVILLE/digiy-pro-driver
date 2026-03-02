@@ -4,21 +4,66 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>DIGIY DRIVER PRO — Entrée</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=driver-entry"></script>
 </head>
 <body>
 <script>
+(async function(){
+  const COCKPIT_PAGE = "./cockpit.html"; // <-- change ici si besoin (ex: ./courses.html)
+
   const url = new URL(location.href);
   const slug  = url.searchParams.get("slug")  || "";
-  const phone = url.searchParams.get("phone") || "";
+  const phoneQ = url.searchParams.get("phone") || "";
 
-  // ✅ PRO identifié (slug/phone) → porte PIN
-  if (slug || phone) {
-    if (slug) location.replace("./pin.html?slug=" + encodeURIComponent(slug));
-    else      location.replace("./pin.html?phone=" + encodeURIComponent(phone));
-  } else {
-    // 👤 visiteur / client → inscription pro
+  // Si pas d'identité → inscription pro
+  if(!slug && !phoneQ){
     location.replace("https://inscription-pro.digiylyfe.com/?module=DRIVER");
+    return;
   }
+
+  // attendre guard
+  const t0 = Date.now();
+  while(Date.now()-t0 < 7000){
+    if(window.DIGIY_GUARD?.rpc && window.DIGIY_GUARD?.syncSlugFromUrl) break;
+    await new Promise(r=>setTimeout(r,50));
+  }
+
+  // fallback si guard absent → PIN
+  if(!window.DIGIY_GUARD?.rpc){
+    if(slug) location.replace("./pin.html?slug=" + encodeURIComponent(slug));
+    else location.replace("./pin.html?phone=" + encodeURIComponent(phoneQ));
+    return;
+  }
+
+  try{ window.DIGIY_GUARD.syncSlugFromUrl?.(); }catch(_){}
+
+  // slug -> phone si besoin
+  let phone = phoneQ;
+  if(!phone && slug){
+    const r = await window.DIGIY_GUARD.rpc("digiy_subscriptions_public_by_slug", { p_slug: slug });
+    const data = r?.data ?? r;
+    const row = Array.isArray(data) ? data[0] : data;
+    phone = row?.phone || "";
+  }
+
+  if(!phone){
+    location.replace("./pin.html?slug=" + encodeURIComponent(slug));
+    return;
+  }
+
+  // check access DRIVER
+  const acc = await window.DIGIY_GUARD.rpc("digiy_has_access", { p_phone: phone, p_module: "DRIVER" });
+  const ok = (acc?.data ?? acc) === true;
+
+  if(ok){
+    // ✅ zéro friction → cockpit direct
+    location.replace(COCKPIT_PAGE + "?slug=" + encodeURIComponent(slug || ("driver-" + phone)));
+  }else{
+    // ❌ pas abonné → PIN
+    location.replace("./pin.html?slug=" + encodeURIComponent(slug || ("driver-" + phone)));
+  }
+})();
 </script>
 </body>
 </html>
