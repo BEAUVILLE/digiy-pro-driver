@@ -83,7 +83,7 @@
     if (s) u.searchParams.set("slug", s);
 
     // ✅ return = page actuelle
-    u.searchParams.set("return", location.href);
+    u.searchParams.set("return", "https://pro-driver.digiylyfe.com/?slug=" + encodeURIComponent(s || ("driver-" + p)));
 
     location.replace(u.toString());
   }
