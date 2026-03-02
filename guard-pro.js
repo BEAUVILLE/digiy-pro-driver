@@ -1,4 +1,4 @@
-// guard-pro.js — DIGIY PRO access gate (slug-first) -> ABOS (ANTI-BOUCLE)
+// guard-pro.js — DIGIY PRO access gate (slug-first) -> ABOS (ANTI-BOUCLE / redirect only on explicit FALSE)
 (() => {
   "use strict";
 
@@ -8,10 +8,7 @@
 
   const MODULE_CODE = "DRIVER";
 
-  // ABOS
   const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
-
-  // ✅ retour SAFE: entrée pro-driver (pas pin)
   const PRO_ENTRY_URL = "https://pro-driver.digiylyfe.com/";
 
   const qs = new URLSearchParams(location.search);
@@ -43,6 +40,7 @@
       },
       body: JSON.stringify(params || {}),
     });
+
     const j = await r.json().catch(() => null);
     return { ok: r.ok, status: r.status, data: j };
   }
@@ -56,10 +54,7 @@
       `?select=phone,slug,module&slug=eq.${encodeURIComponent(s)}&limit=1`;
 
     const r = await fetch(url, {
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
     });
 
     const arr = await r.json().catch(() => []);
@@ -70,20 +65,15 @@
   function buildReturnUrl({ phone, slug }) {
     const p = normPhone(phone);
     const s = normSlug(slug);
-
     const back = new URL(PRO_ENTRY_URL);
-    // Toujours un slug pour que l'entrée route proprement
     if (s) back.searchParams.set("slug", s);
     else if (p) back.searchParams.set("slug", `driver-${p}`);
-
     return back.toString();
   }
 
   function goPay({ phone, slug }) {
-    // évite boucle si déjà sur ABOS
-    try {
-      if (location.href.startsWith(PAY_URL)) return;
-    } catch (_) {}
+    // éviter boucle si déjà sur ABOS
+    try { if (location.href.startsWith(PAY_URL)) return; } catch (_) {}
 
     const p = normPhone(phone);
     const s = normSlug(slug);
@@ -93,7 +83,7 @@
     if (p) u.searchParams.set("phone", p);
     if (s) u.searchParams.set("slug", s);
 
-    // ✅ return SAFE (pas pin)
+    // ✅ return SAFE (jamais pin.html)
     u.searchParams.set("return", buildReturnUrl({ phone: p, slug: s }));
 
     location.replace(u.toString());
@@ -103,25 +93,30 @@
     const slug = normSlug(slugQ);
     let phone = normPhone(phoneQ);
 
-    if (!phone && slug) {
-      phone = normPhone(await resolvePhoneFromSlug(slug));
-    }
-
+    if (!phone && slug) phone = normPhone(await resolvePhoneFromSlug(slug));
     if (!phone) {
+      // pas d'identité -> ABOS (ok)
       goPay({ phone: "", slug });
       return;
     }
 
     const res = await rpc("digiy_has_access", { p_phone: phone, p_module: MODULE_CODE });
 
-    // accès OK -> laisse la page
+    // ✅ Accès OK => on laisse la page
     if (res.ok && res.data === true) return;
 
-    // pas accès -> ABOS
-    goPay({ phone, slug });
+    // ✅ Rediriger ABOS UNIQUEMENT si le backend répond explicitement false
+    if (res.ok && res.data === false) {
+      goPay({ phone, slug });
+      return;
+    }
+
+    // ⚠️ RPC en erreur / réponse inattendue => PAS de redirection (anti-boucle)
+    console.warn("[guard-pro] digiy_has_access unexpected:", res);
   }
 
-  main().catch(() => {
-    goPay({ phone: phoneQ, slug: slugQ });
+  main().catch((e) => {
+    console.warn("[guard-pro] crash:", e);
+    // anti-boucle: en cas de crash, ne force pas ABOS
   });
 })();
