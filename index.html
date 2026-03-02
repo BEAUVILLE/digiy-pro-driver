@@ -2,68 +2,404 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>DIGIY DRIVER PRO — Entrée</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-entry"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY PRO — Mon espace pro</title>
+  <meta name="theme-color" content="#061b14"/>
+
+  <!-- (Option) Supabase + ton guard-pro.js -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
+  <!-- <script src="./guard-pro.js?v=1"></script> -->
+
+  <style>
+    :root{
+      --bg:#061b14; --card:#0b2a1f; --card2:#082318;
+      --line:rgba(255,255,255,.12);
+      --text:#eafff1; --muted:rgba(234,255,241,.72);
+      --primary:#22c55e; --gold:#facc15; --warn:#f59e0b; --danger:#ef4444; --info:#38bdf8;
+      --shadow:0 18px 55px rgba(0,0,0,.42);
+      --r:18px; --r2:14px;
+      --max:980px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
+        var(--bg);
+    }
+    a{color:inherit}
+    .wrap{max-width:var(--max); margin:0 auto; padding:16px 14px 28px}
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:14px 14px; border:1px solid var(--line); border-radius:22px;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow:var(--shadow);
+    }
+    .brand{display:flex; align-items:center; gap:10px; min-width:0}
+    .logo{
+      width:44px; height:44px; border-radius:14px;
+      display:grid; place-items:center;
+      border:1px solid rgba(250,204,21,.22);
+      background:rgba(0,0,0,.18);
+      font-weight:950; color:var(--gold);
+    }
+    .brandtext{min-width:0}
+    .brandtext .t1{font-weight:1000; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .brandtext .t2{font-size:12px; color:var(--muted); font-weight:800; margin-top:2px}
+    .right{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      font-weight:950; font-size:12px;
+    }
+    .dot{width:10px; height:10px; border-radius:999px; background:var(--primary)}
+    .btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:950;
+      cursor:pointer;
+    }
+    .btn.primary{
+      border:1px solid rgba(34,197,94,.45);
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.88));
+      color:#042012;
+    }
+    .btn.gold{
+      border:1px solid rgba(250,204,21,.38);
+      background:rgba(250,204,21,.12);
+      color:var(--gold);
+    }
+
+    h1{margin:18px 4px 6px; font-size:26px; font-weight:1050; letter-spacing:.2px}
+    .sub{margin:0 4px 14px; color:var(--muted); font-weight:800}
+
+    .grid{display:grid; gap:14px}
+    @media(min-width:860px){
+      .grid{grid-template-columns: 1.2fr .8fr}
+    }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .card h2{margin:2px 2px 10px; font-size:16px; font-weight:1000}
+    .card .hint{font-size:12px; color:var(--muted); font-weight:800; margin-top:-6px}
+
+    .kpis{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
+    .kpi{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      border-radius:16px;
+      padding:12px;
+    }
+    .kpi .lab{font-size:12px; color:var(--muted); font-weight:900}
+    .kpi .val{margin-top:6px; font-size:20px; font-weight:1050; letter-spacing:.2px}
+
+    .badges{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:999px;
+      font-size:12px; font-weight:950;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
+      color:rgba(234,255,241,.92);
+    }
+    .badge.green{border-color:rgba(34,197,94,.35); color:rgba(187,247,208,.95)}
+    .badge.gold{border-color:rgba(250,204,21,.35); color:var(--gold); background:rgba(250,204,21,.10)}
+    .badge.warn{border-color:rgba(245,158,11,.35); color:#ffd7a0}
+    .badge.red{border-color:rgba(239,68,68,.35); color:#fecaca}
+    .badge.blue{border-color:rgba(56,189,248,.35); color:#bae6fd}
+
+    .actions{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
+    .actions .btn{min-height:48px; border-radius:16px}
+    .actions .btn.full{grid-column:1 / -1}
+
+    .list{display:grid; gap:10px; margin-top:10px}
+    .item{
+      display:flex; justify-content:space-between; gap:10px; align-items:center;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+    }
+    .item .left{min-width:0}
+    .item .title{font-weight:1000}
+    .item .meta{margin-top:3px; color:var(--muted); font-weight:800; font-size:12px}
+    .item .right{text-align:right; font-weight:1000}
+    .item .right small{display:block; color:var(--muted); font-weight:800; margin-top:2px}
+
+    .two{display:grid; gap:14px}
+    @media(min-width:860px){
+      .two{grid-template-columns:1fr 1fr}
+    }
+
+    .footer{
+      margin-top:14px;
+      display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center;
+      color:rgba(234,255,241,.72);
+      font-weight:800; font-size:12px;
+    }
+    .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+    .link{color:var(--gold); text-decoration:none; font-weight:1000}
+    .link:hover{text-decoration:underline}
+  </style>
 </head>
+
 <body>
-<script>
-(async function(){
-  const COCKPIT_PAGE = "./cockpit.html"; // <-- change ici si besoin (ex: ./courses.html)
+  <div class="wrap">
 
-  const url = new URL(location.href);
-  const slug  = url.searchParams.get("slug")  || "";
-  const phoneQ = url.searchParams.get("phone") || "";
+    <!-- HEADER -->
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">♾</div>
+        <div class="brandtext">
+          <div class="t1">DIGIY PRO</div>
+          <div class="t2" id="moduleLabel">Module : <b id="moduleName">—</b></div>
+        </div>
+      </div>
 
-  // Si pas d'identité → inscription pro
-  if(!slug && !phoneQ){
-    location.replace("https://inscription-pro.digiylyfe.com/?module=DRIVER");
-    return;
-  }
+      <div class="right">
+        <div class="pill" id="subStatus">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">Actif</span>
+        </div>
+        <button class="btn gold" id="btnShare">Partager</button>
+        <button class="btn" id="btnSupport">Support</button>
+      </div>
+    </div>
 
-  // attendre guard
-  const t0 = Date.now();
-  while(Date.now()-t0 < 7000){
-    if(window.DIGIY_GUARD?.rpc && window.DIGIY_GUARD?.syncSlugFromUrl) break;
-    await new Promise(r=>setTimeout(r,50));
-  }
+    <!-- TITRE -->
+    <h1>Mon espace pro</h1>
+    <p class="sub" id="pageSubtitle">Activités du jour</p>
 
-  // fallback si guard absent → PIN
-  if(!window.DIGIY_GUARD?.rpc){
-    if(slug) location.replace("./pin.html?slug=" + encodeURIComponent(slug));
-    else location.replace("./pin.html?phone=" + encodeURIComponent(phoneQ));
-    return;
-  }
+    <div class="grid">
 
-  try{ window.DIGIY_GUARD.syncSlugFromUrl?.(); }catch(_){}
+      <!-- COLONNE GAUCHE : ACTIVITÉS -->
+      <div class="card">
+        <h2>Activités du jour</h2>
+        <div class="hint">Simple, clair, terrain.</div>
 
-  // slug -> phone si besoin
-  let phone = phoneQ;
-  if(!phone && slug){
-    const r = await window.DIGIY_GUARD.rpc("digiy_subscriptions_public_by_slug", { p_slug: slug });
-    const data = r?.data ?? r;
-    const row = Array.isArray(data) ? data[0] : data;
-    phone = row?.phone || "";
-  }
+        <div class="kpis">
+          <div class="kpi">
+            <div class="lab">Aujourd’hui</div>
+            <div class="val" id="kpiTodayCount">0</div>
+          </div>
+          <div class="kpi">
+            <div class="lab">Aujourd’hui (FCFA)</div>
+            <div class="val" id="kpiTodayMoney">0</div>
+          </div>
+          <div class="kpi">
+            <div class="lab">7 derniers jours</div>
+            <div class="val" id="kpi7dCount">0</div>
+          </div>
+          <div class="kpi">
+            <div class="lab">7 derniers jours (FCFA)</div>
+            <div class="val" id="kpi7dMoney">0</div>
+          </div>
+        </div>
 
-  if(!phone){
-    location.replace("./pin.html?slug=" + encodeURIComponent(slug));
-    return;
-  }
+        <div class="badges">
+          <span class="badge green" id="badgeAvailable">✅ Disponible</span>
+          <span class="badge warn" id="badgePending">🟠 En attente</span>
+          <span class="badge red" id="badgeClosed" style="display:none">🔴 Fermé</span>
+          <span class="badge gold" id="badgeOffer">⭐ Offre du jour</span>
+        </div>
 
-  // check access DRIVER
-  const acc = await window.DIGIY_GUARD.rpc("digiy_has_access", { p_phone: phone, p_module: "DRIVER" });
-  const ok = (acc?.data ?? acc) === true;
+        <div class="actions">
+          <button class="btn primary full" id="btnMainAction">➕ Action principale</button>
+          <button class="btn" id="btnSecondary1">➕ Action 2</button>
+          <button class="btn" id="btnSecondary2">➕ Action 3</button>
+        </div>
 
-  if(ok){
-    // ✅ zéro friction → cockpit direct
-    location.replace(COCKPIT_PAGE + "?slug=" + encodeURIComponent(slug || ("driver-" + phone)));
-  }else{
-    // ❌ pas abonné → PIN
-    location.replace("./pin.html?slug=" + encodeURIComponent(slug || ("driver-" + phone)));
-  }
-})();
-</script>
+        <div class="list" id="todayList">
+          <!-- items injectés -->
+          <div class="item">
+            <div class="left">
+              <div class="title">Aucune activité pour le moment</div>
+              <div class="meta">Dès qu’une action arrive, elle apparaît ici.</div>
+            </div>
+            <div class="right">—<small>—</small></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLONNE DROITE : OFFRE + PERF -->
+      <div class="two">
+
+        <!-- OFFRE DU JOUR -->
+        <div class="card">
+          <h2>Offre du jour</h2>
+          <div class="hint">Promo • Bonus • Offre groupée</div>
+
+          <div class="item">
+            <div class="left">
+              <div class="title" id="offerTitle">Offre groupée</div>
+              <div class="meta" id="offerMeta">À définir — simple et rentable</div>
+            </div>
+            <div class="right"><span class="badge gold" id="offerBadge">🔥 Promo</span></div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary full" id="btnEditOffer">Modifier l’offre</button>
+            <button class="btn" id="btnToggleOffer">Activer / Désactiver</button>
+            <button class="btn" id="btnBoostOffer">Mettre en avant</button>
+          </div>
+        </div>
+
+        <!-- PERFORMANCE -->
+        <div class="card">
+          <h2>Performance</h2>
+          <div class="hint">Aujourd’hui • 30 jours • Total</div>
+
+          <div class="kpis">
+            <div class="kpi">
+              <div class="lab">30 derniers jours</div>
+              <div class="val" id="kpi30dCount">0</div>
+            </div>
+            <div class="kpi">
+              <div class="lab">30 jours (FCFA)</div>
+              <div class="val" id="kpi30dMoney">0</div>
+            </div>
+            <div class="kpi">
+              <div class="lab">Total</div>
+              <div class="val" id="kpiTotalCount">0</div>
+            </div>
+            <div class="kpi">
+              <div class="lab">Total (FCFA)</div>
+              <div class="val" id="kpiTotalMoney">0</div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary full" id="btnViewHistory">Voir l’historique</button>
+            <button class="btn" id="btnExport">Exporter</button>
+            <button class="btn" id="btnSettings">Paramètres</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FICHE PUBLIQUE -->
+    <div class="card" style="margin-top:14px">
+      <h2>Ma fiche publique</h2>
+      <div class="hint">Ton lien officiel à partager.</div>
+
+      <div class="item">
+        <div class="left">
+          <div class="title">Lien</div>
+          <div class="meta mono" id="publicLink">digiylyfe.com/—</div>
+        </div>
+        <div class="right">
+          <button class="btn gold" id="btnCopyLink">Copier</button>
+          <small id="slugText" class="mono">slug: —</small>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span>Support WhatsApp : <a class="link" href="https://wa.me/221771342889" target="_blank" rel="noopener">+221 77 134 28 89</a></span>
+        <span id="techState" class="mono">state: ui-ready</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+  (function(){
+    "use strict";
+
+    // ====== CONFIG RAPIDE (par module) ======
+    // Change ça dans chaque repo (DRIVER/RESTO/LOC/...)
+    const MODULE_CODE = "DRIVER";
+    const MAIN_ACTION_LABEL = "➕ Nouvelle course";
+    const ACTION2_LABEL = "➕ Activer ma zone";
+    const ACTION3_LABEL = "➕ Ajouter un tarif";
+
+    // slug depuis URL
+    const qs = new URLSearchParams(location.search);
+    const slug = (qs.get("slug") || "").trim();
+
+    const money = (n)=> `${Number(n||0).toLocaleString("fr-FR")} FCFA`;
+    const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = (val ?? "—"); };
+
+    // UI static labels
+    set("moduleName", MODULE_CODE);
+    document.getElementById("btnMainAction").textContent = MAIN_ACTION_LABEL;
+    document.getElementById("btnSecondary1").textContent = ACTION2_LABEL;
+    document.getElementById("btnSecondary2").textContent = ACTION3_LABEL;
+
+    // slug/link
+    set("slugText", "slug: " + (slug || "—"));
+    const pub = slug ? ("https://digiylyfe.com/" + slug) : "digiylyfe.com/—";
+    set("publicLink", pub);
+
+    // Copie lien
+    document.getElementById("btnCopyLink").addEventListener("click", async ()=>{
+      try{
+        await navigator.clipboard.writeText(pub);
+        document.getElementById("btnCopyLink").textContent = "Copié ✅";
+        setTimeout(()=>document.getElementById("btnCopyLink").textContent="Copier", 900);
+      }catch(_){}
+    });
+
+    // Share (mobile)
+    document.getElementById("btnShare").addEventListener("click", async ()=>{
+      try{
+        if(navigator.share) await navigator.share({ title:"DIGIY", text:"Mon lien DIGIY", url: pub });
+        else window.open("https://wa.me/?text=" + encodeURIComponent(pub), "_blank");
+      }catch(_){}
+    });
+
+    // Support
+    document.getElementById("btnSupport").addEventListener("click", ()=>{
+      window.open("https://wa.me/221771342889", "_blank");
+    });
+
+    // ====== BRANCHEMENT DONNÉES (tu remplaces par tes RPC) ======
+    // Ici on met des valeurs demo. Demain tu plug: stats RPC + list RPC.
+    function demoFill(){
+      // KPIs
+      set("kpiTodayCount", 2);
+      set("kpiTodayMoney", money(7200));
+      set("kpi7dCount", 2);
+      set("kpi7dMoney", money(7200));
+      set("kpi30dCount", 3);
+      set("kpi30dMoney", money(19400));
+      set("kpiTotalCount", 3);
+      set("kpiTotalMoney", money(19400));
+
+      // Liste activités
+      const list = document.getElementById("todayList");
+      list.innerHTML = `
+        <div class="item">
+          <div class="left">
+            <div class="title">Saly Centre → Dakar Plateau</div>
+            <div class="meta">Terminée • Paiement OK</div>
+          </div>
+          <div class="right">${money(7500)}<small>+500 extras</small></div>
+        </div>
+        <div class="item">
+          <div class="left">
+            <div class="title">AIBD → Saly</div>
+            <div class="meta">Terminée • Paiement OK</div>
+          </div>
+          <div class="right">${money(12000)}<small>—</small></div>
+        </div>
+      `;
+    }
+
+    demoFill();
+  })();
+  </script>
 </body>
 </html>
