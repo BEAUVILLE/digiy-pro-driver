@@ -401,5 +401,108 @@
     demoFill();
   })();
   </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  "use strict";
+
+  // 🔐 CONFIG
+  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const qs = new URLSearchParams(location.search);
+  const slug = (qs.get("slug") || "").trim();
+
+  const money = (n)=> `${Number(n||0).toLocaleString("fr-FR")} FCFA`;
+  const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = (val ?? "—"); };
+
+  function esc(s){
+    return String(s||"")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  async function load(){
+
+    if(!slug){
+      console.warn("Slug manquant");
+      return;
+    }
+
+    // 🔥 1) KPI
+    const { data:stats, error:e1 } =
+      await sb.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
+
+    if(e1){
+      console.error("Stats error:", e1);
+      return;
+    }
+
+    const s = Array.isArray(stats) ? stats[0] : stats;
+
+    set("kpiTodayCount", s.trips_today);
+    set("kpiTodayMoney", money(s.revenue_today_fcfa));
+    set("kpi7dCount", s.trips_7d);
+    set("kpi7dMoney", money(s.revenue_7d_fcfa));
+    set("kpi30dCount", s.trips_30d);
+    set("kpi30dMoney", money(s.revenue_30d_fcfa));
+    set("kpiTotalCount", s.trips_total);
+    set("kpiTotalMoney", money(s.revenue_total_fcfa));
+
+    // 🔥 2) Activités du jour
+    const { data:list, error:e2 } =
+      await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
+
+    if(e2){
+      console.error("List error:", e2);
+      return;
+    }
+
+    const box = document.getElementById("todayList");
+    if(!box) return;
+
+    if(!Array.isArray(list) || list.length === 0){
+      box.innerHTML = `
+        <div class="item">
+          <div class="left">
+            <div class="title">Aucune activité aujourd’hui</div>
+            <div class="meta">Ton prochain client arrive bientôt.</div>
+          </div>
+          <div class="right">—<small>—</small></div>
+        </div>`;
+      return;
+    }
+
+    box.innerHTML = list.map(t=>{
+      const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
+      const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
+      const extra = (t.extras_fcfa && t.extras_fcfa > 0)
+        ? `+${t.extras_fcfa} extras`
+        : "—";
+
+      return `
+        <div class="item">
+          <div class="left">
+            <div class="title">${esc(title)}</div>
+            <div class="meta">${esc(meta)}</div>
+          </div>
+          <div class="right">
+            ${money(t.revenue_fcfa)}
+            <small>${esc(extra)}</small>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  load().catch(console.error);
+
+})();
+</script>  
 </body>
 </html>
