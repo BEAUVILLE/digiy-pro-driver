@@ -1,249 +1,90 @@
-<!-- DRIVER ZONE NOW = VERSION KIFF (2026) --><!doctype html>
+<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER PRO — Zone maintenant</title>
+  <title>DIGIY DRIVER PRO — Activer ma zone</title>
   <meta name="theme-color" content="#061b14"/>
-
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./guard-pro.js?v=1"></script>
-<script src="./cockpit-stats.js?v=1"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root{
-      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
-      --text:#eafff1; --muted:rgba(234,255,241,.78);
-      --green:#16a34a; --gold:#facc15; --r:18px;
-    }
+    :root{--bg:#061b14;--card:#0b2a1f;--line:rgba(255,255,255,.12);--text:#eafff1;--muted:rgba(234,255,241,.72);--gold:#facc15;--primary:#22c55e;--shadow:0 18px 55px rgba(0,0,0,.42);--r:18px;--max:860px;}
     *{box-sizing:border-box}
-    body{
-      margin:0; min-height:100vh;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-      background:radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
-                 radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
-                 var(--bg);
-      color:var(--text);
-    }
-    header{
-      position:sticky; top:0; z-index:10;
-      backdrop-filter: blur(10px);
-      background:rgba(6,27,20,.75);
-      border-bottom:1px solid var(--line);
-      padding:14px 16px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px;
-    }
-    .title{font-weight:900; letter-spacing:.2px;}
-    .pill{
-      padding:8px 10px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      font-size:13px;
-      color:var(--muted);
-      background:rgba(0,0,0,.22);
-      display:flex; gap:8px; align-items:center;
-      white-space:nowrap;
-    }
-    main{padding:16px; max-width:980px; margin:0 auto;}
-    .grid{display:grid; gap:12px; grid-template-columns: repeat(12, 1fr);}
-    .card{
-      grid-column: span 12;
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      padding:16px;
-      box-shadow:0 12px 40px rgba(0,0,0,.32);
-    }
-    @media(min-width:860px){
-      .card.half{grid-column: span 6;}
-    }
-    h1{margin:0 0 8px; font-size:20px;}
-    p{margin:0; color:var(--muted); line-height:1.45}
-    button,a.btn{
-      border:0; cursor:pointer;
-      padding:12px 14px;
-      border-radius:14px;
-      font-weight:900;
-      font-size:15px;
-      text-decoration:none;
-      display:inline-flex; align-items:center; justify-content:center;
-    }
-    .btn{
-      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
-      color:#042012;
-    }
-    .btn2{
-      background:rgba(250,204,21,.14);
-      color:var(--text);
-      border:1px solid rgba(250,204,21,.25);
-    }
-    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-    .muted{color:rgba(234,255,241,.72); font-size:13px}
-    .kbd{
-      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size:12px;
-      padding:4px 8px;
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:10px;
-      background:rgba(0,0,0,.22);
-      color:rgba(234,255,241,.88);
-      display:inline-block;
-      margin-left:6px;
-    }
+    body{margin:0;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);padding:16px}
+    .wrap{max-width:var(--max);margin:0 auto}
+    .card{border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));box-shadow:var(--shadow);padding:16px}
+    h1{margin:0 0 6px;font-size:22px;font-weight:1000}
+    .muted{color:var(--muted);font-weight:800}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .btn{border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);padding:12px 14px;border-radius:14px;font-weight:950;cursor:pointer}
+    .btn.primary{border-color:rgba(34,197,94,.45);background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.88));color:#042012}
+    .in{width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.12);color:var(--text);font-size:15px;font-weight:900;outline:none}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:8px 10px;border-radius:999px;border:1px solid rgba(250,204,21,.35);background:rgba(250,204,21,.10);color:var(--gold);font-weight:950;font-size:12px}
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Activer ma zone</h1>
+      <div class="muted">Choisis ta zone de travail. (Ici on branchera SQL juste après.)</div>
 
-<header>
-  <div class="title">📍 Zone maintenant</div>
-  <div class="pill" id="pillPhone">📱 …</div>
-</header>
+      <div style="margin-top:10px" class="pill" id="slugPill">slug: —</div>
 
-<main>
-  <div class="grid">
-    <section class="card half">
-      <h1>Statut</h1>
-      <p id="status">Chargement…</p>
-
-      <div class="row">
-        <button class="btn" id="btnGo">Je suis disponible</button>
-        <a class="btn2" href="./courses.html">Voir les courses</a>
+      <div id="gate" style="margin-top:14px; display:none">
+        <div class="muted">Slug requis. Colle ton slug puis ouvre.</div>
+        <div style="margin-top:10px"><input class="in" id="gateSlug" placeholder="driver-221770000111"/></div>
+        <div class="row">
+          <button class="btn primary" id="btnOpen">🚀 Ouvrir</button>
+          <button class="btn" id="btnBack">⬅️ Retour</button>
+        </div>
       </div>
 
-      <p class="muted" style="margin-top:10px;">
-        Session active : 8 heures depuis ta dernière connexion.
-      </p>
-    </section>
-
-    <section class="card half">
-      <h1>Zone</h1>
-      <p class="muted">Choisis une zone simple (pas besoin de carte lourde). Tu peux brancher ta logique ensuite.</p>
-
-      <div class="row">
-        <button class="btn2 zone" data-zone="Saly Centre">Saly Centre</button>
-        <button class="btn2 zone" data-zone="Ngaparou">Ngaparou</button>
-        <button class="btn2 zone" data-zone="Somone">Somone</button>
-        <button class="btn2 zone" data-zone="Dakar">Dakar</button>
+      <div id="content" style="margin-top:14px; display:none">
+        <div class="muted">Zone actuelle : <b id="zoneNow">—</b></div>
+        <div style="margin-top:10px">
+          <input class="in" id="zoneInput" placeholder="ex: saly-centre"/>
+        </div>
+        <div class="row">
+          <button class="btn primary" id="btnSave">💾 Enregistrer</button>
+          <button class="btn" id="btnBack2">⬅️ Retour</button>
+        </div>
+        <div class="muted" style="margin-top:10px" id="msg">Prêt.</div>
       </div>
 
-      <p class="muted" id="zoneState" style="margin-top:10px;">Zone : non définie</p>
-    </section>
-
-    <section class="card">
-      <h1>Menu</h1>
-      <div class="row">
-        <a class="btn2" href="./profil-chauffeur.html">Mon profil</a>
-        <a class="btn2" href="./index.html">Accueil</a>
-        <button class="btn2" id="btnLogout">Déconnexion</button>
-      </div>
-    </section>
+    </div>
   </div>
-</main>
-
-<!-- ✅ GUARD INTÉGRÉ -->
-<script>
-  (function () {
-    "use strict";
-
-    const SESSION_KEY = "DIGIY_DRIVER_PRO_SESSION";
-    const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8h
-
-    function now() { return Date.now(); }
-
-    function getSession() {
-      try {
-        const raw = localStorage.getItem(SESSION_KEY);
-        const s = JSON.parse(raw);
-        if (!s || !s.expires_at || now() > s.expires_at) return null;
-        return s;
-      } catch {
-        return null;
-      }
-    }
-
-    function clearSession() {
-      localStorage.removeItem(SESSION_KEY);
-    }
-
-    function logout(redirect = "pin.html") {
-      clearSession();
-      const url = new URL(location.href);
-      const slug = url.searchParams.get("slug");
-      if (slug) {
-        location.replace(redirect + "?slug=" + slug);
-      } else {
-        location.replace(redirect);
-      }
-    }
-
-    window.DIGIY_GUARD = { getSession, clearSession, logout };
-  })();
-</script>
 
 <script>
-  const pillPhone = document.getElementById("pillPhone");
-  const statusEl = document.getElementById("status");
-  const zoneState = document.getElementById("zoneState");
+(function(){
+  "use strict";
+  const qs = new URLSearchParams(location.search);
+  const slug = (qs.get("slug")||"").trim();
+  const $ = (id)=>document.getElementById(id);
 
-  const LS_ZONE = "digiy_driver_zone";
+  $("slugPill").textContent = "slug: " + (slug || "—");
 
-  function setStatus(msg){ statusEl.textContent = msg || ""; }
+  function goBack(){ location.href = "./?slug=" + encodeURIComponent(slug || ""); }
 
-  function loadZone(){
-    const z = localStorage.getItem(LS_ZONE);
-    zoneState.textContent = "Zone : " + (z || "non définie");
-    return z;
+  if(!slug){
+    $("gate").style.display = "block";
+    $("btnOpen").onclick = ()=> {
+      const s = ($("gateSlug").value||"").trim();
+      if(!s) return;
+      location.href = "./driver-zone-now.html?slug=" + encodeURIComponent(s);
+    };
+    $("btnBack").onclick = ()=> location.href="./";
+    return;
   }
 
-  function setZone(z){
-    localStorage.setItem(LS_ZONE, z);
-    loadZone();
-  }
+  $("content").style.display = "block";
+  $("btnBack2").onclick = goBack;
 
-  async function boot(){
-    // ✅ Vérifier la session
-    const session = window.DIGIY_GUARD.getSession();
-    
-    if (!session || !session.owner_id) {
-      // ❌ Pas de session → redirection vers pin.html
-      const url = new URL(location.href);
-      const slug = url.searchParams.get("slug");
-      const pinUrl = slug ? `./pin.html?slug=${slug}` : "./pin.html";
-      
-      console.log("❌ Session expirée, redirection vers:", pinUrl);
-      location.replace(pinUrl);
-      return;
-    }
-
-    // ✅ Session OK
-    console.log("✅ Session OK, owner_id:", session.owner_id);
-
-    // Afficher le téléphone
-    pillPhone.textContent = "📱 " + (session.phone || session.slug || "Connecté");
-
-    // Afficher le statut
-    setStatus(`✅ Connecté (${session.title || "Chauffeur"}). Tu peux te mettre en ligne.`);
-
-    // Charger la zone sauvegardée
-    loadZone();
-  }
-
-  document.querySelectorAll(".zone").forEach(btn => {
-    btn.addEventListener("click", () => setZone(btn.dataset.zone));
-  });
-
-  document.getElementById("btnGo").addEventListener("click", () => {
-    const z = loadZone();
-    alert(z ? ("🚗 Disponible en zone : " + z) : "⚠️ Choisis d'abord une zone.");
-  });
-
-  document.getElementById("btnLogout").addEventListener("click", () => {
-    window.DIGIY_GUARD.logout();
-  });
-
-  boot();
+  // TODO SQL: charger/enregistrer zone
+  $("btnSave").onclick = ()=>{
+    const z = ($("zoneInput").value||"").trim();
+    $("zoneNow").textContent = z || "—";
+    $("msg").textContent = z ? "✅ Zone enregistrée (mock). Prochaine étape: SQL." : "⚠️ Zone vide.";
+  };
+})();
 </script>
-
 </body>
 </html>
