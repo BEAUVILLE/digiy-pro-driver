@@ -18,17 +18,17 @@
     }
     *{box-sizing:border-box}
 
-    /* ✅ FIX 3 (anti "parasites" / overlays / traits verticaux) */
+    /* ✅ FIX barres jaunes : suppression box-shadow:inherit + gradient corrigé */
     html, body { overflow-x:hidden; }
     html::before, html::after, body::before, body::after { content:none !important; display:none !important; }
-    *::before, *::after { background-image:none !important; box-shadow:inherit; }
+    *::before, *::after { background-image:none !important; }
 
     body{
       margin:0; color:var(--text);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:
         radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
-        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
+        radial-gradient(900px 520px at 95% 0%, rgba(250,204,21,.08), transparent 50%),
         var(--bg);
     }
     .wrap{max-width:var(--max); margin:0 auto; padding:16px 14px 28px}
@@ -242,8 +242,8 @@
         <div class="hint">SQL = moteur. Zéro blabla.</div>
 
         <div class="kpis">
-          <div class="kpi"><div class="lab">Aujourd’hui</div><div class="val" id="kpiTodayCount">—</div></div>
-          <div class="kpi"><div class="lab">Aujourd’hui (FCFA)</div><div class="val" id="kpiTodayMoney">—</div></div>
+          <div class="kpi"><div class="lab">Aujourd'hui</div><div class="val" id="kpiTodayCount">—</div></div>
+          <div class="kpi"><div class="lab">Aujourd'hui (FCFA)</div><div class="val" id="kpiTodayMoney">—</div></div>
           <div class="kpi"><div class="lab">7 derniers jours</div><div class="val" id="kpi7dCount">—</div></div>
           <div class="kpi"><div class="lab">7 jours (FCFA)</div><div class="val" id="kpi7dMoney">—</div></div>
         </div>
@@ -279,7 +279,7 @@
           <div class="item">
             <div>
               <div class="title">En attente…</div>
-              <div class="meta">Si rien n’apparaît : aucune demande “new”.</div>
+              <div class="meta">Si rien n'apparaît : aucune demande "new".</div>
             </div>
             <div class="right">—<small>—</small></div>
           </div>
@@ -350,7 +350,7 @@
         </div>
 
         <div class="hint" style="margin-top:10px">
-          Astuce terrain : si le client galère, demande-lui d’envoyer sa position WhatsApp / Google Maps.
+          Astuce terrain : si le client galère, demande-lui d'envoyer sa position WhatsApp / Google Maps.
         </div>
       </div>
     </div>
@@ -361,18 +361,24 @@
     "use strict";
 
     const STORAGE_KEY = "digiy_driver_slug";
-    const VERSION_TAG = "20260305-ULTRAPREMIUM-3"; // ✅ change quand tu pushes
+    const VERSION_TAG = "20260305-ULTRAPREMIUM-4";
 
-    // ✅ À TOI D'AJUSTER SI TU VEUX
     const JOIN_URL = "./devenir-chauffeur.html";
     const DEMO_QS_KEY = "demo";
 
-    // ✅ SUPABASE (TES VALEURS)
     const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
     const SUPABASE_ANON_KEY =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // ✅ FIX CONSOLE LOCK : on désactive la session Auth (on utilise slug, pas Auth Supabase)
+    // Cela supprime le warning "Lock was not released within 5000ms"
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
+      }
+    });
 
     const $ = (id)=>document.getElementById(id);
     const set = (id,val)=>{ const el=$(id); if(el) el.textContent = (val ?? "—"); };
@@ -411,7 +417,6 @@
     const savedSlug = (localStorage.getItem(STORAGE_KEY) || "").trim();
     if(!slug && savedSlug) slug = savedSlug;
 
-    // Si DEMO -> on force pas de slug
     if(IS_DEMO) slug = "";
 
     if(slug){
@@ -420,7 +425,6 @@
         const u = new URL(location.href);
         u.searchParams.set("slug", slug);
         u.searchParams.delete(DEMO_QS_KEY);
-        // ✅ Fix cache visuel (ça aide quand GitHub cache/edge)
         u.searchParams.set("v", VERSION_TAG);
         history.replaceState({}, "", u.toString());
       }catch(_){}
@@ -487,7 +491,6 @@
     // --- Driver phone ---
     let driverPhone = null;
 
-    // ✅ Fix scope (toujours dispo)
     window.resolveDriverPhoneFromSlug = window.resolveDriverPhoneFromSlug || function(slugValue){
       const s = String(slugValue || "").trim();
       if(!s.startsWith("driver-")) return null;
@@ -498,10 +501,9 @@
       if(digits.length === 9) digits = "221" + digits;
       if(digits.length < 12) return null;
 
-      return digits; // ex: 221771342889
+      return digits;
     };
 
-    // ✅ UNE SEULE fonction (pas de doublon)
     async function resolveDriverPhone(){
       if(driverPhone) return driverPhone;
 
@@ -696,7 +698,6 @@
 
     // --- LOAD ---
     async function load(){
-      // ✅ MODE DEMO
       if(IS_DEMO){
         $("gate")?.classList.remove("show");
         setStatus("pending");
@@ -734,7 +735,6 @@
         return;
       }
 
-      // ✅ MODE PRO (slug requis)
       if(!slug){
         openGate(savedSlug ? "Ton slug est mémorisé. Clique « Utiliser mon slug mémorisé »." : "Aucun slug détecté. Colle ton slug chauffeur.");
         return;
@@ -749,7 +749,6 @@
 
       await resolveDriverPhone();
 
-      // ✅ RPC stats
       const { data:stats, error:e1 } = await sb.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
       if(e1){
         console.error("stats error", e1);
@@ -771,7 +770,6 @@
       else if(st === "trial" || st === "pending") setStatus("pending");
       else setStatus("expired");
 
-      // ✅ RPC liste du jour (FIX 2: check e2)
       const { data:list, error:e2 } = await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
       if(e2){
         console.error("today list error", e2);
@@ -784,7 +782,7 @@
           box.innerHTML = `
             <div class="item">
               <div>
-                <div class="title">Aucune activité aujourd’hui</div>
+                <div class="title">Aucune activité aujourd'hui</div>
                 <div class="meta">Ton prochain client arrive bientôt.</div>
               </div>
               <div class="right">—<small>—</small></div>
