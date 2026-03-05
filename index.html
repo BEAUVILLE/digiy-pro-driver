@@ -378,7 +378,7 @@
       const txt = $("statusText");
       if(!dot || !txt) return;
       if(kind === "active"){ dot.style.background="var(--primary)"; txt.textContent="Actif"; }
-      else if(kind === "pending"){ dot.style.background="var(--warn)"; txt.textContent="À activer"; }
+      else if(kind === "pending"){ dot.style.background="var(--warn)"; txt.textContent="En attente"; }
       else { dot.style.background="var(--danger)"; txt.textContent="Expiré"; }
     }
 
@@ -395,6 +395,21 @@
         u.searchParams.set("slug", slug);
         history.replaceState({}, "", u.toString());
       }catch(_){}
+    }
+
+    // --- ACCÈS (sélection chauffeur) ---
+    async function isApprovedSlug(){
+      try{
+        const { data, error } = await sb
+          .from("digiy_driver_access")
+          .select("approved")
+          .eq("slug", slug)
+          .maybeSingle();
+        if(error) return false;
+        return !!data?.approved;
+      }catch(_){
+        return false;
+      }
     }
 
     // --- URL cockpit à partager ---
@@ -418,18 +433,19 @@
           <div class="item">
             <div>
               <div class="title">Slug requis</div>
-              <div class="meta">Entre ton slug pour charger tes stats.</div>
+              <div class="meta">Entre ton slug pour charger ton cockpit.</div>
             </div>
             <div class="right">—<small>—</small></div>
           </div>`;
       }
+
       const live = $("liveRequests");
       if(live){
         live.innerHTML = `
           <div class="item">
             <div>
-              <div class="title">Slug requis</div>
-              <div class="meta">Entre ton slug pour voir les demandes.</div>
+              <div class="title">Accès restreint</div>
+              <div class="meta">Entre ton slug (chauffeur sélectionné) pour voir les demandes.</div>
             </div>
             <div class="right">—<small>—</small></div>
           </div>`;
@@ -486,7 +502,7 @@
 
       try{
         const { data, error } = await sb
-          .from("ride_requests_driver_feed")     // ✅ ta vue (tel masqué + labels)
+          .from("ride_requests_driver_feed")
           .select("*")
           .order("created_at", { ascending:false })
           .limit(12);
@@ -498,7 +514,7 @@
             <div class="item">
               <div>
                 <div class="title">Aucune demande</div>
-                <div class="meta">Reste visible. Quand une course arrive, elle pop.</div>
+                <div class="meta">Quand une course arrive, elle apparaît ici.</div>
               </div>
               <div class="right">—<small>—</small></div>
             </div>`;
@@ -507,7 +523,7 @@
 
         box.innerHTML = data.map(r=>{
           const title = `${r.pickup_label || "—"} → ${r.drop_label || "—"}`;
-          const meta  = `${r.city || "—"} • ${r.vehicle_type || "—"} • tel: ${r.client_phone_masked || "—"}`;
+          const meta = `${r.city || "—"} • ${r.vehicle_type || "—"} • tel: ${r.client_phone_masked || "—"}`;
           return `
             <div class="item">
               <div style="min-width:0">
@@ -536,7 +552,7 @@
           <div class="item">
             <div>
               <div class="title">Erreur demandes</div>
-              <div class="meta">Vérifie la vue + droits SELECT (anon).</div>
+              <div class="meta">Vérifie la vue + droits SELECT.</div>
             </div>
             <div class="right">—<small>—</small></div>
           </div>`;
@@ -601,7 +617,7 @@
 
       $("mClientPhone").textContent = ride.client_phone || "—";
       $("mPrice").textContent = money(ride.price_xof);
-      $("mRoute").textContent = `${ride.pickup_text || ride.pickup_label || "—"} → ${ride.dropoff_text || ride.drop_label || "—"}`;
+      $("mRoute").textContent = `${ride.pickup_label || "—"} → ${ride.drop_label || "—"}`;
       $("mMeta").textContent = `${ride.city || "—"} • ${ride.vehicle_type || "—"}`;
 
       $("acceptModal")?.classList.add("show");
@@ -624,6 +640,14 @@
     async function load(){
       if(!slug){
         openGate(savedSlug ? "Ton slug est mémorisé. Clique « Utiliser mon slug mémorisé »." : "Aucun slug détecté. Colle ton slug chauffeur.");
+        return;
+      }
+
+      // ✅ SELECTION CHAUFFEUR
+      const approved = await isApprovedSlug();
+      if(!approved){
+        setStatus("pending");
+        openGate("✅ Demande reçue. On te contacte sur WhatsApp pour valider ton accès chauffeur DIGIY.");
         return;
       }
 
@@ -672,7 +696,7 @@
             </div>`;
         }else{
           box.innerHTML = list.map(t=>{
-            const title = `${t.pickup_label || t.pickup_text || "—"} → ${t.drop_label || t.dropoff_text || "—"}`;
+            const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
             const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
             const extra = (t.extras_fcfa && t.extras_fcfa > 0) ? `+${t.extras_fcfa} extras` : "—";
             return `
@@ -697,21 +721,6 @@
     }
 
     // --- BUTTONS ---
-    $("btnMainAction")?.addEventListener("click", ()=>{
-      if(!slug) return toast("Slug requis");
-      location.href = "./courses.html?slug=" + encodeURIComponent(slug);
-    });
-
-    $("btnSecondary1")?.addEventListener("click", ()=>{
-      if(!slug) return toast("Slug requis");
-      location.href = "./driver-zone-now.html?slug=" + encodeURIComponent(slug);
-    });
-
-    $("btnSecondary2")?.addEventListener("click", ()=>{
-      if(!slug) return toast("Slug requis");
-      location.href = "./profil-chauffeur.html?slug=" + encodeURIComponent(slug);
-    });
-
     $("btnSupport")?.addEventListener("click", ()=> window.open("https://wa.me/221771342889", "_blank"));
 
     $("btnShare")?.addEventListener("click", async ()=>{
