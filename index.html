@@ -66,11 +66,6 @@
       background:rgba(250,204,21,.12);
       color:var(--gold);
     }
-    .btn.danger{
-      border:1px solid rgba(239,68,68,.45);
-      background:rgba(239,68,68,.10);
-      color:#fecaca;
-    }
     .btn.small{padding:8px 10px; border-radius:12px; font-size:12px}
     h1{margin:18px 4px 6px; font-size:26px; font-weight:1050}
     .sub{margin:0 4px 14px; color:var(--muted); font-weight:800}
@@ -416,6 +411,7 @@
       setStatus("pending");
       set("slugText","slug: —");
       set("cockpitLink","—");
+
       const box = $("todayList");
       if(box){
         box.innerHTML = `
@@ -444,7 +440,7 @@
       const clean = String(s||"").trim();
       if(!clean) return toast("Slug vide");
       localStorage.setItem(STORAGE_KEY, clean);
-      const u = new URL(location.href);         // ✅ reste sur la même page
+      const u = new URL(location.href);
       u.searchParams.set("slug", clean);
       location.assign(u.toString());
     }
@@ -490,7 +486,7 @@
 
       try{
         const { data, error } = await sb
-          .from("ride_requests_driver_feed")
+          .from("ride_requests_driver_feed")     // ✅ ta vue (tel masqué + labels)
           .select("*")
           .order("created_at", { ascending:false })
           .limit(12);
@@ -511,7 +507,7 @@
 
         box.innerHTML = data.map(r=>{
           const title = `${r.pickup_label || "—"} → ${r.drop_label || "—"}`;
-          const meta = `${r.city || "—"} • ${r.vehicle_type || "—"} • tel: ${r.client_phone_masked || "—"}`;
+          const meta  = `${r.city || "—"} • ${r.vehicle_type || "—"} • tel: ${r.client_phone_masked || "—"}`;
           return `
             <div class="item">
               <div style="min-width:0">
@@ -540,7 +536,7 @@
           <div class="item">
             <div>
               <div class="title">Erreur demandes</div>
-              <div class="meta">Vérifie la vue + droits SELECT.</div>
+              <div class="meta">Vérifie la vue + droits SELECT (anon).</div>
             </div>
             <div class="right">—<small>—</small></div>
           </div>`;
@@ -605,7 +601,7 @@
 
       $("mClientPhone").textContent = ride.client_phone || "—";
       $("mPrice").textContent = money(ride.price_xof);
-      $("mRoute").textContent = `${ride.pickup_label || "—"} → ${ride.drop_label || "—"}`;
+      $("mRoute").textContent = `${ride.pickup_text || ride.pickup_label || "—"} → ${ride.dropoff_text || ride.drop_label || "—"}`;
       $("mMeta").textContent = `${ride.city || "—"} • ${ride.vehicle_type || "—"}`;
 
       $("acceptModal")?.classList.add("show");
@@ -676,7 +672,7 @@
             </div>`;
         }else{
           box.innerHTML = list.map(t=>{
-            const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
+            const title = `${t.pickup_label || t.pickup_text || "—"} → ${t.drop_label || t.dropoff_text || "—"}`;
             const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
             const extra = (t.extras_fcfa && t.extras_fcfa > 0) ? `+${t.extras_fcfa} extras` : "—";
             return `
