@@ -484,7 +484,6 @@
       return p || null;
     }
 
-    <script>
 async function resolveDriverPhoneFromSlug(slug){
   // slug attendu : driver-221771342889
   const s = String(slug || "").trim();
@@ -497,7 +496,6 @@ async function resolveDriverPhoneFromSlug(slug){
   // Ici on garde SANS "+" pour matcher tes données (221xxxxxxxxx).
   return digits;
 }
-</script>
 
       if(!driverPhone){
         const p = prompt("Téléphone chauffeur requis (ex: 221771234567 ou +221771234567) :", "");
