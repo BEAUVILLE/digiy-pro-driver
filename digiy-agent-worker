@@ -1,0 +1,36 @@
+name: Deploy DIGIY AGENT WORKER (VPS + PM2)
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH deploy worker
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+            cd /opt/digiy-agent-worker
+            git fetch --all
+            git reset --hard origin/main
+            git clean -fd
+
+            if [ -f package-lock.json ]; then
+              npm ci --omit=dev
+            else
+              npm install --omit=dev
+            fi
+
+            pm2 restart digiy-agent-worker || pm2 start worker.mjs --name digiy-agent-worker
+            pm2 save
+
+            echo "Deployed WORKER: $(date -u) | $(git rev-parse --short HEAD)"
+            pm2 status digiy-agent-worker
