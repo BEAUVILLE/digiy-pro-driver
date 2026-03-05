@@ -1,1 +1,423 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY DRIVER — Devenir chauffeur</title>
+  <meta name="theme-color" content="#061b14"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <style>
+    :root{
+      --bg:#061b14; --card:#0b2a1f;
+      --line:rgba(255,255,255,.12);
+      --text:#eafff1; --muted:rgba(234,255,241,.72);
+      --primary:#22c55e; --gold:#facc15; --warn:#f59e0b; --danger:#ef4444;
+      --shadow:0 18px 55px rgba(0,0,0,.42);
+      --r:18px; --max:920px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
+        var(--bg);
+    }
+    .wrap{max-width:var(--max); margin:0 auto; padding:18px 14px 28px}
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:14px 14px; border:1px solid var(--line); border-radius:22px;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow:var(--shadow);
+    }
+    .brand{display:flex; align-items:center; gap:10px; min-width:0}
+    .logo{
+      width:44px; height:44px; border-radius:14px; display:grid; place-items:center;
+      border:1px solid rgba(250,204,21,.22); background:rgba(0,0,0,.18);
+      font-weight:950; color:var(--gold);
+    }
+    .brandtext .t1{font-weight:1000; letter-spacing:.3px}
+    .brandtext .t2{font-size:12px; color:var(--muted); font-weight:800; margin-top:2px}
+    .right{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:950;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .btn.primary{
+      border:1px solid rgba(34,197,94,.45);
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.88));
+      color:#042012;
+    }
+    .btn.gold{
+      border:1px solid rgba(250,204,21,.38);
+      background:rgba(250,204,21,.12);
+      color:var(--gold);
+    }
+
+    h1{margin:18px 4px 6px; font-size:26px; font-weight:1050}
+    .sub{margin:0 4px 14px; color:var(--muted); font-weight:800}
+
+    .grid{display:grid; gap:14px}
+    @media(min-width:860px){ .grid{grid-template-columns: 1fr .95fr} }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .card h2{margin:2px 2px 10px; font-size:16px; font-weight:1000}
+    .hint{font-size:12px; color:var(--muted); font-weight:800; margin-top:-6px}
+
+    .row{display:grid; gap:10px}
+    .row.two{grid-template-columns:1fr 1fr}
+    @media(max-width:520px){ .row.two{grid-template-columns:1fr} }
+
+    label{font-size:12px; font-weight:950; color:rgba(234,255,241,.88)}
+    .in, select, textarea{
+      width:100%;
+      padding:12px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.12);
+      color:var(--text);
+      font-size:15px;
+      font-weight:900;
+      outline:none;
+    }
+    textarea{min-height:92px; resize:vertical}
+    .mini{font-size:12px; color:var(--muted); font-weight:800; margin-top:6px}
+
+    .bullets{
+      margin:10px 0 0;
+      display:grid;
+      gap:10px;
+    }
+    .b{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      border-radius:16px;
+      padding:12px;
+    }
+    .b .t{font-weight:1000}
+    .b .d{margin-top:4px; color:var(--muted); font-weight:800; font-size:12px}
+
+    .actions{display:grid; gap:10px; margin-top:12px}
+    .actions .btn{min-height:48px; border-radius:16px}
+
+    .toast{
+      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+      background:rgba(0,0,0,.65);
+      border:1px solid rgba(255,255,255,.14);
+      color:rgba(234,255,241,.92);
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:900; font-size:12px;
+      box-shadow:0 16px 40px rgba(0,0,0,.45);
+      display:none; z-index:9999;
+      max-width:min(92vw,680px);
+    }
+
+    .okbox{
+      border:1px solid rgba(34,197,94,.35);
+      background:rgba(34,197,94,.10);
+      border-radius:16px;
+      padding:12px;
+      display:none;
+    }
+    .okbox.show{display:block}
+    .okbox .t{font-weight:1050}
+    .okbox .d{margin-top:6px; color:rgba(234,255,241,.85); font-weight:850; font-size:12px}
+    .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">♾</div>
+        <div class="brandtext">
+          <div class="t1">DIGIY DRIVER</div>
+          <div class="t2">Candidature chauffeur (sélection)</div>
+        </div>
+      </div>
+      <div class="right">
+        <a class="btn gold" href="./?demo=1">👀 Voir la démo</a>
+        <a class="btn" href="./">↩ Retour cockpit</a>
+      </div>
+    </div>
+
+    <h1>Devenir chauffeur</h1>
+    <p class="sub">Tu postules. On te contacte sur WhatsApp pour valider (classe + sécurité).</p>
+
+    <div class="grid">
+      <!-- FORM -->
+      <div class="card">
+        <h2>Ton profil</h2>
+        <div class="hint">Remplis simple. Le terrain d’abord.</div>
+
+        <div class="row two" style="margin-top:10px">
+          <div>
+            <label>Nom complet</label>
+            <input class="in" id="full_name" placeholder="Ex: Mamadou Diop"/>
+          </div>
+          <div>
+            <label>Téléphone WhatsApp</label>
+            <input class="in" id="phone" placeholder="Ex: +221771234567"/>
+            <div class="mini">Format conseillé : <span class="mono">+22177...</span></div>
+          </div>
+        </div>
+
+        <div class="row two" style="margin-top:10px">
+          <div>
+            <label>Ville principale</label>
+            <select id="city" class="in">
+              <option value="Dakar">Dakar</option>
+              <option value="Saly">Saly</option>
+              <option value="Somone">Somone</option>
+              <option value="Mbour">Mbour</option>
+              <option value="Thiès">Thiès</option>
+              <option value="AIBD">AIBD</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+          <div>
+            <label>Type de véhicule</label>
+            <select id="vehicle_type" class="in">
+              <option value="Berline">Berline</option>
+              <option value="SUV">SUV</option>
+              <option value="Van">Van</option>
+              <option value="Minibus">Minibus</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row two" style="margin-top:10px">
+          <div>
+            <label>Places (si utile)</label>
+            <select id="seats" class="in">
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="7">7</option>
+              <option value="9">9</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+          <div>
+            <label>Disponibilité</label>
+            <select id="availability" class="in">
+              <option value="Jour">Jour</option>
+              <option value="Nuit">Nuit</option>
+              <option value="Jour+Nuit">Jour + Nuit</option>
+              <option value="Week-end">Week-end</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label>Ton “savoir-être” (2 lignes)</label>
+            <textarea class="in" id="about" placeholder="Ex: Ponctuel, tenue propre, discret. Je connais Dakar et la Petite Côte."></textarea>
+            <div class="mini">On cherche la <b>prestance</b> : calme, pro, service +.</div>
+          </div>
+        </div>
+
+        <div class="okbox" id="okbox">
+          <div class="t">✅ Candidature envoyée</div>
+          <div class="d">
+            On te contacte sur WhatsApp pour confirmer. Garde ton téléphone disponible 🙏
+            <div style="margin-top:8px">
+              <a class="btn primary" id="btnWhatsApp" href="#" target="_blank" rel="noopener">Ouvrir WhatsApp</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" id="btnSend" type="button">🚀 Envoyer ma candidature</button>
+          <button class="btn" id="btnReset" type="button">↺ Réinitialiser</button>
+        </div>
+
+        <div class="mini">
+          Support WhatsApp : <a class="btn" style="text-decoration:none; padding:8px 10px" href="https://wa.me/221771342889" target="_blank" rel="noopener">+221 77 134 28 89</a>
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div class="card">
+        <h2>Comment ça marche</h2>
+        <div class="hint">Sélection = qualité. La rareté crée l’envie.</div>
+
+        <div class="bullets">
+          <div class="b">
+            <div class="t">1) Tu postules</div>
+            <div class="d">On récupère tes infos + WhatsApp pour te contacter.</div>
+          </div>
+          <div class="b">
+            <div class="t">2) Entretien WhatsApp</div>
+            <div class="d">On vérifie : tenue, attitude, zones, véhicule, disponibilité.</div>
+          </div>
+          <div class="b">
+            <div class="t">3) Si validé → accès cockpit</div>
+            <div class="d">On te donne ton <b>slug</b> (lien pro). Ensuite tu travailles direct.</div>
+          </div>
+          <div class="b">
+            <div class="t">Digiy = service “chauffeur de maître”</div>
+            <div class="d">Discrétion, sécurité, respect. C’est ça la marque.</div>
+          </div>
+        </div>
+
+        <div class="mini" style="margin-top:12px">
+          Astuce : tu peux aussi partager la démo à un chauffeur pour lui montrer l’idée.
+        </div>
+        <div style="margin-top:10px">
+          <a class="btn gold" href="./?demo=1">👀 Partager la démo</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">OK</div>
+
+  <script>
+  (function(){
+    "use strict";
+
+    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ✅ Table cible (à créer côté SQL si pas déjà)
+    // Recommandé: public.digiy_driver_applications
+    const TABLE = "digiy_driver_applications";
+
+    const SUPPORT_WA = "221771342889"; // sans +
+
+    const $ = (id)=>document.getElementById(id);
+
+    function toast(msg){
+      const t = $("toast");
+      if(!t) return;
+      t.textContent = msg;
+      t.style.display = "block";
+      clearTimeout(window.__digiy_toast_t);
+      window.__digiy_toast_t = setTimeout(()=>t.style.display="none", 1600);
+    }
+
+    function normPhone(p){
+      p = (p||"").trim().replace(/\s+/g,"").replace(/[^\d+]/g,"");
+      if(p.startsWith("00221")) p = "+221" + p.slice(5);
+      if(!p.startsWith("+") && p.startsWith("221")) p = "+" + p;
+      if(!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
+      return p || "";
+    }
+
+    function v(id){ return ($(`${id}`)?.value || "").trim(); }
+
+    function openWA(phone, name){
+      const msg = `DIGIY DRIVER — Candidature envoyée ✅%0A%0A` +
+        `Nom: ${encodeURIComponent(name || "—")}%0A` +
+        `Téléphone: ${encodeURIComponent(phone || "—")}%0A%0A` +
+        `Merci de répondre ici pour l’entretien.`;
+      const url = `https://wa.me/${SUPPORT_WA}?text=${msg}`;
+      return url;
+    }
+
+    async function send(){
+      const full_name = v("full_name");
+      const phone = normPhone(v("phone"));
+      const city = v("city");
+      const vehicle_type = v("vehicle_type");
+      const seats = Number(v("seats") || 4);
+      const availability = v("availability");
+      const about = v("about");
+
+      if(!full_name){ toast("Nom requis"); return; }
+      if(!phone){ toast("Téléphone WhatsApp requis"); return; }
+      if(!phone.startsWith("+")){ toast("Mets le + (ex: +22177...)"); return; }
+
+      // payload minimal (évite les erreurs de colonnes)
+      const payload = {
+        full_name,
+        phone,
+        city,
+        vehicle_type,
+        seats,
+        availability,
+        about,
+        status: "new" // si colonne existe. Si tu n’en veux pas, supprime cette ligne.
+      };
+
+      $("btnSend").disabled = true;
+      $("btnSend").textContent = "Envoi...";
+
+      try{
+        const { error } = await sb.from(TABLE).insert(payload);
+        if(error){
+          console.error(error);
+
+          // 🔥 Si ta table n’a pas la colonne status -> on renvoie sans status
+          if(String(error.message||"").toLowerCase().includes("column") && String(error.message||"").toLowerCase().includes("status")){
+            const payload2 = { ...payload };
+            delete payload2.status;
+            const { error: e2 } = await sb.from(TABLE).insert(payload2);
+            if(e2) throw e2;
+          }else{
+            throw error;
+          }
+        }
+
+        toast("Candidature envoyée ✅");
+        $("okbox")?.classList.add("show");
+
+        const wa = openWA(phone, full_name);
+        const btn = $("btnWhatsApp");
+        if(btn) btn.href = wa;
+
+      }catch(e){
+        console.error(e);
+        toast("Erreur envoi (table/RLS).");
+        alert(
+          "Erreur envoi.\n\n" +
+          "À vérifier côté Supabase :\n" +
+          "1) Table " + TABLE + "\n" +
+          "2) RLS policy INSERT (anon)\n" +
+          "3) Colonnes attendues\n\n" +
+          "Détail: " + (e?.message || e)
+        );
+      }finally{
+        $("btnSend").disabled = false;
+        $("btnSend").textContent = "🚀 Envoyer ma candidature";
+      }
+    }
+
+    function reset(){
+      ["full_name","phone","about"].forEach(id=>{ const el=$(id); if(el) el.value=""; });
+      ["city","vehicle_type","seats","availability"].forEach(id=>{ const el=$(id); if(el) el.selectedIndex=0; });
+      $("okbox")?.classList.remove("show");
+      toast("Reset");
+    }
+
+    $("btnSend")?.addEventListener("click", send);
+    $("btnReset")?.addEventListener("click", reset);
+
+  })();
+  </script>
+</body>
+</html>
