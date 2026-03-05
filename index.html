@@ -66,6 +66,11 @@
       background:rgba(250,204,21,.12);
       color:var(--gold);
     }
+    .btn.danger{
+      border:1px solid rgba(239,68,68,.45);
+      background:rgba(239,68,68,.10);
+      color:#fecaca;
+    }
     .btn.small{padding:8px 10px; border-radius:12px; font-size:12px}
     h1{margin:18px 4px 6px; font-size:26px; font-weight:1050}
     .sub{margin:0 4px 14px; color:var(--muted); font-weight:800}
@@ -193,6 +198,11 @@
           <span class="dot" id="statusDot"></span>
           <span id="statusText">Prêt</span>
         </div>
+
+        <!-- ✅ DEMO + INSCRIPTION -->
+        <button class="btn primary" id="btnJoin" type="button">🚖 Devenir chauffeur</button>
+        <button class="btn gold" id="btnDemo" type="button">👀 Voir la démo</button>
+
         <button class="btn gold" id="btnShare" type="button">Partager</button>
         <button class="btn" id="btnSupport" type="button">Support</button>
       </div>
@@ -274,7 +284,7 @@
 
       <div class="card">
         <h2>Partager mon cockpit</h2>
-        <div class="hint">Lien officiel (avec slug)</div>
+        <div class="hint">Lien officiel (avec slug) — ou démo</div>
 
         <div class="item">
           <div style="min-width:0">
@@ -347,6 +357,10 @@
 
     const STORAGE_KEY = "digiy_driver_slug";
 
+    // ✅ À TOI D'AJUSTER SI TU VEUX
+    const JOIN_URL = "./devenir-chauffeur.html"; // page inscription (à créer)
+    const DEMO_QS_KEY = "demo";
+
     const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
     const SUPABASE_ANON_KEY =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
@@ -378,44 +392,42 @@
       const txt = $("statusText");
       if(!dot || !txt) return;
       if(kind === "active"){ dot.style.background="var(--primary)"; txt.textContent="Actif"; }
-      else if(kind === "pending"){ dot.style.background="var(--warn)"; txt.textContent="En attente"; }
+      else if(kind === "pending"){ dot.style.background="var(--warn)"; txt.textContent="Démo / À activer"; }
       else { dot.style.background="var(--danger)"; txt.textContent="Expiré"; }
     }
 
-    // --- SLUG ---
+    // --- SLUG + DEMO ---
     const qs = new URLSearchParams(location.search);
+    const IS_DEMO = (qs.get(DEMO_QS_KEY) === "1");
+
     let slug = (qs.get("slug") || "").trim();
     const savedSlug = (localStorage.getItem(STORAGE_KEY) || "").trim();
     if(!slug && savedSlug) slug = savedSlug;
+
+    // Si DEMO -> on force pas de slug
+    if(IS_DEMO) slug = "";
 
     if(slug){
       localStorage.setItem(STORAGE_KEY, slug);
       try{
         const u = new URL(location.href);
         u.searchParams.set("slug", slug);
+        u.searchParams.delete(DEMO_QS_KEY);
         history.replaceState({}, "", u.toString());
       }catch(_){}
-    }
-
-    // --- ACCÈS (sélection chauffeur) ---
-    async function isApprovedSlug(){
-      try{
-        const { data, error } = await sb
-          .from("digiy_driver_access")
-          .select("approved")
-          .eq("slug", slug)
-          .maybeSingle();
-        if(error) return false;
-        return !!data?.approved;
-      }catch(_){
-        return false;
-      }
     }
 
     // --- URL cockpit à partager ---
     function cockpitUrl(s){
       const u = new URL(location.href);
+      u.searchParams.delete(DEMO_QS_KEY);
       u.searchParams.set("slug", s);
+      return u.toString();
+    }
+    function demoUrl(){
+      const u = new URL(location.href);
+      u.searchParams.delete("slug");
+      u.searchParams.set(DEMO_QS_KEY,"1");
       return u.toString();
     }
 
@@ -425,7 +437,7 @@
       set("techState", "state: gate");
       setStatus("pending");
       set("slugText","slug: —");
-      set("cockpitLink","—");
+      set("cockpitLink", demoUrl());
 
       const box = $("todayList");
       if(box){
@@ -433,19 +445,18 @@
           <div class="item">
             <div>
               <div class="title">Slug requis</div>
-              <div class="meta">Entre ton slug pour charger ton cockpit.</div>
+              <div class="meta">Entre ton slug pour charger tes stats.</div>
             </div>
             <div class="right">—<small>—</small></div>
           </div>`;
       }
-
       const live = $("liveRequests");
       if(live){
         live.innerHTML = `
           <div class="item">
             <div>
-              <div class="title">Accès restreint</div>
-              <div class="meta">Entre ton slug (chauffeur sélectionné) pour voir les demandes.</div>
+              <div class="title">Slug requis</div>
+              <div class="meta">Entre ton slug pour voir les demandes.</div>
             </div>
             <div class="right">—<small>—</small></div>
           </div>`;
@@ -458,6 +469,7 @@
       localStorage.setItem(STORAGE_KEY, clean);
       const u = new URL(location.href);
       u.searchParams.set("slug", clean);
+      u.searchParams.delete(DEMO_QS_KEY);
       location.assign(u.toString());
     }
 
@@ -500,6 +512,34 @@
       const box = $("liveRequests");
       if(!box) return;
 
+      // ✅ DEMO: aucune action
+      if(IS_DEMO){
+        box.innerHTML = `
+          <div class="item">
+            <div style="min-width:0">
+              <div class="title">Ouest Foire → Ngor</div>
+              <div class="meta">Dakar • Berline • tel: 221****67</div>
+            </div>
+            <div class="right">${money(4500)}<small>Démo</small></div>
+          </div>
+          <div class="item">
+            <div style="min-width:0">
+              <div class="title">Parcelles → VDN</div>
+              <div class="meta">Dakar • Van • tel: 221****77</div>
+            </div>
+            <div class="right">${money(4392)}<small>Démo</small></div>
+          </div>
+          <div class="item">
+            <div style="min-width:0">
+              <div class="title">Plateau → Almadies</div>
+              <div class="meta">Dakar • SUV • tel: 221****90</div>
+            </div>
+            <div class="right">${money(7953)}<small>Démo</small></div>
+          </div>
+        `;
+        return;
+      }
+
       try{
         const { data, error } = await sb
           .from("ride_requests_driver_feed")
@@ -514,7 +554,7 @@
             <div class="item">
               <div>
                 <div class="title">Aucune demande</div>
-                <div class="meta">Quand une course arrive, elle apparaît ici.</div>
+                <div class="meta">Reste visible. Quand une course arrive, elle pop.</div>
               </div>
               <div class="right">—<small>—</small></div>
             </div>`;
@@ -560,6 +600,8 @@
     }
 
     function startLiveRealtime(){
+      if(IS_DEMO) return; // ✅ pas de realtime en demo
+
       if(liveChannel){
         sb.removeChannel(liveChannel);
         liveChannel = null;
@@ -581,6 +623,7 @@
     }
 
     async function acceptRide(rideId){
+      if(IS_DEMO) return toast("Démo : action désactivée");
       if(!rideId) return;
 
       if(!driverPhone){
@@ -638,16 +681,49 @@
 
     // --- LOAD ---
     async function load(){
-      if(!slug){
-        openGate(savedSlug ? "Ton slug est mémorisé. Clique « Utiliser mon slug mémorisé »." : "Aucun slug détecté. Colle ton slug chauffeur.");
+      // ✅ MODE DEMO (aucun slug requis)
+      if(IS_DEMO){
+        $("gate")?.classList.remove("show");
+        setStatus("pending");
+        set("techState","state: demo");
+        set("slugText","slug: DEMO");
+        set("cockpitLink", demoUrl());
+
+        // KPIs fake
+        set("kpiTodayCount", 3);
+        set("kpiTodayMoney", money(14500));
+        set("kpi7dCount", 18);
+        set("kpi7dMoney", money(99000));
+
+        // Liste fake
+        const box = $("todayList");
+        if(box){
+          box.innerHTML = `
+            <div class="item">
+              <div>
+                <div class="title">Plateau → Almadies</div>
+                <div class="meta">accepted • ✅ Paiement OK</div>
+              </div>
+              <div class="right">${money(4500)}<small>—</small></div>
+            </div>
+            <div class="item">
+              <div>
+                <div class="title">VDN → Yoff</div>
+                <div class="meta">accepted • ✅ Paiement OK</div>
+              </div>
+              <div class="right">${money(5200)}<small>—</small></div>
+            </div>
+          `;
+        }
+
+        await fetchLiveRequests();
+        toast("👀 Mode démo");
         return;
       }
 
-      // ✅ SELECTION CHAUFFEUR
-      const approved = await isApprovedSlug();
-      if(!approved){
-        setStatus("pending");
-        openGate("✅ Demande reçue. On te contacte sur WhatsApp pour valider ton accès chauffeur DIGIY.");
+      // ✅ MODE PRO (slug requis)
+      if(!slug){
+        openGate(savedSlug ? "Ton slug est mémorisé. Clique « Utiliser mon slug mémorisé »." : "Aucun slug détecté. Colle ton slug chauffeur.");
         return;
       }
 
@@ -721,7 +797,35 @@
     }
 
     // --- BUTTONS ---
+    $("btnMainAction")?.addEventListener("click", ()=>{
+      if(IS_DEMO) return toast("Démo : action désactivée");
+      if(!slug) return toast("Slug requis");
+      location.href = "./courses.html?slug=" + encodeURIComponent(slug);
+    });
+
+    $("btnSecondary1")?.addEventListener("click", ()=>{
+      if(IS_DEMO) return toast("Démo : action désactivée");
+      if(!slug) return toast("Slug requis");
+      location.href = "./driver-zone-now.html?slug=" + encodeURIComponent(slug);
+    });
+
+    $("btnSecondary2")?.addEventListener("click", ()=>{
+      if(IS_DEMO) return toast("Démo : action désactivée");
+      if(!slug) return toast("Slug requis");
+      location.href = "./profil-chauffeur.html?slug=" + encodeURIComponent(slug);
+    });
+
     $("btnSupport")?.addEventListener("click", ()=> window.open("https://wa.me/221771342889", "_blank"));
+
+    // ✅ INSCRIPTION
+    $("btnJoin")?.addEventListener("click", ()=>{
+      location.href = JOIN_URL;
+    });
+
+    // ✅ DEMO
+    $("btnDemo")?.addEventListener("click", ()=>{
+      location.assign(demoUrl());
+    });
 
     $("btnShare")?.addEventListener("click", async ()=>{
       const link = $("cockpitLink")?.textContent || "";
