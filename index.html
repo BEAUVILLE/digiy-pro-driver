@@ -17,27 +17,20 @@
       --r:18px; --max:980px;
     }
     *{box-sizing:border-box}
+
+    /* ✅ FIX 3 (anti "parasites" / overlays / traits verticaux) */
+    html, body { overflow-x:hidden; }
+    html::before, html::after, body::before, body::after { content:none !important; display:none !important; }
+    *::before, *::after { background-image:none !important; box-shadow:inherit; }
+
     body{
       margin:0; color:var(--text);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:
-        radial-gradient(1100px 700px at 10% -10%, rgba(34,197,94,.16), transparent 60%),
-        radial-gradient(1400px 900px at 110% 0%, rgba(250,204,21,.06), transparent 65%),
+        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
         var(--bg);
     }
-
-    /* ✅ ULTRA PREMIUM: grain anti-banding (supprime les “parasites” verticaux) */
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
-      mix-blend-mode:overlay;
-      z-index:0;
-    }
-    .wrap{position:relative; z-index:1;}
-
     .wrap{max-width:var(--max); margin:0 auto; padding:16px 14px 28px}
     .topbar{
       display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -368,6 +361,9 @@
     "use strict";
 
     const STORAGE_KEY = "digiy_driver_slug";
+    const VERSION_TAG = "20260305-ULTRAPREMIUM-3"; // ✅ change quand tu pushes
+
+    // ✅ À TOI D'AJUSTER SI TU VEUX
     const JOIN_URL = "./devenir-chauffeur.html";
     const DEMO_QS_KEY = "demo";
 
@@ -415,6 +411,7 @@
     const savedSlug = (localStorage.getItem(STORAGE_KEY) || "").trim();
     if(!slug && savedSlug) slug = savedSlug;
 
+    // Si DEMO -> on force pas de slug
     if(IS_DEMO) slug = "";
 
     if(slug){
@@ -423,6 +420,8 @@
         const u = new URL(location.href);
         u.searchParams.set("slug", slug);
         u.searchParams.delete(DEMO_QS_KEY);
+        // ✅ Fix cache visuel (ça aide quand GitHub cache/edge)
+        u.searchParams.set("v", VERSION_TAG);
         history.replaceState({}, "", u.toString());
       }catch(_){}
     }
@@ -431,12 +430,14 @@
       const u = new URL(location.href);
       u.searchParams.delete(DEMO_QS_KEY);
       u.searchParams.set("slug", s);
+      u.searchParams.set("v", VERSION_TAG);
       return u.toString();
     }
     function demoUrl(){
       const u = new URL(location.href);
       u.searchParams.delete("slug");
       u.searchParams.set(DEMO_QS_KEY,"1");
+      u.searchParams.set("v", VERSION_TAG);
       return u.toString();
     }
 
@@ -447,6 +448,29 @@
       setStatus("pending");
       set("slugText","slug: —");
       set("cockpitLink", demoUrl());
+
+      const box = $("todayList");
+      if(box){
+        box.innerHTML = `
+          <div class="item">
+            <div>
+              <div class="title">Slug requis</div>
+              <div class="meta">Entre ton slug pour charger tes stats.</div>
+            </div>
+            <div class="right">—<small>—</small></div>
+          </div>`;
+      }
+      const live = $("liveRequests");
+      if(live){
+        live.innerHTML = `
+          <div class="item">
+            <div>
+              <div class="title">Slug requis</div>
+              <div class="meta">Entre ton slug pour voir les demandes.</div>
+            </div>
+            <div class="right">—<small>—</small></div>
+          </div>`;
+      }
     }
 
     function goWithSlug(s){
@@ -456,13 +480,14 @@
       const u = new URL(location.href);
       u.searchParams.set("slug", clean);
       u.searchParams.delete(DEMO_QS_KEY);
+      u.searchParams.set("v", VERSION_TAG);
       location.assign(u.toString());
     }
 
-    // --- Driver phone (RPC accept) ---
+    // --- Driver phone ---
     let driverPhone = null;
 
-    // ✅ slug => digits "221xxxxxxxxx" (sans +)
+    // ✅ Fix scope (toujours dispo)
     window.resolveDriverPhoneFromSlug = window.resolveDriverPhoneFromSlug || function(slugValue){
       const s = String(slugValue || "").trim();
       if(!s.startsWith("driver-")) return null;
@@ -470,12 +495,13 @@
       let digits = s.slice("driver-".length).replace(/[^\d]/g, "");
       if(!digits) return null;
 
-      if(digits.length === 9) digits = "221" + digits;   // SN
-      if(digits.length < 12) return null;               // 221 + 9 digits min
+      if(digits.length === 9) digits = "221" + digits;
+      if(digits.length < 12) return null;
 
       return digits; // ex: 221771342889
     };
 
+    // ✅ UNE SEULE fonction (pas de doublon)
     async function resolveDriverPhone(){
       if(driverPhone) return driverPhone;
 
@@ -511,7 +537,22 @@
               <div class="meta">Dakar • Berline • tel: 221****67</div>
             </div>
             <div class="right">${money(4500)}<small>Démo</small></div>
-          </div>`;
+          </div>
+          <div class="item">
+            <div style="min-width:0">
+              <div class="title">Parcelles → VDN</div>
+              <div class="meta">Dakar • Van • tel: 221****77</div>
+            </div>
+            <div class="right">${money(4392)}<small>Démo</small></div>
+          </div>
+          <div class="item">
+            <div style="min-width:0">
+              <div class="title">Plateau → Almadies</div>
+              <div class="meta">Dakar • SUV • tel: 221****90</div>
+            </div>
+            <div class="right">${money(7953)}<small>Démo</small></div>
+          </div>
+        `;
         return;
       }
 
@@ -538,7 +579,7 @@
 
         box.innerHTML = data.map(r=>{
           const title = `${r.pickup_label || "—"} → ${r.drop_label || "—"}`;
-          const meta  = `${r.city || "Dakar"} • ${r.vehicle_type || "Berline"} • tel: ${r.client_phone_masked || "Masqué"}`;
+          const meta = `${r.city || "—"} • ${r.vehicle_type || "—"} • tel: ${r.client_phone_masked || "—"}`;
           return `
             <div class="item">
               <div style="min-width:0">
@@ -635,7 +676,7 @@
       $("mClientPhone").textContent = ride.client_phone || "—";
       $("mPrice").textContent = money(ride.price_xof);
       $("mRoute").textContent = `${ride.pickup_label || "—"} → ${ride.drop_label || "—"}`;
-      $("mMeta").textContent = `${ride.city || "Dakar"} • ${ride.vehicle_type || "Berline"}`;
+      $("mMeta").textContent = `${ride.city || "—"} • ${ride.vehicle_type || "—"}`;
 
       $("acceptModal")?.classList.add("show");
       $("acceptModal")?.setAttribute("aria-hidden","false");
@@ -655,6 +696,7 @@
 
     // --- LOAD ---
     async function load(){
+      // ✅ MODE DEMO
       if(IS_DEMO){
         $("gate")?.classList.remove("show");
         setStatus("pending");
@@ -673,10 +715,18 @@
             <div class="item">
               <div>
                 <div class="title">Plateau → Almadies</div>
-                <div class="meta">completed • ✅ Paiement OK</div>
+                <div class="meta">accepted • ✅ Paiement OK</div>
               </div>
-              <div class="right">${money(4500)}<small></small></div>
-            </div>`;
+              <div class="right">${money(4500)}<small>—</small></div>
+            </div>
+            <div class="item">
+              <div>
+                <div class="title">VDN → Yoff</div>
+                <div class="meta">accepted • ✅ Paiement OK</div>
+              </div>
+              <div class="right">${money(5200)}<small>—</small></div>
+            </div>
+          `;
         }
 
         await fetchLiveRequests();
@@ -684,6 +734,7 @@
         return;
       }
 
+      // ✅ MODE PRO (slug requis)
       if(!slug){
         openGate(savedSlug ? "Ton slug est mémorisé. Clique « Utiliser mon slug mémorisé »." : "Aucun slug détecté. Colle ton slug chauffeur.");
         return;
@@ -691,23 +742,25 @@
 
       $("gate")?.classList.remove("show");
       set("techState", "state: loading");
+      setStatus("active");
 
       set("slugText", "slug: " + slug);
       set("cockpitLink", cockpitUrl(slug));
 
       await resolveDriverPhone();
 
+      // ✅ RPC stats
       const { data:stats, error:e1 } = await sb.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
       if(e1){
         console.error("stats error", e1);
-        setStatus("pending");
         set("techState", "state: stats-error");
-        openGate("Erreur stats. Vérifie le slug / accès.");
+        setStatus("pending");
+        openGate("Erreur stats. Vérifie le slug / accès. (F12 Console pour détail)");
+        toast("Erreur stats");
         return;
       }
 
       const s = Array.isArray(stats) ? stats[0] : stats;
-
       set("kpiTodayCount", s?.trips_today ?? 0);
       set("kpiTodayMoney", money(s?.revenue_today_fcfa ?? 0));
       set("kpi7dCount", s?.trips_7d ?? 0);
@@ -718,12 +771,11 @@
       else if(st === "trial" || st === "pending") setStatus("pending");
       else setStatus("expired");
 
+      // ✅ RPC liste du jour (FIX 2: check e2)
       const { data:list, error:e2 } = await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
       if(e2){
-        console.error("list error", e2);
-        set("techState", "state: list-error");
-        toast("Erreur liste");
-        return;
+        console.error("today list error", e2);
+        toast("Erreur liste (console)");
       }
 
       const box = $("todayList");
@@ -735,13 +787,13 @@
                 <div class="title">Aucune activité aujourd’hui</div>
                 <div class="meta">Ton prochain client arrive bientôt.</div>
               </div>
-              <div class="right">—<small></small></div>
+              <div class="right">—<small>—</small></div>
             </div>`;
         }else{
           box.innerHTML = list.map(t=>{
             const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
             const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
-            const extra = (Number(t.extras_fcfa||0) > 0) ? `+${t.extras_fcfa} extras` : "";
+            const extra = (t.extras_fcfa && t.extras_fcfa > 0) ? `+${t.extras_fcfa} extras` : "—";
             return `
               <div class="item">
                 <div>
@@ -750,7 +802,7 @@
                 </div>
                 <div class="right">
                   ${money(t.revenue_fcfa)}
-                  <small>${extra ? esc(extra) : ""}</small>
+                  <small>${esc(extra)}</small>
                 </div>
               </div>`;
           }).join("");
@@ -760,31 +812,30 @@
       await fetchLiveRequests();
       startLiveRealtime();
 
-      set("techState","state: ok");
+      set("techState","state: ok • v=" + VERSION_TAG);
     }
 
     // --- BUTTONS ---
     $("btnMainAction")?.addEventListener("click", ()=>{
       if(IS_DEMO) return toast("Démo : action désactivée");
       if(!slug) return toast("Slug requis");
-      location.href = "./courses.html?slug=" + encodeURIComponent(slug);
+      location.href = "./courses.html?slug=" + encodeURIComponent(slug) + "&v=" + encodeURIComponent(VERSION_TAG);
     });
 
     $("btnSecondary1")?.addEventListener("click", ()=>{
       if(IS_DEMO) return toast("Démo : action désactivée");
       if(!slug) return toast("Slug requis");
-      location.href = "./driver-zone-now.html?slug=" + encodeURIComponent(slug);
+      location.href = "./driver-zone-now.html?slug=" + encodeURIComponent(slug) + "&v=" + encodeURIComponent(VERSION_TAG);
     });
 
     $("btnSecondary2")?.addEventListener("click", ()=>{
       if(IS_DEMO) return toast("Démo : action désactivée");
       if(!slug) return toast("Slug requis");
-      location.href = "./profil-chauffeur.html?slug=" + encodeURIComponent(slug);
+      location.href = "./profil-chauffeur.html?slug=" + encodeURIComponent(slug) + "&v=" + encodeURIComponent(VERSION_TAG);
     });
 
     $("btnSupport")?.addEventListener("click", ()=> window.open("https://wa.me/221771342889", "_blank"));
-
-    $("btnJoin")?.addEventListener("click", ()=> { location.href = JOIN_URL; });
+    $("btnJoin")?.addEventListener("click", ()=> { location.href = JOIN_URL + "?v=" + encodeURIComponent(VERSION_TAG); });
     $("btnDemo")?.addEventListener("click", ()=> { location.assign(demoUrl()); });
 
     $("btnShare")?.addEventListener("click", async ()=>{
@@ -803,6 +854,7 @@
       }catch(_){ toast("Copie impossible"); }
     });
 
+    // Gate
     $("btnEnter")?.addEventListener("click", ()=>{
       const s = ($("gateSlug")?.value || "").trim();
       goWithSlug(s);
@@ -813,8 +865,10 @@
       goWithSlug(s);
     });
 
+    // Live refresh
     $("btnRefreshLive")?.addEventListener("click", ()=> fetchLiveRequests());
 
+    // Modal actions
     $("btnCloseModal")?.addEventListener("click", closeAcceptModal);
     $("acceptModal")?.addEventListener("click", (e)=>{
       if(e.target && e.target.id === "acceptModal") closeAcceptModal();
@@ -840,6 +894,7 @@
       openGoogleMapsToPickup(lastAcceptedRide);
     });
 
+    // GO
     load().catch((e)=>{ console.error(e); set("techState","state: crash"); toast("Crash JS"); });
 
   })();
