@@ -134,7 +134,6 @@
       max-width:min(92vw,680px);
     }
 
-    /* ✅ Porte douce (dans le cockpit) */
     .gate{display:none}
     .gate.show{display:block}
     .in{
@@ -148,7 +147,6 @@
       outline:none;
     }
 
-    /* ✅ Modal Accept */
     .modal{
       position:fixed; inset:0;
       background:rgba(0,0,0,.70);
@@ -208,7 +206,7 @@
     <h1>Mon espace pro</h1>
     <p class="sub">Activités du jour + demandes en direct</p>
 
-    <!-- ✅ PORTE DOUCE -->
+    <!-- PORTE DOUCE -->
     <div class="card gate" id="gate">
       <h2>Entrer dans mon espace</h2>
       <div class="hint">Colle ton slug chauffeur (ex: <span class="mono">driver-22177...</span>)</div>
@@ -256,7 +254,7 @@
           </div>
         </div>
 
-        <!-- ✅ PATCH #4 : DEMANDES EN DIRECT (Realtime) -->
+        <!-- DEMANDES EN DIRECT -->
         <div style="margin-top:16px; display:flex; align-items:end; justify-content:space-between; gap:10px; flex-wrap:wrap;">
           <div>
             <h2 style="margin:0 2px 6px; font-size:16px; font-weight:1000;">Demandes en direct</h2>
@@ -280,13 +278,13 @@
       </div>
 
       <div class="card">
-        <h2>Ma fiche publique</h2>
-        <div class="hint">Lien officiel à partager</div>
+        <h2>Partager mon cockpit</h2>
+        <div class="hint">Lien officiel (avec slug)</div>
 
         <div class="item">
-          <div>
+          <div style="min-width:0">
             <div class="title">Lien</div>
-            <div class="meta mono" id="publicLink">digiylyfe.com/—</div>
+            <div class="meta mono" id="cockpitLink" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</div>
           </div>
           <div class="right">
             <button class="btn gold" id="btnCopyLink" type="button">Copier</button>
@@ -308,7 +306,7 @@
 
   <div class="toast" id="toast">OK</div>
 
-  <!-- ✅ Modal accept (tel complet + itinéraire) -->
+  <!-- Modal accept -->
   <div class="modal" id="acceptModal" aria-hidden="true">
     <div class="modalCard">
       <div class="modalHead">
@@ -352,7 +350,6 @@
   (function(){
     "use strict";
 
-    // ========= CONFIG =========
     const STORAGE_KEY = "digiy_driver_slug";
 
     const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -390,7 +387,7 @@
       else { dot.style.background="var(--danger)"; txt.textContent="Expiré"; }
     }
 
-    // ========= SLUG (NO ABOS AUTO) =========
+    // --- SLUG ---
     const qs = new URLSearchParams(location.search);
     let slug = (qs.get("slug") || "").trim();
     const savedSlug = (localStorage.getItem(STORAGE_KEY) || "").trim();
@@ -405,38 +402,11 @@
       }catch(_){}
     }
 
-    // ========= DRIVER PHONE (needed for accept RPC) =========
-    let driverPhone = null;
-
-    async function resolveDriverPhone(){
-      // Best effort: digiy_subscriptions_public (slug -> phone)
-      // Si ça n’existe pas chez toi, on fallback prompt.
-      try{
-        const { data, error } = await sb
-          .from("digiy_subscriptions_public")
-          .select("phone")
-          .eq("slug", slug)
-          .maybeSingle();
-        if(error) throw error;
-        driverPhone = data?.phone || null;
-      }catch(_e){
-        driverPhone = null;
-      }
-
-      if(!driverPhone){
-        // fallback: demander 1 fois (terrain)
-        const p = prompt("Téléphone chauffeur requis (ex: 221771234567 ou +221771234567) :", "");
-        driverPhone = normPhone(p);
-        if(!driverPhone) toast("Téléphone chauffeur manquant");
-      }
-    }
-
-    function normPhone(p){
-      p = (p||"").trim().replace(/\s+/g,"").replace(/[^\d+]/g,"");
-      if(p.startsWith("00221")) p = "+221" + p.slice(5);
-      if(!p.startsWith("+") && p.startsWith("221")) p = "+" + p;
-      if(!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
-      return p || null;
+    // --- URL cockpit à partager ---
+    function cockpitUrl(s){
+      const u = new URL(location.href);
+      u.searchParams.set("slug", s);
+      return u.toString();
     }
 
     function openGate(msg){
@@ -445,7 +415,7 @@
       set("techState", "state: gate");
       setStatus("pending");
       set("slugText","slug: —");
-      set("publicLink","digiylyfe.com/—");
+      set("cockpitLink","—");
       const box = $("todayList");
       if(box){
         box.innerHTML = `
@@ -474,12 +444,43 @@
       const clean = String(s||"").trim();
       if(!clean) return toast("Slug vide");
       localStorage.setItem(STORAGE_KEY, clean);
-      const u = new URL(location.origin + "/");
+      const u = new URL(location.href);         // ✅ reste sur la même page
       u.searchParams.set("slug", clean);
       location.assign(u.toString());
     }
 
-    // ========= LIVE REQUESTS =========
+    // --- Driver phone (RPC accept) ---
+    let driverPhone = null;
+
+    function normPhone(p){
+      p = (p||"").trim().replace(/\s+/g,"").replace(/[^\d+]/g,"");
+      if(p.startsWith("00221")) p = "+221" + p.slice(5);
+      if(!p.startsWith("+") && p.startsWith("221")) p = "+" + p;
+      if(!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
+      return p || null;
+    }
+
+    async function resolveDriverPhone(){
+      try{
+        const { data, error } = await sb
+          .from("digiy_subscriptions_public")
+          .select("phone")
+          .eq("slug", slug)
+          .maybeSingle();
+        if(error) throw error;
+        driverPhone = data?.phone ? String(data.phone) : null;
+      }catch(_e){
+        driverPhone = null;
+      }
+
+      if(!driverPhone){
+        const p = prompt("Téléphone chauffeur requis (ex: 221771234567 ou +221771234567) :", "");
+        driverPhone = normPhone(p);
+        if(!driverPhone) toast("Téléphone chauffeur manquant");
+      }
+    }
+
+    // --- LIVE REQUESTS ---
     let liveChannel = null;
     let lastAcceptedRide = null;
 
@@ -487,7 +488,6 @@
       const box = $("liveRequests");
       if(!box) return;
 
-      // view ride_requests_driver_feed (tel masqué)
       try{
         const { data, error } = await sb
           .from("ride_requests_driver_feed")
@@ -527,7 +527,6 @@
             </div>`;
         }).join("");
 
-        // bind accept buttons
         box.querySelectorAll("[data-accept]").forEach(btn=>{
           btn.addEventListener("click", async ()=>{
             const id = btn.getAttribute("data-accept");
@@ -549,7 +548,6 @@
     }
 
     function startLiveRealtime(){
-      // realtime sur table ride_requests (INSERT/UPDATE)
       if(liveChannel){
         sb.removeChannel(liveChannel);
         liveChannel = null;
@@ -558,18 +556,14 @@
       liveChannel = sb
         .channel("digiy_driver_live_requests")
         .on("postgres_changes", { event:"INSERT", schema:"public", table:"ride_requests" }, (payload)=>{
-          // si status new -> refresh
           const r = payload.new || {};
           if(String(r.status||"") === "new"){
             fetchLiveRequests();
             toast("📣 Nouvelle demande");
           }
         })
-        .on("postgres_changes", { event:"UPDATE", schema:"public", table:"ride_requests" }, (payload)=>{
-          const r = payload.new || {};
-          // si une demande passe de new -> accepted/cancelled etc, on refresh
+        .on("postgres_changes", { event:"UPDATE", schema:"public", table:"ride_requests" }, ()=>{
           fetchLiveRequests();
-          if(String(r.status||"") === "accepted") toast("✅ Course prise");
         })
         .subscribe();
     }
@@ -630,7 +624,7 @@
       window.open(url, "_blank");
     }
 
-    // ========= LOAD =========
+    // --- LOAD ---
     async function load(){
       if(!slug){
         openGate(savedSlug ? "Ton slug est mémorisé. Clique « Utiliser mon slug mémorisé »." : "Aucun slug détecté. Colle ton slug chauffeur.");
@@ -642,23 +636,16 @@
       setStatus("active");
 
       set("slugText", "slug: " + slug);
-      set("publicLink", "https://digiylyfe.com/" + slug);
+      set("cockpitLink", cockpitUrl(slug));
 
-      // resolve phone once (best effort)
       await resolveDriverPhone();
 
-      // KPIs (tes RPC existantes)
+      // ✅ tes RPC existantes
       const { data:stats, error:e1 } = await sb.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
       if(e1){
         console.error("stats error", e1);
-        const msg = (e1.message || "").toLowerCase();
-        if(msg.includes("not allowed")){
-          setStatus("pending");
-          openGate("Accès non actif pour ce slug (abonnement).");
-          return;
-        }
         setStatus("pending");
-        openGate("Erreur stats. Vérifie le slug et réessaie.");
+        openGate("Erreur stats. Vérifie le slug / accès.");
         return;
       }
 
@@ -668,7 +655,6 @@
       set("kpi7dCount", s.trips_7d ?? 0);
       set("kpi7dMoney", money(s.revenue_7d_fcfa ?? 0));
 
-      // Liste du jour
       const { data:list, error:e2 } = await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
       if(e2){
         console.error("list error", e2);
@@ -708,14 +694,13 @@
         }
       }
 
-      // Live + realtime
       await fetchLiveRequests();
       startLiveRealtime();
 
       set("techState","state: ok");
     }
 
-    // ========= BUTTONS (BRANCHÉS ✅) =========
+    // --- BUTTONS ---
     $("btnMainAction")?.addEventListener("click", ()=>{
       if(!slug) return toast("Slug requis");
       location.href = "./courses.html?slug=" + encodeURIComponent(slug);
@@ -734,16 +719,16 @@
     $("btnSupport")?.addEventListener("click", ()=> window.open("https://wa.me/221771342889", "_blank"));
 
     $("btnShare")?.addEventListener("click", async ()=>{
-      const link = $("publicLink")?.textContent || "";
+      const link = $("cockpitLink")?.textContent || "";
       try{
-        if(navigator.share) await navigator.share({ title:"DIGIY", text:"Mon lien DIGIY", url: link });
+        if(navigator.share) await navigator.share({ title:"DIGIY DRIVER", text:"Mon cockpit DIGIY DRIVER", url: link });
         else window.open("https://wa.me/?text=" + encodeURIComponent(link), "_blank");
       }catch(_){}
     });
 
     $("btnCopyLink")?.addEventListener("click", async ()=>{
       try{
-        const link = $("publicLink")?.textContent || "";
+        const link = $("cockpitLink")?.textContent || "";
         await navigator.clipboard.writeText(link);
         toast("Copié ✅");
       }catch(_){ toast("Copie impossible"); }
@@ -760,7 +745,7 @@
       goWithSlug(s);
     });
 
-    // Live buttons
+    // Live refresh
     $("btnRefreshLive")?.addEventListener("click", ()=> fetchLiveRequests());
 
     // Modal actions
