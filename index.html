@@ -492,7 +492,39 @@
 
       return digits; // ex: 221771342889
     }
+        // ✅ BÉTON: on l’accroche au scope global pour éviter les histoires de scope
+    window.resolveDriverPhoneFromSlug = window.resolveDriverPhoneFromSlug || function(slugValue){
+      const s = String(slugValue || "").trim();
+      if(!s.startsWith("driver-")) return null;
 
+      let digits = s.slice("driver-".length).replace(/[^\d]/g, "");
+      if(!digits) return null;
+
+      if(digits.length === 9) digits = "221" + digits;
+      if(digits.length < 12) return null;
+
+      return digits; // ex: 221771342889
+    };
+
+    async function resolveDriverPhone(){
+      if(driverPhone) return driverPhone;
+
+      // ✅ appelle la version globale (toujours dispo)
+      const fromSlug = window.resolveDriverPhoneFromSlug(slug);
+      if(fromSlug){
+        driverPhone = fromSlug;
+        return driverPhone;
+      }
+
+      const p = prompt("Téléphone chauffeur requis (ex: 221771234567) :", "");
+      let d = String(p||"").trim().replace(/[^\d]/g,"");
+      if(d.length === 9) d = "221" + d;
+      if(d.length < 12) d = "";
+
+      driverPhone = d || null;
+      if(!driverPhone) toast("Téléphone chauffeur manquant");
+      return driverPhone;
+    }
     async function resolveDriverPhone(){
       if(driverPhone) return driverPhone;
 
