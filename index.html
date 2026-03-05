@@ -484,18 +484,20 @@
       return p || null;
     }
 
-    async function resolveDriverPhone(){
-      try{
-        const { data, error } = await sb
-          .from("digiy_subscriptions_public")
-          .select("phone")
-          .eq("slug", slug)
-          .maybeSingle();
-        if(error) throw error;
-        driverPhone = data?.phone ? String(data.phone) : null;
-      }catch(_e){
-        driverPhone = null;
-      }
+    <script>
+async function resolveDriverPhoneFromSlug(slug){
+  // slug attendu : driver-221771342889
+  const s = String(slug || "").trim();
+  if(!s.startsWith("driver-")) return null;
+
+  const digits = s.replace(/^driver-/, "").replace(/[^\d]/g, "");
+  if(digits.length < 9) return null;
+
+  // Normalisation : au choix tu gardes sans +, ou tu mets + devant.
+  // Ici on garde SANS "+" pour matcher tes données (221xxxxxxxxx).
+  return digits;
+}
+</script>
 
       if(!driverPhone){
         const p = prompt("Téléphone chauffeur requis (ex: 221771234567 ou +221771234567) :", "");
