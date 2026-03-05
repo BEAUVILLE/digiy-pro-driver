@@ -3,906 +3,897 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER PRO — Mon espace pro</title>
-  <meta name="theme-color" content="#061b14"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>Rejoindre DIGIY DRIVER — Ambassadeur de mobilité</title>
+  <meta name="theme-color" content="#040f09"/>
+  <meta name="description" content="DIGIY DRIVER recrute des ambassadeurs de mobilité. Pas des chauffeurs — des professionnels d'exception. 0% commission. Liberté totale."/>
+
+  <!-- ✅ SEO + Partage (remplace le domaine + image si besoin) -->
+  <link rel="canonical" href="https://driver.digiylyfe.com/devenir-chauffeur.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Rejoindre DIGIY DRIVER — Ambassadeur de mobilité"/>
+  <meta property="og:description" content="0% commission. Liberté totale. Prestige du service. Rejoins le réseau DIGIY DRIVER."/>
+  <meta property="og:url" content="https://driver.digiylyfe.com/devenir-chauffeur.html"/>
+  <meta property="og:image" content="https://driver.digiylyfe.com/og-driver.jpg"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Rejoindre DIGIY DRIVER — Ambassadeur de mobilité"/>
+  <meta name="twitter:description" content="0% commission. Liberté totale. Prestige du service."/>
+  <meta name="twitter:image" content="https://driver.digiylyfe.com/og-driver.jpg"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 
   <style>
-    :root{
-      --bg:#061b14; --card:#0b2a1f;
-      --line:rgba(255,255,255,.12);
-      --text:#eafff1; --muted:rgba(234,255,241,.72);
-      --primary:#22c55e; --gold:#facc15; --warn:#f59e0b; --danger:#ef4444;
-      --shadow:0 18px 55px rgba(0,0,0,.42);
-      --r:18px; --max:980px;
+    :root {
+      --bg: #040f09;
+      --bg2: #071810;
+      --card: #0a2016;
+      --line: rgba(255,255,255,.10);
+      --line2: rgba(250,204,21,.18);
+      --text: #eafff1;
+      --muted: rgba(234,255,241,.58);
+      --soft: rgba(234,255,241,.36);
+      --primary: #22c55e;
+      --gold: #facc15;
+      --gold2: #fde68a;
+      --shadow: 0 24px 80px rgba(0,0,0,.55);
+      --max: 860px;
     }
-    *{box-sizing:border-box}
 
-    html, body { overflow-x:hidden; }
-    html::before, html::after, body::before, body::after { content:none !important; display:none !important; }
-    *::before, *::after { background-image:none !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
 
-    body{
-      margin:0; color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    /* ✅ Skip link (accessibilité) */
+    .skip{
+      position:absolute; left:-999px; top:10px;
+      background:#fff; color:#000; padding:10px 12px; border-radius:10px;
+      z-index:9999;
+    }
+    .skip:focus{ left:10px; }
+
+    /* ── NOISE OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: .5;
+    }
+
+    /* ✅ Perf terrain */
+    @media (max-width: 600px){
+      body::after{ opacity: 0.18; }
+    }
+    @media (prefers-reduced-motion: reduce){
+      body::after{ display:none; }
+      *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+    }
+
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      background: rgba(4,15,9,.88);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo {
+      width: 38px; height: 38px; border-radius: 12px;
+      display: grid; place-items: center;
+      border: 1px solid var(--line2);
+      background: rgba(0,0,0,.25);
+      font-size: 18px; color: var(--gold);
+    }
+    .brand-name { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 14px; color: var(--text); }
+    .brand-sub { font-size: 11px; color: var(--muted); }
+
+    .btn-cta-top {
+      padding: 10px 18px; border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary), #16a34a);
+      color: #041a0a; font-weight: 700; font-size: 13px;
+      border: none; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: transform .15s, box-shadow .15s;
+      white-space: nowrap;
+    }
+    .btn-cta-top:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(34,197,94,.35); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 92vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 80px 20px 60px;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
       background:
-        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
-        radial-gradient(900px 520px at 95% 0%, rgba(250,204,21,.08), transparent 50%),
+        radial-gradient(ellipse 700px 500px at 15% 30%, rgba(34,197,94,.16), transparent 65%),
+        radial-gradient(ellipse 500px 400px at 85% 70%, rgba(250,204,21,.09), transparent 60%),
         var(--bg);
     }
-    .wrap{max-width:var(--max); margin:0 auto; padding:16px 14px 28px}
-    .topbar{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      padding:14px 14px; border:1px solid var(--line); border-radius:22px;
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      box-shadow:var(--shadow);
-    }
-    .brand{display:flex; align-items:center; gap:10px; min-width:0}
-    .logo{
-      width:44px; height:44px; border-radius:14px; display:grid; place-items:center;
-      border:1px solid rgba(250,204,21,.22); background:rgba(0,0,0,.18);
-      font-weight:950; color:var(--gold);
-    }
-    .brandtext .t1{font-weight:1000; letter-spacing:.3px}
-    .brandtext .t2{font-size:12px; color:var(--muted); font-weight:800; margin-top:2px}
-    .right{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:10px 12px; border-radius:999px; border:1px solid var(--line);
-      background:rgba(0,0,0,.18); font-weight:950; font-size:12px;
-    }
-    .dot{width:10px; height:10px; border-radius:999px; background:var(--warn)}
-    .btn{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.07);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:14px;
-      font-weight:950;
-      cursor:pointer;
-    }
-    .btn.primary{
-      border:1px solid rgba(34,197,94,.45);
-      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.88));
-      color:#042012;
-    }
-    .btn.gold{
-      border:1px solid rgba(250,204,21,.38);
-      background:rgba(250,204,21,.12);
-      color:var(--gold);
-    }
-    .btn.danger{
-      border:1px solid rgba(239,68,68,.45);
-      background:rgba(239,68,68,.10);
-      color:#fecaca;
-    }
-    .btn.small{padding:8px 10px; border-radius:12px; font-size:12px}
-    h1{margin:18px 4px 6px; font-size:26px; font-weight:1050}
-    .sub{margin:0 4px 14px; color:var(--muted); font-weight:800}
+    .hero-content { position: relative; z-index: 1; max-width: var(--max); margin: 0 auto; width: 100%; }
 
-    .grid{display:grid; gap:14px}
-    @media(min-width:860px){ .grid{grid-template-columns: 1.2fr .8fr} }
-
-    .card{
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      box-shadow:var(--shadow);
-      padding:14px;
+    .hero-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 14px; border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: rgba(250,204,21,.06);
+      color: var(--gold); font-size: 12px; font-weight: 700;
+      letter-spacing: 1.4px; text-transform: uppercase;
+      margin-bottom: 28px;
+      opacity: 0; animation: fadeUp .7s .1s forwards;
     }
-    .card h2{margin:2px 2px 10px; font-size:16px; font-weight:1000}
-    .hint{font-size:12px; color:var(--muted); font-weight:800; margin-top:-6px}
-
-    .kpis{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
-    .kpi{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
-      border-radius:16px;
-      padding:12px;
+    .hero-label::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold);
+      animation: pulse 2s infinite;
     }
-    .kpi .lab{font-size:12px; color:var(--muted); font-weight:900}
-    .kpi .val{margin-top:6px; font-size:20px; font-weight:1050}
-
-    .list{display:grid; gap:10px; margin-top:10px}
-    .item{
-      display:flex; justify-content:space-between; gap:10px; align-items:center;
-      padding:12px; border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
-    }
-    .item .title{font-weight:1000}
-    .item .meta{margin-top:3px; color:var(--muted); font-weight:800; font-size:12px}
-    .item .right{text-align:right; font-weight:1000}
-    .item .right small{display:block; color:var(--muted); font-weight:800; margin-top:2px}
-
-    .actions{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
-    .actions .btn{min-height:48px; border-radius:16px}
-    .actions .btn.full{grid-column:1 / -1}
-
-    .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
-    .footer{
-      margin-top:14px;
-      display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center;
-      color:rgba(234,255,241,.72);
-      font-weight:800; font-size:12px;
-    }
-    .toast{
-      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
-      background:rgba(0,0,0,.65);
-      border:1px solid rgba(255,255,255,.14);
-      color:rgba(234,255,241,.92);
-      padding:10px 12px;
-      border-radius:14px;
-      font-weight:900; font-size:12px;
-      box-shadow:0 16px 40px rgba(0,0,0,.45);
-      display:none; z-index:9999;
-      max-width:min(92vw,680px);
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .4; transform: scale(.7); }
     }
 
-    .gate{display:none}
-    .gate.show{display:block}
-    .in{
+    .hero h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(42px, 8vw, 82px);
+      font-weight: 600; line-height: 1.06;
+      letter-spacing: -.5px;
+      margin-bottom: 10px;
+      opacity: 0; animation: fadeUp .8s .25s forwards;
+    }
+    .hero h1 em { font-style: italic; color: var(--gold); }
+    .hero h1 .strike {
+      position: relative; color: var(--muted);
+      text-decoration: line-through;
+      text-decoration-color: rgba(239,68,68,.6);
+      text-decoration-thickness: 3px;
+    }
+
+    .hero-sub {
+      font-size: 17px; color: var(--muted); font-weight: 300;
+      max-width: 560px; margin-top: 20px; line-height: 1.7;
+      opacity: 0; animation: fadeUp .8s .45s forwards;
+    }
+    .hero-sub strong { color: var(--text); font-weight: 500; }
+
+    .hero-ctas {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      margin-top: 38px;
+      opacity: 0; animation: fadeUp .8s .65s forwards;
+    }
+    .btn-main {
+      padding: 16px 32px; border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary), #16a34a);
+      color: #041a0a; font-weight: 700; font-size: 15px;
+      border: none; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(34,197,94,.4); }
+    .btn-ghost {
+      padding: 16px 28px; border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text); font-weight: 500; font-size: 15px;
+      cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: border-color .2s, background .2s;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.08); }
+
+    .hero-stat-row {
+      display: flex; flex-wrap: wrap; gap: 32px;
+      margin-top: 52px; padding-top: 36px;
+      border-top: 1px solid var(--line);
+      opacity: 0; animation: fadeUp .8s .85s forwards;
+    }
+    .stat-item .num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px; font-weight: 700; color: var(--gold);
+      line-height: 1;
+    }
+    .stat-item .lab { font-size: 12px; color: var(--muted); margin-top: 5px; font-weight: 500; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SECTION GÉNÉRIQUE ── */
+    section { padding: 80px 20px; position: relative; z-index: 1; }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 600; line-height: 1.1;
+      margin-bottom: 18px;
+    }
+    .section-title em { font-style: italic; color: var(--gold); }
+    .section-body { font-size: 16px; color: var(--muted); max-width: 560px; line-height: 1.75; }
+
+    .divider { border: none; border-top: 1px solid var(--line); margin: 0; }
+
+    /* ── PHILOSOPHIE ── */
+    .philo-grid { display: grid; gap: 2px; margin-top: 48px; }
+    .philo-item {
+      display: grid; grid-template-columns: 64px 1fr;
+      gap: 20px; align-items: start;
+      padding: 28px 24px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+      margin-bottom: 10px;
+      transition: border-color .2s, background .2s;
+    }
+    .philo-item:hover {
+      border-color: rgba(250,204,21,.22);
+      background: linear-gradient(135deg, rgba(250,204,21,.04), rgba(255,255,255,.02));
+    }
+    .philo-icon {
+      width: 56px; height: 56px; border-radius: 16px;
+      display: grid; place-items: center;
+      background: rgba(250,204,21,.08);
+      border: 1px solid var(--line2);
+      font-size: 26px; flex-shrink: 0;
+    }
+    .philo-item h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 600; margin-bottom: 8px;
+    }
+    .philo-item p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+    /* ── STANDARDS ── */
+    .standards-section { background: linear-gradient(180deg, var(--bg2), var(--bg)); }
+    .standards-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px; margin-top: 44px;
+    }
+    .std-card {
+      padding: 28px 22px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+      transition: transform .2s, border-color .2s;
+    }
+    .std-card:hover { transform: translateY(-4px); border-color: rgba(34,197,94,.28); }
+    .std-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 44px; font-weight: 700;
+      color: rgba(250,204,21,.18); line-height: 1;
+      margin-bottom: 12px;
+    }
+    .std-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--gold2); }
+    .std-card p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+    /* ── MODELE 0% ── */
+    .model-section { position: relative; overflow: hidden; }
+    .model-section::before {
+      content: '0%';
+      position: absolute; right: -2%; top: 50%; transform: translateY(-50%);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(160px, 28vw, 320px);
+      font-weight: 700;
+      color: rgba(34,197,94,.04);
+      line-height: 1; pointer-events: none; user-select: none;
+      white-space: nowrap;
+    }
+    .model-grid { display: grid; gap: 14px; margin-top: 44px; }
+    @media (min-width: 640px) { .model-grid { grid-template-columns: 1fr 1fr; } }
+    .model-card {
+      padding: 28px 24px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+    }
+    .model-card.highlight {
+      border-color: rgba(34,197,94,.35);
+      background: linear-gradient(145deg, rgba(34,197,94,.08), rgba(34,197,94,.02));
+    }
+    .model-card .icon { font-size: 28px; margin-bottom: 14px; }
+    .model-card h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 600; margin-bottom: 10px;
+    }
+    .model-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    .model-card .tag {
+      display: inline-block; margin-top: 14px;
+      padding: 5px 12px; border-radius: 999px;
+      font-size: 12px; font-weight: 700;
+      background: rgba(34,197,94,.12);
+      border: 1px solid rgba(34,197,94,.28);
+      color: var(--primary);
+    }
+
+    /* ── PROFIL RECHERCHÉ ── */
+    .profil-section { background: linear-gradient(180deg, var(--bg), var(--bg2)); }
+    .profil-inner {
+      margin-top: 44px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+    .profil-oui { padding: 32px 28px; border-bottom: 1px solid var(--line); }
+    .profil-non { padding: 32px 28px; }
+    .profil-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+    .profil-badge {
+      padding: 6px 14px; border-radius: 999px;
+      font-size: 12px; font-weight: 700; letter-spacing: .5px;
+    }
+    .badge-oui { background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.3); color: var(--primary); }
+    .badge-non { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25); color: #fca5a5; }
+    .check-list { display: grid; gap: 10px; }
+    .check-item { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--muted); line-height: 1.55; }
+    .check-item .ic { flex-shrink: 0; margin-top: 1px; font-size: 16px; }
+
+    /* ── MINI FORM (3 infos rapides) ── */
+    .mini-form {
+      margin-top: 38px;
+      border: 1px solid rgba(250,204,21,.16);
+      background: linear-gradient(160deg, rgba(250,204,21,.04), rgba(34,197,94,.03));
+      border-radius: 24px;
+      padding: 18px;
+      max-width: 720px;
+    }
+    .mini-form .row { display:grid; gap:10px; }
+    @media(min-width:640px){ .mini-form .row{ grid-template-columns: 1fr 1fr; } }
+    .mini-form label{ display:block; font-size:12px; color:var(--soft); margin:0 0 6px 2px; font-weight:700; letter-spacing:.3px; }
+    .mini-form input, .mini-form select{
       width:100%;
-      padding:12px; border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.12);
-      color:var(--text);
-      font-size:15px;
-      font-weight:900;
-      outline:none;
+      padding: 14px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.20);
+      color: var(--text);
+      font-weight: 600;
+      outline: none;
+    }
+    .mini-form input::placeholder{ color: rgba(234,255,241,.40); font-weight:500; }
+    .mini-form .actions{ display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; }
+    .mini-form .note{ margin-top:10px; font-size:12px; color:var(--soft); line-height:1.55; }
+
+    /* ── QUOTE ── */
+    .quote-section { padding: 60px 20px; }
+    .quote-block {
+      max-width: 700px; margin: 0 auto;
+      text-align: center; padding: 52px 32px;
+      border: 1px solid var(--line2);
+      border-radius: 28px;
+      background: linear-gradient(160deg, rgba(250,204,21,.04), rgba(34,197,94,.03));
+      position: relative;
+    }
+    .quote-mark {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 120px; line-height: .5;
+      color: rgba(250,204,21,.12);
+      display: block; margin-bottom: 10px;
+      user-select: none;
+    }
+    .quote-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(22px, 4vw, 34px);
+      font-style: italic; font-weight: 400;
+      line-height: 1.4; color: var(--text);
+      margin-bottom: 20px;
+    }
+    .quote-author { font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: .5px; }
+
+    /* ── CTA FINAL ── */
+    .cta-section {
+      padding: 80px 20px 100px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 600px 400px at 50% 50%, rgba(34,197,94,.10), transparent 70%);
+      pointer-events: none;
+    }
+    .cta-inner { position: relative; z-index: 1; }
+    .cta-infinity {
+      font-size: 64px; display: block; margin-bottom: 16px;
+      filter: drop-shadow(0 0 20px rgba(250,204,21,.4));
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .cta-section .section-title { margin-bottom: 14px; text-align: center; }
+    .cta-section .section-body { margin: 0 auto 36px; text-align: center; }
+
+    .cta-buttons { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+
+    .btn-whatsapp {
+      padding: 18px 38px; border-radius: 999px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: #fff; font-weight: 700; font-size: 16px;
+      border: none; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 10px;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 12px 40px rgba(37,211,102,.3);
+    }
+    .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 18px 55px rgba(37,211,102,.45); }
+
+    .fine-print {
+      margin-top: 28px; font-size: 12px; color: var(--soft);
+      max-width: 520px; margin-left: auto; margin-right: auto;
+      line-height: 1.6;
     }
 
-    .modal{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.70);
-      display:none; align-items:center; justify-content:center;
-      z-index:9998; padding:14px;
+    /* ── FOOTER ── */
+    footer {
+      padding: 28px 20px;
+      border-top: 1px solid var(--line);
+      display: flex; flex-wrap: wrap; gap: 12px;
+      align-items: center; justify-content: space-between;
+      font-size: 12px; color: var(--soft);
+      position: relative; z-index: 1;
     }
-    .modal.show{display:flex}
-    .modalCard{
-      width:min(560px, 96vw);
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:18px;
-      background:linear-gradient(180deg, rgba(15,23,42,.92), rgba(2,6,23,.92));
-      box-shadow:0 22px 70px rgba(0,0,0,.55);
-      padding:14px;
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s, transform .7s; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .3s; }
+    .reveal-delay-4 { transition-delay: .4s; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .hero-stat-row { gap: 20px; }
+      .profil-oui, .profil-non { padding: 24px 18px; }
+      .quote-block { padding: 36px 20px; }
     }
-    .modalHead{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,.10);
-    }
-    .modalTitle{font-weight:1050}
-    .modalBody{padding-top:10px}
-    .kv{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
-    .kv .box{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.18);
-      border-radius:16px; padding:12px;
-    }
-    .kv .lab{font-size:12px; color:var(--muted); font-weight:900}
-    .kv .val{margin-top:6px; font-weight:1050}
-    .modalActions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
-    .modalActions .btn{flex:1; min-width:140px}
   </style>
 </head>
 
 <body>
-  <div class="wrap">
+  <a href="#pourquoi" class="skip">Aller au contenu</a>
 
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo">♾</div>
-        <div class="brandtext">
-          <div class="t1">DIGIY PRO</div>
-          <div class="t2">Module : <b>DRIVER</b></div>
+  <!-- TOPBAR -->
+  <nav class="topbar" aria-label="Navigation principale">
+    <a href="./index.html" class="topbar-brand" aria-label="Retour à la plateforme DIGIY DRIVER">
+      <div class="logo">♾</div>
+      <div>
+        <div class="brand-name">DIGIY DRIVER</div>
+        <div class="brand-sub">L'Afrique enracinée, connectée au monde</div>
+      </div>
+    </a>
+    <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-cta-top" aria-label="Postuler via WhatsApp">
+      🚖 Postuler via WhatsApp
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+
+      <div class="hero-label">DIGIY DRIVER — Recrutement</div>
+
+      <h1>
+        Nous ne cherchons pas<br>
+        des <span class="strike">chauffeurs</span>.<br>
+        Nous cherchons des <em>ambassadeurs.</em>
+      </h1>
+
+      <p class="hero-sub">
+        DIGIY DRIVER est une plateforme africaine de mobilité premium.<br>
+        <strong>0% de commission. Liberté totale. Prestige du service.</strong><br>
+        Rejoindre DIGIY, c'est rejoindre un mouvement — pas une application.
+      </p>
+
+      <div class="hero-ctas">
+        <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-main" aria-label="Demander un entretien via WhatsApp">
+          🚖 Demander un entretien
+        </a>
+        <a href="#pourquoi" class="btn-ghost">
+          En savoir plus ↓
+        </a>
+      </div>
+
+      <div class="hero-stat-row">
+        <div class="stat-item">
+          <div class="num">0%</div>
+          <div class="lab">Commission prélevée</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">9</div>
+          <div class="lab">Modules DIGIYLYFE</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">♾</div>
+          <div class="lab">Afrique enracinée</div>
         </div>
       </div>
 
-      <div class="right">
-        <div class="pill">
-          <span class="dot" id="statusDot"></span>
-          <span id="statusText">Prêt</span>
+      <!-- ✅ MINI FORM (optionnel mais efficace) -->
+      <div class="mini-form reveal" style="margin-top:44px">
+        <div class="section-label" style="margin-bottom:8px">Postuler en 15 secondes</div>
+        <div class="section-body" style="max-width:720px;margin-bottom:14px">
+          Donne-nous juste l’essentiel — et WhatsApp s’ouvre tout seul avec ton message prêt.
         </div>
 
-        <button class="btn primary" id="btnJoin" type="button">🚖 Devenir chauffeur</button>
-        <button class="btn gold" id="btnDemo" type="button">👀 Voir la démo</button>
+        <div class="row">
+          <div>
+            <label for="fCity">Ville</label>
+            <select id="fCity">
+              <option value="Dakar">Dakar</option>
+              <option value="Saly">Saly</option>
+              <option value="Mbour">Mbour</option>
+              <option value="Rufisque">Rufisque</option>
+              <option value="Thiès">Thiès</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+          <div>
+            <label for="fVehicle">Véhicule</label>
+            <input id="fVehicle" placeholder="Ex: Berline 2018 / SUV 2020 / Van…" />
+          </div>
+        </div>
 
-        <button class="btn gold" id="btnShare" type="button">Partager</button>
-        <button class="btn" id="btnSupport" type="button">Support</button>
-      </div>
-    </div>
-
-    <h1>Mon espace pro</h1>
-    <p class="sub">Activités du jour + demandes en direct</p>
-
-    <!-- PORTE DOUCE -->
-    <div class="card gate" id="gate">
-      <h2>Entrer dans mon espace</h2>
-      <div class="hint">Colle ton slug chauffeur (ex: <span class="mono">driver-22177...</span>)</div>
-
-      <div style="margin-top:10px">
-        <input class="in" id="gateSlug" placeholder="driver-221770000111" />
-      </div>
-
-      <div class="actions" style="margin-top:12px">
-        <button class="btn primary full" id="btnEnter" type="button">🚀 Ouvrir mon espace</button>
-        <button class="btn" id="btnUseSaved" type="button">Utiliser mon slug mémorisé</button>
-      </div>
-
-      <div class="hint" id="gateMsg" style="margin-top:10px">
-        Astuce : une fois ouvert une fois, le slug reste mémorisé.
-      </div>
-    </div>
-
-    <div class="grid">
-
-      <div class="card">
-        <h2>Activités du jour</h2>
-        <div class="hint">SQL = moteur. Zéro blabla.</div>
-
-        <div class="kpis">
-          <div class="kpi"><div class="lab">Aujourd'hui</div><div class="val" id="kpiTodayCount">—</div></div>
-          <div class="kpi"><div class="lab">Aujourd'hui (FCFA)</div><div class="val" id="kpiTodayMoney">—</div></div>
-          <div class="kpi"><div class="lab">7 derniers jours</div><div class="val" id="kpi7dCount">—</div></div>
-          <div class="kpi"><div class="lab">7 jours (FCFA)</div><div class="val" id="kpi7dMoney">—</div></div>
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label for="fAvail">Disponibilité</label>
+            <input id="fAvail" placeholder="Ex: Soirs + Week-end / Tous les jours / Matin…" />
+          </div>
+          <div>
+            <label for="fName">Nom (optionnel)</label>
+            <input id="fName" placeholder="Ex: Mamadou / Awa / Ibrahima…" />
+          </div>
         </div>
 
         <div class="actions">
-          <button class="btn primary full" id="btnMainAction" type="button">➕ Nouvelle course</button>
-          <button class="btn" id="btnSecondary1" type="button">➕ Activer ma zone</button>
-          <button class="btn" id="btnSecondary2" type="button">➕ Ajouter un tarif</button>
+          <a id="btnApplyNow" class="btn-main" href="#" target="_blank" rel="noopener">💬 Ouvrir WhatsApp</a>
+          <a href="#standards" class="btn-ghost">Voir les standards</a>
         </div>
 
-        <div class="list" id="todayList">
-          <div class="item">
-            <div>
-              <div class="title">Chargement…</div>
-              <div class="meta">Si tu vois ça trop longtemps : slug manquant.</div>
-            </div>
-            <div class="right">—<small>—</small></div>
-          </div>
+        <div class="note">
+          On ne fait pas du volume. On fait du solide. Si ton profil est aligné, on te rappelle vite (selon affluence).
         </div>
+      </div>
 
-        <!-- DEMANDES EN DIRECT -->
-        <div style="margin-top:16px; display:flex; align-items:end; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- PHILOSOPHIE -->
+  <section id="pourquoi">
+    <div class="wrap">
+      <div class="reveal">
+        <div class="section-label">Notre philosophie</div>
+        <h2 class="section-title">Ce qui nous <em>distingue</em></h2>
+        <p class="section-body">
+          Uber prend. Booking prend. Tous les grands acteurs étrangers prennent.
+          DIGIY ne prend rien. L'argent reste entre toi et ton client.
+          C'est ça, la souveraineté numérique africaine.
+        </p>
+      </div>
+
+      <div class="philo-grid" style="margin-top:44px">
+        <div class="philo-item reveal reveal-delay-1">
+          <div class="philo-icon">🦅</div>
           <div>
-            <h2 style="margin:0 2px 6px; font-size:16px; font-weight:1000;">Demandes en direct</h2>
-            <div class="hint" style="margin:0 2px;">Tu vois les nouvelles courses (tel client masqué). Accepte = tel complet.</div>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <button class="btn small" id="btnRefreshLive" type="button">⟲ Rafraîchir</button>
+            <h3>La vision de l'aigle</h3>
+            <p>Tu ne regardes pas le sol — tu vois loin. Un ambassadeur DIGIY comprend qu'il construit quelque chose qui dépasse une course. Il construit la confiance, pierre par pierre, trajet par trajet.</p>
           </div>
         </div>
-
-        <div class="list" id="liveRequests">
-          <div class="item">
-            <div>
-              <div class="title">En attente…</div>
-              <div class="meta">Si rien n'apparaît : aucune demande "new".</div>
-            </div>
-            <div class="right">—<small>—</small></div>
+        <div class="philo-item reveal reveal-delay-2">
+          <div class="philo-icon">🌍</div>
+          <div>
+            <h3>L'Afrique d'abord</h3>
+            <p>Chaque abonnement DIGIY garde la valeur en Afrique. Pas d'extraction vers l'étranger. Ce que tu gagnes, tu le réinvestes ici. C'est un choix économique et stratégique.</p>
           </div>
         </div>
-
-      </div>
-
-      <div class="card">
-        <h2>Partager mon cockpit</h2>
-        <div class="hint">Lien officiel (avec slug) — ou démo</div>
-
-        <div class="item">
-          <div style="min-width:0">
-            <div class="title">Lien</div>
-            <div class="meta mono" id="cockpitLink" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</div>
+        <div class="philo-item reveal reveal-delay-3">
+          <div class="philo-icon">🎩</div>
+          <div>
+            <h3>Le savoir-être avant tout</h3>
+            <p>Tenue soignée. Véhicule propre. Accueil chaleureux. Discrétion. Ponctualité. Ce ne sont pas des options — c'est la définition même d'un hôte de mobilité DIGIY.</p>
           </div>
-          <div class="right">
-            <button class="btn gold" id="btnCopyLink" type="button">Copier</button>
-            <small id="slugText" class="mono">slug: —</small>
-          </div>
-        </div>
-
-        <div class="footer">
-          <span>Support WhatsApp :
-            <a class="btn" style="text-decoration:none" href="https://wa.me/221771342889" target="_blank" rel="noopener">+221 77 134 28 89</a>
-          </span>
-          <span id="techState" class="mono">state: init</span>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
-  <div class="toast" id="toast">OK</div>
-
-  <!-- Modal accept -->
-  <div class="modal" id="acceptModal" aria-hidden="true">
-    <div class="modalCard">
-      <div class="modalHead">
-        <div class="modalTitle">✅ Course acceptée</div>
-        <button class="btn small" id="btnCloseModal" type="button">✕</button>
-      </div>
-      <div class="modalBody">
-        <div class="kv">
-          <div class="box">
-            <div class="lab">Client (tel)</div>
-            <div class="val mono" id="mClientPhone">—</div>
-          </div>
-          <div class="box">
-            <div class="lab">Prix</div>
-            <div class="val" id="mPrice">—</div>
-          </div>
-          <div class="box">
-            <div class="lab">Départ → Destination</div>
-            <div class="val" id="mRoute">—</div>
-          </div>
-          <div class="box">
-            <div class="lab">Ville / Véhicule</div>
-            <div class="val" id="mMeta">—</div>
-          </div>
-        </div>
-
-        <div class="modalActions">
-          <button class="btn primary" id="btnCallClient" type="button">📞 Appeler client</button>
-          <button class="btn" id="btnOpenMaps" type="button">🗺️ Itinéraire</button>
-          <button class="btn gold" id="btnCopyClientPhone" type="button">📋 Copier tel</button>
-        </div>
-
-        <div class="hint" style="margin-top:10px">
-          Astuce terrain : si le client galère, demande-lui d'envoyer sa position WhatsApp / Google Maps.
         </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- STANDARDS -->
+  <section class="standards-section" id="standards">
+    <div class="wrap">
+      <div class="reveal">
+        <div class="section-label">Nos exigences</div>
+        <h2 class="section-title">Les standards <em>DIGIY</em></h2>
+        <p class="section-body">
+          Être ambassadeur DIGIY, c'est un engagement. Voici les piliers
+          qui définissent chaque professionnel de notre réseau.
+        </p>
+      </div>
+
+      <div class="standards-grid">
+        <div class="std-card reveal reveal-delay-1">
+          <div class="std-num">01</div>
+          <h4>Présentation irréprochable</h4>
+          <p>Tenue propre, soignée, adaptée. Le premier regard que le client pose sur toi, c'est le premier regard qu'il pose sur DIGIY.</p>
+        </div>
+        <div class="std-card reveal reveal-delay-2">
+          <div class="std-num">02</div>
+          <h4>Véhicule de qualité</h4>
+          <p>Propre, entretenu, sans odeur. L'intérieur est un espace de confort. Tu en es l'hôte.</p>
+        </div>
+        <div class="std-card reveal reveal-delay-3">
+          <div class="std-num">03</div>
+          <h4>Maîtrise du territoire</h4>
+          <p>Dakar, Saly, Mbour — tu connais les repères, les raccourcis, les lieux de vie. Pas besoin de GPS pour chaque rue.</p>
+        </div>
+        <div class="std-card reveal reveal-delay-4">
+          <div class="std-num">04</div>
+          <h4>Communication posée</h4>
+          <p>Tu parles quand c'est utile. Tu écoutes toujours. Pas de politique, pas de problèmes personnels avec le client. Sérénité.</p>
+        </div>
+        <div class="std-card reveal reveal-delay-1">
+          <div class="std-num">05</div>
+          <h4>Ponctualité sans excuses</h4>
+          <p>Tu arrives avant l'heure. Les retards sans prévenir, c'est non. La fiabilité est ta réputation.</p>
+        </div>
+        <div class="std-card reveal reveal-delay-2">
+          <div class="std-num">06</div>
+          <h4>Respect total du client</h4>
+          <p>Homme, femme, local, diaspora, étranger — chaque client reçoit le même niveau de service d'exception. Zéro jugement.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- MODELE 0% -->
+  <section class="model-section" id="modele">
+    <div class="wrap">
+      <div class="reveal">
+        <div class="section-label">Le modèle économique</div>
+        <h2 class="section-title">Zéro commission.<br><em>Liberté totale.</em></h2>
+        <p class="section-body">
+          Chez DIGIY, tu paies un abonnement fixe mensuel.
+          Tout ce que tu gagnes sur tes courses, c'est <strong>100% pour toi</strong>.
+          Pas de surprise. Pas d'algorithme qui décide de ton tarif.
+        </p>
+      </div>
+
+      <div class="model-grid">
+        <div class="model-card highlight reveal reveal-delay-1">
+          <div class="icon">💚</div>
+          <h4>Abonnement DIGIY</h4>
+          <p>Un abonnement mensuel fixe et accessible. Tu sais exactement ce que tu paies. Ce que tu gagnes t'appartient entièrement — DIGIY ne touche jamais à tes courses.</p>
+          <span class="tag">✅ Transparent</span>
+        </div>
+        <div class="model-card reveal reveal-delay-2">
+          <div class="icon">🚗</div>
+          <h4>Tes courses, tes règles</h4>
+          <p>Tu fixes tes disponibilités. Tu travailles quand tu veux. Le cockpit DIGIY DRIVER PRO centralise tout : demandes, acceptations, historique.</p>
+          <span class="tag">✅ Liberté</span>
+        </div>
+        <div class="model-card reveal reveal-delay-3">
+          <div class="icon">📲</div>
+          <h4>Outil pro inclus</h4>
+          <p>Ton espace pro DIGIY DRIVER : stats en temps réel, demandes live, gestion de profil, paiements. Un cockpit digne d'un professionnel.</p>
+          <span class="tag">✅ Inclus</span>
+        </div>
+        <div class="model-card reveal reveal-delay-4">
+          <div class="icon">🌍</div>
+          <h4>Réseau DIGIYLYFE</h4>
+          <p>Rejoindre DIGIY DRIVER, c'est entrer dans l'écosystème DIGIYLYFE : 9 modules, des milliers d'utilisateurs, une vision commune pour l'Afrique.</p>
+          <span class="tag">✅ Communauté</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- PROFIL -->
+  <section class="profil-section" id="profil">
+    <div class="wrap">
+      <div class="reveal">
+        <div class="section-label">Profil recherché</div>
+        <h2 class="section-title">Es-tu <em>l'ambassadeur</em><br>que nous cherchons ?</h2>
+        <p class="section-body">
+          Nous ne recrutons pas en masse. Chaque ambassadeur est sélectionné après entretien.
+          Voici ce qui nous anime — et ce qui ne correspond pas à notre vision.
+        </p>
+      </div>
+
+      <div class="profil-inner reveal" style="margin-top:44px">
+        <div class="profil-oui">
+          <div class="profil-head">
+            <span class="profil-badge badge-oui">✅ C'est toi si…</span>
+          </div>
+          <div class="check-list">
+            <div class="check-item"><span class="ic">🦅</span><span>Tu es fier de ton travail et tu vois le métier comme un acte de service, pas juste un revenu</span></div>
+            <div class="check-item"><span class="ic">🎩</span><span>Ta présentation est naturellement soignée — tu ne fais pas un effort, c'est qui tu es</span></div>
+            <div class="check-item"><span class="ic">📍</span><span>Tu connais ton territoire : les routes, les repères, les habitudes locales</span></div>
+            <div class="check-item"><span class="ic">💬</span><span>Tu communiques clairement, tu es à l'aise avec un smartphone et des outils numériques simples</span></div>
+            <div class="check-item"><span class="ic">🤝</span><span>Tu comprends que ta liberté économique passe par un modèle qui te respecte — sans intermédiaire qui prend ta part</span></div>
+            <div class="check-item"><span class="ic">♾</span><span>Tu crois à l'Afrique qui se connecte au monde sans perdre ses racines</span></div>
+          </div>
+        </div>
+        <div class="profil-non">
+          <div class="profil-head">
+            <span class="profil-badge badge-non">⛔ Ce n'est pas toi si…</span>
+          </div>
+          <div class="check-list">
+            <div class="check-item"><span class="ic">❌</span><span>Tu vois le client comme un problème à gérer plutôt qu'une personne à servir avec dignité</span></div>
+            <div class="check-item"><span class="ic">❌</span><span>La propreté du véhicule et la tenue ne sont pas une priorité</span></div>
+            <div class="check-item"><span class="ic">❌</span><span>Tu négocies les tarifs en cours de route ou tu cherches à contourner les règles du réseau</span></div>
+            <div class="check-item"><span class="ic">❌</span><span>Tu n'as pas envie d'appartenir à quelque chose — juste faire des courses et partir</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE -->
+  <section class="quote-section">
+    <div class="wrap">
+      <div class="quote-block reveal">
+        <span class="quote-mark">"</span>
+        <p class="quote-text">
+          Un chauffeur conduit d'un point A à un point B.
+          Un ambassadeur DIGIY crée une expérience que le client n'oublie pas
+          et à laquelle il revient.
+        </p>
+        <div class="quote-author">— La philosophie DIGIY · L'Afrique enracinée, connectée au monde ♾</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- CTA FINAL -->
+  <section class="cta-section" id="postuler">
+    <div class="cta-inner">
+      <span class="cta-infinity">♾</span>
+
+      <div class="section-label" style="text-align:center">Rejoindre le réseau</div>
+      <h2 class="section-title reveal">Tu es prêt ?<br><em>Parlons-nous.</em></h2>
+      <p class="section-body reveal">
+        L'entretien est simple et humain. Pas de formulaire interminable.
+        Une conversation WhatsApp pour faire connaissance, vérifier le profil,
+        et t'accueillir dans le réseau DIGIY si c'est le bon moment.
+      </p>
+
+      <div class="cta-buttons reveal">
+        <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-whatsapp" aria-label="Contacter via WhatsApp">
+          💬 Contacter via WhatsApp
+        </a>
+        <a href="./index.html" class="btn-ghost">
+          Voir la plateforme
+        </a>
+      </div>
+
+      <p class="fine-print reveal">
+        Entretien mené par l'équipe DIGIY. Réponse rapide selon affluence.
+        Seuls les profils alignés avec nos valeurs sont retenus.
+        Nous préférons la qualité au volume.
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div><strong>DIGIY DRIVER PRO</strong> — Module DIGIYLYFE ♾</div>
+    <div style="display:flex; gap:16px; flex-wrap:wrap">
+      <a href="./index.html">Cockpit pro</a>
+      <a href="https://wa.me/221771342889" target="_blank" rel="noopener">Support</a>
+      <span id="vtag">v20260305</span>
+    </div>
+  </footer>
 
   <script>
-  (function(){
-    "use strict";
+    (function(){
+      "use strict";
 
-    const STORAGE_KEY = "digiy_driver_slug";
-    const VERSION_TAG = "20260305-ULTRAPREMIUM-4";
+      // ✅ Scroll reveal
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); } });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    const JOIN_URL = "./devenir-chauffeur.html";
-    const DEMO_QS_KEY = "demo";
-
-    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    const SUPABASE_ANON_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-
-    // ✅ SINGLETON Supabase (évite double client => évite locks)
-    window.DIGIY_SB = window.DIGIY_SB || supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false
-      }
-    });
-    const sb = window.DIGIY_SB;
-
-    const $ = (id)=>document.getElementById(id);
-    const set = (id,val)=>{ const el=$(id); if(el) el.textContent = (val ?? "—"); };
-    const money = (n)=> `${Number(n||0).toLocaleString("fr-FR")} FCFA`;
-
-    function esc(s){
-      return String(s||"")
-        .replaceAll("&","&amp;").replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-    function toast(msg){
-      const t = $("toast");
-      if(!t) return;
-      t.textContent = msg;
-      t.style.display = "block";
-      clearTimeout(window.__digiy_toast_t);
-      window.__digiy_toast_t = setTimeout(()=>t.style.display="none", 1400);
-    }
-
-    function setStatus(kind){
-      const dot = $("statusDot");
-      const txt = $("statusText");
-      if(!dot || !txt) return;
-      if(kind === "active"){ dot.style.background="var(--primary)"; txt.textContent="Actif"; }
-      else if(kind === "pending"){ dot.style.background="var(--warn)"; txt.textContent="Démo / À activer"; }
-      else { dot.style.background="var(--danger)"; txt.textContent="Expiré"; }
-    }
-
-    // --- SLUG + DEMO ---
-    const qs = new URLSearchParams(location.search);
-    const IS_DEMO = (qs.get(DEMO_QS_KEY) === "1");
-
-    let slug = (qs.get("slug") || "").trim();
-    const savedSlug = (localStorage.getItem(STORAGE_KEY) || "").trim();
-    if(!slug && savedSlug) slug = savedSlug;
-    if(IS_DEMO) slug = "";
-
-    if(slug){
-      localStorage.setItem(STORAGE_KEY, slug);
-      try{
-        const u = new URL(location.href);
-        u.searchParams.set("slug", slug);
-        u.searchParams.delete(DEMO_QS_KEY);
-        u.searchParams.set("v", VERSION_TAG);
-        history.replaceState({}, "", u.toString());
-      }catch(_){}
-    }
-
-    function cockpitUrl(s){
-      const u = new URL(location.href);
-      u.searchParams.delete(DEMO_QS_KEY);
-      u.searchParams.set("slug", s);
-      u.searchParams.set("v", VERSION_TAG);
-      return u.toString();
-    }
-    function demoUrl(){
-      const u = new URL(location.href);
-      u.searchParams.delete("slug");
-      u.searchParams.set(DEMO_QS_KEY,"1");
-      u.searchParams.set("v", VERSION_TAG);
-      return u.toString();
-    }
-
-    function openGate(msg){
-      $("gate")?.classList.add("show");
-      if(msg) $("gateMsg").textContent = msg;
-      set("techState", "state: gate");
-      setStatus("pending");
-      set("slugText","slug: —");
-      set("cockpitLink", demoUrl());
-
-      const box = $("todayList");
-      if(box){
-        box.innerHTML = `
-          <div class="item">
-            <div>
-              <div class="title">Slug requis</div>
-              <div class="meta">Entre ton slug pour charger tes stats.</div>
-            </div>
-            <div class="right">—<small>—</small></div>
-          </div>`;
-      }
-      const live = $("liveRequests");
-      if(live){
-        live.innerHTML = `
-          <div class="item">
-            <div>
-              <div class="title">Slug requis</div>
-              <div class="meta">Entre ton slug pour voir les demandes.</div>
-            </div>
-            <div class="right">—<small>—</small></div>
-          </div>`;
-      }
-    }
-
-    function goWithSlug(s){
-      const clean = String(s||"").trim();
-      if(!clean) return toast("Slug vide");
-      localStorage.setItem(STORAGE_KEY, clean);
-      const u = new URL(location.href);
-      u.searchParams.set("slug", clean);
-      u.searchParams.delete(DEMO_QS_KEY);
-      u.searchParams.set("v", VERSION_TAG);
-      location.assign(u.toString());
-    }
-
-    // --- Driver phone ---
-    let driverPhone = null;
-
-    window.resolveDriverPhoneFromSlug = window.resolveDriverPhoneFromSlug || function(slugValue){
-      const s = String(slugValue || "").trim();
-      if(!s.startsWith("driver-")) return null;
-
-      let digits = s.slice("driver-".length).replace(/[^\d]/g, "");
-      if(!digits) return null;
-
-      if(digits.length === 9) digits = "221" + digits;
-      if(digits.length < 12) return null;
-
-      return digits;
-    };
-
-    async function resolveDriverPhone(){
-      if(driverPhone) return driverPhone;
-
-      const fromSlug = window.resolveDriverPhoneFromSlug(slug);
-      if(fromSlug){
-        driverPhone = fromSlug;
-        return driverPhone;
-      }
-
-      const p = prompt("Téléphone chauffeur requis (ex: 221771234567) :", "");
-      let d = String(p||"").trim().replace(/[^\d]/g,"");
-      if(d.length === 9) d = "221" + d;
-      if(d.length < 12) d = "";
-
-      driverPhone = d || null;
-      if(!driverPhone) toast("Téléphone chauffeur manquant");
-      return driverPhone;
-    }
-
-    // --- LIVE REQUESTS ---
-    let liveChannel = null;
-    let lastAcceptedRide = null;
-
-    async function fetchLiveRequests(){
-      const box = $("liveRequests");
-      if(!box) return;
-
-      if(IS_DEMO){
-        box.innerHTML = `
-          <div class="item">
-            <div style="min-width:0">
-              <div class="title">Ouest Foire → Ngor</div>
-              <div class="meta">Dakar • Berline • tel: 221****67</div>
-            </div>
-            <div class="right">${money(4500)}<small>Démo</small></div>
-          </div>
-          <div class="item">
-            <div style="min-width:0">
-              <div class="title">Parcelles → VDN</div>
-              <div class="meta">Dakar • Van • tel: 221****77</div>
-            </div>
-            <div class="right">${money(4392)}<small>Démo</small></div>
-          </div>
-          <div class="item">
-            <div style="min-width:0">
-              <div class="title">Plateau → Almadies</div>
-              <div class="meta">Dakar • SUV • tel: 221****90</div>
-            </div>
-            <div class="right">${money(7953)}<small>Démo</small></div>
-          </div>
-        `;
-        return;
-      }
-
-      try{
-        const { data, error } = await sb
-          .from("ride_requests_driver_feed")
-          .select("*")
-          .order("created_at", { ascending:false })
-          .limit(12);
-
-        if(error) throw error;
-
-        if(!Array.isArray(data) || data.length === 0){
-          box.innerHTML = `
-            <div class="item">
-              <div>
-                <div class="title">Aucune demande</div>
-                <div class="meta">Reste visible. Quand une course arrive, elle pop.</div>
-              </div>
-              <div class="right">—<small>—</small></div>
-            </div>`;
-          return;
-        }
-
-        box.innerHTML = data.map(r=>{
-          const title = `${r.pickup_label || "—"} → ${r.drop_label || "—"}`;
-          const meta = `${r.city || "—"} • ${r.vehicle_type || "—"} • tel: ${r.client_phone_masked || "—"}`;
-          return `
-            <div class="item">
-              <div style="min-width:0">
-                <div class="title" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(title)}</div>
-                <div class="meta">${esc(meta)}</div>
-              </div>
-              <div class="right">
-                ${money(r.price_xof)}
-                <small>
-                  <button class="btn small primary" data-accept="${esc(r.id)}">✅ Accepter</button>
-                </small>
-              </div>
-            </div>`;
-        }).join("");
-
-        box.querySelectorAll("[data-accept]").forEach(btn=>{
-          btn.addEventListener("click", async ()=>{
-            const id = btn.getAttribute("data-accept");
-            await acceptRide(id);
-          });
+      // ✅ Smooth anchor scroll
+      document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+          const target = document.querySelector(a.getAttribute('href'));
+          if(target){ e.preventDefault(); target.scrollIntoView({ behavior:'smooth', block:'start' }); }
         });
+      });
 
-      }catch(e){
-        console.error(e);
-        box.innerHTML = `
-          <div class="item">
-            <div>
-              <div class="title">Erreur demandes</div>
-              <div class="meta">Vérifie la vue + droits SELECT.</div>
-            </div>
-            <div class="right">—<small>—</small></div>
-          </div>`;
-      }
-    }
+      // ✅ WhatsApp (pré-rempli + lead id)
+      const WA_PHONE = "221771342889";
 
-    function stopLiveRealtime(){
-      if(liveChannel){
-        try{ sb.removeChannel(liveChannel); }catch(_){}
-        liveChannel = null;
-      }
-    }
-
-    function startLiveRealtime(){
-      if(IS_DEMO) return;
-      stopLiveRealtime();
-
-      liveChannel = sb
-        .channel("digiy_driver_live_requests")
-        .on("postgres_changes", { event:"INSERT", schema:"public", table:"ride_requests" }, (payload)=>{
-          const r = payload.new || {};
-          if(String(r.status||"") === "new"){
-            fetchLiveRequests();
-            toast("📣 Nouvelle demande");
-          }
-        })
-        .on("postgres_changes", { event:"UPDATE", schema:"public", table:"ride_requests" }, ()=>{
-          fetchLiveRequests();
-        })
-        .subscribe();
-    }
-
-    async function acceptRide(rideId){
-      if(IS_DEMO) return toast("Démo : action désactivée");
-      if(!rideId) return;
-
-      if(!driverPhone){
-        await resolveDriverPhone();
-        if(!driverPhone) return toast("Téléphone chauffeur requis");
+      function buildLeadId(){
+        return "DRV-" + Date.now().toString(36).toUpperCase();
       }
 
-      toast("Acceptation...");
-      try{
-        const { data, error } = await sb.rpc("digiy_driver_accept_ride", {
-          p_ride_id: rideId,
-          p_driver_phone: driverPhone
+      function waLink(msg){
+        return "https://wa.me/" + WA_PHONE + "?text=" + encodeURIComponent(msg);
+      }
+
+      const lead = buildLeadId();
+      const ua = navigator.userAgent || "";
+      const device = /Android|iPhone|iPad|iPod/i.test(ua) ? "mobile" : "desktop";
+
+      function baseMsg(extraLines){
+        const lines = [
+          "Bonjour, je souhaite rejoindre DIGIY DRIVER en tant qu'ambassadeur de mobilité.",
+          "Lead: " + lead,
+          "Source: joinpage",
+          "Device: " + device
+        ];
+        if(Array.isArray(extraLines)) lines.push(...extraLines.filter(Boolean));
+        return lines.join("\n");
+      }
+
+      // Apply WA links (top CTA + hero CTA + final CTA)
+      document.querySelectorAll('a[data-wa="join"]').forEach(a=>{
+        a.href = waLink(baseMsg([
+          "Ville: (Dakar/Saly/Mbour/Autre)",
+          "Véhicule: (type + année)",
+          "Disponibilité: (jours/heures)"
+        ]));
+      });
+
+      // Mini form -> WA message
+      const $ = (id)=>document.getElementById(id);
+      const btn = $("btnApplyNow");
+      if(btn){
+        const update = ()=>{
+          const city = ($("fCity")?.value || "").trim();
+          const veh  = ($("fVehicle")?.value || "").trim();
+          const av   = ($("fAvail")?.value || "").trim();
+          const name = ($("fName")?.value || "").trim();
+
+          const extra = [];
+          if(name) extra.push("Nom: " + name);
+          if(city) extra.push("Ville: " + city);
+          if(veh)  extra.push("Véhicule: " + veh);
+          if(av)   extra.push("Disponibilité: " + av);
+
+          btn.href = waLink(baseMsg(extra.length ? extra : [
+            "Ville: " + (city || "(à préciser)"),
+            "Véhicule: " + (veh || "(à préciser)"),
+            "Disponibilité: " + (av || "(à préciser)")
+          ]));
+        };
+        ["fCity","fVehicle","fAvail","fName"].forEach(id=>{
+          const el = $(id);
+          if(el) el.addEventListener("input", update);
+          if(el) el.addEventListener("change", update);
         });
-        if(error) throw error;
-
-        if(!data?.ok){
-          toast(data?.error === "not_available" ? "Déjà prise" : "Refus");
-          await fetchLiveRequests();
-          return;
-        }
-
-        lastAcceptedRide = data.ride || null;
-        showAcceptModal(lastAcceptedRide);
-        await fetchLiveRequests();
-
-      }catch(e){
-        console.error(e);
-        toast("Erreur accept");
-      }
-    }
-
-    function showAcceptModal(ride){
-      if(!ride) return;
-      $("mClientPhone").textContent = ride.client_phone || "—";
-      $("mPrice").textContent = money(ride.price_xof);
-      $("mRoute").textContent = `${ride.pickup_label || "—"} → ${ride.drop_label || "—"}`;
-      $("mMeta").textContent = `${ride.city || "—"} • ${ride.vehicle_type || "—"}`;
-
-      $("acceptModal")?.classList.add("show");
-      $("acceptModal")?.setAttribute("aria-hidden","false");
-    }
-
-    function closeAcceptModal(){
-      $("acceptModal")?.classList.remove("show");
-      $("acceptModal")?.setAttribute("aria-hidden","true");
-    }
-
-    function openGoogleMapsToPickup(ride){
-      const lat = ride?.pickup_lat, lng = ride?.pickup_lng;
-      if(lat == null || lng == null) return toast("GPS pickup manquant");
-      const url = `https://www.google.com/maps?q=${encodeURIComponent(lat + "," + lng)}`;
-      window.open(url, "_blank");
-    }
-
-    // --- LOAD ---
-    async function load(){
-      if(IS_DEMO){
-        $("gate")?.classList.remove("show");
-        setStatus("pending");
-        set("techState","state: demo");
-        set("slugText","slug: DEMO");
-        set("cockpitLink", demoUrl());
-
-        set("kpiTodayCount", 3);
-        set("kpiTodayMoney", money(14500));
-        set("kpi7dCount", 18);
-        set("kpi7dMoney", money(99000));
-
-        const box = $("todayList");
-        if(box){
-          box.innerHTML = `
-            <div class="item">
-              <div>
-                <div class="title">Plateau → Almadies</div>
-                <div class="meta">accepted • ✅ Paiement OK</div>
-              </div>
-              <div class="right">${money(4500)}<small>—</small></div>
-            </div>
-            <div class="item">
-              <div>
-                <div class="title">VDN → Yoff</div>
-                <div class="meta">accepted • ✅ Paiement OK</div>
-              </div>
-              <div class="right">${money(5200)}<small>—</small></div>
-            </div>
-          `;
-        }
-
-        await fetchLiveRequests();
-        toast("👀 Mode démo");
-        return;
+        update();
       }
 
-      if(!slug){
-        openGate(savedSlug ? "Ton slug est mémorisé. Clique « Utiliser mon slug mémorisé »." : "Aucun slug détecté. Colle ton slug chauffeur.");
-        return;
-      }
+      // Version tag visible
+      const v = new URLSearchParams(location.search).get("v");
+      if(v) { const t = document.getElementById("vtag"); if(t) t.textContent = "v" + v; }
 
-      $("gate")?.classList.remove("show");
-      set("techState", "state: loading");
-      setStatus("active");
-
-      set("slugText", "slug: " + slug);
-      set("cockpitLink", cockpitUrl(slug));
-
-      await resolveDriverPhone();
-
-      const { data:stats, error:e1 } = await sb.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
-      if(e1){
-        console.error("stats error", e1);
-        set("techState", "state: stats-error");
-        setStatus("pending");
-        openGate("Erreur stats. Vérifie le slug / accès. (F12 Console pour détail)");
-        toast("Erreur stats");
-        return;
-      }
-
-      const s = Array.isArray(stats) ? stats[0] : stats;
-      set("kpiTodayCount", s?.trips_today ?? 0);
-      set("kpiTodayMoney", money(s?.revenue_today_fcfa ?? 0));
-      set("kpi7dCount", s?.trips_7d ?? 0);
-      set("kpi7dMoney", money(s?.revenue_7d_fcfa ?? 0));
-
-      const st = String(s?.driver_status || "active").toLowerCase();
-      if(st === "active") setStatus("active");
-      else if(st === "trial" || st === "pending") setStatus("pending");
-      else setStatus("expired");
-
-      const { data:list, error:e2 } = await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
-      if(e2){
-        console.error("today list error", e2);
-        toast("Erreur liste (console)");
-      }
-
-      const box = $("todayList");
-      if(box){
-        if(!Array.isArray(list) || list.length === 0){
-          box.innerHTML = `
-            <div class="item">
-              <div>
-                <div class="title">Aucune activité aujourd'hui</div>
-                <div class="meta">Ton prochain client arrive bientôt.</div>
-              </div>
-              <div class="right">—<small>—</small></div>
-            </div>`;
-        }else{
-          box.innerHTML = list.map(t=>{
-            const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
-            const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
-            const extra = (t.extras_fcfa && t.extras_fcfa > 0) ? `+${t.extras_fcfa} extras` : "—";
-            return `
-              <div class="item">
-                <div>
-                  <div class="title">${esc(title)}</div>
-                  <div class="meta">${esc(meta)}</div>
-                </div>
-                <div class="right">
-                  ${money(t.revenue_fcfa)}
-                  <small>${esc(extra)}</small>
-                </div>
-              </div>`;
-          }).join("");
-        }
-      }
-
-      await fetchLiveRequests();
-      startLiveRealtime();
-      set("techState","state: ok • v=" + VERSION_TAG);
-    }
-
-    // --- BUTTONS ---
-    $("btnMainAction")?.addEventListener("click", ()=>{
-      if(IS_DEMO) return toast("Démo : action désactivée");
-      if(!slug) return toast("Slug requis");
-      location.href = "./courses.html?slug=" + encodeURIComponent(slug) + "&v=" + encodeURIComponent(VERSION_TAG);
-    });
-
-    $("btnSecondary1")?.addEventListener("click", ()=>{
-      if(IS_DEMO) return toast("Démo : action désactivée");
-      if(!slug) return toast("Slug requis");
-      location.href = "./driver-zone-now.html?slug=" + encodeURIComponent(slug) + "&v=" + encodeURIComponent(VERSION_TAG);
-    });
-
-    $("btnSecondary2")?.addEventListener("click", ()=>{
-      if(IS_DEMO) return toast("Démo : action désactivée");
-      if(!slug) return toast("Slug requis");
-      location.href = "./profil-chauffeur.html?slug=" + encodeURIComponent(slug) + "&v=" + encodeURIComponent(VERSION_TAG);
-    });
-
-    $("btnSupport")?.addEventListener("click", ()=> window.open("https://wa.me/221771342889", "_blank"));
-    $("btnJoin")?.addEventListener("click", ()=> { location.href = JOIN_URL + "?v=" + encodeURIComponent(VERSION_TAG); });
-    $("btnDemo")?.addEventListener("click", ()=> { location.assign(demoUrl()); });
-
-    $("btnShare")?.addEventListener("click", async ()=>{
-      const link = $("cockpitLink")?.textContent || "";
-      try{
-        if(navigator.share) await navigator.share({ title:"DIGIY DRIVER", text:"Mon cockpit DIGIY DRIVER", url: link });
-        else window.open("https://wa.me/?text=" + encodeURIComponent(link), "_blank");
-      }catch(_){}
-    });
-
-    $("btnCopyLink")?.addEventListener("click", async ()=>{
-      try{
-        const link = $("cockpitLink")?.textContent || "";
-        await navigator.clipboard.writeText(link);
-        toast("Copié ✅");
-      }catch(_){ toast("Copie impossible"); }
-    });
-
-    // Gate
-    $("btnEnter")?.addEventListener("click", ()=>{
-      const s = ($("gateSlug")?.value || "").trim();
-      goWithSlug(s);
-    });
-    $("btnUseSaved")?.addEventListener("click", ()=>{
-      const s = (localStorage.getItem(STORAGE_KEY) || "").trim();
-      if(!s) return toast("Aucun slug mémorisé");
-      goWithSlug(s);
-    });
-
-    // Live refresh
-    $("btnRefreshLive")?.addEventListener("click", ()=> fetchLiveRequests());
-
-    // Modal actions
-    $("btnCloseModal")?.addEventListener("click", closeAcceptModal);
-    $("acceptModal")?.addEventListener("click", (e)=>{
-      if(e.target && e.target.id === "acceptModal") closeAcceptModal();
-    });
-
-    $("btnCallClient")?.addEventListener("click", ()=>{
-      const p = lastAcceptedRide?.client_phone;
-      if(!p) return toast("Tel client manquant");
-      location.href = "tel:" + p;
-    });
-
-    $("btnCopyClientPhone")?.addEventListener("click", async ()=>{
-      try{
-        const p = lastAcceptedRide?.client_phone || "";
-        if(!p) return toast("Tel vide");
-        await navigator.clipboard.writeText(p);
-        toast("Tel copié ✅");
-      }catch(_){ toast("Copie impossible"); }
-    });
-
-    $("btnOpenMaps")?.addEventListener("click", ()=>{
-      if(!lastAcceptedRide) return;
-      openGoogleMapsToPickup(lastAcceptedRide);
-    });
-
-    // ✅ cleanup realtime (évite locks / channels orphelins)
-    window.addEventListener("beforeunload", ()=> stopLiveRealtime());
-    document.addEventListener("visibilitychange", ()=>{
-      if(document.hidden) stopLiveRealtime();
-      else if(!IS_DEMO && slug) startLiveRealtime();
-    });
-
-    // GO
-    load().catch((e)=>{ console.error(e); set("techState","state: crash"); toast("Crash JS"); });
-
-  })();
+    })();
   </script>
 </body>
 </html>
