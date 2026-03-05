@@ -21,10 +21,23 @@
       margin:0; color:var(--text);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:
-        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
-        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
+        radial-gradient(1100px 700px at 10% -10%, rgba(34,197,94,.16), transparent 60%),
+        radial-gradient(1400px 900px at 110% 0%, rgba(250,204,21,.06), transparent 65%),
         var(--bg);
     }
+
+    /* ✅ ULTRA PREMIUM: grain anti-banding (supprime les “parasites” verticaux) */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
+      mix-blend-mode:overlay;
+      z-index:0;
+    }
+    .wrap{position:relative; z-index:1;}
+
     .wrap{max-width:var(--max); margin:0 auto; padding:16px 14px 28px}
     .topbar{
       display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -355,9 +368,7 @@
     "use strict";
 
     const STORAGE_KEY = "digiy_driver_slug";
-
-    // ✅ À TOI D'AJUSTER SI TU VEUX
-    const JOIN_URL = "./devenir-chauffeur.html"; // page inscription (à créer)
+    const JOIN_URL = "./devenir-chauffeur.html";
     const DEMO_QS_KEY = "demo";
 
     // ✅ SUPABASE (TES VALEURS)
@@ -404,7 +415,6 @@
     const savedSlug = (localStorage.getItem(STORAGE_KEY) || "").trim();
     if(!slug && savedSlug) slug = savedSlug;
 
-    // Si DEMO -> on force pas de slug
     if(IS_DEMO) slug = "";
 
     if(slug){
@@ -417,7 +427,6 @@
       }catch(_){}
     }
 
-    // --- URL cockpit à partager ---
     function cockpitUrl(s){
       const u = new URL(location.href);
       u.searchParams.delete(DEMO_QS_KEY);
@@ -438,29 +447,6 @@
       setStatus("pending");
       set("slugText","slug: —");
       set("cockpitLink", demoUrl());
-
-      const box = $("todayList");
-      if(box){
-        box.innerHTML = `
-          <div class="item">
-            <div>
-              <div class="title">Slug requis</div>
-              <div class="meta">Entre ton slug pour charger tes stats.</div>
-            </div>
-            <div class="right">—<small>—</small></div>
-          </div>`;
-      }
-      const live = $("liveRequests");
-      if(live){
-        live.innerHTML = `
-          <div class="item">
-            <div>
-              <div class="title">Slug requis</div>
-              <div class="meta">Entre ton slug pour voir les demandes.</div>
-            </div>
-            <div class="right">—<small>—</small></div>
-          </div>`;
-      }
     }
 
     function goWithSlug(s){
@@ -476,23 +462,7 @@
     // --- Driver phone (RPC accept) ---
     let driverPhone = null;
 
-    // ✅ helper: slug => digits "221xxxxxxxxx" (sans +)
-    function resolveDriverPhoneFromSlug(slugValue){
-      const s = String(slugValue || "").trim();
-      if(!s.startsWith("driver-")) return null;
-
-      let digits = s.slice("driver-".length).replace(/[^\d]/g, "");
-      if(!digits) return null;
-
-      // si 9 chiffres => Sénégal -> prefixe 221
-      if(digits.length === 9) digits = "221" + digits;
-
-      // minimum 12 chiffres pour "221xxxxxxxxx"
-      if(digits.length < 12) return null;
-
-      return digits; // ex: 221771342889
-    }
-        // ✅ BÉTON: on l’accroche au scope global pour éviter les histoires de scope
+    // ✅ slug => digits "221xxxxxxxxx" (sans +)
     window.resolveDriverPhoneFromSlug = window.resolveDriverPhoneFromSlug || function(slugValue){
       const s = String(slugValue || "").trim();
       if(!s.startsWith("driver-")) return null;
@@ -500,8 +470,8 @@
       let digits = s.slice("driver-".length).replace(/[^\d]/g, "");
       if(!digits) return null;
 
-      if(digits.length === 9) digits = "221" + digits;
-      if(digits.length < 12) return null;
+      if(digits.length === 9) digits = "221" + digits;   // SN
+      if(digits.length < 12) return null;               // 221 + 9 digits min
 
       return digits; // ex: 221771342889
     };
@@ -509,33 +479,12 @@
     async function resolveDriverPhone(){
       if(driverPhone) return driverPhone;
 
-      // ✅ appelle la version globale (toujours dispo)
       const fromSlug = window.resolveDriverPhoneFromSlug(slug);
       if(fromSlug){
         driverPhone = fromSlug;
         return driverPhone;
       }
 
-      const p = prompt("Téléphone chauffeur requis (ex: 221771234567) :", "");
-      let d = String(p||"").trim().replace(/[^\d]/g,"");
-      if(d.length === 9) d = "221" + d;
-      if(d.length < 12) d = "";
-
-      driverPhone = d || null;
-      if(!driverPhone) toast("Téléphone chauffeur manquant");
-      return driverPhone;
-    }
-    async function resolveDriverPhone(){
-      if(driverPhone) return driverPhone;
-
-      // 1) try from slug
-      const fromSlug = resolveDriverPhoneFromSlug(slug);
-      if(fromSlug){
-        driverPhone = fromSlug;
-        return driverPhone;
-      }
-
-      // 2) prompt manual
       const p = prompt("Téléphone chauffeur requis (ex: 221771234567) :", "");
       let d = String(p||"").trim().replace(/[^\d]/g,"");
       if(d.length === 9) d = "221" + d;
@@ -554,7 +503,6 @@
       const box = $("liveRequests");
       if(!box) return;
 
-      // ✅ DEMO: aucune action
       if(IS_DEMO){
         box.innerHTML = `
           <div class="item">
@@ -563,22 +511,7 @@
               <div class="meta">Dakar • Berline • tel: 221****67</div>
             </div>
             <div class="right">${money(4500)}<small>Démo</small></div>
-          </div>
-          <div class="item">
-            <div style="min-width:0">
-              <div class="title">Parcelles → VDN</div>
-              <div class="meta">Dakar • Van • tel: 221****77</div>
-            </div>
-            <div class="right">${money(4392)}<small>Démo</small></div>
-          </div>
-          <div class="item">
-            <div style="min-width:0">
-              <div class="title">Plateau → Almadies</div>
-              <div class="meta">Dakar • SUV • tel: 221****90</div>
-            </div>
-            <div class="right">${money(7953)}<small>Démo</small></div>
-          </div>
-        `;
+          </div>`;
         return;
       }
 
@@ -605,7 +538,7 @@
 
         box.innerHTML = data.map(r=>{
           const title = `${r.pickup_label || "—"} → ${r.drop_label || "—"}`;
-          const meta = `${r.city || "—"} • ${r.vehicle_type || "—"} • tel: ${r.client_phone_masked || "—"}`;
+          const meta  = `${r.city || "Dakar"} • ${r.vehicle_type || "Berline"} • tel: ${r.client_phone_masked || "Masqué"}`;
           return `
             <div class="item">
               <div style="min-width:0">
@@ -702,7 +635,7 @@
       $("mClientPhone").textContent = ride.client_phone || "—";
       $("mPrice").textContent = money(ride.price_xof);
       $("mRoute").textContent = `${ride.pickup_label || "—"} → ${ride.drop_label || "—"}`;
-      $("mMeta").textContent = `${ride.city || "—"} • ${ride.vehicle_type || "—"}`;
+      $("mMeta").textContent = `${ride.city || "Dakar"} • ${ride.vehicle_type || "Berline"}`;
 
       $("acceptModal")?.classList.add("show");
       $("acceptModal")?.setAttribute("aria-hidden","false");
@@ -722,7 +655,6 @@
 
     // --- LOAD ---
     async function load(){
-      // ✅ MODE DEMO (aucun slug requis)
       if(IS_DEMO){
         $("gate")?.classList.remove("show");
         setStatus("pending");
@@ -730,31 +662,21 @@
         set("slugText","slug: DEMO");
         set("cockpitLink", demoUrl());
 
-        // KPIs fake
         set("kpiTodayCount", 3);
         set("kpiTodayMoney", money(14500));
         set("kpi7dCount", 18);
         set("kpi7dMoney", money(99000));
 
-        // Liste fake
         const box = $("todayList");
         if(box){
           box.innerHTML = `
             <div class="item">
               <div>
                 <div class="title">Plateau → Almadies</div>
-                <div class="meta">accepted • ✅ Paiement OK</div>
+                <div class="meta">completed • ✅ Paiement OK</div>
               </div>
-              <div class="right">${money(4500)}<small>—</small></div>
-            </div>
-            <div class="item">
-              <div>
-                <div class="title">VDN → Yoff</div>
-                <div class="meta">accepted • ✅ Paiement OK</div>
-              </div>
-              <div class="right">${money(5200)}<small>—</small></div>
-            </div>
-          `;
+              <div class="right">${money(4500)}<small></small></div>
+            </div>`;
         }
 
         await fetchLiveRequests();
@@ -762,7 +684,6 @@
         return;
       }
 
-      // ✅ MODE PRO (slug requis)
       if(!slug){
         openGate(savedSlug ? "Ton slug est mémorisé. Clique « Utiliser mon slug mémorisé »." : "Aucun slug détecté. Colle ton slug chauffeur.");
         return;
@@ -770,42 +691,40 @@
 
       $("gate")?.classList.remove("show");
       set("techState", "state: loading");
-      setStatus("active");
 
       set("slugText", "slug: " + slug);
       set("cockpitLink", cockpitUrl(slug));
 
-      // (optionnel) si slug ok -> on peut résoudre phone sans prompt
       await resolveDriverPhone();
 
-      // ✅ tes RPC existantes
       const { data:stats, error:e1 } = await sb.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
       if(e1){
         console.error("stats error", e1);
         setStatus("pending");
+        set("techState", "state: stats-error");
         openGate("Erreur stats. Vérifie le slug / accès.");
         return;
       }
 
       const s = Array.isArray(stats) ? stats[0] : stats;
+
       set("kpiTodayCount", s?.trips_today ?? 0);
       set("kpiTodayMoney", money(s?.revenue_today_fcfa ?? 0));
       set("kpi7dCount", s?.trips_7d ?? 0);
       set("kpi7dMoney", money(s?.revenue_7d_fcfa ?? 0));
-      const st = String(s.driver_status || "active").toLowerCase();
-if(st === "active") setStatus("active");
-else if(st === "trial" || st === "pending") setStatus("pending");
-else setStatus("expired");
+
+      const st = String(s?.driver_status || "active").toLowerCase();
+      if(st === "active") setStatus("active");
+      else if(st === "trial" || st === "pending") setStatus("pending");
+      else setStatus("expired");
+
       const { data:list, error:e2 } = await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
-     if(e1){
-  console.error("stats error", e1);
-  const msg = (e1 && (e1.message || e1.details || e1.hint)) ? (e1.message || e1.details || e1.hint) : JSON.stringify(e1);
-  set("techState", "state: stats-error");
-  toast("Erreur stats (console)");
-  openGate("Erreur stats. Ouvre Console (F12) pour le message exact.");
-  console.log("STATS_RPC_ERROR_MESSAGE =>", msg);
-  return;
-}
+      if(e2){
+        console.error("list error", e2);
+        set("techState", "state: list-error");
+        toast("Erreur liste");
+        return;
+      }
 
       const box = $("todayList");
       if(box){
@@ -816,13 +735,13 @@ else setStatus("expired");
                 <div class="title">Aucune activité aujourd’hui</div>
                 <div class="meta">Ton prochain client arrive bientôt.</div>
               </div>
-              <div class="right">—<small>—</small></div>
+              <div class="right">—<small></small></div>
             </div>`;
         }else{
           box.innerHTML = list.map(t=>{
             const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
             const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
-            const extra = (t.extras_fcfa && t.extras_fcfa > 0) ? `+${t.extras_fcfa} extras` : "—";
+            const extra = (Number(t.extras_fcfa||0) > 0) ? `+${t.extras_fcfa} extras` : "";
             return `
               <div class="item">
                 <div>
@@ -831,7 +750,7 @@ else setStatus("expired");
                 </div>
                 <div class="right">
                   ${money(t.revenue_fcfa)}
-                  <small>${esc(extra)}</small>
+                  <small>${extra ? esc(extra) : ""}</small>
                 </div>
               </div>`;
           }).join("");
@@ -866,7 +785,6 @@ else setStatus("expired");
     $("btnSupport")?.addEventListener("click", ()=> window.open("https://wa.me/221771342889", "_blank"));
 
     $("btnJoin")?.addEventListener("click", ()=> { location.href = JOIN_URL; });
-
     $("btnDemo")?.addEventListener("click", ()=> { location.assign(demoUrl()); });
 
     $("btnShare")?.addEventListener("click", async ()=>{
@@ -885,7 +803,6 @@ else setStatus("expired");
       }catch(_){ toast("Copie impossible"); }
     });
 
-    // Gate
     $("btnEnter")?.addEventListener("click", ()=>{
       const s = ($("gateSlug")?.value || "").trim();
       goWithSlug(s);
@@ -896,10 +813,8 @@ else setStatus("expired");
       goWithSlug(s);
     });
 
-    // Live refresh
     $("btnRefreshLive")?.addEventListener("click", ()=> fetchLiveRequests());
 
-    // Modal actions
     $("btnCloseModal")?.addEventListener("click", closeAcceptModal);
     $("acceptModal")?.addEventListener("click", (e)=>{
       if(e.target && e.target.id === "acceptModal") closeAcceptModal();
@@ -925,7 +840,6 @@ else setStatus("expired");
       openGoogleMapsToPickup(lastAcceptedRide);
     });
 
-    // GO
     load().catch((e)=>{ console.error(e); set("techState","state: crash"); toast("Crash JS"); });
 
   })();
