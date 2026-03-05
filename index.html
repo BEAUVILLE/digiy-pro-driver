@@ -18,7 +18,6 @@
     }
     *{box-sizing:border-box}
 
-    /* ✅ FIX barres jaunes : suppression box-shadow:inherit + gradient corrigé */
     html, body { overflow-x:hidden; }
     html::before, html::after, body::before, body::after { content:none !important; display:none !important; }
     *::before, *::after { background-image:none !important; }
@@ -370,15 +369,15 @@
     const SUPABASE_ANON_KEY =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
-    // ✅ FIX CONSOLE LOCK : on désactive la session Auth (on utilise slug, pas Auth Supabase)
-    // Cela supprime le warning "Lock was not released within 5000ms"
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    // ✅ SINGLETON Supabase (évite double client => évite locks)
+    window.DIGIY_SB = window.DIGIY_SB || supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
         detectSessionInUrl: false
       }
     });
+    const sb = window.DIGIY_SB;
 
     const $ = (id)=>document.getElementById(id);
     const set = (id,val)=>{ const el=$(id); if(el) el.textContent = (val ?? "—"); };
@@ -416,7 +415,6 @@
     let slug = (qs.get("slug") || "").trim();
     const savedSlug = (localStorage.getItem(STORAGE_KEY) || "").trim();
     if(!slug && savedSlug) slug = savedSlug;
-
     if(IS_DEMO) slug = "";
 
     if(slug){
@@ -617,13 +615,16 @@
       }
     }
 
-    function startLiveRealtime(){
-      if(IS_DEMO) return;
-
+    function stopLiveRealtime(){
       if(liveChannel){
-        sb.removeChannel(liveChannel);
+        try{ sb.removeChannel(liveChannel); }catch(_){}
         liveChannel = null;
       }
+    }
+
+    function startLiveRealtime(){
+      if(IS_DEMO) return;
+      stopLiveRealtime();
 
       liveChannel = sb
         .channel("digiy_driver_live_requests")
@@ -809,7 +810,6 @@
 
       await fetchLiveRequests();
       startLiveRealtime();
-
       set("techState","state: ok • v=" + VERSION_TAG);
     }
 
@@ -890,6 +890,13 @@
     $("btnOpenMaps")?.addEventListener("click", ()=>{
       if(!lastAcceptedRide) return;
       openGoogleMapsToPickup(lastAcceptedRide);
+    });
+
+    // ✅ cleanup realtime (évite locks / channels orphelins)
+    window.addEventListener("beforeunload", ()=> stopLiveRealtime());
+    document.addEventListener("visibilitychange", ()=>{
+      if(document.hidden) stopLiveRealtime();
+      else if(!IS_DEMO && slug) startLiveRealtime();
     });
 
     // GO
