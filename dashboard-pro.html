@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>DIGIY PRO — Dashboard</title>
 
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./guard-pro.js?v=1"></script>
-<script src="./cockpit-stats.js?v=1"></script>
   <style>
     :root{
       --bg:#0b1020;
@@ -223,9 +220,7 @@
         <div class="hr"></div>
 
         <h3>Notifications</h3>
-        <div class="notifList" id="notifList">
-          <!-- inject -->
-        </div>
+        <div class="notifList" id="notifList"></div>
 
         <div class="footer">
           <a class="smallLink" href="#" id="linkSupport">Support</a>
@@ -236,333 +231,280 @@
     </div>
   </div>
 
-<script>
-/**
- * ✅ DIGIY PRO DASH — minimal, terrain, universel
- * - Lit ?slug=
- * - Résout phone via digiy_subscriptions_public (view)
- * - Vérifie accès via digiy_has_access(phone,module)
- */
+  <!-- ✅ SCRIPTS EN BAS = plus de "rpc not ready" -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="./guard-pro.js?v=1"></script>
 
-/* =========================
-   CONFIG — DIGIY MARKET
-   ========================= */
-const MODULE_CODE = "DRIVER";
-const MODULE_LABEL = "DIGIY DRIVER";
-const PRIMARY_ACTION_LABEL = "Publier un produit";
-const PRIMARY_ACTION_HINT  = "Ajoute un produit ou gère tes commandes.";
+  <script>
+  (function(){
+    "use strict";
 
-/* =========================
-   SUPABASE OFFICIEL DIGIY
-   ========================= */
-const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-const SUPABASE_ANON =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    /**
+     * ✅ DIGIY PRO DASH — minimal, terrain, universel
+     * - Lit ?slug=
+     * - Résout phone via digiy_subscriptions_public (view)
+     * - Vérifie accès via digiy_has_access(phone,module)
+     *
+     * NOTE: On n'utilise PAS DIGIY_GUARD.rpc ici → donc plus de warning.
+     */
 
-if(!SUPABASE_URL || !SUPABASE_ANON){
-  alert("Configuration Supabase manquante.");
-}
+    /* =========================
+       CONFIG — MODULE DRIVER
+       ========================= */
+    const MODULE_CODE = "DRIVER";
+    const MODULE_LABEL = "DIGIY DRIVER";
+    const PRIMARY_ACTION_LABEL = "Publier un produit";
+    const PRIMARY_ACTION_HINT  = "Ajoute un produit ou gère tes commandes.";
 
-/* ====== ROUTES DIGIY ======
-   - ABOS: ton GitHub Pages qui propose plans
-   - Module home: page principale PRO une fois actif (souvent index du module)
-*/
-const ABOS_URL = "https://apps.digiylyfe.com/abos/"; // adapte si besoin
-const MODULE_HOME_FALLBACK = "/"; // ou "index.html" selon ton module
+    /* =========================
+       SUPABASE OFFICIEL DIGIY
+       ========================= */
+    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    const SUPABASE_ANON =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
-/* ====== BOOST CONFIG ======
-   Ici on propose un BOOST simple.
-   Tu peux le gérer comme "module add-on" via digiy_build_pay_url + digiy_pay_admin_validate_order
-*/
-const BOOST = {
-  module: "BOOST",
-  plan: "boost_7d",
-  price_xof: 5000,
-  label: "BOOST visibilité",
-  duration_days: 7
-};
+    // ✅ Mets ici TA vraie URL ABOS (celle qui doit s'ouvrir quand pas d'accès)
+    const ABOS_URL = "https://apps.digiylyfe.com/abos/";
 
-/* =========================
-   UI HELPERS
-   ========================= */
-const $ = (id) => document.getElementById(id);
-
-function fmtDateFR(iso){
-  if(!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleDateString("fr-FR", { year:"numeric", month:"long", day:"numeric" });
-}
-
-function getSlug(){
-  const u = new URL(location.href);
-  return u.searchParams.get("slug") || "";
-}
-
-function setNotifs(items){
-  const box = $("notifList");
-  box.innerHTML = "";
-  if(!items.length){
-    box.innerHTML = `<div class="notif"><div><b>Rien à signaler</b><div class="muted" style="font-weight:750;margin-top:2px">Tout roule.</div></div><div class="tag ok">OK</div></div>`;
-    return;
-  }
-  for(const it of items){
-    const tagClass = it.level === "warn" ? "warn" : it.level === "ok" ? "ok" : "info";
-    const div = document.createElement("div");
-    div.className = "notif";
-    div.innerHTML = `
-      <div>
-        <b>${it.title}</b>
-        <div class="muted" style="font-weight:750;margin-top:2px">${it.text}</div>
-      </div>
-      <div class="tag ${tagClass}">${it.tag}</div>
-    `;
-    box.appendChild(div);
-  }
-}
-
-function daysBetween(aIso, bIso){
-  const a = new Date(aIso).getTime();
-  const b = new Date(bIso).getTime();
-  return Math.ceil((b - a) / (1000*60*60*24));
-}
-
-/* =========================
-   SUPABASE CALLS (REST)
-   ========================= */
-async function sbGetSubscriptionBySlug(slug){
-  // View minimale: digiy_subscriptions_public (phone,module,slug)
-  const url = `${SUPABASE_URL}/rest/v1/digiy_subscriptions_public?select=phone,module,slug&slug=eq.${encodeURIComponent(slug)}&limit=1`;
-  const r = await fetch(url, {
-    headers: {
-      apikey: SUPABASE_ANON,
-      authorization: `Bearer ${SUPABASE_ANON}`
-    }
-  });
-  if(!r.ok) throw new Error("Cannot read digiy_subscriptions_public");
-  const data = await r.json();
-  return data[0] || null;
-}
-
-async function sbRpc(name, payload){
-  const url = `${SUPABASE_URL}/rest/v1/rpc/${name}`;
-  const r = await fetch(url, {
-    method:"POST",
-    headers: {
-      "content-type":"application/json",
-      apikey: SUPABASE_ANON,
-      authorization: `Bearer ${SUPABASE_ANON}`
-    },
-    body: JSON.stringify(payload || {})
-  });
-  if(!r.ok){
-    const t = await r.text().catch(()=> "");
-    throw new Error(`RPC ${name} failed: ${t || r.status}`);
-  }
-  return r.json();
-}
-
-async function digiyHasAccess(phone, module){
-  // ton RPC: digiy_has_access(phone,module) => boolean/json
-  const res = await sbRpc("digiy_has_access", { p_phone: phone, p_module: module });
-  // adapte selon ton retour (boolean direct ou json)
-  if(typeof res === "boolean") return res;
-  if(res && typeof res.ok === "boolean") return res.ok;
-  if(res && typeof res.has_access === "boolean") return res.has_access;
-  return !!res;
-}
-
-async function digiyGetSubscriptionFull(phone, module){
-  // Si tu as une RPC publique minimaliste (recommandé) :
-  // ex: digiy_get_subscription_status(phone,module) -> {status,plan,expires_at,payment_ref}
-  // Sinon tu affiches juste info basique.
-  try{
-    return await sbRpc("digiy_get_subscription_status", { p_phone: phone, p_module: module });
-  }catch(e){
-    return null;
-  }
-}
-
-async function digiyGetDashboardStats(phone, module){
-  // Optionnel: une RPC par module ou générique
-  // ex: digiy_get_dashboard_stats(p_phone,p_module) -> {month_xof,tx_count,today_hint}
-  try{
-    return await sbRpc("digiy_get_dashboard_stats", { p_phone: phone, p_module: module });
-  }catch(e){
-    // fallback
-    return { month_xof: null, tx_count: null, today_hint: "Aujourd’hui" };
-  }
-}
-
-async function digiyGetBoostStatus(phone){
-  // Optionnel: digiy_get_boost_status(p_phone) -> {active,expires_at,views_today}
-  try{
-    return await sbRpc("digiy_get_boost_status", { p_phone: phone });
-  }catch(e){
-    return null;
-  }
-}
-
-async function digiyBuildPayUrl(module, phone, plan){
-  // Ton backbone mentionne digiy_build_pay_url(ref)
-  // Ici on propose une signature: digiy_build_pay_url(p_module,p_phone,p_plan_code)
-  // Adapte si ta RPC attend d'autres paramètres.
-  return await sbRpc("digiy_build_pay_url", { p_module: module, p_phone: phone, p_plan_code: plan });
-}
-
-/* =========================
-   MAIN
-   ========================= */
-(async function init(){
-  $("brandTitle").textContent = MODULE_LABEL;
-  $("btnPrimaryAction").textContent = PRIMARY_ACTION_LABEL;
-  $("actionHint").textContent = PRIMARY_ACTION_HINT;
-  $("pillStatus").innerHTML = `Statut : <b>…</b>`;
-
-  const slug = getSlug();
-  if(!slug){
-    $("statusLine").textContent = "Slug manquant";
-    $("expiryLine").textContent = "Ajoute ?slug=…";
-    $("dot").classList.add("bad");
-    $("pillStatus").innerHTML = `Statut : <b>Bloqué</b>`;
-    setNotifs([{level:"warn",tag:"ACTION",title:"Lien invalide",text:"Le lien doit contenir ?slug=…"}]);
-    return;
-  }
-
-  // 1) resolve phone
-  let subPublic = null;
-  try{
-    subPublic = await sbGetSubscriptionBySlug(slug);
-  }catch(e){
-    $("statusLine").textContent = "Erreur connexion";
-    $("expiryLine").textContent = "Impossible de vérifier le compte.";
-    $("dot").classList.add("bad");
-    setNotifs([{level:"warn",tag:"RÉSEAU",title:"Connexion",text:"Vérifie internet ou config Supabase."}]);
-    return;
-  }
-
-  if(!subPublic || !subPublic.phone){
-    $("statusLine").textContent = "Compte introuvable";
-    $("expiryLine").textContent = "Ce slug n’existe pas.";
-    $("dot").classList.add("bad");
-    $("pillStatus").innerHTML = `Statut : <b>Inconnu</b>`;
-    setNotifs([{level:"warn",tag:"INFO",title:"Slug inconnu",text:"Demande un nouveau lien d’accès."}]);
-    return;
-  }
-
-  const phone = subPublic.phone;
-
-  // 2) access check
-  const ok = await digiyHasAccess(phone, MODULE_CODE).catch(()=> false);
-
-  if(!ok){
-    $("statusLine").textContent = "Abonnement requis";
-    $("expiryLine").textContent = "Active ton accès en 1 clic.";
-    $("dot").classList.add("bad");
-    $("pillStatus").innerHTML = `Statut : <b>Inactif</b>`;
-
-    setNotifs([
-      {level:"warn",tag:"ABO",title:"Accès fermé",text:"Ton abonnement n’est pas actif sur ce module."},
-    ]);
-
-    $("btnManageSub").onclick = () => {
-      location.href = `${ABOS_URL}?module=${encodeURIComponent(MODULE_CODE)}&phone=${encodeURIComponent(phone)}`;
+    const BOOST = {
+      module: "BOOST",
+      plan: "boost_7d",
+      price_xof: 5000,
+      label: "BOOST visibilité",
+      duration_days: 7
     };
 
-    // On peut même rediriger direct si tu veux:
-    // location.href = `${ABOS_URL}?module=${encodeURIComponent(MODULE_CODE)}&phone=${encodeURIComponent(phone)}`;
-    return;
-  }
+    const $ = (id) => document.getElementById(id);
 
-  // 3) load status full (optional)
-  const status = await digiyGetSubscriptionFull(phone, MODULE_CODE);
-  let expiresAt = status?.expires_at || status?.current_period_end || null;
-  let plan = status?.plan || "standard";
-  let pay = status?.payment_ref ? "validé" : "ok";
-
-  $("dot").classList.add("ok");
-  $("statusLine").textContent = "Abonnement actif";
-  $("expiryLine").textContent = expiresAt ? `Expire le ${fmtDateFR(expiresAt)}` : "Expiration : —";
-  $("pillStatus").innerHTML = `Statut : <b>Actif</b>`;
-  $("metaLine").innerHTML = `<span>Plan : ${plan}</span><span>•</span><span>Paiement : ${pay}</span>`;
-
-  // 4) stats
-  const stats = await digiyGetDashboardStats(phone, MODULE_CODE);
-  const month = (stats?.month_xof ?? null);
-  const tx = (stats?.tx_count ?? null);
-
-  $("moneyMonth").textContent = month ? `${Number(month).toLocaleString("fr-FR")} FCFA` : "— FCFA";
-  $("txCount").textContent = tx ? `${tx} transactions` : "— transactions";
-  $("todayHint").textContent = stats?.today_hint || "Aujourd’hui";
-
-  // 5) notifs rules
-  const notifs = [];
-  if(expiresAt){
-    const d = daysBetween(new Date().toISOString(), expiresAt);
-    if(d <= 3){
-      notifs.push({level:"warn",tag:"J-3",title:"Abonnement bientôt expiré",text:`Expire dans ${d} jour(s). Renouvelle pour éviter coupure.`});
-    }else{
-      notifs.push({level:"ok",tag:"OK",title:"Abonnement",text:`Actif — prochain contrôle : J-3.`});
+    function fmtDateFR(iso){
+      if(!iso) return "—";
+      const d = new Date(iso);
+      return d.toLocaleDateString("fr-FR", { year:"numeric", month:"long", day:"numeric" });
     }
-  }
 
-  // 6) boost status
-  const boost = await digiyGetBoostStatus(phone);
-  if(boost?.active){
-    $("boostStatus").textContent = `Statut boost : actif jusqu’au ${fmtDateFR(boost.expires_at)} • +${boost.views_today || 0} vues aujourd’hui`;
-    $("btnBoost").textContent = "Actif";
-    $("btnBoost").disabled = true;
-    notifs.push({level:"info",tag:"BOOST",title:"Boost actif",text:"Visibilité augmentée. Continue ton activité."});
-  }else{
-    $("boostStatus").textContent = "Statut boost : inactif";
-    notifs.push({level:"info",tag:"OPTION",title:"Boost disponible",text:"Active le BOOST si tu veux plus de visibilité."});
-  }
+    function getSlug(){
+      const u = new URL(location.href);
+      return (u.searchParams.get("slug") || "").trim();
+    }
 
-  setNotifs(notifs);
+    function setNotifs(items){
+      const box = $("notifList");
+      box.innerHTML = "";
+      if(!items.length){
+        box.innerHTML = `<div class="notif"><div><b>Rien à signaler</b><div class="muted" style="font-weight:750;margin-top:2px">Tout roule.</div></div><div class="tag ok">OK</div></div>`;
+        return;
+      }
+      for(const it of items){
+        const tagClass = it.level === "warn" ? "warn" : it.level === "ok" ? "ok" : "info";
+        const div = document.createElement("div");
+        div.className = "notif";
+        div.innerHTML = `
+          <div>
+            <b>${it.title}</b>
+            <div class="muted" style="font-weight:750;margin-top:2px">${it.text}</div>
+          </div>
+          <div class="tag ${tagClass}">${it.tag}</div>
+        `;
+        box.appendChild(div);
+      }
+    }
 
-  // Buttons
-  $("btnManageSub").onclick = () => {
-    location.href = `${ABOS_URL}?module=${encodeURIComponent(MODULE_CODE)}&phone=${encodeURIComponent(phone)}`;
-  };
+    function daysBetween(aIso, bIso){
+      const a = new Date(aIso).getTime();
+      const b = new Date(bIso).getTime();
+      return Math.ceil((b - a) / (1000*60*60*24));
+    }
 
-  $("btnPrimaryAction").onclick = () => {
-    // action module spécifique — à adapter
-    // exemple: ouvrir la page “online” / “orders” / “new sale”
-    alert("Action principale — branche ici ton flow module.");
-  };
+    async function sbGetSubscriptionBySlug(slug){
+      const url = `${SUPABASE_URL}/rest/v1/digiy_subscriptions_public?select=phone,module,slug&slug=eq.${encodeURIComponent(slug)}&limit=1`;
+      const r = await fetch(url, {
+        headers: { apikey: SUPABASE_ANON, authorization: `Bearer ${SUPABASE_ANON}` }
+      });
+      if(!r.ok) throw new Error("Cannot read digiy_subscriptions_public");
+      const data = await r.json();
+      return data[0] || null;
+    }
 
-  $("btnBoostInfo").onclick = () => {
-    alert("BOOST : +50% d’apparition pendant 7 jours. Paiement direct. Aucun spam.");
-  };
+    async function sbRpc(name, payload){
+      const url = `${SUPABASE_URL}/rest/v1/rpc/${name}`;
+      const r = await fetch(url, {
+        method:"POST",
+        headers: {
+          "content-type":"application/json",
+          apikey: SUPABASE_ANON,
+          authorization: `Bearer ${SUPABASE_ANON}`
+        },
+        body: JSON.stringify(payload || {})
+      });
+      if(!r.ok){
+        const t = await r.text().catch(()=> "");
+        throw new Error(`RPC ${name} failed: ${t || r.status}`);
+      }
+      return r.json();
+    }
 
-  $("btnBoost").onclick = async () => {
-    try{
-      $("btnBoost").disabled = true;
-      $("btnBoost").textContent = "…";
+    async function digiyHasAccess(phone, module){
+      const res = await sbRpc("digiy_has_access", { p_phone: phone, p_module: module });
+      if(typeof res === "boolean") return res;
+      if(res && typeof res.ok === "boolean") return res.ok;
+      if(res && typeof res.has_access === "boolean") return res.has_access;
+      return !!res;
+    }
 
-      // Construire l’URL de paiement BOOST (via ton système)
-      const pay = await digiyBuildPayUrl(BOOST.module, phone, BOOST.plan);
+    async function digiyGetSubscriptionFull(phone, module){
+      try{
+        return await sbRpc("digiy_get_subscription_status", { p_phone: phone, p_module: module });
+      }catch(_){
+        return null;
+      }
+    }
 
-      // Ton RPC peut renvoyer {url} ou directement une string
-      const url = (typeof pay === "string") ? pay : (pay?.url || pay?.pay_url || null);
+    async function digiyGetDashboardStats(phone, module){
+      try{
+        return await sbRpc("digiy_get_dashboard_stats", { p_phone: phone, p_module: module });
+      }catch(_){
+        return { month_xof: null, tx_count: null, today_hint: "Aujourd’hui" };
+      }
+    }
 
-      if(!url){
-        throw new Error("URL paiement BOOST manquante");
+    async function digiyGetBoostStatus(phone){
+      try{
+        return await sbRpc("digiy_get_boost_status", { p_phone: phone });
+      }catch(_){
+        return null;
+      }
+    }
+
+    async function digiyBuildPayUrl(module, phone, plan){
+      return await sbRpc("digiy_build_pay_url", { p_module: module, p_phone: phone, p_plan_code: plan });
+    }
+
+    async function start(){
+      $("brandTitle").textContent = MODULE_LABEL;
+      $("btnPrimaryAction").textContent = PRIMARY_ACTION_LABEL;
+      $("actionHint").textContent = PRIMARY_ACTION_HINT;
+      $("pillStatus").innerHTML = `Statut : <b>…</b>`;
+
+      const slug = getSlug();
+      if(!slug){
+        $("statusLine").textContent = "Slug manquant";
+        $("expiryLine").textContent = "Ajoute ?slug=…";
+        $("dot").classList.add("bad");
+        $("pillStatus").innerHTML = `Statut : <b>Bloqué</b>`;
+        setNotifs([{level:"warn",tag:"ACTION",title:"Lien invalide",text:"Le lien doit contenir ?slug=…"}]);
+        return;
       }
 
-      location.href = url; // puis wait.html fera le reste (confirmation / activation)
-    }catch(e){
-      console.error(e);
-      alert("Impossible d’activer le BOOST. Vérifie la config ou la RPC digiy_build_pay_url.");
-      $("btnBoost").disabled = false;
-      $("btnBoost").textContent = "Activer";
+      let subPublic = null;
+      try{
+        subPublic = await sbGetSubscriptionBySlug(slug);
+      }catch(_){
+        $("statusLine").textContent = "Erreur connexion";
+        $("expiryLine").textContent = "Impossible de vérifier le compte.";
+        $("dot").classList.add("bad");
+        setNotifs([{level:"warn",tag:"RÉSEAU",title:"Connexion",text:"Vérifie internet ou config Supabase."}]);
+        return;
+      }
+
+      if(!subPublic || !subPublic.phone){
+        $("statusLine").textContent = "Compte introuvable";
+        $("expiryLine").textContent = "Ce slug n’existe pas.";
+        $("dot").classList.add("bad");
+        $("pillStatus").innerHTML = `Statut : <b>Inconnu</b>`;
+        setNotifs([{level:"warn",tag:"INFO",title:"Slug inconnu",text:"Demande un nouveau lien d’accès."}]);
+        return;
+      }
+
+      const phone = subPublic.phone;
+      const ok = await digiyHasAccess(phone, MODULE_CODE).catch(()=> false);
+
+      if(!ok){
+        $("statusLine").textContent = "Abonnement requis";
+        $("expiryLine").textContent = "Active ton accès en 1 clic.";
+        $("dot").classList.add("bad");
+        $("pillStatus").innerHTML = `Statut : <b>Inactif</b>`;
+        setNotifs([{level:"warn",tag:"ABO",title:"Accès fermé",text:"Ton abonnement n’est pas actif sur ce module."}]);
+
+        $("btnManageSub").onclick = () => {
+          location.href = `${ABOS_URL}?module=${encodeURIComponent(MODULE_CODE)}&phone=${encodeURIComponent(phone)}`;
+        };
+        return;
+      }
+
+      const status = await digiyGetSubscriptionFull(phone, MODULE_CODE);
+      const expiresAt = status?.expires_at || status?.current_period_end || null;
+      const plan = status?.plan || "standard";
+      const pay = status?.payment_ref ? "validé" : "ok";
+
+      $("dot").classList.add("ok");
+      $("statusLine").textContent = "Abonnement actif";
+      $("expiryLine").textContent = expiresAt ? `Expire le ${fmtDateFR(expiresAt)}` : "Expiration : —";
+      $("pillStatus").innerHTML = `Statut : <b>Actif</b>`;
+      $("metaLine").innerHTML = `<span>Plan : ${plan}</span><span>•</span><span>Paiement : ${pay}</span>`;
+
+      const stats = await digiyGetDashboardStats(phone, MODULE_CODE);
+      const month = (stats?.month_xof ?? null);
+      const tx = (stats?.tx_count ?? null);
+
+      $("moneyMonth").textContent = month ? `${Number(month).toLocaleString("fr-FR")} FCFA` : "— FCFA";
+      $("txCount").textContent = tx ? `${tx} transactions` : "— transactions";
+      $("todayHint").textContent = stats?.today_hint || "Aujourd’hui";
+
+      const notifs = [];
+      if(expiresAt){
+        const d = daysBetween(new Date().toISOString(), expiresAt);
+        if(d <= 3) notifs.push({level:"warn",tag:"J-3",title:"Abonnement bientôt expiré",text:`Expire dans ${d} jour(s). Renouvelle pour éviter coupure.`});
+        else notifs.push({level:"ok",tag:"OK",title:"Abonnement",text:`Actif — prochain contrôle : J-3.`});
+      }else{
+        notifs.push({level:"info",tag:"INFO",title:"Expiration",text:"Aucune date d'expiration fournie (RPC statut)."});
+      }
+
+      const boost = await digiyGetBoostStatus(phone);
+      if(boost?.active){
+        $("boostStatus").textContent = `Statut boost : actif jusqu’au ${fmtDateFR(boost.expires_at)} • +${boost.views_today || 0} vues aujourd’hui`;
+        $("btnBoost").textContent = "Actif";
+        $("btnBoost").disabled = true;
+        notifs.push({level:"info",tag:"BOOST",title:"Boost actif",text:"Visibilité augmentée. Continue ton activité."});
+      }else{
+        $("boostStatus").textContent = "Statut boost : inactif";
+        notifs.push({level:"info",tag:"OPTION",title:"Boost disponible",text:"Active le BOOST si tu veux plus de visibilité."});
+      }
+
+      setNotifs(notifs);
+
+      $("btnManageSub").onclick = () => {
+        location.href = `${ABOS_URL}?module=${encodeURIComponent(MODULE_CODE)}&phone=${encodeURIComponent(phone)}`;
+      };
+
+      $("btnPrimaryAction").onclick = () => alert("Action principale — branche ici ton flow module.");
+      $("btnBoostInfo").onclick = () => alert("BOOST : +50% d’apparition pendant 7 jours. Paiement direct. Aucun spam.");
+
+      $("btnBoost").onclick = async () => {
+        try{
+          $("btnBoost").disabled = true;
+          $("btnBoost").textContent = "…";
+          const pay = await digiyBuildPayUrl(BOOST.module, phone, BOOST.plan);
+          const url = (typeof pay === "string") ? pay : (pay?.url || pay?.pay_url || null);
+          if(!url) throw new Error("URL paiement BOOST manquante");
+          location.href = url;
+        }catch(e){
+          console.error(e);
+          alert("Impossible d’activer le BOOST. Vérifie digiy_build_pay_url.");
+          $("btnBoost").disabled = false;
+          $("btnBoost").textContent = "Activer";
+        }
+      };
+
+      $("btnSettings").onclick = () => alert("Paramètres — branche ici ton écran simple (profil, tel, etc.)");
+      $("linkSupport").onclick = (ev) => { ev.preventDefault(); alert("Support — branche ton WhatsApp/numéro support."); };
+      $("linkPayments").onclick = (ev) => { ev.preventDefault(); alert("Mes paiements — branche ton écran historique."); };
     }
-  };
 
-  $("btnSettings").onclick = () => alert("Paramètres — branche ici ton écran simple (profil, tel, etc.)");
-  $("linkSupport").onclick = (ev) => { ev.preventDefault(); alert("Support — branche ton WhatsApp/numéro support."); };
-  $("linkPayments").onclick = (ev) => { ev.preventDefault(); alert("Mes paiements — branche ton écran historique."); };
+    // ✅ démarre quand le DOM est prêt (et scripts chargés)
+    if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+    else start();
 
-})();
-</script>
+  })();
+  </script>
 </body>
 </html>
