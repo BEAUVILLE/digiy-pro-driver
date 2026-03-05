@@ -792,14 +792,20 @@
       set("kpiTodayMoney", money(s?.revenue_today_fcfa ?? 0));
       set("kpi7dCount", s?.trips_7d ?? 0);
       set("kpi7dMoney", money(s?.revenue_7d_fcfa ?? 0));
-
+      const st = String(s.driver_status || "active").toLowerCase();
+if(st === "active") setStatus("active");
+else if(st === "trial" || st === "pending") setStatus("pending");
+else setStatus("expired");
       const { data:list, error:e2 } = await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
-      if(e2){
-        console.error("list error", e2);
-        set("techState", "state: list-error");
-        toast("Erreur liste");
-        return;
-      }
+     if(e1){
+  console.error("stats error", e1);
+  const msg = (e1 && (e1.message || e1.details || e1.hint)) ? (e1.message || e1.details || e1.hint) : JSON.stringify(e1);
+  set("techState", "state: stats-error");
+  toast("Erreur stats (console)");
+  openGate("Erreur stats. Ouvre Console (F12) pour le message exact.");
+  console.log("STATS_RPC_ERROR_MESSAGE =>", msg);
+  return;
+}
 
       const box = $("todayList");
       if(box){
