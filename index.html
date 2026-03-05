@@ -484,26 +484,24 @@
       return p || null;
     }
 
-async function resolveDriverPhoneFromSlug(slug){
-  // slug attendu : driver-221771342889
-  const s = String(slug || "").trim();
-  if(!s.startsWith("driver-")) return null;
+    async function resolveDriverPhone(){
+      if(driverPhone) return driverPhone;
 
-  const digits = s.replace(/^driver-/, "").replace(/[^\d]/g, "");
-  if(digits.length < 9) return null;
-
-  // Normalisation : au choix tu gardes sans +, ou tu mets + devant.
-  // Ici on garde SANS "+" pour matcher tes données (221xxxxxxxxx).
-  return digits;
-}
-
-      if(!driverPhone){
-        const p = prompt("Téléphone chauffeur requis (ex: 221771234567 ou +221771234567) :", "");
-        driverPhone = normPhone(p);
-        if(!driverPhone) toast("Téléphone chauffeur manquant");
+      // 1) essaye via le slug
+      const fromSlug = await resolveDriverPhoneFromSlug(slug);
+      if(fromSlug){
+        driverPhone = fromSlug; // format: 221xxxxxxxxx
+        return driverPhone;
       }
-    }
 
+      // 2) sinon prompt manuel
+      const p = prompt("Téléphone chauffeur requis (ex: 221771234567) :", "");
+      driverPhone = (p||"").trim().replace(/[^\d]/g,"");
+      if(driverPhone.length < 9) driverPhone = null;
+
+      if(!driverPhone) toast("Téléphone chauffeur manquant");
+      return driverPhone;
+    }
     // --- LIVE REQUESTS ---
     let liveChannel = null;
     let lastAcceptedRide = null;
