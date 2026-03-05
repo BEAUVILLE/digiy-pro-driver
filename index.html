@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#040f09"/>
   <meta name="description" content="DIGIY DRIVER recrute des ambassadeurs de mobilité. Pas des chauffeurs — des professionnels d'exception. 0% commission. Liberté totale."/>
 
-  <!-- ✅ SEO + Partage (remplace le domaine + image si besoin) -->
+  <!-- ✅ SEO + Partage -->
   <link rel="canonical" href="https://driver.digiylyfe.com/devenir-chauffeur.html"/>
   <meta property="og:type" content="website"/>
   <meta property="og:title" content="Rejoindre DIGIY DRIVER — Ambassadeur de mobilité"/>
@@ -51,7 +51,7 @@
       overflow-x: hidden;
     }
 
-    /* ✅ Skip link (accessibilité) */
+    /* ✅ Skip link */
     .skip{
       position:absolute; left:-999px; top:10px;
       background:#fff; color:#000; padding:10px 12px; border-radius:10px;
@@ -59,15 +59,13 @@
     }
     .skip:focus{ left:10px; }
 
-    /* ── NOISE OVERLAY ── */
+    /* ── NOISE ── */
     body::after {
       content: '';
       position: fixed; inset: 0; z-index: 0; pointer-events: none;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
       opacity: .5;
     }
-
-    /* ✅ Perf terrain */
     @media (max-width: 600px){
       body::after{ opacity: 0.18; }
     }
@@ -211,7 +209,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── SECTION GÉNÉRIQUE ── */
+    /* ── SECTION ── */
     section { padding: 80px 20px; position: relative; z-index: 1; }
     .section-label {
       font-size: 11px; font-weight: 700; letter-spacing: 2px;
@@ -229,7 +227,7 @@
 
     .divider { border: none; border-top: 1px solid var(--line); margin: 0; }
 
-    /* ── PHILOSOPHIE ── */
+    /* ── PHILO ── */
     .philo-grid { display: grid; gap: 2px; margin-top: 48px; }
     .philo-item {
       display: grid; grid-template-columns: 64px 1fr;
@@ -281,7 +279,7 @@
     .std-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--gold2); }
     .std-card p { font-size: 13px; color: var(--muted); line-height: 1.65; }
 
-    /* ── MODELE 0% ── */
+    /* ── MODELE ── */
     .model-section { position: relative; overflow: hidden; }
     .model-section::before {
       content: '0%';
@@ -320,7 +318,7 @@
       color: var(--primary);
     }
 
-    /* ── PROFIL RECHERCHÉ ── */
+    /* ── PROFIL ── */
     .profil-section { background: linear-gradient(180deg, var(--bg), var(--bg2)); }
     .profil-inner {
       margin-top: 44px;
@@ -341,7 +339,7 @@
     .check-item { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--muted); line-height: 1.55; }
     .check-item .ic { flex-shrink: 0; margin-top: 1px; font-size: 16px; }
 
-    /* ── MINI FORM (3 infos rapides) ── */
+    /* ── MINI FORM ── */
     .mini-form {
       margin-top: 38px;
       border: 1px solid rgba(250,204,21,.16);
@@ -446,7 +444,7 @@
     footer a { color: var(--muted); text-decoration: none; }
     footer a:hover { color: var(--text); }
 
-    /* ── SCROLL REVEAL ── */
+    /* ── REVEAL ── */
     .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s, transform .7s; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
     .reveal-delay-1 { transition-delay: .1s; }
@@ -454,7 +452,6 @@
     .reveal-delay-3 { transition-delay: .3s; }
     .reveal-delay-4 { transition-delay: .4s; }
 
-    /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       .hero-stat-row { gap: 20px; }
       .profil-oui, .profil-non { padding: 24px 18px; }
@@ -475,9 +472,22 @@
         <div class="brand-sub">L'Afrique enracinée, connectée au monde</div>
       </div>
     </a>
-    <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-cta-top" aria-label="Postuler via WhatsApp">
-      🚖 Postuler via WhatsApp
-    </a>
+
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end">
+      <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-cta-top" aria-label="Postuler via WhatsApp">
+        🚖 Postuler via WhatsApp
+      </a>
+
+      <a id="btnCockpit" href="./index.html" class="btn-cta-top"
+         style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:var(--text);">
+        🔐 Ouvrir le cockpit
+      </a>
+
+      <a id="btnDemoLink" href="./index.html?demo=1" class="btn-cta-top"
+         style="background:rgba(250,204,21,.10);border:1px solid rgba(250,204,21,.28);color:var(--gold);">
+        👀 Voir la démo
+      </a>
+    </div>
   </nav>
 
   <!-- HERO -->
@@ -503,9 +513,7 @@
         <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-main" aria-label="Demander un entretien via WhatsApp">
           🚖 Demander un entretien
         </a>
-        <a href="#pourquoi" class="btn-ghost">
-          En savoir plus ↓
-        </a>
+        <a href="#pourquoi" class="btn-ghost">En savoir plus ↓</a>
       </div>
 
       <div class="hero-stat-row">
@@ -523,7 +531,7 @@
         </div>
       </div>
 
-      <!-- ✅ MINI FORM (optionnel mais efficace) -->
+      <!-- ✅ MINI FORM -->
       <div class="mini-form reveal" style="margin-top:44px">
         <div class="section-label" style="margin-bottom:8px">Postuler en 15 secondes</div>
         <div class="section-body" style="max-width:720px;margin-bottom:14px">
@@ -783,9 +791,7 @@
         <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-whatsapp" aria-label="Contacter via WhatsApp">
           💬 Contacter via WhatsApp
         </a>
-        <a href="./index.html" class="btn-ghost">
-          Voir la plateforme
-        </a>
+        <a href="./index.html" class="btn-ghost">Voir la plateforme</a>
       </div>
 
       <p class="fine-print reveal">
@@ -889,9 +895,26 @@
         update();
       }
 
-      // Version tag visible
+      // ✅ Conserver ?v=... sur le bouton cockpit + démo
       const v = new URLSearchParams(location.search).get("v");
-      if(v) { const t = document.getElementById("vtag"); if(t) t.textContent = "v" + v; }
+      if(v){
+        const t = document.getElementById("vtag");
+        if(t) t.textContent = "v" + v;
+
+        const cockpit = document.getElementById("btnCockpit");
+        const demo = document.getElementById("btnDemoLink");
+
+        if(cockpit){
+          const u = new URL(cockpit.getAttribute("href"), location.href);
+          u.searchParams.set("v", v);
+          cockpit.setAttribute("href", u.toString());
+        }
+        if(demo){
+          const u = new URL(demo.getAttribute("href"), location.href);
+          u.searchParams.set("v", v);
+          demo.setAttribute("href", u.toString());
+        }
+      }
 
     })();
   </script>
