@@ -1,4 +1,4 @@
-name: Deploy DIGIY DRIVER to VPS
+name: Deploy DIGIY DRIVER (VPS Front)
 
 on:
   push:
@@ -8,9 +8,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: SSH deploy
+      - name: SSH deploy frontend
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -23,4 +22,6 @@ jobs:
             sudo -u www-data git fetch --all
             sudo -u www-data git reset --hard origin/main
             sudo -u www-data git clean -fd
-            echo "Deployed: $(date -u) | $(sudo -u www-data git rev-parse --short HEAD)"
+            echo "Deployed FRONT: $(date -u) | $(sudo -u www-data git rev-parse --short HEAD)"
+            sudo nginx -t
+            sudo systemctl reload nginx
