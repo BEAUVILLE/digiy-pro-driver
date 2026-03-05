@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#040f09"/>
   <meta name="description" content="DIGIY DRIVER recrute des ambassadeurs de mobilité. Pas des chauffeurs — des professionnels d'exception. 0% commission. Liberté totale."/>
 
-  <!-- ✅ SEO + Partage -->
+  <!-- ✅ SEO + Partage (remplace le domaine + image si besoin) -->
   <link rel="canonical" href="https://driver.digiylyfe.com/devenir-chauffeur.html"/>
   <meta property="og:type" content="website"/>
   <meta property="og:title" content="Rejoindre DIGIY DRIVER — Ambassadeur de mobilité"/>
@@ -51,7 +51,7 @@
       overflow-x: hidden;
     }
 
-    /* ✅ Skip link */
+    /* ✅ Skip link (accessibilité) */
     .skip{
       position:absolute; left:-999px; top:10px;
       background:#fff; color:#000; padding:10px 12px; border-radius:10px;
@@ -59,13 +59,15 @@
     }
     .skip:focus{ left:10px; }
 
-    /* ── NOISE ── */
+    /* ── NOISE OVERLAY ── */
     body::after {
       content: '';
       position: fixed; inset: 0; z-index: 0; pointer-events: none;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
       opacity: .5;
     }
+
+    /* ✅ Perf terrain */
     @media (max-width: 600px){
       body::after{ opacity: 0.18; }
     }
@@ -96,6 +98,8 @@
     .brand-name { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 14px; color: var(--text); }
     .brand-sub { font-size: 11px; color: var(--muted); }
 
+    .top-actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
+
     .btn-cta-top {
       padding: 10px 18px; border-radius: 999px;
       background: linear-gradient(135deg, var(--primary), #16a34a);
@@ -106,6 +110,18 @@
       white-space: nowrap;
     }
     .btn-cta-top:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(34,197,94,.35); }
+
+    /* ✅ variantes topbar */
+    .btn-cta-top.ghost{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--text);
+    }
+    .btn-cta-top.gold{
+      background: rgba(250,204,21,.12);
+      border: 1px solid rgba(250,204,21,.28);
+      color: var(--gold);
+    }
 
     /* ── HERO ── */
     .hero {
@@ -209,7 +225,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── SECTION ── */
+    /* ── SECTION GÉNÉRIQUE ── */
     section { padding: 80px 20px; position: relative; z-index: 1; }
     .section-label {
       font-size: 11px; font-weight: 700; letter-spacing: 2px;
@@ -227,7 +243,7 @@
 
     .divider { border: none; border-top: 1px solid var(--line); margin: 0; }
 
-    /* ── PHILO ── */
+    /* ── PHILOSOPHIE ── */
     .philo-grid { display: grid; gap: 2px; margin-top: 48px; }
     .philo-item {
       display: grid; grid-template-columns: 64px 1fr;
@@ -279,7 +295,7 @@
     .std-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--gold2); }
     .std-card p { font-size: 13px; color: var(--muted); line-height: 1.65; }
 
-    /* ── MODELE ── */
+    /* ── MODELE 0% ── */
     .model-section { position: relative; overflow: hidden; }
     .model-section::before {
       content: '0%';
@@ -318,7 +334,7 @@
       color: var(--primary);
     }
 
-    /* ── PROFIL ── */
+    /* ── PROFIL RECHERCHÉ ── */
     .profil-section { background: linear-gradient(180deg, var(--bg), var(--bg2)); }
     .profil-inner {
       margin-top: 44px;
@@ -339,7 +355,7 @@
     .check-item { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--muted); line-height: 1.55; }
     .check-item .ic { flex-shrink: 0; margin-top: 1px; font-size: 16px; }
 
-    /* ── MINI FORM ── */
+    /* ── MINI FORM (3 infos rapides) ── */
     .mini-form {
       margin-top: 38px;
       border: 1px solid rgba(250,204,21,.16);
@@ -444,7 +460,7 @@
     footer a { color: var(--muted); text-decoration: none; }
     footer a:hover { color: var(--text); }
 
-    /* ── REVEAL ── */
+    /* ── SCROLL REVEAL ── */
     .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s, transform .7s; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
     .reveal-delay-1 { transition-delay: .1s; }
@@ -452,10 +468,13 @@
     .reveal-delay-3 { transition-delay: .3s; }
     .reveal-delay-4 { transition-delay: .4s; }
 
+    /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       .hero-stat-row { gap: 20px; }
       .profil-oui, .profil-non { padding: 24px 18px; }
       .quote-block { padding: 36px 20px; }
+      .topbar{padding:12px 14px}
+      .btn-cta-top{padding:10px 14px}
     }
   </style>
 </head>
@@ -465,7 +484,7 @@
 
   <!-- TOPBAR -->
   <nav class="topbar" aria-label="Navigation principale">
-    <a href="./index.html" class="topbar-brand" aria-label="Retour à la plateforme DIGIY DRIVER">
+    <a href="./index.html" class="topbar-brand" aria-label="Retour au cockpit DIGIY DRIVER PRO">
       <div class="logo">♾</div>
       <div>
         <div class="brand-name">DIGIY DRIVER</div>
@@ -473,20 +492,19 @@
       </div>
     </a>
 
-    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end">
+    <div class="top-actions">
+      <!-- ✅ Cockpit + Démo (pointent vers la page PRO = index.html) -->
+      <a id="btnCockpitTop" href="./index.html" class="btn-cta-top ghost" aria-label="Ouvrir le cockpit pro">
+        🔐 Ouvrir le cockpit
+      </a>
+      <a id="btnDemoTop" href="./index.html?demo=1" class="btn-cta-top gold" aria-label="Voir la démo du cockpit">
+        👀 Voir la démo
+      </a>
+
+      <!-- WhatsApp -->
       <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-cta-top" aria-label="Postuler via WhatsApp">
         🚖 Postuler via WhatsApp
       </a>
-
-      <a id="btnCockpit" href="https://driver.digiylyfe.com/" class="btn-cta-top"
-   style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:var(--text);">
-  🔐 Ouvrir le cockpit
-</a>
-
-     <a id="btnDemoLink" href="https://driver.digiylyfe.com/?demo=1" class="btn-cta-top"
-   style="background:rgba(250,204,21,.10);border:1px solid rgba(250,204,21,.28);color:var(--gold);">
-  👀 Voir la démo
-</a>
     </div>
   </nav>
 
@@ -514,6 +532,10 @@
           🚖 Demander un entretien
         </a>
         <a href="#pourquoi" class="btn-ghost">En savoir plus ↓</a>
+
+        <!-- ✅ bonus : accès direct cockpit/démo au-dessus de la ligne -->
+        <a id="btnCockpitHero" href="./index.html" class="btn-ghost" aria-label="Ouvrir le cockpit pro">🔐 Cockpit</a>
+        <a id="btnDemoHero" href="./index.html?demo=1" class="btn-ghost" aria-label="Voir la démo">👀 Démo</a>
       </div>
 
       <div class="hero-stat-row">
@@ -570,6 +592,7 @@
         <div class="actions">
           <a id="btnApplyNow" class="btn-main" href="#" target="_blank" rel="noopener">💬 Ouvrir WhatsApp</a>
           <a href="#standards" class="btn-ghost">Voir les standards</a>
+          <a id="btnDemoMini" class="btn-ghost" href="./index.html?demo=1">👀 Démo cockpit</a>
         </div>
 
         <div class="note">
@@ -791,7 +814,10 @@
         <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-whatsapp" aria-label="Contacter via WhatsApp">
           💬 Contacter via WhatsApp
         </a>
-        <a href="./index.html" class="btn-ghost">Voir la plateforme</a>
+
+        <!-- ✅ Correct : cockpit + demo pointent vers la page PRO -->
+        <a id="btnCockpitBottom" href="./index.html" class="btn-ghost">🔐 Ouvrir le cockpit</a>
+        <a id="btnDemoBottom" href="./index.html?demo=1" class="btn-ghost">👀 Voir la démo</a>
       </div>
 
       <p class="fine-print reveal">
@@ -807,6 +833,7 @@
     <div><strong>DIGIY DRIVER PRO</strong> — Module DIGIYLYFE ♾</div>
     <div style="display:flex; gap:16px; flex-wrap:wrap">
       <a href="./index.html">Cockpit pro</a>
+      <a href="./index.html?demo=1">Démo</a>
       <a href="https://wa.me/221771342889" target="_blank" rel="noopener">Support</a>
       <span id="vtag">v20260305</span>
     </div>
@@ -822,12 +849,25 @@
       }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
       document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-      // ✅ Smooth anchor scroll
+      // ✅ Smooth anchor scroll (uniquement les ancres #)
       document.querySelectorAll('a[href^="#"]').forEach(a => {
         a.addEventListener('click', e => {
           const target = document.querySelector(a.getAttribute('href'));
           if(target){ e.preventDefault(); target.scrollIntoView({ behavior:'smooth', block:'start' }); }
         });
+      });
+
+      // ✅ Cockpit PRO (index) + Démo (index?demo=1)
+      const PRO_COCKPIT_URL = "./index.html";
+      const PRO_DEMO_URL = "./index.html?demo=1";
+
+      ["btnCockpitTop","btnCockpitBottom","btnCockpitHero"].forEach(id=>{
+        const a = document.getElementById(id);
+        if(a) a.href = PRO_COCKPIT_URL;
+      });
+      ["btnDemoTop","btnDemoBottom","btnDemoHero","btnDemoMini"].forEach(id=>{
+        const a = document.getElementById(id);
+        if(a) a.href = PRO_DEMO_URL;
       });
 
       // ✅ WhatsApp (pré-rempli + lead id)
@@ -836,7 +876,6 @@
       function buildLeadId(){
         return "DRV-" + Date.now().toString(36).toUpperCase();
       }
-
       function waLink(msg){
         return "https://wa.me/" + WA_PHONE + "?text=" + encodeURIComponent(msg);
       }
@@ -849,7 +888,7 @@
         const lines = [
           "Bonjour, je souhaite rejoindre DIGIY DRIVER en tant qu'ambassadeur de mobilité.",
           "Lead: " + lead,
-          "Source: joinpage",
+          "Source: devenir-chauffeur",
           "Device: " + device
         ];
         if(Array.isArray(extraLines)) lines.push(...extraLines.filter(Boolean));
@@ -895,26 +934,9 @@
         update();
       }
 
-      // ✅ Conserver ?v=... sur le bouton cockpit + démo
+      // Version tag visible
       const v = new URLSearchParams(location.search).get("v");
-      if(v){
-        const t = document.getElementById("vtag");
-        if(t) t.textContent = "v" + v;
-
-        const cockpit = document.getElementById("btnCockpit");
-        const demo = document.getElementById("btnDemoLink");
-
-        if(cockpit){
-          const u = new URL(cockpit.getAttribute("href"), location.href);
-          u.searchParams.set("v", v);
-          cockpit.setAttribute("href", u.toString());
-        }
-        if(demo){
-          const u = new URL(demo.getAttribute("href"), location.href);
-          u.searchParams.set("v", v);
-          demo.setAttribute("href", u.toString());
-        }
-      }
+      if(v) { const t = document.getElementById("vtag"); if(t) t.textContent = "v" + v; }
 
     })();
   </script>
