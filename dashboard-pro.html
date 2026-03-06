@@ -165,8 +165,79 @@
     </div>
   </div>
 
-  <!-- ✅ scripts en bas, dans l’ordre -->
   <script src="./guard.js?v=20260306-2"></script>
   <script src="./cockpit-stats.js?v=20260306-2"></script>
+
+  <script>
+  (function(){
+    "use strict";
+
+    const PAY_URL = "https://beauville.github.io/commencer-a-payer/?module=DRIVER&offre=DRIVER";
+    const SUPPORT_WA = "https://wa.me/221771342889?text=" + encodeURIComponent("Salut DIGIY DRIVER, j'ai besoin d'aide sur mon cockpit chauffeur.");
+    const PAYMENTS_URL = "https://beauville.github.io/commencer-a-payer/?module=DRIVER&offre=DRIVER";
+
+    const $ = (id) => document.getElementById(id);
+
+    function getSlugFromUrl(){
+      return (new URLSearchParams(location.search).get("slug") || "").trim();
+    }
+
+    function withSlug(url, slug){
+      if(!slug) return url;
+      return url + (url.includes("?") ? "&" : "?") + "slug=" + encodeURIComponent(slug);
+    }
+
+    async function bootLinks(){
+      let slug = getSlugFromUrl();
+
+      try{
+        if(window.DIGIY_GUARD?.ready){
+          const r = await window.DIGIY_GUARD.ready;
+          if(r?.slug) slug = String(r.slug).trim();
+        }
+      }catch(err){
+        console.warn("dashboard links guard fallback:", err);
+      }
+
+      const btnPrimaryAction = $("btnPrimaryAction");
+      const btnSettings = $("btnSettings");
+      const btnManageSub = $("btnManageSub");
+      const linkSupport = $("linkSupport");
+      const linkPayments = $("linkPayments");
+
+      if(btnPrimaryAction){
+        btnPrimaryAction.onclick = () => {
+          location.href = withSlug("./courses.html", slug);
+        };
+      }
+
+      if(btnSettings){
+        btnSettings.onclick = () => {
+          location.href = withSlug("./profil-chauffeur.html", slug);
+        };
+      }
+
+      if(btnManageSub){
+        btnManageSub.onclick = () => {
+          location.href = PAY_URL;
+        };
+      }
+
+      if(linkSupport){
+        linkSupport.href = SUPPORT_WA;
+        linkSupport.target = "_blank";
+        linkSupport.rel = "noopener";
+      }
+
+      if(linkPayments){
+        linkPayments.href = PAYMENTS_URL;
+        linkPayments.target = "_blank";
+        linkPayments.rel = "noopener";
+      }
+    }
+
+    bootLinks();
+  })();
+  </script>
 </body>
 </html>
