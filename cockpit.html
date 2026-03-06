@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#061b14"/>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-cockpit-href-20260306"></script>
+  <script src="./guard.js?v=driver-cockpit-kpi-20260306"></script>
 
   <style>
     :root{
@@ -227,7 +227,6 @@
       font-weight:900;
       border:1px solid var(--line);
       background:rgba(255,255,255,.07);
-      cursor:pointer;
       text-align:center;
     }
 
@@ -300,16 +299,16 @@
 
         <div class="kpis">
           <div class="kpi">
-            <div class="label">Courses du jour</div>
-            <div class="value" id="kpiTrips">0</div>
+            <div class="label">Aujourd’hui</div>
+            <div class="value" id="kpiToday">0 FCFA</div>
           </div>
           <div class="kpi">
-            <div class="label">Revenu du jour</div>
-            <div class="value" id="kpiRevenue">0 FCFA</div>
+            <div class="label">7 jours</div>
+            <div class="value" id="kpi7d">0 FCFA</div>
           </div>
           <div class="kpi">
-            <div class="label">État</div>
-            <div class="value" id="kpiStatus">—</div>
+            <div class="label">30 jours</div>
+            <div class="value" id="kpi30d">0 FCFA</div>
           </div>
         </div>
 
@@ -459,6 +458,22 @@
         </div>
       </div>
 
+      <div class="card">
+        <div class="row">
+          <div>
+            <h2>Historique récent</h2>
+            <div class="muted">Tes dernières courses enregistrées dans la base.</div>
+          </div>
+          <div style="flex:0 0 auto">
+            <button class="btn" id="btnReloadRecent">↻ Rafraîchir historique</button>
+          </div>
+        </div>
+
+        <div class="list" id="recentTripsList" style="margin-top:12px">
+          <div class="item">Chargement…</div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -477,41 +492,40 @@
     let slug = (qs.get("slug") || "").trim();
     let phone = (qs.get("phone") || "").trim();
 
-    function normPhone(p) {
+    function normPhone(p){
       const d = String(p || "").replace(/[^\d]/g, "");
       return d.length >= 9 ? d : "";
     }
 
-    function normSlug(s) {
+    function normSlug(s){
       return String(s || "").trim().toLowerCase();
     }
 
-    function money(n) {
+    function money(n){
       return Number(n || 0).toLocaleString("fr-FR") + " FCFA";
     }
 
-    function withSlug(base) {
+    function withSlug(base){
       const u = new URL(base, location.href);
       if (slug) u.searchParams.set("slug", slug);
       return u.pathname + u.search;
     }
 
-    function setMsg(txt, type) {
+    function setMsg(txt, type){
       const el = document.getElementById("msgCreate");
       el.textContent = txt;
       el.className = "msg " + (type || "");
     }
 
-    function setAccessState(ok, txt) {
+    function setAccessState(ok, txt){
       const pill = document.getElementById("accessPill");
       const s = document.getElementById("sessionAccess");
       pill.className = "pill " + (ok ? "ok" : "bad");
       pill.textContent = "accès : " + txt;
       s.textContent = txt;
-      document.getElementById("kpiStatus").textContent = ok ? "ACTIF" : "BLOQUÉ";
     }
 
-    function updateSessionUi() {
+    function updateSessionUi(){
       document.getElementById("slugPill").textContent = "slug : " + (slug || "—");
       document.getElementById("phonePill").textContent = "phone : " + (phone || "—");
       document.getElementById("sessionSlug").textContent = slug || "—";
@@ -523,7 +537,7 @@
       document.getElementById("btnIndexPage").href = withSlug(HOME_URL);
     }
 
-    function goPay() {
+    function goPay(){
       const u = new URL(PAY_URL);
       u.searchParams.set("module", MODULE);
       if (phone) u.searchParams.set("phone", phone);
@@ -532,22 +546,22 @@
       location.href = u.toString();
     }
 
-    function goPin() {
+    function goPin(){
       location.href = withSlug(PIN_URL);
     }
 
-    function goHome() {
+    function goHome(){
       location.href = withSlug(HOME_URL);
     }
 
-    function resetForm() {
+    function resetForm(){
       document.getElementById("pickup").value = "";
       document.getElementById("drop").value = "";
       document.getElementById("price").value = "";
       document.getElementById("extras").value = "0";
     }
 
-    function escapeHtml(str) {
+    function escapeHtml(str){
       return String(str || "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
@@ -556,55 +570,114 @@
         .replaceAll("'", "&#039;");
     }
 
-    function renderTrips(data) {
+    function renderTodayTrips(data){
       const box = document.getElementById("todayList");
 
-      if (!data || data.length === 0) {
+      if (!data || data.length === 0){
         box.innerHTML = `<div class="item">Aucune course aujourd'hui</div>`;
-        document.getElementById("kpiTrips").textContent = "0";
-        document.getElementById("kpiRevenue").textContent = "0 FCFA";
         return;
       }
 
-      let total = 0;
-      box.innerHTML = data.map(t => {
-        const amount = Number(t.revenue_fcfa || 0);
-        total += amount;
-        return `
-          <div class="item">
-            <div>
-              <b>${escapeHtml(t.pickup_label || "—")} → ${escapeHtml(t.drop_label || "—")}</b>
-              <div class="muted">${escapeHtml(t.status || "—")}</div>
-            </div>
-            <div>${money(amount)}</div>
+      box.innerHTML = data.map(t => `
+        <div class="item">
+          <div>
+            <b>${escapeHtml(t.pickup_label || "—")} → ${escapeHtml(t.drop_label || "—")}</b>
+            <div class="muted">${escapeHtml(t.status || "—")}</div>
           </div>
-        `;
-      }).join("");
-
-      document.getElementById("kpiTrips").textContent = String(data.length);
-      document.getElementById("kpiRevenue").textContent = money(total);
+          <div>${money(t.amount_fcfa || 0)}</div>
+        </div>
+      `).join("");
     }
 
-    async function loadToday() {
-      if (!slug) {
-        renderTrips([]);
+    function renderRecentTrips(data){
+      const box = document.getElementById("recentTripsList");
+
+      if (!data || data.length === 0){
+        box.innerHTML = `<div class="item">Aucune course récente</div>`;
         return;
       }
 
-      const { data, error } = await sb.rpc("driver_list_today_by_slug", { p_slug: slug });
+      box.innerHTML = data.map(t => `
+        <div class="item">
+          <div>
+            <b>${escapeHtml(t.pickup_label || "—")} → ${escapeHtml(t.drop_label || "—")}</b>
+            <div class="muted">${escapeHtml(t.status || "—")} • ${t.paid ? "payé" : "non payé"}</div>
+          </div>
+          <div>${money(t.amount_fcfa || 0)}</div>
+        </div>
+      `).join("");
+    }
 
-      if (error) {
+    async function loadToday(){
+      if (!slug){
+        renderTodayTrips([]);
+        return;
+      }
+
+      const { data, error } = await sb.rpc("driver_list_recent_trips_by_slug", {
+        p_slug: slug,
+        p_limit: 20
+      });
+
+      if (error){
         console.error(error);
         document.getElementById("todayList").innerHTML = `<div class="item">Erreur de chargement</div>`;
         return;
       }
 
-      renderTrips(data || []);
+      const rows = (data || []).filter(t => {
+        const dt = new Date(t.completed_at || t.created_at || 0);
+        const now = new Date();
+        return dt.toDateString() === now.toDateString();
+      });
+
+      renderTodayTrips(rows);
     }
 
-    async function checkAccessNow() {
-      try {
-        if (!window.DIGIY_GUARD || !window.DIGIY_GUARD.checkAccess) {
+    async function loadRecentTrips(){
+      if (!slug){
+        renderRecentTrips([]);
+        return;
+      }
+
+      const { data, error } = await sb.rpc("driver_list_recent_trips_by_slug", {
+        p_slug: slug,
+        p_limit: 10
+      });
+
+      if (error){
+        console.error(error);
+        document.getElementById("recentTripsList").innerHTML = `<div class="item">Erreur de chargement</div>`;
+        return;
+      }
+
+      renderRecentTrips(data || []);
+    }
+
+    async function loadStats(){
+      if (!slug){
+        document.getElementById("kpiToday").textContent = "0 FCFA";
+        document.getElementById("kpi7d").textContent = "0 FCFA";
+        document.getElementById("kpi30d").textContent = "0 FCFA";
+        return;
+      }
+
+      const { data, error } = await sb.rpc("driver_stats_by_slug", { p_slug: slug });
+
+      if (error){
+        console.error(error);
+        return;
+      }
+
+      const stats = data || {};
+      document.getElementById("kpiToday").textContent = money(stats.today_total || 0);
+      document.getElementById("kpi7d").textContent = money(stats.days7_total || 0);
+      document.getElementById("kpi30d").textContent = money(stats.days30_total || 0);
+    }
+
+    async function checkAccessNow(){
+      try{
+        if (!window.DIGIY_GUARD || !window.DIGIY_GUARD.checkAccess){
           setAccessState(false, "guard absent");
           return false;
         }
@@ -612,7 +685,7 @@
         const ok = await window.DIGIY_GUARD.checkAccess();
         setAccessState(!!ok, ok ? "abonnement OK" : "abonnement KO");
         return !!ok;
-      } catch (e) {
+      }catch(e){
         console.error(e);
         setAccessState(false, "erreur contrôle");
         return false;
@@ -621,6 +694,7 @@
 
     const btnReload = document.getElementById("btnReload");
     const btnReloadToday = document.getElementById("btnReloadToday");
+    const btnReloadRecent = document.getElementById("btnReloadRecent");
     const btnCheckAccess = document.getElementById("btnCheckAccess");
     const btnPin = document.getElementById("btnPin");
     const btnPay = document.getElementById("btnPay");
@@ -631,8 +705,14 @@
     const btnAccessTools = document.getElementById("btnAccessTools");
     const btnCreate = document.getElementById("btnCreate");
 
-    if (btnReload) btnReload.addEventListener("click", loadToday);
+    if (btnReload) btnReload.addEventListener("click", async () => {
+      await loadToday();
+      await loadRecentTrips();
+      await loadStats();
+    });
+
     if (btnReloadToday) btnReloadToday.addEventListener("click", loadToday);
+    if (btnReloadRecent) btnReloadRecent.addEventListener("click", loadRecentTrips);
     if (btnCheckAccess) btnCheckAccess.addEventListener("click", checkAccessNow);
     if (btnPin) btnPin.addEventListener("click", goPin);
     if (btnPay) btnPay.addEventListener("click", goPay);
@@ -662,18 +742,18 @@
         const price = parseInt(document.getElementById("price").value || "0", 10);
         const extras = parseInt(document.getElementById("extras").value || "0", 10);
 
-        if (!slug) {
+        if (!slug){
           setMsg("⚠️ Slug manquant", "bad");
           return;
         }
 
-        if (!pickup || !drop || price <= 0) {
+        if (!pickup || !drop || price <= 0){
           setMsg("⚠️ Remplis tous les champs", "bad");
           return;
         }
 
-        try {
-          const { error } = await sb.rpc("driver_create_trip_by_slug", {
+        try{
+          const { data, error } = await sb.rpc("driver_create_trip_by_slug", {
             p_slug: slug,
             p_pickup_label: pickup,
             p_drop_label: drop,
@@ -682,11 +762,14 @@
           });
 
           if (error) throw error;
+          if (!data) throw new Error("trip_create_failed");
 
           setMsg("✅ Course enregistrée", "ok");
           resetForm();
           await loadToday();
-        } catch (e) {
+          await loadRecentTrips();
+          await loadStats();
+        }catch(e){
           console.error(e);
           setMsg("❌ Erreur création", "bad");
         }
@@ -694,8 +777,8 @@
     }
 
     (async () => {
-      try {
-        if (window.DIGIY_GUARD && window.DIGIY_GUARD.ready) {
+      try{
+        if (window.DIGIY_GUARD && window.DIGIY_GUARD.ready){
           const state = await window.DIGIY_GUARD.ready;
           slug = normSlug((state && state.slug) || slug);
           phone = normPhone((state && state.phone) || phone);
@@ -709,8 +792,10 @@
         const accessOk = await checkAccessNow();
         if (!accessOk) return;
 
+        await loadStats();
         await loadToday();
-      } catch (e) {
+        await loadRecentTrips();
+      } catch (e){
         console.error(e);
         setAccessState(false, "crash cockpit");
       }
