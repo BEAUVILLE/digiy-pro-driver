@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#061b14"/>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-cockpit-links-20260306"></script>
+  <script src="./guard.js?v=driver-cockpit-href-20260306"></script>
 
   <style>
     :root{
@@ -114,12 +114,10 @@
 
     .stack{display:grid;gap:14px;margin-top:14px}
     .grid2{display:grid;gap:14px}
-    .grid3{display:grid;gap:14px}
     .grid4{display:grid;gap:10px}
 
     @media(min-width:900px){
       .grid2{grid-template-columns:1.2fr .8fr}
-      .grid3{grid-template-columns:repeat(3,1fr)}
     }
 
     @media(min-width:760px){
@@ -348,25 +346,25 @@
           <div class="navbox">
             <div class="title">💰 Mes tarifs</div>
             <div class="desc">Ouvrir la page tarifs chauffeur pour poser ou ajuster tes prix terrain.</div>
-            <button class="go" id="btnTarifs" type="button">Ouvrir</button>
+            <a class="go" id="btnTarifs" href="#">Ouvrir</a>
           </div>
 
           <div class="navbox">
             <div class="title">👤 Profil chauffeur</div>
             <div class="desc">Accéder au profil métier et à ses réglages liés au chauffeur.</div>
-            <button class="go" id="btnProfil" type="button">Ouvrir</button>
+            <a class="go" id="btnProfil" href="#">Ouvrir</a>
           </div>
 
           <div class="navbox">
             <div class="title">🔐 Porte PIN</div>
             <div class="desc">Repasser par la porte sécurisée avec le slug déjà transmis.</div>
-            <button class="go" id="btnPinPage" type="button">Ouvrir</button>
+            <a class="go" id="btnPinPage" href="#">Ouvrir</a>
           </div>
 
           <div class="navbox">
             <div class="title">🏠 Vitrine DRIVER</div>
             <div class="desc">Revenir à la vitrine du module tout en gardant ton slug actif.</div>
-            <button class="go" id="btnIndexPage" type="button">Ouvrir</button>
+            <a class="go" id="btnIndexPage" href="#">Ouvrir</a>
           </div>
         </div>
       </div>
@@ -465,264 +463,258 @@
   </div>
 
   <script>
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-  const MODULE = "DRIVER";
-  const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
-  const PIN_URL = "./pin.html";
-  const HOME_URL = "./index.html";
-  const PROFIL_URL = "./profil-chauffeur.html";
+    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    const MODULE = "DRIVER";
+    const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
+    const PIN_URL = "./pin.html";
+    const HOME_URL = "./index.html";
+    const PROFIL_URL = "./profil-chauffeur.html";
 
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const qs = new URLSearchParams(location.search);
-  let slug = (qs.get("slug") || "").trim();
-  let phone = (qs.get("phone") || "").trim();
+    const qs = new URLSearchParams(location.search);
+    let slug = (qs.get("slug") || "").trim();
+    let phone = (qs.get("phone") || "").trim();
 
-  function normPhone(p) {
-    const d = String(p || "").replace(/[^\d]/g, "");
-    return d.length >= 9 ? d : "";
-  }
-
-  function normSlug(s) {
-    return String(s || "").trim().toLowerCase();
-  }
-
-  function money(n) {
-    return Number(n || 0).toLocaleString("fr-FR") + " FCFA";
-  }
-
-  function withSlug(base) {
-    const u = new URL(base, location.href);
-    if (slug) u.searchParams.set("slug", slug);
-    return u.pathname + u.search;
-  }
-
-  function setMsg(txt, type) {
-    const el = document.getElementById("msgCreate");
-    el.textContent = txt;
-    el.className = "msg " + (type || "");
-  }
-
-  function setAccessState(ok, txt) {
-    const pill = document.getElementById("accessPill");
-    const s = document.getElementById("sessionAccess");
-    pill.className = "pill " + (ok ? "ok" : "bad");
-    pill.textContent = "accès : " + txt;
-    s.textContent = txt;
-    document.getElementById("kpiStatus").textContent = ok ? "ACTIF" : "BLOQUÉ";
-  }
-
-  function updateSessionUi() {
-    document.getElementById("slugPill").textContent = "slug : " + (slug || "—");
-    document.getElementById("phonePill").textContent = "phone : " + (phone || "—");
-    document.getElementById("sessionSlug").textContent = slug || "—";
-    document.getElementById("sessionPhone").textContent = phone || "—";
-  }
-
-  function goPay() {
-    const u = new URL(PAY_URL);
-    u.searchParams.set("module", MODULE);
-    if (phone) u.searchParams.set("phone", phone);
-    if (slug) u.searchParams.set("slug", slug);
-    u.searchParams.set("return", location.origin + location.pathname + "?slug=" + encodeURIComponent(slug));
-    location.href = u.toString();
-  }
-
-  function goPin() {
-    location.href = withSlug(PIN_URL);
-  }
-
-  function goHome() {
-    location.href = withSlug(HOME_URL);
-  }
-
-  function goProfil() {
-    location.href = withSlug(PROFIL_URL);
-  }
-
-  function resetForm() {
-    document.getElementById("pickup").value = "";
-    document.getElementById("drop").value = "";
-    document.getElementById("price").value = "";
-    document.getElementById("extras").value = "0";
-  }
-
-  function escapeHtml(str) {
-    return String(str || "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function renderTrips(data) {
-    const box = document.getElementById("todayList");
-
-    if (!data || data.length === 0) {
-      box.innerHTML = `<div class="item">Aucune course aujourd'hui</div>`;
-      document.getElementById("kpiTrips").textContent = "0";
-      document.getElementById("kpiRevenue").textContent = "0 FCFA";
-      return;
+    function normPhone(p) {
+      const d = String(p || "").replace(/[^\d]/g, "");
+      return d.length >= 9 ? d : "";
     }
 
-    let total = 0;
-    box.innerHTML = data.map(t => {
-      const amount = Number(t.revenue_fcfa || 0);
-      total += amount;
-      return `
-        <div class="item">
-          <div>
-            <b>${escapeHtml(t.pickup_label || "—")} → ${escapeHtml(t.drop_label || "—")}</b>
-            <div class="muted">${escapeHtml(t.status || "—")}</div>
+    function normSlug(s) {
+      return String(s || "").trim().toLowerCase();
+    }
+
+    function money(n) {
+      return Number(n || 0).toLocaleString("fr-FR") + " FCFA";
+    }
+
+    function withSlug(base) {
+      const u = new URL(base, location.href);
+      if (slug) u.searchParams.set("slug", slug);
+      return u.pathname + u.search;
+    }
+
+    function setMsg(txt, type) {
+      const el = document.getElementById("msgCreate");
+      el.textContent = txt;
+      el.className = "msg " + (type || "");
+    }
+
+    function setAccessState(ok, txt) {
+      const pill = document.getElementById("accessPill");
+      const s = document.getElementById("sessionAccess");
+      pill.className = "pill " + (ok ? "ok" : "bad");
+      pill.textContent = "accès : " + txt;
+      s.textContent = txt;
+      document.getElementById("kpiStatus").textContent = ok ? "ACTIF" : "BLOQUÉ";
+    }
+
+    function updateSessionUi() {
+      document.getElementById("slugPill").textContent = "slug : " + (slug || "—");
+      document.getElementById("phonePill").textContent = "phone : " + (phone || "—");
+      document.getElementById("sessionSlug").textContent = slug || "—";
+      document.getElementById("sessionPhone").textContent = phone || "—";
+
+      document.getElementById("btnTarifs").href = withSlug(PROFIL_URL);
+      document.getElementById("btnProfil").href = withSlug(PROFIL_URL);
+      document.getElementById("btnPinPage").href = withSlug(PIN_URL);
+      document.getElementById("btnIndexPage").href = withSlug(HOME_URL);
+    }
+
+    function goPay() {
+      const u = new URL(PAY_URL);
+      u.searchParams.set("module", MODULE);
+      if (phone) u.searchParams.set("phone", phone);
+      if (slug) u.searchParams.set("slug", slug);
+      u.searchParams.set("return", location.origin + location.pathname + "?slug=" + encodeURIComponent(slug));
+      location.href = u.toString();
+    }
+
+    function goPin() {
+      location.href = withSlug(PIN_URL);
+    }
+
+    function goHome() {
+      location.href = withSlug(HOME_URL);
+    }
+
+    function resetForm() {
+      document.getElementById("pickup").value = "";
+      document.getElementById("drop").value = "";
+      document.getElementById("price").value = "";
+      document.getElementById("extras").value = "0";
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderTrips(data) {
+      const box = document.getElementById("todayList");
+
+      if (!data || data.length === 0) {
+        box.innerHTML = `<div class="item">Aucune course aujourd'hui</div>`;
+        document.getElementById("kpiTrips").textContent = "0";
+        document.getElementById("kpiRevenue").textContent = "0 FCFA";
+        return;
+      }
+
+      let total = 0;
+      box.innerHTML = data.map(t => {
+        const amount = Number(t.revenue_fcfa || 0);
+        total += amount;
+        return `
+          <div class="item">
+            <div>
+              <b>${escapeHtml(t.pickup_label || "—")} → ${escapeHtml(t.drop_label || "—")}</b>
+              <div class="muted">${escapeHtml(t.status || "—")}</div>
+            </div>
+            <div>${money(amount)}</div>
           </div>
-          <div>${money(amount)}</div>
-        </div>
-      `;
-    }).join("");
+        `;
+      }).join("");
 
-    document.getElementById("kpiTrips").textContent = String(data.length);
-    document.getElementById("kpiRevenue").textContent = money(total);
-  }
-
-  async function loadToday() {
-    if (!slug) {
-      renderTrips([]);
-      return;
+      document.getElementById("kpiTrips").textContent = String(data.length);
+      document.getElementById("kpiRevenue").textContent = money(total);
     }
 
-    const { data, error } = await sb.rpc("driver_list_today_by_slug", { p_slug: slug });
+    async function loadToday() {
+      if (!slug) {
+        renderTrips([]);
+        return;
+      }
 
-    if (error) {
-      console.error(error);
-      document.getElementById("todayList").innerHTML = `<div class="item">Erreur de chargement</div>`;
-      return;
+      const { data, error } = await sb.rpc("driver_list_today_by_slug", { p_slug: slug });
+
+      if (error) {
+        console.error(error);
+        document.getElementById("todayList").innerHTML = `<div class="item">Erreur de chargement</div>`;
+        return;
+      }
+
+      renderTrips(data || []);
     }
 
-    renderTrips(data || []);
-  }
+    async function checkAccessNow() {
+      try {
+        if (!window.DIGIY_GUARD || !window.DIGIY_GUARD.checkAccess) {
+          setAccessState(false, "guard absent");
+          return false;
+        }
 
-  async function checkAccessNow() {
-    try {
-      if (!window.DIGIY_GUARD || !window.DIGIY_GUARD.checkAccess) {
-        setAccessState(false, "guard absent");
+        const ok = await window.DIGIY_GUARD.checkAccess();
+        setAccessState(!!ok, ok ? "abonnement OK" : "abonnement KO");
+        return !!ok;
+      } catch (e) {
+        console.error(e);
+        setAccessState(false, "erreur contrôle");
         return false;
       }
-
-      const ok = await window.DIGIY_GUARD.checkAccess();
-      setAccessState(!!ok, ok ? "abonnement OK" : "abonnement KO");
-      return !!ok;
-    } catch (e) {
-      console.error(e);
-      setAccessState(false, "erreur contrôle");
-      return false;
     }
-  }
 
-  const btnReload = document.getElementById("btnReload");
-  const btnReloadToday = document.getElementById("btnReloadToday");
-  const btnCheckAccess = document.getElementById("btnCheckAccess");
-  const btnPin = document.getElementById("btnPin");
-  const btnPay = document.getElementById("btnPay");
-  const btnHome = document.getElementById("btnHome");
-  const btnReloadAll = document.getElementById("btnReloadAll");
-  const btnScrollToday = document.getElementById("btnScrollToday");
-  const btnResetForm = document.getElementById("btnResetForm");
-  const btnAccessTools = document.getElementById("btnAccessTools");
-  const btnTarifs = document.getElementById("btnTarifs");
-  const btnProfil = document.getElementById("btnProfil");
-  const btnPinPage = document.getElementById("btnPinPage");
-  const btnIndexPage = document.getElementById("btnIndexPage");
-  const btnCreate = document.getElementById("btnCreate");
+    const btnReload = document.getElementById("btnReload");
+    const btnReloadToday = document.getElementById("btnReloadToday");
+    const btnCheckAccess = document.getElementById("btnCheckAccess");
+    const btnPin = document.getElementById("btnPin");
+    const btnPay = document.getElementById("btnPay");
+    const btnHome = document.getElementById("btnHome");
+    const btnReloadAll = document.getElementById("btnReloadAll");
+    const btnScrollToday = document.getElementById("btnScrollToday");
+    const btnResetForm = document.getElementById("btnResetForm");
+    const btnAccessTools = document.getElementById("btnAccessTools");
+    const btnCreate = document.getElementById("btnCreate");
 
-  if (btnReload) btnReload.addEventListener("click", loadToday);
-  if (btnReloadToday) btnReloadToday.addEventListener("click", loadToday);
-  if (btnCheckAccess) btnCheckAccess.addEventListener("click", checkAccessNow);
-  if (btnPin) btnPin.addEventListener("click", goPin);
-  if (btnPay) btnPay.addEventListener("click", goPay);
-  if (btnHome) btnHome.addEventListener("click", goHome);
-  if (btnReloadAll) btnReloadAll.addEventListener("click", () => location.reload());
-  if (btnScrollToday) {
-    btnScrollToday.addEventListener("click", () => {
-      document.getElementById("todayBlock")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  }
-  if (btnResetForm) btnResetForm.addEventListener("click", resetForm);
+    if (btnReload) btnReload.addEventListener("click", loadToday);
+    if (btnReloadToday) btnReloadToday.addEventListener("click", loadToday);
+    if (btnCheckAccess) btnCheckAccess.addEventListener("click", checkAccessNow);
+    if (btnPin) btnPin.addEventListener("click", goPin);
+    if (btnPay) btnPay.addEventListener("click", goPay);
+    if (btnHome) btnHome.addEventListener("click", goHome);
+    if (btnReloadAll) btnReloadAll.addEventListener("click", () => location.reload());
 
-  if (btnAccessTools) {
-    btnAccessTools.addEventListener("click", () => {
-      const ok = confirm("OK = vérifier l'accès maintenant.\nAnnuler = aller vers l'abonnement.");
-      if (ok) checkAccessNow();
-      else goPay();
-    });
-  }
+    if (btnScrollToday) {
+      btnScrollToday.addEventListener("click", () => {
+        document.getElementById("todayBlock")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
 
-  if (btnTarifs) btnTarifs.addEventListener("click", goProfil);
-  if (btnProfil) btnProfil.addEventListener("click", goProfil);
-  if (btnPinPage) btnPinPage.addEventListener("click", goPin);
-  if (btnIndexPage) btnIndexPage.addEventListener("click", goHome);
+    if (btnResetForm) btnResetForm.addEventListener("click", resetForm);
 
-  if (btnCreate) {
-    btnCreate.addEventListener("click", async () => {
-      const pickup = document.getElementById("pickup").value.trim();
-      const drop = document.getElementById("drop").value.trim();
-      const price = parseInt(document.getElementById("price").value || "0", 10);
-      const extras = parseInt(document.getElementById("extras").value || "0", 10);
+    if (btnAccessTools) {
+      btnAccessTools.addEventListener("click", () => {
+        const ok = confirm("OK = vérifier l'accès maintenant.\nAnnuler = aller vers l'abonnement.");
+        if (ok) checkAccessNow();
+        else goPay();
+      });
+    }
 
-      if (!slug) {
-        setMsg("⚠️ Slug manquant", "bad");
-        return;
-      }
+    if (btnCreate) {
+      btnCreate.addEventListener("click", async () => {
+        const pickup = document.getElementById("pickup").value.trim();
+        const drop = document.getElementById("drop").value.trim();
+        const price = parseInt(document.getElementById("price").value || "0", 10);
+        const extras = parseInt(document.getElementById("extras").value || "0", 10);
 
-      if (!pickup || !drop || price <= 0) {
-        setMsg("⚠️ Remplis tous les champs", "bad");
-        return;
-      }
+        if (!slug) {
+          setMsg("⚠️ Slug manquant", "bad");
+          return;
+        }
 
+        if (!pickup || !drop || price <= 0) {
+          setMsg("⚠️ Remplis tous les champs", "bad");
+          return;
+        }
+
+        try {
+          const { error } = await sb.rpc("driver_create_trip_by_slug", {
+            p_slug: slug,
+            p_pickup_label: pickup,
+            p_drop_label: drop,
+            p_price_fcfa: price,
+            p_extras_fcfa: extras
+          });
+
+          if (error) throw error;
+
+          setMsg("✅ Course enregistrée", "ok");
+          resetForm();
+          await loadToday();
+        } catch (e) {
+          console.error(e);
+          setMsg("❌ Erreur création", "bad");
+        }
+      });
+    }
+
+    (async () => {
       try {
-        const { error } = await sb.rpc("driver_create_trip_by_slug", {
-          p_slug: slug,
-          p_pickup_label: pickup,
-          p_drop_label: drop,
-          p_price_fcfa: price,
-          p_extras_fcfa: extras
-        });
+        if (window.DIGIY_GUARD && window.DIGIY_GUARD.ready) {
+          const state = await window.DIGIY_GUARD.ready;
+          slug = normSlug((state && state.slug) || slug);
+          phone = normPhone((state && state.phone) || phone);
+        } else {
+          slug = normSlug(slug);
+          phone = normPhone(phone);
+        }
 
-        if (error) throw error;
+        updateSessionUi();
 
-        setMsg("✅ Course enregistrée", "ok");
-        resetForm();
+        const accessOk = await checkAccessNow();
+        if (!accessOk) return;
+
         await loadToday();
       } catch (e) {
         console.error(e);
-        setMsg("❌ Erreur création", "bad");
+        setAccessState(false, "crash cockpit");
       }
-    });
-  }
-
-  (async () => {
-    try {
-      if (window.DIGIY_GUARD && window.DIGIY_GUARD.ready) {
-        const state = await window.DIGIY_GUARD.ready;
-        slug = normSlug((state && state.slug) || slug);
-        phone = normPhone((state && state.phone) || phone);
-      } else {
-        slug = normSlug(slug);
-        phone = normPhone(phone);
-      }
-
-      updateSessionUi();
-
-      const accessOk = await checkAccessNow();
-      if (!accessOk) return;
-
-      await loadToday();
-    } catch (e) {
-      console.error(e);
-      setAccessState(false, "crash cockpit");
-    }
-  })();
-</script>
+    })();
+  </script>
 </body>
 </html>
