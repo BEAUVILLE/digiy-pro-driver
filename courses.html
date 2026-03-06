@@ -1,347 +1,344 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER PRO — Nouvelle course</title>
-  <meta name="theme-color" content="#061b14"/>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>DIGIY DRIVER PRO — Nouvelle course</title>
+<meta name="theme-color" content="#061b14"/>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    :root{
-      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.12);
-      --text:#eafff1; --muted:rgba(234,255,241,.72);
-      --primary:#22c55e; --gold:#facc15; --warn:#f59e0b; --danger:#ef4444;
-      --shadow:0 18px 55px rgba(0,0,0,.42);
-      --r:18px; --max:980px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:
-        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
-        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
-        var(--bg);
-      padding:16px;
-    }
-    .wrap{max-width:var(--max); margin:0 auto}
-    .top{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap;
-      border:1px solid var(--line); border-radius:22px; padding:14px;
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      box-shadow:var(--shadow);
-    }
-    .title{
-      display:flex; flex-direction:column; gap:6px;
-    }
-    h1{margin:0; font-size:22px; font-weight:1050}
-    .muted{color:var(--muted); font-weight:800; font-size:13px}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:10px 12px; border-radius:999px; border:1px solid var(--line);
-      background:rgba(0,0,0,.18); font-weight:950; font-size:12px;
-    }
-    .btn{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.07);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:14px;
-      font-weight:950;
-      cursor:pointer;
-      min-height:44px;
-    }
-    .btn.primary{
-      border:1px solid rgba(34,197,94,.45);
-      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.88));
-      color:#042012;
-    }
-    .grid{display:grid; gap:14px; margin-top:14px}
-    @media(min-width:900px){ .grid{grid-template-columns: 1fr 1fr} }
-    .card{
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      box-shadow:var(--shadow);
-      padding:14px;
-    }
-    .card h2{margin:0 0 10px; font-size:16px; font-weight:1000}
-    .in{
-      width:100%;
-      padding:12px; border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.12);
-      color:var(--text);
-      font-size:15px;
-      font-weight:900;
-      outline:none;
-    }
-    .row{display:flex; gap:10px; flex-wrap:wrap}
-    .row > *{flex:1}
-    .list{display:grid; gap:10px; margin-top:10px}
-    .item{
-      display:flex; justify-content:space-between; gap:10px; align-items:center;
-      padding:12px; border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
-    }
-    .item .t{font-weight:1000}
-    .item .m{margin-top:3px; font-size:12px; color:var(--muted); font-weight:800}
-    .item .r{text-align:right; font-weight:1000}
-    .item .r small{display:block; color:var(--muted); font-weight:800; margin-top:2px}
-    .msg{
-      margin-top:10px;
-      font-size:13px;
-      font-weight:900;
-      color:rgba(234,255,241,.85);
-    }
-    .msg.ok{color:rgba(187,247,208,.95)}
-    .msg.bad{color:rgba(254,202,202,.95)}
-    .gate{display:none}
-    .gate.show{display:block}
-  </style>
+<style>
+:root{
+--bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.12);
+--text:#eafff1; --muted:rgba(234,255,241,.72);
+--primary:#22c55e; --shadow:0 18px 55px rgba(0,0,0,.42);
+--r:18px; --max:980px;
+}
+*{box-sizing:border-box}
+
+body{
+margin:0;
+color:var(--text);
+font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+background:var(--bg);
+padding:16px;
+}
+
+.wrap{max-width:var(--max); margin:auto}
+
+.top{
+display:flex;
+justify-content:space-between;
+gap:10px;
+flex-wrap:wrap;
+border:1px solid var(--line);
+border-radius:22px;
+padding:14px;
+background:rgba(255,255,255,.04);
+}
+
+h1{margin:0;font-size:22px}
+
+.muted{color:var(--muted);font-weight:800;font-size:13px}
+
+.pill{
+padding:10px 12px;
+border-radius:999px;
+border:1px solid var(--line);
+background:rgba(0,0,0,.18);
+font-weight:900;
+}
+
+.btn{
+border:1px solid var(--line);
+background:rgba(255,255,255,.07);
+color:var(--text);
+padding:10px 12px;
+border-radius:14px;
+font-weight:900;
+cursor:pointer;
+}
+
+.btn.primary{
+background:var(--primary);
+color:#042012;
+}
+
+.grid{display:grid;gap:14px;margin-top:14px}
+
+@media(min-width:900px){
+.grid{grid-template-columns:1fr 1fr}
+}
+
+.card{
+border:1px solid var(--line);
+border-radius:var(--r);
+background:rgba(255,255,255,.05);
+padding:14px;
+}
+
+.in{
+width:100%;
+padding:12px;
+border-radius:14px;
+border:1px solid rgba(255,255,255,.12);
+background:rgba(0,0,0,.12);
+color:var(--text);
+font-size:15px;
+font-weight:900;
+}
+
+.row{display:flex;gap:10px;flex-wrap:wrap}
+
+.row>*{flex:1}
+
+.list{display:grid;gap:10px;margin-top:10px}
+
+.item{
+display:flex;
+justify-content:space-between;
+padding:12px;
+border-radius:16px;
+border:1px solid rgba(255,255,255,.10);
+background:rgba(0,0,0,.16);
+}
+
+.msg{margin-top:10px;font-weight:900}
+
+.msg.ok{color:#86efac}
+.msg.bad{color:#fca5a5}
+
+</style>
 </head>
 
 <body>
-  <div class="wrap">
 
-    <div class="top">
-      <div class="title">
-        <h1>Nouvelle course</h1>
-        <div class="muted">Crée une course, encaisse, avance. (Zéro friction)</div>
-      </div>
+<div class="wrap">
 
-      <div class="row" style="flex:0 0 auto; gap:10px">
-        <div class="pill" id="slugPill">slug: —</div>
-        <button class="btn" id="btnBack" type="button">⬅️ Retour</button>
-      </div>
-    </div>
+<div class="top">
+<div>
+<h1>Nouvelle course</h1>
+<div class="muted">Crée une course, encaisse, avance.</div>
+</div>
 
-    <div class="card gate" id="gate" style="margin-top:14px">
-      <h2>Slug requis</h2>
-      <div class="muted">Colle ton slug chauffeur pour accéder à tes courses.</div>
-      <div style="margin-top:10px">
-        <input class="in" id="gateSlug" placeholder="driver-221770000111"/>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="btnOpen" type="button">🚀 Ouvrir</button>
-        <button class="btn" id="btnHome" type="button">🏠 Accueil</button>
-      </div>
-      <div class="msg" id="gateMsg">Astuce : après ouverture, on garde ton slug dans l’URL.</div>
-    </div>
+<div class="row" style="flex:0 0 auto">
+<div class="pill" id="slugPill">slug: —</div>
+<button class="btn" id="btnBack">⬅️ Retour</button>
+</div>
+</div>
 
-    <div class="grid" id="content" style="display:none">
+<div class="grid" id="content">
 
-      <div class="card">
-        <h2>Créer une course</h2>
+<div class="card">
 
-        <div class="row">
-          <div>
-            <div class="muted" style="margin:0 0 6px">Départ</div>
-            <input class="in" id="pickup" placeholder="Ex: Saly Centre"/>
-          </div>
-          <div>
-            <div class="muted" style="margin:0 0 6px">Arrivée</div>
-            <input class="in" id="drop" placeholder="Ex: Dakar Plateau"/>
-          </div>
-        </div>
+<h2>Créer une course</h2>
 
-        <div class="row" style="margin-top:10px">
-          <div>
-            <div class="muted" style="margin:0 0 6px">Prix (FCFA)</div>
-            <input class="in" id="price" inputmode="numeric" placeholder="7000"/>
-          </div>
-          <div>
-            <div class="muted" style="margin:0 0 6px">Extras (FCFA)</div>
-            <input class="in" id="extras" inputmode="numeric" placeholder="0"/>
-          </div>
-        </div>
+<div class="row">
+<div>
+<div class="muted">Départ</div>
+<input class="in" id="pickup">
+</div>
 
-        <div class="row" style="margin-top:10px">
-          <button class="btn primary" id="btnCreate" type="button">➕ Créer</button>
-          <button class="btn" id="btnReload" type="button">↻ Rafraîchir</button>
-        </div>
+<div>
+<div class="muted">Arrivée</div>
+<input class="in" id="drop">
+</div>
+</div>
 
-        <div class="msg" id="msgCreate">Prêt.</div>
+<div class="row" style="margin-top:10px">
 
-        <div class="muted" style="margin-top:10px;font-size:12px">
-          Note : pour l’instant “Créer” est en mode <b>mock</b>. Quand tu veux, on branche SQL (RPC insert).
-        </div>
-      </div>
+<div>
+<div class="muted">Prix</div>
+<input class="in" id="price">
+</div>
 
-      <div class="card">
-        <h2>Mes courses du jour</h2>
-        <div class="muted">Affiche les 10 dernières (SQL/RPC).</div>
+<div>
+<div class="muted">Extras</div>
+<input class="in" id="extras" value="0">
+</div>
 
-        <div class="list" id="todayList">
-          <div class="item">
-            <div>
-              <div class="t">Chargement…</div>
-              <div class="m">—</div>
-            </div>
-            <div class="r">—<small>—</small></div>
-          </div>
-        </div>
-      </div>
+</div>
 
-    </div>
+<div class="row" style="margin-top:10px">
+<button class="btn primary" id="btnCreate">➕ Créer</button>
+<button class="btn" id="btnReload">↻ Rafraîchir</button>
+</div>
 
-  </div>
+<div class="msg" id="msgCreate">Prêt.</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Mes courses du jour</h2>
+
+<div class="list" id="todayList">
+<div class="item">Chargement…</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
 
 <script>
-(function(){
-  "use strict";
 
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+const SUPABASE_URL="https://wesqmwjjtsefyjnluosj.supabase.co"
 
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 
-  const qs = new URLSearchParams(location.search);
-  let slug = (qs.get("slug") || "").trim();
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
 
-  const $ = (id) => document.getElementById(id);
-  const money = (n) => `${Number(n || 0).toLocaleString("fr-FR")} FCFA`;
+const qs=new URLSearchParams(location.search)
 
-  function setMsg(txt, kind){
-    const el = $("msgCreate");
-    if(!el) return;
-    el.classList.remove("ok", "bad");
-    if(kind) el.classList.add(kind);
-    el.textContent = txt;
-  }
+const slug=qs.get("slug")
 
-  $("btnBack").onclick = () => {
-    if (slug) location.href = "./?slug=" + encodeURIComponent(slug);
-    else location.href = "./";
-  };
+document.getElementById("slugPill").textContent="slug: "+slug
 
-  $("slugPill").textContent = "slug: " + (slug || "—");
+document.getElementById("btnBack").onclick=()=>{
+location.href="./?slug="+slug
+}
 
-  function openGate(){
-    $("gate").classList.add("show");
-    $("content").style.display = "none";
+const money=n=>Number(n||0).toLocaleString("fr-FR")+" FCFA"
 
-    $("btnOpen").onclick = () => {
-      const s = ($("gateSlug").value || "").trim();
-      if (!s) return;
-      location.href = "./courses.html?slug=" + encodeURIComponent(s);
-    };
+function setMsg(txt,type){
 
-    $("btnHome").onclick = () => {
-      location.href = "./";
-    };
-  }
+const el=document.getElementById("msgCreate")
 
-  function renderTrips(data){
-    const box = $("todayList");
-    if (!box) return;
+el.textContent=txt
 
-    if (!Array.isArray(data) || data.length === 0){
-      box.innerHTML = `
-        <div class="item">
-          <div>
-            <div class="t">Aucune course aujourd’hui</div>
-            <div class="m">Crée la première.</div>
-          </div>
-          <div class="r">—<small>—</small></div>
-        </div>`;
-      return;
-    }
+el.className="msg "+(type||"")
 
-    box.innerHTML = data.map((t) => {
-      const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
-      const meta = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
-      const extra = (Number(t.extras_fcfa || 0) > 0) ? `+${money(t.extras_fcfa)} extras` : "—";
+}
 
-      return `
-        <div class="item">
-          <div>
-            <div class="t">${title}</div>
-            <div class="m">${meta}</div>
-          </div>
-          <div class="r">
-            ${money(t.revenue_fcfa)}
-            <small>${extra}</small>
-          </div>
-        </div>`;
-    }).join("");
-  }
+function renderTrips(data){
 
-  async function loadToday(){
-    const box = $("todayList");
-    if (!box) return;
+const box=document.getElementById("todayList")
 
-    box.innerHTML = `
-      <div class="item">
-        <div>
-          <div class="t">Chargement…</div>
-          <div class="m">Récupération des courses</div>
-        </div>
-        <div class="r">—<small>—</small></div>
-      </div>`;
+if(!data||data.length===0){
 
-    try {
-      const { data, error } = await sb.rpc("driver_list_today_by_slug", { p_slug: slug });
+box.innerHTML=`<div class="item">Aucune course aujourd'hui</div>`
 
-      if (error) throw error;
+return
 
-      renderTrips(data);
-    } catch (err) {
-      console.error("loadToday error RAW:", err);
-      console.error("loadToday error JSON:", JSON.stringify(err, null, 2));
+}
 
-      box.innerHTML = `
-        <div class="item">
-          <div>
-            <div class="t">Erreur de chargement</div>
-            <div class="m">RPC absent, nom incorrect ou erreur SQL/RLS.</div>
-          </div>
-          <div class="r">—<small>—</small></div>
-        </div>`;
-    }
-  }
+box.innerHTML=data.map(t=>`
 
-  function openContent(){
-    $("gate").classList.remove("show");
-    $("content").style.display = "grid";
+<div class="item">
 
-    $("btnReload").onclick = loadToday;
+<div>
 
-    $("btnCreate").onclick = async () => {
-      const pickup = ($("pickup").value || "").trim();
-      const drop = ($("drop").value || "").trim();
-      const price = Number((($("price").value || "0").replace(/[^\d]/g, "")) || 0);
-      const extras = Number((($("extras").value || "0").replace(/[^\d]/g, "")) || 0);
+<b>${t.pickup_label} → ${t.drop_label}</b>
 
-      if (!pickup || !drop || price <= 0){
-        setMsg("⚠️ Remplis départ + arrivée + prix.", "bad");
-        return;
-      }
+<div class="muted">${t.status}</div>
 
-      // FUTUR BRANCHEMENT SQL :
-      // const { error } = await sb.rpc("driver_trip_create_by_slug", {
-      //   p_slug: slug,
-      //   p_pickup_label: pickup,
-      //   p_drop_label: drop,
-      //   p_price_fcfa: price,
-      //   p_extras_fcfa: extras
-      // });
-      // if (error) throw error;
+</div>
 
-      setMsg("✅ Course créée (mock). Prochaine étape : RPC insert.", "ok");
-      await loadToday();
-    };
+<div>
 
-    loadToday();
-  }
+${money(t.revenue_fcfa)}
 
-  if (!slug) openGate();
-  else openContent();
+</div>
 
-})();
+</div>
+
+`).join("")
+
+}
+
+async function loadToday(){
+
+const {data,error}=await sb.rpc(
+"driver_list_today_by_slug",
+{p_slug:slug}
+)
+
+if(error){
+
+console.error(error)
+
+return
+
+}
+
+renderTrips(data)
+
+}
+
+document.getElementById("btnReload").onclick=loadToday
+
+
+document.getElementById("btnCreate").onclick=async()=>{
+
+const pickup=document.getElementById("pickup").value.trim()
+
+const drop=document.getElementById("drop").value.trim()
+
+const price=parseInt(document.getElementById("price").value||0)
+
+const extras=parseInt(document.getElementById("extras").value||0)
+
+if(!pickup||!drop||price<=0){
+
+setMsg("⚠️ Remplis tous les champs","bad")
+
+return
+
+}
+
+try{
+
+const {error}=await sb.rpc(
+
+"driver_create_trip_by_slug",
+
+{
+
+p_slug:slug,
+
+p_pickup_label:pickup,
+
+p_drop_label:drop,
+
+p_price_fcfa:price,
+
+p_extras_fcfa:extras
+
+}
+
+)
+
+if(error) throw error
+
+setMsg("✅ Course enregistrée","ok")
+
+document.getElementById("pickup").value=""
+
+document.getElementById("drop").value=""
+
+document.getElementById("price").value=""
+
+document.getElementById("extras").value="0"
+
+loadToday()
+
+}catch(e){
+
+console.error(e)
+
+setMsg("❌ Erreur création","bad")
+
+}
+
+}
+
+loadToday()
+
 </script>
+
 </body>
 </html>
