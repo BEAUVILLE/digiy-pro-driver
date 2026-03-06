@@ -1,344 +1,613 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>DIGIY DRIVER PRO — Nouvelle course</title>
-<meta name="theme-color" content="#061b14"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY DRIVER PRO — Cockpit</title>
+  <meta name="theme-color" content="#061b14"/>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=driver-cockpit-main-20260306"></script>
 
-<style>
-:root{
---bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.12);
---text:#eafff1; --muted:rgba(234,255,241,.72);
---primary:#22c55e; --shadow:0 18px 55px rgba(0,0,0,.42);
---r:18px; --max:980px;
-}
-*{box-sizing:border-box}
+  <style>
+    :root{
+      --bg:#061b14;
+      --card:#0b2a1f;
+      --line:rgba(255,255,255,.12);
+      --text:#eafff1;
+      --muted:rgba(234,255,241,.72);
+      --primary:#22c55e;
+      --gold:#facc15;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --shadow:0 18px 55px rgba(0,0,0,.42);
+      --r:18px;
+      --max:1100px;
+    }
 
-body{
-margin:0;
-color:var(--text);
-font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-background:var(--bg);
-padding:16px;
-}
+    *{box-sizing:border-box}
 
-.wrap{max-width:var(--max); margin:auto}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg);
+      padding:16px;
+    }
 
-.top{
-display:flex;
-justify-content:space-between;
-gap:10px;
-flex-wrap:wrap;
-border:1px solid var(--line);
-border-radius:22px;
-padding:14px;
-background:rgba(255,255,255,.04);
-}
+    a{color:inherit;text-decoration:none}
 
-h1{margin:0;font-size:22px}
+    .wrap{max-width:var(--max);margin:auto}
 
-.muted{color:var(--muted);font-weight:800;font-size:13px}
+    .top{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:14px;
+      background:rgba(255,255,255,.04);
+      box-shadow:var(--shadow);
+    }
 
-.pill{
-padding:10px 12px;
-border-radius:999px;
-border:1px solid var(--line);
-background:rgba(0,0,0,.18);
-font-weight:900;
-}
+    h1{margin:0;font-size:24px;line-height:1.1}
+    h2{margin:0 0 12px 0;font-size:18px}
+    h3{margin:0;font-size:15px}
+    p{margin:0}
 
-.btn{
-border:1px solid var(--line);
-background:rgba(255,255,255,.07);
-color:var(--text);
-padding:10px 12px;
-border-radius:14px;
-font-weight:900;
-cursor:pointer;
-}
+    .muted{color:var(--muted);font-weight:800;font-size:13px}
+    .small{font-size:12px}
 
-.btn.primary{
-background:var(--primary);
-color:#042012;
-}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .row > *{flex:1}
 
-.grid{display:grid;gap:14px;margin-top:14px}
+    .rightMini{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+      justify-content:flex-end;
+      flex:0 0 auto;
+    }
 
-@media(min-width:900px){
-.grid{grid-template-columns:1fr 1fr}
-}
+    .pill{
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      font-weight:900;
+      white-space:nowrap;
+    }
 
-.card{
-border:1px solid var(--line);
-border-radius:var(--r);
-background:rgba(255,255,255,.05);
-padding:14px;
-}
+    .pill.ok{border-color:rgba(34,197,94,.35);color:#bbf7d0}
+    .pill.warn{border-color:rgba(245,158,11,.35);color:#fde68a}
+    .pill.bad{border-color:rgba(239,68,68,.35);color:#fecaca}
 
-.in{
-width:100%;
-padding:12px;
-border-radius:14px;
-border:1px solid rgba(255,255,255,.12);
-background:rgba(0,0,0,.12);
-color:var(--text);
-font-size:15px;
-font-weight:900;
-}
+    .btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:900;
+      cursor:pointer;
+      min-height:44px;
+    }
 
-.row{display:flex;gap:10px;flex-wrap:wrap}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{
+      background:var(--primary);
+      color:#042012;
+      border-color:transparent;
+    }
 
-.row>*{flex:1}
+    .btn.warn{
+      background:rgba(245,158,11,.15);
+      color:#fde68a;
+    }
 
-.list{display:grid;gap:10px;margin-top:10px}
+    .btn.ghost{
+      background:transparent;
+    }
 
-.item{
-display:flex;
-justify-content:space-between;
-padding:12px;
-border-radius:16px;
-border:1px solid rgba(255,255,255,.10);
-background:rgba(0,0,0,.16);
-}
+    .stack{display:grid;gap:14px;margin-top:14px}
 
-.msg{margin-top:10px;font-weight:900}
+    .grid2{display:grid;gap:14px}
+    .grid3{display:grid;gap:14px}
 
-.msg.ok{color:#86efac}
-.msg.bad{color:#fca5a5}
+    @media(min-width:900px){
+      .grid2{grid-template-columns:1.2fr .8fr}
+      .grid3{grid-template-columns:repeat(3,1fr)}
+    }
 
-</style>
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:rgba(255,255,255,.05);
+      padding:14px;
+      box-shadow:var(--shadow);
+    }
+
+    .kpis{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .kpi{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(0,0,0,.16);
+    }
+
+    .kpi .label{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .kpi .value{
+      font-size:20px;
+      font-weight:1000;
+    }
+
+    .quickGrid{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    @media(min-width:760px){
+      .quickGrid{grid-template-columns:repeat(3,1fr)}
+    }
+
+    .quick{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:14px;
+      background:rgba(0,0,0,.16);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:120px;
+    }
+
+    .quick .go{
+      margin-top:auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:900;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+    }
+
+    .in{
+      width:100%;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.12);
+      color:var(--text);
+      font-size:15px;
+      font-weight:900;
+      outline:none;
+    }
+
+    .list{display:grid;gap:10px;margin-top:10px}
+
+    .item{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+    }
+
+    .msg{margin-top:10px;font-weight:900}
+    .msg.ok{color:#86efac}
+    .msg.bad{color:#fca5a5}
+    .msg.warn{color:#fde68a}
+
+    .sep{
+      height:1px;
+      background:var(--line);
+      margin:12px 0;
+    }
+
+    .hide{display:none !important}
+  </style>
 </head>
-
 <body>
-
-<div class="wrap">
-
-<div class="top">
-<div>
-<h1>Nouvelle course</h1>
-<div class="muted">Crée une course, encaisse, avance.</div>
-</div>
-
-<div class="row" style="flex:0 0 auto">
-<div class="pill" id="slugPill">slug: —</div>
-<button class="btn" id="btnBack">⬅️ Retour</button>
-</div>
-</div>
-
-<div class="grid" id="content">
-
-<div class="card">
-
-<h2>Créer une course</h2>
-
-<div class="row">
-<div>
-<div class="muted">Départ</div>
-<input class="in" id="pickup">
-</div>
-
-<div>
-<div class="muted">Arrivée</div>
-<input class="in" id="drop">
-</div>
-</div>
-
-<div class="row" style="margin-top:10px">
-
-<div>
-<div class="muted">Prix</div>
-<input class="in" id="price">
-</div>
-
-<div>
-<div class="muted">Extras</div>
-<input class="in" id="extras" value="0">
-</div>
-
-</div>
-
-<div class="row" style="margin-top:10px">
-<button class="btn primary" id="btnCreate">➕ Créer</button>
-<button class="btn" id="btnReload">↻ Rafraîchir</button>
-</div>
-
-<div class="msg" id="msgCreate">Prêt.</div>
-
-</div>
-
-
-<div class="card">
-
-<h2>Mes courses du jour</h2>
-
-<div class="list" id="todayList">
-<div class="item">Chargement…</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-
-<script>
-
-const SUPABASE_URL="https://wesqmwjjtsefyjnluosj.supabase.co"
-
-const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
-
-const qs=new URLSearchParams(location.search)
-
-const slug=qs.get("slug")
-
-document.getElementById("slugPill").textContent="slug: "+slug
-
-document.getElementById("btnBack").onclick=()=>{
-location.href="./?slug="+slug
-}
-
-const money=n=>Number(n||0).toLocaleString("fr-FR")+" FCFA"
-
-function setMsg(txt,type){
-
-const el=document.getElementById("msgCreate")
-
-el.textContent=txt
-
-el.className="msg "+(type||"")
-
-}
-
-function renderTrips(data){
-
-const box=document.getElementById("todayList")
-
-if(!data||data.length===0){
-
-box.innerHTML=`<div class="item">Aucune course aujourd'hui</div>`
-
-return
-
-}
-
-box.innerHTML=data.map(t=>`
-
-<div class="item">
-
-<div>
-
-<b>${t.pickup_label} → ${t.drop_label}</b>
-
-<div class="muted">${t.status}</div>
-
-</div>
-
-<div>
-
-${money(t.revenue_fcfa)}
-
-</div>
-
-</div>
-
-`).join("")
-
-}
-
-async function loadToday(){
-
-const {data,error}=await sb.rpc(
-"driver_list_today_by_slug",
-{p_slug:slug}
-)
-
-if(error){
-
-console.error(error)
-
-return
-
-}
-
-renderTrips(data)
-
-}
-
-document.getElementById("btnReload").onclick=loadToday
-
-
-document.getElementById("btnCreate").onclick=async()=>{
-
-const pickup=document.getElementById("pickup").value.trim()
-
-const drop=document.getElementById("drop").value.trim()
-
-const price=parseInt(document.getElementById("price").value||0)
-
-const extras=parseInt(document.getElementById("extras").value||0)
-
-if(!pickup||!drop||price<=0){
-
-setMsg("⚠️ Remplis tous les champs","bad")
-
-return
-
-}
-
-try{
-
-const {error}=await sb.rpc(
-
-"driver_create_trip_by_slug",
-
-{
-
-p_slug:slug,
-
-p_pickup_label:pickup,
-
-p_drop_label:drop,
-
-p_price_fcfa:price,
-
-p_extras_fcfa:extras
-
-}
-
-)
-
-if(error) throw error
-
-setMsg("✅ Course enregistrée","ok")
-
-document.getElementById("pickup").value=""
-
-document.getElementById("drop").value=""
-
-document.getElementById("price").value=""
-
-document.getElementById("extras").value="0"
-
-loadToday()
-
-}catch(e){
-
-console.error(e)
-
-setMsg("❌ Erreur création","bad")
-
-}
-
-}
-
-loadToday()
-
-</script>
-
+  <div class="wrap">
+
+    <div class="top">
+      <div>
+        <h1>🦅 DIGIY DRIVER PRO</h1>
+        <div class="muted">Cockpit principal chauffeur. Courses, accès, navigation, contrôle.</div>
+      </div>
+
+      <div class="rightMini">
+        <div class="pill" id="slugPill">slug : —</div>
+        <div class="pill" id="phonePill">phone : —</div>
+        <div class="pill warn" id="accessPill">accès : vérification…</div>
+      </div>
+    </div>
+
+    <div class="stack">
+
+      <div class="card">
+        <div class="row">
+          <div>
+            <h2>Tableau de bord</h2>
+            <div class="muted">Le cœur du module DRIVER. Tu pilotes depuis ici.</div>
+          </div>
+          <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <button class="btn" id="btnCheckAccess">🔄 Vérifier mon accès</button>
+            <button class="btn warn" id="btnPin">🔐 Refaire PIN</button>
+            <button class="btn ghost" id="btnPay">💳 Abonnement</button>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="label">Courses du jour</div>
+            <div class="value" id="kpiTrips">0</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Revenu du jour</div>
+            <div class="value" id="kpiRevenue">0 FCFA</div>
+          </div>
+          <div class="kpi">
+            <div class="label">État</div>
+            <div class="value" id="kpiStatus">—</div>
+          </div>
+        </div>
+
+        <div class="quickGrid">
+          <div class="quick">
+            <h3>➕ Nouvelle course</h3>
+            <div class="muted">Créer une course et encaisser tout de suite.</div>
+            <a class="go" href="#createCourse">Ouvrir</a>
+          </div>
+
+          <div class="quick">
+            <h3>📋 Courses du jour</h3>
+            <div class="muted">Voir les trajets saisis aujourd’hui.</div>
+            <a class="go" href="#todayBlock">Voir</a>
+          </div>
+
+          <div class="quick">
+            <h3>🔐 Accès & abonnement</h3>
+            <div class="muted">Contrôle d’accès, PIN, retour vers abonnement.</div>
+            <button class="go" id="btnAccessTools" type="button">Gérer</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card" id="createCourse">
+          <h2>Créer une course</h2>
+
+          <div class="row">
+            <div>
+              <div class="muted">Départ</div>
+              <input class="in" id="pickup" placeholder="Ex: Saly centre"/>
+            </div>
+
+            <div>
+              <div class="muted">Arrivée</div>
+              <input class="in" id="drop" placeholder="Ex: AIBD / Dakar / Somone"/>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <div>
+              <div class="muted">Prix</div>
+              <input class="in" id="price" inputmode="numeric" placeholder="Ex: 15000"/>
+            </div>
+
+            <div>
+              <div class="muted">Extras</div>
+              <input class="in" id="extras" inputmode="numeric" value="0"/>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <button class="btn primary" id="btnCreate">➕ Créer</button>
+            <button class="btn" id="btnReload">↻ Rafraîchir</button>
+            <button class="btn" id="btnResetForm">🧹 Vider</button>
+          </div>
+
+          <div class="msg" id="msgCreate">Prêt.</div>
+        </div>
+
+        <div class="card">
+          <h2>Actions rapides</h2>
+
+          <div class="list">
+            <button class="btn" id="btnScrollToday">📋 Aller aux courses du jour</button>
+            <button class="btn" id="btnHome">🏠 Retour accueil module</button>
+            <button class="btn" id="btnReloadAll">♻️ Recharger cockpit</button>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="muted">Session DRIVER</div>
+          <div class="list" style="margin-top:10px">
+            <div class="item">
+              <div>
+                <b>Slug</b>
+                <div class="muted small" id="sessionSlug">—</div>
+              </div>
+            </div>
+
+            <div class="item">
+              <div>
+                <b>Téléphone</b>
+                <div class="muted small" id="sessionPhone">—</div>
+              </div>
+            </div>
+
+            <div class="item">
+              <div>
+                <b>Accès</b>
+                <div class="muted small" id="sessionAccess">Vérification…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="todayBlock">
+        <div class="row">
+          <div>
+            <h2>Mes courses du jour</h2>
+            <div class="muted">Vue rapide des courses saisies aujourd’hui.</div>
+          </div>
+          <div style="flex:0 0 auto">
+            <button class="btn" id="btnReloadToday">↻ Rafraîchir la liste</button>
+          </div>
+        </div>
+
+        <div class="list" id="todayList" style="margin-top:12px">
+          <div class="item">Chargement…</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    const MODULE = "DRIVER";
+    const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
+    const PIN_URL = "./pin.html";
+    const HOME_URL = "./index.html";
+
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const qs = new URLSearchParams(location.search);
+    let slug = (qs.get("slug") || "").trim();
+    let phone = (qs.get("phone") || "").trim();
+
+    function normPhone(p){
+      const d = String(p || "").replace(/[^\d]/g, "");
+      return d.length >= 9 ? d : "";
+    }
+
+    function normSlug(s){
+      return String(s || "").trim().toLowerCase();
+    }
+
+    function money(n){
+      return Number(n || 0).toLocaleString("fr-FR") + " FCFA";
+    }
+
+    function setMsg(txt, type){
+      const el = document.getElementById("msgCreate");
+      el.textContent = txt;
+      el.className = "msg " + (type || "");
+    }
+
+    function setAccessState(ok, txt){
+      const pill = document.getElementById("accessPill");
+      const s = document.getElementById("sessionAccess");
+      pill.className = "pill " + (ok ? "ok" : "bad");
+      pill.textContent = "accès : " + txt;
+      s.textContent = txt;
+      document.getElementById("kpiStatus").textContent = ok ? "ACTIF" : "BLOQUÉ";
+    }
+
+    function updateSessionUi(){
+      document.getElementById("slugPill").textContent = "slug : " + (slug || "—");
+      document.getElementById("phonePill").textContent = "phone : " + (phone || "—");
+      document.getElementById("sessionSlug").textContent = slug || "—";
+      document.getElementById("sessionPhone").textContent = phone || "—";
+    }
+
+    function goPay(){
+      const u = new URL(PAY_URL);
+      u.searchParams.set("module", MODULE);
+      if (phone) u.searchParams.set("phone", phone);
+      if (slug) u.searchParams.set("slug", slug);
+      u.searchParams.set("return", location.origin + location.pathname + "?slug=" + encodeURIComponent(slug));
+      location.href = u.toString();
+    }
+
+    function goPin(){
+      location.href = PIN_URL + (slug ? ("?slug=" + encodeURIComponent(slug)) : "");
+    }
+
+    function goHome(){
+      location.href = HOME_URL + (slug ? ("?slug=" + encodeURIComponent(slug)) : "");
+    }
+
+    function resetForm(){
+      document.getElementById("pickup").value = "";
+      document.getElementById("drop").value = "";
+      document.getElementById("price").value = "";
+      document.getElementById("extras").value = "0";
+    }
+
+    function renderTrips(data){
+      const box = document.getElementById("todayList");
+
+      if (!data || data.length === 0){
+        box.innerHTML = `<div class="item">Aucune course aujourd'hui</div>`;
+        document.getElementById("kpiTrips").textContent = "0";
+        document.getElementById("kpiRevenue").textContent = "0 FCFA";
+        return;
+      }
+
+      let total = 0;
+      box.innerHTML = data.map(t => {
+        const amount = Number(t.revenue_fcfa || 0);
+        total += amount;
+        return `
+          <div class="item">
+            <div>
+              <b>${escapeHtml(t.pickup_label || "—")} → ${escapeHtml(t.drop_label || "—")}</b>
+              <div class="muted">${escapeHtml(t.status || "—")}</div>
+            </div>
+            <div>${money(amount)}</div>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("kpiTrips").textContent = String(data.length);
+      document.getElementById("kpiRevenue").textContent = money(total);
+    }
+
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    async function loadToday(){
+      if (!slug){
+        renderTrips([]);
+        return;
+      }
+
+      const { data, error } = await sb.rpc("driver_list_today_by_slug", { p_slug: slug });
+
+      if (error){
+        console.error(error);
+        document.getElementById("todayList").innerHTML = `<div class="item">Erreur de chargement</div>`;
+        return;
+      }
+
+      renderTrips(data || []);
+    }
+
+    async function checkAccessNow(){
+      try{
+        if (!window.DIGIY_GUARD || !window.DIGIY_GUARD.checkAccess){
+          setAccessState(false, "guard absent");
+          return false;
+        }
+
+        const ok = await window.DIGIY_GUARD.checkAccess();
+        setAccessState(!!ok, ok ? "abonnement OK" : "abonnement KO");
+        return !!ok;
+      }catch(e){
+        console.error(e);
+        setAccessState(false, "erreur contrôle");
+        return false;
+      }
+    }
+
+    document.getElementById("btnReload").onclick = loadToday;
+    document.getElementById("btnReloadToday").onclick = loadToday;
+    document.getElementById("btnCheckAccess").onclick = checkAccessNow;
+    document.getElementById("btnPin").onclick = goPin;
+    document.getElementById("btnPay").onclick = goPay;
+    document.getElementById("btnAccessTools").onclick = () => {
+      const ok = confirm("OK = vérifier l'accès maintenant.\nAnnuler = aller vers l'abonnement.");
+      if (ok) checkAccessNow();
+      else goPay();
+    };
+    document.getElementById("btnHome").onclick = goHome;
+    document.getElementById("btnReloadAll").onclick = () => location.reload();
+    document.getElementById("btnScrollToday").onclick = () => {
+      document.getElementById("todayBlock").scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    document.getElementById("btnResetForm").onclick = resetForm;
+
+    document.getElementById("btnCreate").onclick = async () => {
+      const pickup = document.getElementById("pickup").value.trim();
+      const drop = document.getElementById("drop").value.trim();
+      const price = parseInt(document.getElementById("price").value || "0", 10);
+      const extras = parseInt(document.getElementById("extras").value || "0", 10);
+
+      if (!slug){
+        setMsg("⚠️ Slug manquant", "bad");
+        return;
+      }
+
+      if (!pickup || !drop || price <= 0){
+        setMsg("⚠️ Remplis tous les champs", "bad");
+        return;
+      }
+
+      try{
+        const { error } = await sb.rpc("driver_create_trip_by_slug", {
+          p_slug: slug,
+          p_pickup_label: pickup,
+          p_drop_label: drop,
+          p_price_fcfa: price,
+          p_extras_fcfa: extras
+        });
+
+        if (error) throw error;
+
+        setMsg("✅ Course enregistrée", "ok");
+        resetForm();
+        await loadToday();
+      }catch(e){
+        console.error(e);
+        setMsg("❌ Erreur création", "bad");
+      }
+    };
+
+    (async () => {
+      try{
+        if (window.DIGIY_GUARD && window.DIGIY_GUARD.ready){
+          const state = await window.DIGIY_GUARD.ready;
+          slug = normSlug((state && state.slug) || slug);
+          phone = normPhone((state && state.phone) || phone);
+        } else {
+          slug = normSlug(slug);
+          phone = normPhone(phone);
+        }
+
+        updateSessionUi();
+
+        const accessOk = await checkAccessNow();
+        if (!accessOk){
+          return;
+        }
+
+        await loadToday();
+      } catch (e){
+        console.error(e);
+        setAccessState(false, "crash cockpit");
+      }
+    })();
+  </script>
 </body>
 </html>
