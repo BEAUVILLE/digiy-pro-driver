@@ -1,4 +1,4 @@
-// guard.js — DIGIY PRO access gate (slug-first) + API globale (DIGIY_GUARD.ready/rpc/session)
+// guard.js — DIGIY DRIVER PRO access gate (slug-first, NO public view)
 (() => {
   "use strict";
 
@@ -6,15 +6,11 @@
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
-  // ✅ À CHANGER PAR MODULE
   const MODULE_CODE = "DRIVER";
-
   const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
-
-  // ✅ return par défaut = domaine courant
   const DEFAULT_RETURN = (() => {
-    try { return location.origin + "/?slug="; }
-    catch(_) { return "https://pro-driver.digiylyfe.com/?slug="; }
+    try { return location.origin + "/dashboard-pro.html?slug="; }
+    catch(_) { return "https://pro-driver.digiylyfe.com/dashboard-pro.html?slug="; }
   })();
 
   const qs = new URLSearchParams(location.search);
@@ -25,15 +21,16 @@
     const d = String(p || "").replace(/[^\d]/g, "");
     return d.length >= 9 ? d : "";
   }
-
   function normSlug(s) {
-    return String(s || "")
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "")
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "");
+    return String(s || "").trim().toLowerCase();
+  }
+
+  // ✅ DRIVER slug pattern → phone direct
+  function phoneFromDriverSlug(slug) {
+    const s = normSlug(slug);
+    if (!s.startsWith("driver-")) return "";
+    const digits = s.replace(/^driver-/, "").replace(/[^\d]/g, "");
+    return digits.length >= 9 ? digits : "";
   }
 
   async function rpc(name, params) {
@@ -50,7 +47,6 @@
     const text = await r.text().catch(() => "");
     let data = null;
     try { data = text ? JSON.parse(text) : null; } catch (_) { data = text || null; }
-
     return { ok: r.ok, status: r.status, data };
   }
 
@@ -58,65 +54,39 @@
     if (data === true) return true;
     if (data === false) return false;
     if (!data) return false;
-
     if (typeof data === "object" && !Array.isArray(data)) {
       if (data.has_access === true) return true;
-      if (data.allowed === true) return true;
-      if (data.access === true) return true;
       if (data.active === true) return true;
       if (data.status && String(data.status).toLowerCase() === "active") return true;
-      // ⚠️ si certains RPC retournent {ok:true} sans champ -> on ne devine pas
     }
-
     if (Array.isArray(data) && data.length) return extractHasAccess(data[0]);
     return false;
   }
 
-  async function resolvePhoneFromSlug(slug) {
-    const s = normSlug(slug);
-    if (!s) return "";
-
-    const url =
-      `${SUPABASE_URL}/rest/v1/digiy_subscriptions_public` +
-      `?select=phone,slug,module` +
-      `&slug=eq.${encodeURIComponent(s)}` +
-      `&module=eq.${encodeURIComponent(MODULE_CODE)}` +
-      `&limit=1`;
-
-    const r = await fetch(url, {
-      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
-    });
-
-    const arr = await r.json().catch(() => []);
-    if (!r.ok || !Array.isArray(arr) || !arr[0]?.phone) return "";
-    return String(arr[0].phone);
-  }
-
   function goPay({ phone, slug }) {
-    // anti-boucle si déjà sur commencer-a-payer
+    // anti-boucle
     try { if (location.href.startsWith(PAY_URL)) return; } catch (_) {}
-
-    const u = new URL(PAY_URL);
-    u.searchParams.set("module", MODULE_CODE);
 
     const p = normPhone(phone);
     const s = normSlug(slug);
 
+    const u = new URL(PAY_URL);
+    u.searchParams.set("module", MODULE_CODE);
     if (p) u.searchParams.set("phone", p);
     if (s) u.searchParams.set("slug", s);
 
-    const backSlug = s || (p ? (`${MODULE_CODE.toLowerCase()}-${p}`) : "");
+    const backSlug = s || (p ? `driver-${p}` : "");
     u.searchParams.set("return", DEFAULT_RETURN + encodeURIComponent(backSlug));
 
     location.replace(u.toString());
   }
 
-  // ✅ API globale pour tout le cockpit
+  // ✅ API globale
   const GUARD = {
     module: MODULE_CODE,
     session: { slug: "", phone: "" },
     rpc: (name, params) => rpc(name, params),
-    ready: null, // Promise
+    ready: null,
     checkAccess: async () => {
       const p = normPhone(GUARD.session.phone);
       if (!p) return false;
@@ -124,26 +94,27 @@
       return !!(res.ok && extractHasAccess(res.data));
     }
   };
-
-  // IMPORTANT: dispo immédiatement (évite "not ready")
   window.DIGIY_GUARD = GUARD;
 
-  GUARD.ready = (async function main() {
+  GUARD.ready = (async () => {
     const slug = normSlug(slugQ);
     let phone = normPhone(phoneQ);
 
-    if (!phone && slug) phone = normPhone(await resolvePhoneFromSlug(slug));
+    // slug-first (sans view publique)
+    if (!phone && slug) phone = phoneFromDriverSlug(slug);
 
-    GUARD.session.slug = slug || (phone ? `${MODULE_CODE.toLowerCase()}-${phone}` : "");
+    GUARD.session.slug = slug || (phone ? `driver-${phone}` : "");
     GUARD.session.phone = phone || "";
 
+    // si pas de phone : on ne sait pas qui c'est → pay
     if (!phone) {
       goPay({ phone: "", slug: GUARD.session.slug });
       return { ok: false, reason: "no_phone", ...GUARD.session };
     }
 
+    // check access
     const res = await rpc("digiy_has_access", { p_phone: phone, p_module: MODULE_CODE });
-    const has = res.ok ? extractHasAccess(res.data) : false;
+    const has = res.ok && extractHasAccess(res.data);
 
     if (has) return { ok: true, reason: "access_ok", ...GUARD.session };
 
@@ -151,8 +122,6 @@
     return { ok: false, reason: "no_access", ...GUARD.session };
   })().catch((e) => {
     console.warn("[guard] crash:", e);
-    // pas de redirection ici (évite boucles en cas réseau instable)
     return { ok: false, reason: "crash", slug: normSlug(slugQ), phone: normPhone(phoneQ) };
   });
-
 })();
