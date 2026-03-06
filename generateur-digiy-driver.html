@@ -7,8 +7,9 @@
   <meta name="theme-color" content="#061b14"/>
 
   <!-- Supabase + Guard -->
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./guard-pro.js?v=1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=20260306-1"></script>
+
   <style>
     :root{
       --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
@@ -165,7 +166,6 @@
 
     .hr{height:1px;background:rgba(255,255,255,.12);margin:14px 0}
 
-    /* PREVIEW CARD (comme vitrine) */
     .pgrid{display:grid;gap:12px}
     .pCard{
       border:1px solid rgba(255,255,255,.14);
@@ -224,6 +224,18 @@
     }
     .toast.ok{border-color:rgba(34,197,94,.30);background:rgba(34,197,94,.12)}
     .toast.bad{border-color:rgba(251,113,133,.30);background:rgba(251,113,133,.12)}
+
+    .disabled-note{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(250,204,21,.22);
+      background:rgba(250,204,21,.08);
+      color:rgba(234,255,241,.92);
+      font-weight:900;
+      font-size:13px;
+      display:none;
+    }
   </style>
 </head>
 
@@ -249,7 +261,6 @@
 
       <div class="grid">
 
-        <!-- LEFT: FORM -->
         <div class="card">
           <div class="sectionTitle">🧾 Ta fiche chauffeur</div>
 
@@ -325,14 +336,14 @@
           </div>
 
           <div id="toast" class="toast"></div>
+          <div id="disabledNote" class="disabled-note">⚠️ owner_id introuvable dans la session. Lecture OK, écriture désactivée tant que le guard ne remonte pas owner_id.</div>
 
           <div class="hint" style="margin-top:12px">
-            🔐 Accès réservé aux chauffeurs activés (paiement OK). <br/>
+            🔐 Accès réservé aux chauffeurs activés (paiement OK).<br/>
             Une fois publié, ta fiche sort automatiquement sur <strong>digiy-driver</strong> (listing Supabase).
           </div>
         </div>
 
-        <!-- RIGHT: PREVIEW -->
         <div class="card">
           <div class="sectionTitle">👀 Aperçu vitrine (live)</div>
 
@@ -360,7 +371,7 @@
             </div>
 
             <div class="actions">
-              <a class="btn ghost" href="./index.html" id="btnBack">← Retour cockpit</a>
+              <a class="btn ghost" href="./dashboard-pro.html" id="btnBack">← Retour dashboard</a>
               <button class="btn ghost" id="btnLogout" type="button">🚪 Me déconnecter</button>
             </div>
           </div>
@@ -375,10 +386,9 @@
     "use strict";
 
     const TABLE = "digiy_driver_public_profiles";
+    const MODULE = "DRIVER";
     const PAY_URL = "https://beauville.github.io/commencer-a-payer/?module=DRIVER&offre=DRIVER";
-    const MODULE = "driver";
 
-    // ✅ TES VRAIES VALEURS SUPABASE (public listing + upsert via session si auth dispo)
     const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
     const SUPABASE_ANON_KEY =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
@@ -386,6 +396,14 @@
     const $ = (id)=>document.getElementById(id);
     const gs = $("guard_status");
     const toast = $("toast");
+    const disabledNote = $("disabledNote");
+
+    let ACCESS = {
+      ok: false,
+      slug: "",
+      phone: "",
+      owner_id: null
+    };
 
     function showToast(msg, ok){
       if(!toast) return;
@@ -396,15 +414,15 @@
     }
 
     function cleanCsv(s){
-      return String(s||"")
+      return String(s || "")
         .split(",")
-        .map(x=>x.trim())
+        .map(x => x.trim())
         .filter(Boolean)
         .slice(0, 12);
     }
 
     function slugify(s){
-      return String(s||"")
+      return String(s || "")
         .toLowerCase()
         .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
         .replace(/[^a-z0-9]+/g,"-")
@@ -413,16 +431,16 @@
     }
 
     function initials(name){
-      const s = (name||"").trim();
+      const s = (name || "").trim();
       if(!s) return "DR";
       const parts = s.split(/\s+/).slice(0,2);
-      return parts.map(p => (p[0]||"").toUpperCase()).join("");
+      return parts.map(p => (p[0] || "").toUpperCase()).join("");
     }
 
     function waLink(whatsapp, name){
-      const w = String(whatsapp||"").replace(/[^\d]/g,"");
+      const w = String(whatsapp || "").replace(/[^\d]/g,"");
       if(!w) return "#";
-      const msg = encodeURIComponent(`Salut ${name||""}, je viens de DIGIY DRIVER. Tu es dispo ?`);
+      const msg = encodeURIComponent(`Salut ${name || ""}, je viens de DIGIY DRIVER. Tu es dispo ?`);
       return `https://wa.me/${w}?text=${msg}`;
     }
 
@@ -430,15 +448,21 @@
       const av = $("pAvatar");
       if(!av) return;
       av.innerHTML = "";
-      const u = String(url||"").trim();
+
+      const u = String(url || "").trim();
       if(u){
         const img = new Image();
         img.src = u;
         img.alt = "";
-        img.onload = ()=>{ av.innerHTML=""; av.appendChild(img); };
-        img.onerror = ()=>{ av.textContent = initials(name); };
+        img.onload = ()=>{
+          av.innerHTML = "";
+          av.appendChild(img);
+        };
+        img.onerror = ()=>{
+          av.textContent = initials(name);
+        };
         av.appendChild(img);
-      }else{
+      } else {
         av.textContent = initials(name);
       }
     }
@@ -459,11 +483,11 @@
 
       const badges = [];
       if(city) badges.push(city);
-      zones.slice(0,3).forEach(z=>badges.push(z));
-      tags.slice(0,3).forEach(t=>badges.push(t));
+      zones.slice(0,3).forEach(z => badges.push(z));
+      tags.slice(0,3).forEach(t => badges.push(t));
 
       const box = $("pBadges");
-      box.innerHTML = badges.map(b=>`<span class="pBadge">${b}</span>`).join("");
+      box.innerHTML = badges.map(b => `<span class="pBadge">${b}</span>`).join("");
 
       $("pWaBtn").href = waLink(whatsapp, name);
       $("pCardBtn").href = profileUrl || "#";
@@ -473,11 +497,21 @@
       setAvatar(photo, name);
     }
 
-    // bind preview
-    ["f_display_name","f_city","f_whatsapp","f_photo_url","f_profile_url","f_bio","f_zones","f_tags","f_priority","f_is_active","f_is_published"]
-      .forEach(id => $(id).addEventListener("input", refreshPreview));
+    function bindPreview(){
+      [
+        "f_display_name","f_city","f_whatsapp","f_photo_url","f_profile_url",
+        "f_bio","f_zones","f_tags","f_priority"
+      ].forEach(id => {
+        const el = $(id);
+        if(el) el.addEventListener("input", refreshPreview);
+      });
 
-    // Build supabase client (flexible)
+      ["f_is_active","f_is_published"].forEach(id => {
+        const el = $(id);
+        if(el) el.addEventListener("change", refreshPreview);
+      });
+    }
+
     function getSb(){
       try{
         if(window.DIGIY_GUARD?.sb) return window.DIGIY_GUARD.sb;
@@ -485,21 +519,31 @@
       return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
-    function getSessionSafe(){
-      try{
-        return window.DIGIY_GUARD?.getSession?.() || null;
-      }catch(_){
-        return null;
-      }
+    function getQuerySlug(){
+      return (new URLSearchParams(location.search).get("slug") || "").trim();
     }
 
-    // Upsert helper
+    function withSlug(url){
+      const slug = ACCESS.slug || getQuerySlug();
+      if(!slug) return url;
+      return url + (url.includes("?") ? "&" : "?") + "slug=" + encodeURIComponent(slug);
+    }
+
+    function setWriteEnabled(enabled){
+      ["btnSaveDraft","btnPublish","btnUnpublish"].forEach(id => {
+        const el = $(id);
+        if(el) el.disabled = !enabled;
+        if(el) el.style.opacity = enabled ? "1" : ".55";
+        if(el) el.style.pointerEvents = enabled ? "auto" : "none";
+      });
+      if(disabledNote) disabledNote.style.display = enabled ? "none" : "block";
+    }
+
     async function upsertProfile({ publish }){
       const sb = getSb();
-      const session = getSessionSafe();
 
-      if(!session?.owner_id){
-        showToast("Session invalide : owner_id manquant.", false);
+      if(!ACCESS.owner_id){
+        showToast("owner_id manquant dans la session.", false);
         return;
       }
 
@@ -509,15 +553,14 @@
         return;
       }
 
-      // slug: priorité au slug session, sinon slugify(display_name)
-      const slug = (session.slug ? String(session.slug).trim() : "") || slugify(display_name);
+      const slug = ACCESS.slug || slugify(display_name);
       if(!slug){
         showToast("Slug invalide.", false);
         return;
       }
 
       const payload = {
-        owner_id: session.owner_id,
+        owner_id: ACCESS.owner_id,
         slug,
         display_name,
         city: $("f_city").value.trim() || null,
@@ -532,7 +575,6 @@
         is_published: publish ? true : !!$("f_is_published").checked
       };
 
-      // garder checkbox sync si publish action
       if(publish) $("f_is_published").checked = true;
 
       const { error } = await sb
@@ -550,10 +592,7 @@
 
     async function unpublishProfile(){
       const sb = getSb();
-      const session = getSessionSafe();
-
-      const display_name = $("f_display_name").value.trim();
-      const slug = (session?.slug ? String(session.slug).trim() : "") || slugify(display_name);
+      const slug = ACCESS.slug || slugify($("f_display_name").value.trim());
 
       if(!slug){
         showToast("Slug introuvable pour dépublier.", false);
@@ -577,13 +616,12 @@
 
     async function loadMyProfile(){
       const sb = getSb();
-      const session = getSessionSafe();
-
       const fallbackName = $("f_display_name").value.trim();
-      const slug = (session?.slug ? String(session.slug).trim() : "") || slugify(fallbackName);
+      const slug = ACCESS.slug || slugify(fallbackName);
 
       if(!slug){
         showToast("Entre ton nom pour générer le slug, puis recharge.", false);
+        refreshPreview();
         return;
       }
 
@@ -622,81 +660,95 @@
       refreshPreview();
     }
 
-    // Buttons
-    $("btnSaveDraft").addEventListener("click", ()=>upsertProfile({ publish:false }));
-    $("btnPublish").addEventListener("click", ()=>{
-      if(!confirm("Publier ta fiche sur la vitrine maintenant ?")) return;
-      upsertProfile({ publish:true });
-    });
-    $("btnUnpublish").addEventListener("click", ()=>{
-      if(!confirm("Dépublier ta fiche (elle disparaît de la vitrine) ?")) return;
-      unpublishProfile();
-    });
-    $("btnLoad").addEventListener("click", ()=>loadMyProfile());
+    function bindButtons(){
+      $("btnSaveDraft").addEventListener("click", ()=>upsertProfile({ publish:false }));
 
-    $("btnLogout").addEventListener("click", ()=>{
-      if(!confirm("Tu veux te déconnecter frérot ?")) return;
-      const pinUrl = window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug("./pin.html") : "./pin.html";
-      window.DIGIY_GUARD.logout(pinUrl);
-    });
+      $("btnPublish").addEventListener("click", ()=>{
+        if(!confirm("Publier ta fiche sur la vitrine maintenant ?")) return;
+        upsertProfile({ publish:true });
+      });
 
-    // Boot guard + init
-    (async function boot(){
-      if(!window.DIGIY_GUARD || typeof window.DIGIY_GUARD.boot !== "function"){
-        if(gs) gs.textContent = "❌ guard.js non chargé";
+      $("btnUnpublish").addEventListener("click", ()=>{
+        if(!confirm("Dépublier ta fiche (elle disparaît de la vitrine) ?")) return;
+        unpublishProfile();
+      });
+
+      $("btnLoad").addEventListener("click", ()=>loadMyProfile());
+
+      $("btnLogout").addEventListener("click", ()=>{
+        if(!confirm("Tu veux te déconnecter frérot ?")) return;
+
+        const pinUrl = window.DIGIY_GUARD?.withSlug
+          ? window.DIGIY_GUARD.withSlug("./pin.html")
+          : "./pin.html";
+
+        if(window.DIGIY_GUARD?.logout){
+          window.DIGIY_GUARD.logout(pinUrl);
+        } else {
+          location.href = pinUrl;
+        }
+      });
+    }
+
+    async function boot(){
+      bindPreview();
+      bindButtons();
+      refreshPreview();
+
+      if(!window.DIGIY_GUARD?.ready){
+        if(gs) gs.textContent = "❌ DIGIY_GUARD.ready manquant";
         return;
       }
 
-      const res = await window.DIGIY_GUARD.boot({
-        module: MODULE,
-        dashboard: "./index.html",
-        login: "./pin.html",
-        pay: PAY_URL,
-        requireSlug: true,
-        checkSubscription: true
-      });
+      let ready;
+      try{
+        ready = await window.DIGIY_GUARD.ready;
+      } catch(err){
+        console.error("guard ready error:", err);
+        if(gs) gs.textContent = "❌ Guard KO";
+        return;
+      }
 
-      if(!res?.ok){
+      if(!ready?.ok){
         if(gs) gs.textContent = "❌ Accès refusé";
         return;
       }
 
-      const session = getSessionSafe();
-      if(!session?.owner_id){
-        if(gs) gs.textContent = "❌ Session invalide";
-        const pinUrl = window.DIGIY_GUARD?.withSlug ? window.DIGI_GUARD.withSlug("./pin.html") : "./pin.html";
-        location.replace(pinUrl);
-        return;
-      }
+      ACCESS.ok = true;
+      ACCESS.slug = String(ready.slug || getQuerySlug() || "").trim();
+      ACCESS.phone = String(ready.phone || "").trim();
+      ACCESS.owner_id = ready.owner_id || ready.user_id || ready.ownerId || null;
 
-      // show app
       document.documentElement.classList.add("access-ok");
 
-      // status badge
       if(gs){
         gs.textContent = "✅ OK";
-        setTimeout(()=>gs.style.display="none", 700);
+        setTimeout(()=>{ gs.style.display = "none"; }, 700);
       }
 
-      // top pill
-      $("mePhone").textContent = session.phone || "+221…";
-      const sSlug = (session.slug || "").toString() || "slug";
-      $("meSlug").textContent = sSlug;
+      $("mePhone").textContent = ACCESS.phone || "+221…";
+      $("meSlug").textContent = ACCESS.slug || "slug";
 
-      // prefill name if session has title / business_name
-      const preName = (session.title || session.business_name || "").toString();
-      if(preName && !$("f_display_name").value.trim()) $("f_display_name").value = preName;
+      $("btnBack").href = ACCESS.slug
+        ? "./dashboard-pro.html?slug=" + encodeURIComponent(ACCESS.slug)
+        : "./dashboard-pro.html";
 
-      // prefill whatsapp if session phone looks like senegal
-      if(session.phone && !$("f_whatsapp").value.trim()){
-        const digits = String(session.phone).replace(/[^\d]/g,"");
-        if(digits.startsWith("221")) $("f_whatsapp").value = digits;
+      if(ACCESS.phone && !$("f_whatsapp").value.trim()){
+        const digits = ACCESS.phone.replace(/[^\d]/g,"");
+        if(digits) $("f_whatsapp").value = digits;
       }
+
+      if(!$("f_display_name").value.trim() && ACCESS.slug){
+        $("f_display_name").value = ACCESS.slug.replace(/^driver-/, "Chauffeur ");
+      }
+
+      setWriteEnabled(!!ACCESS.owner_id);
 
       refreshPreview();
-      // auto-load profile if exists
       await loadMyProfile();
-    })();
+    }
+
+    boot();
 
   })();
   </script>
