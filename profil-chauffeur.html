@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER PRO — Mes tarifs</title>
+  <title>DIGIY DRIVER PRO — Profil chauffeur</title>
   <meta name="theme-color" content="#061b14"/>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-rates-final-20260306"></script>
+  <script src="./guard.js?v=driver-profile-real-20260306"></script>
 
   <style>
     :root{
@@ -22,7 +22,7 @@
       --danger:#ef4444;
       --shadow:0 18px 55px rgba(0,0,0,.42);
       --r:18px;
-      --max:980px;
+      --max:1100px;
     }
 
     *{box-sizing:border-box}
@@ -79,7 +79,7 @@
 
     .row>*{flex:1}
 
-    .in{
+    .in, textarea{
       width:100%;
       padding:12px;
       border-radius:14px;
@@ -89,6 +89,12 @@
       font-size:15px;
       font-weight:900;
       outline:none;
+    }
+
+    textarea{
+      min-height:96px;
+      resize:vertical;
+      font-family:inherit;
     }
 
     .btn{
@@ -153,6 +159,20 @@
       gap:8px;
       flex-wrap:wrap;
     }
+
+    .checks{
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    label.ck{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      font-weight:900;
+    }
   </style>
 </head>
 <body>
@@ -160,8 +180,8 @@
 
     <div class="top">
       <div>
-        <h1>💰 Mes tarifs chauffeur</h1>
-        <div class="muted">Tarifs terrain, liés à ton slug DRIVER, stockés en base.</div>
+        <h1>👤 Profil chauffeur</h1>
+        <div class="muted">Profil, véhicule, zone, WhatsApp pro et tarifs — liés à ton slug DRIVER.</div>
       </div>
 
       <div class="row" style="flex:0 0 auto">
@@ -171,14 +191,103 @@
     </div>
 
     <div class="card">
-      <h2>Ajouter ou mettre à jour un tarif</h2>
+      <h2>Identité & véhicule</h2>
+
+      <div class="row">
+        <div>
+          <div class="muted">Nom affiché</div>
+          <input class="in" id="displayName" placeholder="Ex: Chauffeur Royal Saly"/>
+        </div>
+        <div>
+          <div class="muted">Type véhicule</div>
+          <input class="in" id="vehicleType" placeholder="Ex: Berline / SUV / Van"/>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div>
+          <div class="muted">Marque</div>
+          <input class="in" id="vehicleBrand" placeholder="Ex: Toyota"/>
+        </div>
+        <div>
+          <div class="muted">Modèle</div>
+          <input class="in" id="vehicleModel" placeholder="Ex: Corolla"/>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div>
+          <div class="muted">Année</div>
+          <input class="in" id="vehicleYear" placeholder="Ex: 2018"/>
+        </div>
+        <div>
+          <div class="muted">Couleur</div>
+          <input class="in" id="vehicleColor" placeholder="Ex: Blanc"/>
+        </div>
+      </div>
+
+      <div class="checks">
+        <label class="ck"><input type="checkbox" id="hasAc"/> Climatisation</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Zone de service</h2>
+
+      <div class="row">
+        <div>
+          <div class="muted">Ville principale</div>
+          <input class="in" id="city" placeholder="Ex: Saly"/>
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="muted">Zones couvertes</div>
+        <textarea id="zonesText" placeholder="Ex: Saly, Ngaparou, Somone, Dakar, AIBD"></textarea>
+      </div>
+
+      <div class="checks">
+        <label class="ck"><input type="checkbox" id="airportOk"/> Transferts aéroport</label>
+        <label class="ck"><input type="checkbox" id="longDistanceOk"/> Longues distances</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Contact pro</h2>
+
+      <div class="row">
+        <div>
+          <div class="muted">WhatsApp</div>
+          <input class="in" id="whatsapp" placeholder="Ex: 221771342889"/>
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="muted">Note contact</div>
+        <textarea id="contactNote" placeholder="Ex: Disponible sur réservation"></textarea>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="muted">Bio</div>
+        <textarea id="bio" placeholder="Ex: Chauffeur propre, ponctuel, terrain."></textarea>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="btnSaveProfile">💾 Enregistrer le profil</button>
+        <button class="btn" id="btnReloadProfile">↻ Recharger profil</button>
+      </div>
+
+      <div class="msg" id="msgProfile">Prêt.</div>
+    </div>
+
+    <div class="card">
+      <h2>Mes tarifs actifs</h2>
 
       <div class="row">
         <div>
           <div class="muted">Nom du trajet</div>
           <input class="in" id="routeLabel" placeholder="Ex: Saly → Dakar"/>
         </div>
-
         <div>
           <div class="muted">Prix (FCFA)</div>
           <input class="in" id="priceFcfa" inputmode="numeric" placeholder="Ex: 7000"/>
@@ -186,16 +295,11 @@
       </div>
 
       <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="btnSave">💾 Enregistrer</button>
-        <button class="btn" id="btnReload">↻ Rafraîchir</button>
+        <button class="btn gold" id="btnSaveRate">💰 Enregistrer tarif</button>
+        <button class="btn" id="btnReloadRates">↻ Rafraîchir tarifs</button>
       </div>
 
-      <div class="msg" id="msg">Prêt.</div>
-    </div>
-
-    <div class="card">
-      <h2>Mes tarifs actifs</h2>
-      <div class="muted">Chaque ligne est liée à ton slug chauffeur.</div>
+      <div class="msg" id="msgRates">Prêt.</div>
 
       <div class="list" id="ratesList">
         <div class="item">Chargement…</div>
@@ -207,21 +311,10 @@
   <script>
     const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const qs = new URLSearchParams(location.search);
     let slug = (qs.get("slug") || "").trim();
-
-    function money(n){
-      return Number(n || 0).toLocaleString("fr-FR") + " FCFA";
-    }
-
-    function setMsg(txt, type){
-      const el = document.getElementById("msg");
-      el.textContent = txt;
-      el.className = "msg " + (type || "");
-    }
 
     function withSlug(base){
       const u = new URL(base, location.href);
@@ -229,13 +322,89 @@
       return u.pathname + u.search;
     }
 
+    function money(n){
+      return Number(n || 0).toLocaleString("fr-FR") + " FCFA";
+    }
+
     function escapeHtml(str){
       return String(str || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function setMsgProfile(txt, type){
+      const el = document.getElementById("msgProfile");
+      el.textContent = txt;
+      el.className = "msg " + (type || "");
+    }
+
+    function setMsgRates(txt, type){
+      const el = document.getElementById("msgRates");
+      el.textContent = txt;
+      el.className = "msg " + (type || "");
+    }
+
+    async function loadProfile(){
+      if (!slug) return;
+
+      const { data, error } = await sb.rpc("driver_get_profile_by_slug", { p_slug: slug });
+      if (error){
+        console.error(error);
+        setMsgProfile("❌ Erreur chargement profil", "bad");
+        return;
+      }
+
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row) return;
+
+      document.getElementById("displayName").value = row.display_name || "";
+      document.getElementById("vehicleType").value = row.vehicle_type || "";
+      document.getElementById("vehicleBrand").value = row.vehicle_brand || "";
+      document.getElementById("vehicleModel").value = row.vehicle_model || "";
+      document.getElementById("vehicleYear").value = row.vehicle_year || "";
+      document.getElementById("vehicleColor").value = row.vehicle_color || "";
+      document.getElementById("hasAc").checked = !!row.has_ac;
+      document.getElementById("city").value = row.city || "";
+      document.getElementById("zonesText").value = row.zones_text || "";
+      document.getElementById("airportOk").checked = !!row.airport_ok;
+      document.getElementById("longDistanceOk").checked = !!row.long_distance_ok;
+      document.getElementById("whatsapp").value = row.whatsapp || "";
+      document.getElementById("contactNote").value = row.contact_note || "";
+      document.getElementById("bio").value = row.bio || "";
+    }
+
+    async function saveProfile(){
+      try{
+        const payload = {
+          p_slug: slug,
+          p_display_name: document.getElementById("displayName").value.trim(),
+          p_vehicle_type: document.getElementById("vehicleType").value.trim(),
+          p_vehicle_brand: document.getElementById("vehicleBrand").value.trim(),
+          p_vehicle_model: document.getElementById("vehicleModel").value.trim(),
+          p_vehicle_year: document.getElementById("vehicleYear").value.trim(),
+          p_vehicle_color: document.getElementById("vehicleColor").value.trim(),
+          p_has_ac: document.getElementById("hasAc").checked,
+          p_city: document.getElementById("city").value.trim(),
+          p_zones_text: document.getElementById("zonesText").value.trim(),
+          p_airport_ok: document.getElementById("airportOk").checked,
+          p_long_distance_ok: document.getElementById("longDistanceOk").checked,
+          p_whatsapp: document.getElementById("whatsapp").value.trim(),
+          p_contact_note: document.getElementById("contactNote").value.trim(),
+          p_bio: document.getElementById("bio").value.trim()
+        };
+
+        const { data, error } = await sb.rpc("driver_upsert_profile_by_slug", payload);
+        if (error) throw error;
+        if (!data?.ok) throw new Error(data?.error || "save_profile_error");
+
+        setMsgProfile("✅ Profil enregistré en base", "ok");
+      }catch(e){
+        console.error(e);
+        setMsgProfile("❌ Erreur enregistrement profil", "bad");
+      }
     }
 
     async function loadRates(){
@@ -245,7 +414,6 @@
       }
 
       const { data, error } = await sb.rpc("driver_list_rates_by_slug", { p_slug: slug });
-
       if (error){
         console.error(error);
         document.getElementById("ratesList").innerHTML = `<div class="item">Erreur de chargement</div>`;
@@ -253,7 +421,6 @@
       }
 
       const rows = data || [];
-
       if (!rows.length){
         document.getElementById("ratesList").innerHTML = `<div class="item">Aucun tarif actif</div>`;
         return;
@@ -283,36 +450,34 @@
             });
 
             if (error) throw error;
-            if (!data?.ok) throw new Error(data?.error || "disable_error");
+            if (!data?.ok) throw new Error(data?.error || "disable_rate_error");
 
-            setMsg("✅ Tarif désactivé", "ok");
+            setMsgRates("✅ Tarif désactivé", "ok");
             await loadRates();
           }catch(e){
             console.error(e);
-            setMsg("❌ Erreur désactivation", "bad");
+            setMsgRates("❌ Erreur désactivation tarif", "bad");
           }
         });
       });
     }
 
-    document.getElementById("btnReload").addEventListener("click", loadRates);
-
-    document.getElementById("btnSave").addEventListener("click", async () => {
+    async function saveRate(){
       const routeLabel = document.getElementById("routeLabel").value.trim();
       const priceFcfa = parseInt(document.getElementById("priceFcfa").value || "0", 10);
 
       if (!slug){
-        setMsg("❌ Slug manquant", "bad");
+        setMsgRates("❌ Slug manquant", "bad");
         return;
       }
 
       if (!routeLabel){
-        setMsg("❌ Nom du trajet manquant", "bad");
+        setMsgRates("❌ Nom du trajet manquant", "bad");
         return;
       }
 
       if (priceFcfa <= 0){
-        setMsg("❌ Prix invalide", "bad");
+        setMsgRates("❌ Prix invalide", "bad");
         return;
       }
 
@@ -324,17 +489,22 @@
         });
 
         if (error) throw error;
-        if (!data?.ok) throw new Error(data?.error || "save_error");
+        if (!data?.ok) throw new Error(data?.error || "save_rate_error");
 
-        setMsg("✅ Tarif enregistré en base", "ok");
+        setMsgRates("✅ Tarif enregistré en base", "ok");
         document.getElementById("routeLabel").value = "";
         document.getElementById("priceFcfa").value = "";
         await loadRates();
       }catch(e){
         console.error(e);
-        setMsg("❌ Erreur enregistrement", "bad");
+        setMsgRates("❌ Erreur enregistrement tarif", "bad");
       }
-    });
+    }
+
+    document.getElementById("btnSaveProfile").addEventListener("click", saveProfile);
+    document.getElementById("btnReloadProfile").addEventListener("click", loadProfile);
+    document.getElementById("btnSaveRate").addEventListener("click", saveRate);
+    document.getElementById("btnReloadRates").addEventListener("click", loadRates);
 
     (async () => {
       try{
@@ -346,10 +516,11 @@
         document.getElementById("slugPill").textContent = "slug : " + (slug || "—");
         document.getElementById("btnCockpit").href = withSlug("./cockpit.html");
 
+        await loadProfile();
         await loadRates();
       }catch(e){
         console.error(e);
-        setMsg("❌ Erreur chargement page", "bad");
+        setMsgProfile("❌ Erreur chargement page", "bad");
       }
     })();
   </script>
