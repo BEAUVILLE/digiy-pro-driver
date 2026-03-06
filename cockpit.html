@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#061b14"/>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-cockpit-main-20260306"></script>
+  <script src="./guard.js?v=driver-cockpit-links-20260306"></script>
 
   <style>
     :root{
@@ -26,6 +26,7 @@
     }
 
     *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
 
     body{
       margin:0;
@@ -112,13 +113,17 @@
     }
 
     .stack{display:grid;gap:14px;margin-top:14px}
-
     .grid2{display:grid;gap:14px}
     .grid3{display:grid;gap:14px}
+    .grid4{display:grid;gap:10px}
 
     @media(min-width:900px){
       .grid2{grid-template-columns:1.2fr .8fr}
       .grid3{grid-template-columns:repeat(3,1fr)}
+    }
+
+    @media(min-width:760px){
+      .grid4{grid-template-columns:repeat(4,1fr)}
     }
 
     .card{
@@ -186,6 +191,46 @@
       font-weight:900;
       border:1px solid var(--line);
       background:rgba(255,255,255,.07);
+      cursor:pointer;
+      text-align:center;
+    }
+
+    .navbox{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:14px;
+      background:rgba(0,0,0,.16);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-height:110px;
+    }
+
+    .navbox .title{
+      font-weight:1000;
+      font-size:15px;
+    }
+
+    .navbox .desc{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .navbox .go{
+      margin-top:auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:42px;
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:900;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      cursor:pointer;
+      text-align:center;
     }
 
     .in{
@@ -222,8 +267,6 @@
       background:var(--line);
       margin:12px 0;
     }
-
-    .hide{display:none !important}
   </style>
 </head>
 <body>
@@ -289,6 +332,41 @@
             <h3>🔐 Accès & abonnement</h3>
             <div class="muted">Contrôle d’accès, PIN, retour vers abonnement.</div>
             <button class="go" id="btnAccessTools" type="button">Gérer</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div>
+            <h2>Navigation chauffeur</h2>
+            <div class="muted">Tes portes métier secondaires, branchées au slug actif.</div>
+          </div>
+        </div>
+
+        <div class="grid4">
+          <div class="navbox">
+            <div class="title">💰 Mes tarifs</div>
+            <div class="desc">Ouvrir la page tarifs chauffeur pour poser ou ajuster tes prix terrain.</div>
+            <button class="go" id="btnTarifs" type="button">Ouvrir</button>
+          </div>
+
+          <div class="navbox">
+            <div class="title">👤 Profil chauffeur</div>
+            <div class="desc">Accéder au profil métier et à ses réglages liés au chauffeur.</div>
+            <button class="go" id="btnProfil" type="button">Ouvrir</button>
+          </div>
+
+          <div class="navbox">
+            <div class="title">🔐 Porte PIN</div>
+            <div class="desc">Repasser par la porte sécurisée avec le slug déjà transmis.</div>
+            <button class="go" id="btnPinPage" type="button">Ouvrir</button>
+          </div>
+
+          <div class="navbox">
+            <div class="title">🏠 Vitrine DRIVER</div>
+            <div class="desc">Revenir à la vitrine du module tout en gardant ton slug actif.</div>
+            <button class="go" id="btnIndexPage" type="button">Ouvrir</button>
           </div>
         </div>
       </div>
@@ -393,6 +471,7 @@
     const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
     const PIN_URL = "./pin.html";
     const HOME_URL = "./index.html";
+    const PROFIL_URL = "./profil-chauffeur.html";
 
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -411,6 +490,12 @@
 
     function money(n){
       return Number(n || 0).toLocaleString("fr-FR") + " FCFA";
+    }
+
+    function withSlug(base){
+      const u = new URL(base, location.href);
+      if (slug) u.searchParams.set("slug", slug);
+      return u.pathname + u.search;
     }
 
     function setMsg(txt, type){
@@ -445,11 +530,15 @@
     }
 
     function goPin(){
-      location.href = PIN_URL + (slug ? ("?slug=" + encodeURIComponent(slug)) : "");
+      location.href = withSlug(PIN_URL);
     }
 
     function goHome(){
-      location.href = HOME_URL + (slug ? ("?slug=" + encodeURIComponent(slug)) : "");
+      location.href = withSlug(HOME_URL);
+    }
+
+    function goProfil(){
+      location.href = withSlug(PROFIL_URL);
     }
 
     function resetForm(){
@@ -536,17 +625,23 @@
     document.getElementById("btnCheckAccess").onclick = checkAccessNow;
     document.getElementById("btnPin").onclick = goPin;
     document.getElementById("btnPay").onclick = goPay;
-    document.getElementById("btnAccessTools").onclick = () => {
-      const ok = confirm("OK = vérifier l'accès maintenant.\nAnnuler = aller vers l'abonnement.");
-      if (ok) checkAccessNow();
-      else goPay();
-    };
     document.getElementById("btnHome").onclick = goHome;
     document.getElementById("btnReloadAll").onclick = () => location.reload();
     document.getElementById("btnScrollToday").onclick = () => {
       document.getElementById("todayBlock").scrollIntoView({ behavior: "smooth", block: "start" });
     };
     document.getElementById("btnResetForm").onclick = resetForm;
+
+    document.getElementById("btnAccessTools").onclick = () => {
+      const ok = confirm("OK = vérifier l'accès maintenant.\nAnnuler = aller vers l'abonnement.");
+      if (ok) checkAccessNow();
+      else goPay();
+    };
+
+    document.getElementById("btnTarifs").onclick = goProfil;
+    document.getElementById("btnProfil").onclick = goProfil;
+    document.getElementById("btnPinPage").onclick = goPin;
+    document.getElementById("btnIndexPage").onclick = goHome;
 
     document.getElementById("btnCreate").onclick = async () => {
       const pickup = document.getElementById("pickup").value.trim();
