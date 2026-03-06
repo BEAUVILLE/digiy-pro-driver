@@ -5,23 +5,118 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>DIGIY DRIVER PRO — Mes tarifs</title>
   <meta name="theme-color" content="#061b14"/>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=20260306-1"></script>
+
   <style>
-    :root{--bg:#061b14;--card:#0b2a1f;--line:rgba(255,255,255,.12);--text:#eafff1;--muted:rgba(234,255,241,.72);--primary:#22c55e;--shadow:0 18px 55px rgba(0,0,0,.42);--r:18px;--max:860px;}
+    :root{
+      --bg:#061b14;
+      --card:#0b2a1f;
+      --line:rgba(255,255,255,.12);
+      --text:#eafff1;
+      --muted:rgba(234,255,241,.72);
+      --primary:#22c55e;
+      --shadow:0 18px 55px rgba(0,0,0,.42);
+      --r:18px;
+      --max:860px;
+    }
     *{box-sizing:border-box}
-    body{margin:0;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);padding:16px}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
+        var(--bg);
+      padding:16px;
+    }
     .wrap{max-width:var(--max);margin:0 auto}
-    .card{border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));box-shadow:var(--shadow);padding:16px}
-    h1{margin:0 0 6px;font-size:22px;font-weight:1000}
-    .muted{color:var(--muted);font-weight:800}
-    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    .btn{border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);padding:12px 14px;border-radius:14px;font-weight:950;cursor:pointer}
-    .btn.primary{border-color:rgba(34,197,94,.45);background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.88));color:#042012}
-    .in{width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.12);color:var(--text);font-size:15px;font-weight:900;outline:none}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size:22px;
+      font-weight:1000;
+    }
+    .muted{
+      color:var(--muted);
+      font-weight:800;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:950;
+      cursor:pointer;
+    }
+    .btn.primary{
+      border-color:rgba(34,197,94,.45);
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.88));
+      color:#042012;
+    }
+    .in{
+      width:100%;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.12);
+      color:var(--text);
+      font-size:15px;
+      font-weight:900;
+      outline:none;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media(max-width:700px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    #guard_status{
+      position:fixed;
+      top:16px;
+      right:16px;
+      padding:10px 14px;
+      background:rgba(0,0,0,.88);
+      color:#fff;
+      border-radius:12px;
+      font-weight:900;
+      font-size:13px;
+      z-index:9999;
+      border:1px solid rgba(255,255,255,.10);
+    }
+
+    .hint{
+      margin-top:10px;
+      font-size:12px;
+      color:rgba(234,255,241,.65);
+      line-height:1.5;
+      font-weight:800;
+    }
   </style>
 </head>
 <body>
+
+<div id="guard_status">🔐 Vérification…</div>
+
 <div class="wrap">
   <div class="card">
     <h1>Ajouter un tarif</h1>
@@ -31,10 +126,12 @@
 
     <div id="gate" style="margin-top:14px; display:none">
       <div class="muted">Slug requis. Colle ton slug puis ouvre.</div>
-      <div style="margin-top:10px"><input class="in" id="gateSlug" placeholder="driver-221770000111"/></div>
+      <div style="margin-top:10px">
+        <input class="in" id="gateSlug" placeholder="driver-221770000111"/>
+      </div>
       <div class="row">
-        <button class="btn primary" id="btnOpen">🚀 Ouvrir</button>
-        <button class="btn" id="btnBack">⬅️ Retour</button>
+        <button class="btn primary" id="btnOpen" type="button">🚀 Ouvrir</button>
+        <button class="btn" id="btnBack" type="button">⬅️ Retour</button>
       </div>
     </div>
 
@@ -49,11 +146,18 @@
           <input class="in" id="price" inputmode="numeric" placeholder="7000"/>
         </div>
       </div>
+
       <div class="row">
-        <button class="btn primary" id="btnSave">💾 Enregistrer</button>
-        <button class="btn" id="btnBack2">⬅️ Retour</button>
+        <button class="btn primary" id="btnSave" type="button">💾 Enregistrer</button>
+        <button class="btn" id="btnDashboard" type="button">📊 Dashboard</button>
+        <button class="btn" id="btnBack2" type="button">⬅️ Retour</button>
       </div>
+
       <div class="muted" style="margin-top:10px" id="msg">Prêt.</div>
+
+      <div class="hint">
+        Prochaine étape : brancher ce formulaire à une table SQL dédiée aux tarifs chauffeur.
+      </div>
     </div>
 
   </div>
@@ -62,33 +166,107 @@
 <script>
 (function(){
   "use strict";
+
+  const PAGE = "./profil-chauffeur.html";
+  const DASHBOARD = "./dashboard-pro.html";
+
   const qs = new URLSearchParams(location.search);
-  const slug = (qs.get("slug")||"").trim();
+  let slug = (qs.get("slug") || "").trim();
+
   const $ = (id)=>document.getElementById(id);
+  const gs = $("guard_status");
 
-  $("slugText").textContent = "slug: " + (slug || "—");
-
-  function goBack(){ location.href = "./?slug=" + encodeURIComponent(slug || ""); }
-
-  if(!slug){
-    $("gate").style.display = "block";
-    $("btnOpen").onclick = ()=> {
-      const s = ($("gateSlug").value||"").trim();
-      if(!s) return;
-      location.href = "./profil-chauffeur.html?slug=" + encodeURIComponent(s);
-    };
-    $("btnBack").onclick = ()=> location.href="./";
-    return;
+  function withSlug(url){
+    if(!slug) return url;
+    return url + (url.includes("?") ? "&" : "?") + "slug=" + encodeURIComponent(slug);
   }
 
-  $("content").style.display = "block";
-  $("btnBack2").onclick = goBack;
+  function goBack(){
+    location.href = withSlug(DASHBOARD);
+  }
 
-  $("btnSave").onclick = ()=>{
-    const name = ($("name").value||"").trim();
-    const price = ($("price").value||"").trim();
-    $("msg").textContent = (name && price) ? "✅ Tarif enregistré (mock). Prochaine étape: SQL." : "⚠️ Remplis nom + prix.";
-  };
+  function openGate(){
+    $("gate").style.display = "block";
+    $("content").style.display = "none";
+
+    if(gs) gs.style.display = "none";
+
+    $("btnOpen").onclick = ()=>{
+      const s = ($("gateSlug").value || "").trim();
+      if(!s) return;
+      location.href = PAGE + "?slug=" + encodeURIComponent(s);
+    };
+
+    $("btnBack").onclick = ()=>{
+      location.href = DASHBOARD;
+    };
+  }
+
+  function openContent(){
+    $("gate").style.display = "none";
+    $("content").style.display = "block";
+
+    $("btnBack2").onclick = goBack;
+    $("btnDashboard").onclick = ()=>{
+      location.href = withSlug(DASHBOARD);
+    };
+
+    $("btnSave").onclick = ()=>{
+      const name = ($("name").value || "").trim();
+      const priceRaw = ($("price").value || "").replace(/[^\d]/g, "");
+      const price = Number(priceRaw || 0);
+
+      if(!name || price <= 0){
+        $("msg").textContent = "⚠️ Remplis nom + prix.";
+        return;
+      }
+
+      $("msg").textContent = "✅ Tarif enregistré (mock). Prochaine étape : SQL.";
+    };
+  }
+
+  async function boot(){
+    $("slugText").textContent = "slug: " + (slug || "—");
+
+    if(!slug){
+      openGate();
+      return;
+    }
+
+    if(!window.DIGIY_GUARD?.ready){
+      if(gs) gs.textContent = "❌ DIGIY_GUARD.ready manquant";
+      openContent();
+      return;
+    }
+
+    try{
+      const r = await window.DIGIY_GUARD.ready;
+
+      if(!r?.ok){
+        if(gs) gs.textContent = "❌ Accès refusé";
+        return;
+      }
+
+      if(r.slug) slug = String(r.slug).trim();
+
+      $("slugText").textContent = "slug: " + (slug || "—");
+
+      if(gs){
+        gs.textContent = "✅ OK";
+        setTimeout(()=>{ gs.style.display = "none"; }, 700);
+      }
+
+      openContent();
+
+    }catch(err){
+      console.error("profil-chauffeur guard error:", err);
+      if(gs) gs.textContent = "❌ Guard KO";
+      openContent();
+    }
+  }
+
+  boot();
+
 })();
 </script>
 </body>
