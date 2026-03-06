@@ -1,5 +1,5 @@
-// cockpit-stats.js — SAFE READY (attend guard.ready avant RPC)
-(function () {
+// cockpit-stats.js — DRIVER cockpit (waits DIGIY_GUARD.ready)
+(function(){
   "use strict";
 
   const money = (n) => `${Number(n || 0).toLocaleString("fr-FR")} FCFA`;
@@ -9,91 +9,88 @@
     if (el) el.textContent = (val ?? "—");
   };
 
-  const getSlug = () => {
-    try { return new URLSearchParams(location.search).get("slug") || ""; }
-    catch (_) { return ""; }
-  };
-
-  async function waitGuardReady(timeoutMs = 8000) {
-    const g = window.DIGIY_GUARD;
-    if (!g?.ready) return null;
-
-    // timeout propre (évite de “pendre” si un script manque)
-    let t = null;
-    const timeout = new Promise((resolve) => {
-      t = setTimeout(() => resolve({ ok: false, reason: "timeout" }), timeoutMs);
+  function notif(items){
+    const box = document.getElementById("notifList");
+    if(!box) return;
+    box.innerHTML = "";
+    (items || []).forEach(it => {
+      const tagClass = it.level === "warn" ? "warn" : it.level === "ok" ? "ok" : "info";
+      const div = document.createElement("div");
+      div.className = "notif";
+      div.innerHTML = `
+        <div>
+          <b>${it.title}</b>
+          <div class="muted" style="font-weight:800;margin-top:2px">${it.text}</div>
+        </div>
+        <div class="tag ${tagClass}">${it.tag}</div>
+      `;
+      box.appendChild(div);
     });
-
-    const res = await Promise.race([g.ready, timeout]).catch(() => ({ ok: false, reason: "crash" }));
-    if (t) clearTimeout(t);
-    return res;
   }
 
-  async function load() {
-    try {
+  async function load(){
+    try{
+      // ✅ attend le guard
       const g = window.DIGIY_GUARD;
-
-      // 1) attend le guard (session + access check)
-      const sess = await waitGuardReady(9000);
-
-      // Si guard absent → on ne fait rien (le HTML/guard doit être corrigé)
-      if (!g?.rpc || !sess) {
-        console.warn("[cockpit-stats] guard missing or not ready");
+      if(!g?.ready) {
+        console.warn("DIGIY_GUARD.ready missing");
         return;
       }
 
-      // Si pas accès → le guard redirige normalement vers PAY (donc on stop ici)
-      if (!sess.ok) {
-        console.warn("[cockpit-stats] no access:", sess.reason);
-        return;
-      }
+      const r = await g.ready; // {ok, phone, slug, reason}
+      if(!r?.ok) return; // si pas accès, guard aura déjà redirigé
 
-      // 2) slug (priorité: session.slug, sinon URL)
-      const slug = (sess.slug || getSlug()).trim();
-      if (!slug) {
-        console.warn("[cockpit-stats] missing slug");
-        return;
-      }
+      // UI statut
+      const pill = document.getElementById("pillStatus");
+      const dot  = document.getElementById("dot");
+      const sLine = document.getElementById("statusLine");
+      if(pill) pill.innerHTML = `Statut : <b>Actif</b>`;
+      if(dot) dot.classList.add("ok");
+      if(sLine) sLine.textContent = "Abonnement actif";
 
-      // 3) RPC stats
+      // ⚙️ boutons (à brancher après)
+      const btnA = document.getElementById("btnPrimaryAction");
+      const hint = document.getElementById("actionHint");
+      const desc = document.getElementById("actionDesc");
+      if(btnA) btnA.textContent = "Ouvrir mes courses";
+      if(hint) hint.textContent = "Gère tes courses, zones, et historique.";
+      if(desc) desc.textContent = "Accès cockpit DRIVER — stats & opérations.";
+
+      // ✅ stats DRIVER par slug
+      const slug = r.slug;
       const res = await g.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
 
       const data = res?.data ?? res;
       const s = Array.isArray(data) ? data[0] : data;
-      if (!s) return;
 
+      if(!s){
+        notif([{level:"info", tag:"INFO", title:"Stats", text:"Aucune donnée de course pour l’instant."}]);
+        return;
+      }
+
+      // KPIs
       set("kpiTripsToday", s.trips_today ?? 0);
-      set("kpiRevenueToday", money(s.revenue_today_fcfa));
-
       set("kpiTrips7d", s.trips_7d ?? 0);
-      set("kpiRevenue7d", money(s.revenue_7d_fcfa));
-
       set("kpiTrips30d", s.trips_30d ?? 0);
-      set("kpiRevenue30d", money(s.revenue_30d_fcfa));
-
-      set("kpiTripsTotal", s.trips_total ?? 0);
-      set("kpiRevenueTotal", money(s.revenue_total_fcfa));
-
-      set("kpiDriverStatus", s.driver_status || "—");
       set("kpiZone", s.zone_slug || "—");
+      set("kpiDriverStatus", s.driver_status || "—");
+      set("kpiLastTripAt", s.last_trip_at ? new Date(s.last_trip_at).toLocaleString("fr-FR") : "—");
 
-      set(
-        "kpiLastTripAt",
-        s.last_trip_at ? new Date(s.last_trip_at).toLocaleString("fr-FR") : "—"
-      );
-    } catch (e) {
-      console.error("[cockpit-stats] load error:", e);
+      // Money bloc
+      set("moneyMonth", money(s.revenue_30d_fcfa || 0));
+      set("txCount", `${s.trips_30d ?? 0} courses`);
+      set("todayHint", "Aujourd’hui");
+
+      notif([{level:"ok", tag:"OK", title:"Cockpit prêt", text:"Accès validé. Données chargées."}]);
+
+    } catch(e){
+      console.error("cockpit-stats load error:", e);
+      notif([{level:"warn", tag:"ERREUR", title:"Chargement", text:"Erreur cockpit. Regarde la console."}]);
     }
   }
 
-  // DOM ready
-  document.addEventListener("DOMContentLoaded", load);
-
-  // Bonus: si on revient de PAY (ou si ton wait.html fait un replace), on peut recharger
-  window.addEventListener("pageshow", () => {
-    // pageshow arrive après bfcache aussi -> safe
-    try { load(); } catch (_) {}
-  });
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", load);
+  else load();
 
   window.DIGIY_COCKPIT_STATS = { load };
 })();
