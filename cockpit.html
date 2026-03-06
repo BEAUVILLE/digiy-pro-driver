@@ -514,11 +514,34 @@
     }
 
     function updateSessionUi(){
-      document.getElementById("slugPill").textContent = "slug : " + (slug || "—");
-      document.getElementById("phonePill").textContent = "phone : " + (phone || "—");
-      document.getElementById("sessionSlug").textContent = slug || "—";
-      document.getElementById("sessionPhone").textContent = phone || "—";
-    }
+      dconst btnTarifs = document.getElementById("btnTarifs");
+const btnProfil = document.getElementById("btnProfil");
+const btnPinPage = document.getElementById("btnPinPage");
+const btnIndexPage = document.getElementById("btnIndexPage");
+
+if (btnTarifs) {
+  btnTarifs.addEventListener("click", () => {
+    location.href = withSlug(PROFIL_URL);
+  });
+}
+
+if (btnProfil) {
+  btnProfil.addEventListener("click", () => {
+    location.href = withSlug(PROFIL_URL);
+  });
+}
+
+if (btnPinPage) {
+  btnPinPage.addEventListener("click", () => {
+    location.href = withSlug(PIN_URL);
+  });
+}
+
+if (btnIndexPage) {
+  btnIndexPage.addEventListener("click", () => {
+    location.href = withSlug(HOME_URL);
+  });
+}
 
     function goPay(){
       const u = new URL(PAY_URL);
