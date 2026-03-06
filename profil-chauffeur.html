@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#061b14"/>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=20260306-1"></script>
+  <script src="./guard.js?v=driver-rates-final-20260306"></script>
 
   <style>
     :root{
@@ -17,58 +17,68 @@
       --text:#eafff1;
       --muted:rgba(234,255,241,.72);
       --primary:#22c55e;
+      --gold:#facc15;
+      --warn:#f59e0b;
+      --danger:#ef4444;
       --shadow:0 18px 55px rgba(0,0,0,.42);
       --r:18px;
-      --max:860px;
+      --max:980px;
     }
+
     *{box-sizing:border-box}
     body{
       margin:0;
+      padding:16px;
+      background:var(--bg);
       color:var(--text);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:
-        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
-        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
-        var(--bg);
-      padding:16px;
     }
-    .wrap{max-width:var(--max);margin:0 auto}
-    .card{
+
+    a{color:inherit;text-decoration:none}
+
+    .wrap{max-width:var(--max);margin:auto}
+
+    .top,.card{
       border:1px solid var(--line);
       border-radius:var(--r);
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      background:rgba(255,255,255,.05);
       box-shadow:var(--shadow);
-      padding:16px;
     }
-    h1{
-      margin:0 0 6px;
-      font-size:22px;
-      font-weight:1000;
+
+    .top{
+      padding:14px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
     }
-    .muted{
-      color:var(--muted);
-      font-weight:800;
+
+    .card{
+      padding:14px;
+      margin-top:14px;
     }
+
+    h1,h2{margin:0 0 10px}
+    .muted{color:var(--muted);font-size:13px;font-weight:800}
+    .small{font-size:12px}
+
+    .pill{
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      font-weight:900;
+      white-space:nowrap;
+    }
+
     .row{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      margin-top:12px;
     }
-    .btn{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.07);
-      color:var(--text);
-      padding:12px 14px;
-      border-radius:14px;
-      font-weight:950;
-      cursor:pointer;
-    }
-    .btn.primary{
-      border-color:rgba(34,197,94,.45);
-      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.88));
-      color:#042012;
-    }
+
+    .row>*{flex:1}
+
     .in{
       width:100%;
       padding:12px;
@@ -80,194 +90,268 @@
       font-weight:900;
       outline:none;
     }
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:10px;
-    }
-    @media(max-width:700px){
-      .grid{grid-template-columns:1fr}
-    }
 
-    #guard_status{
-      position:fixed;
-      top:16px;
-      right:16px;
-      padding:10px 14px;
-      background:rgba(0,0,0,.88);
-      color:#fff;
-      border-radius:12px;
+    .btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
       font-weight:900;
-      font-size:13px;
-      z-index:9999;
-      border:1px solid rgba(255,255,255,.10);
+      cursor:pointer;
+      min-height:44px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
     }
 
-    .hint{
+    .btn.primary{
+      background:var(--primary);
+      color:#042012;
+      border-color:transparent;
+    }
+
+    .btn.gold{
+      background:rgba(250,204,21,.12);
+      color:var(--gold);
+    }
+
+    .btn.warn{
+      background:rgba(245,158,11,.15);
+      color:#fde68a;
+    }
+
+    .msg{
       margin-top:10px;
-      font-size:12px;
-      color:rgba(234,255,241,.65);
-      line-height:1.5;
-      font-weight:800;
+      font-weight:900;
+    }
+
+    .msg.ok{color:#86efac}
+    .msg.bad{color:#fca5a5}
+    .msg.warn{color:#fde68a}
+
+    .list{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .item{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+    }
+
+    .actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
     }
   </style>
 </head>
 <body>
+  <div class="wrap">
 
-<div id="guard_status">🔐 Vérification…</div>
-
-<div class="wrap">
-  <div class="card">
-    <h1>Ajouter un tarif</h1>
-    <div class="muted">Tarifs simples, terrain. (SQL après.)</div>
-
-    <div class="muted" style="margin-top:10px" id="slugText">slug: —</div>
-
-    <div id="gate" style="margin-top:14px; display:none">
-      <div class="muted">Slug requis. Colle ton slug puis ouvre.</div>
-      <div style="margin-top:10px">
-        <input class="in" id="gateSlug" placeholder="driver-221770000111"/>
+    <div class="top">
+      <div>
+        <h1>💰 Mes tarifs chauffeur</h1>
+        <div class="muted">Tarifs terrain, liés à ton slug DRIVER, stockés en base.</div>
       </div>
-      <div class="row">
-        <button class="btn primary" id="btnOpen" type="button">🚀 Ouvrir</button>
-        <button class="btn" id="btnBack" type="button">⬅️ Retour</button>
+
+      <div class="row" style="flex:0 0 auto">
+        <div class="pill" id="slugPill">slug : —</div>
+        <a class="btn" id="btnCockpit" href="#">⬅️ Retour cockpit</a>
       </div>
     </div>
 
-    <div id="content" style="margin-top:14px; display:none">
-      <div class="grid">
-        <div>
-          <div class="muted">Nom</div>
-          <input class="in" id="name" placeholder="Saly → Dakar"/>
-        </div>
-        <div>
-          <div class="muted">Prix (FCFA)</div>
-          <input class="in" id="price" inputmode="numeric" placeholder="7000"/>
-        </div>
-      </div>
+    <div class="card">
+      <h2>Ajouter ou mettre à jour un tarif</h2>
 
       <div class="row">
-        <button class="btn primary" id="btnSave" type="button">💾 Enregistrer</button>
-        <button class="btn" id="btnDashboard" type="button">📊 Dashboard</button>
-        <button class="btn" id="btnBack2" type="button">⬅️ Retour</button>
+        <div>
+          <div class="muted">Nom du trajet</div>
+          <input class="in" id="routeLabel" placeholder="Ex: Saly → Dakar"/>
+        </div>
+
+        <div>
+          <div class="muted">Prix (FCFA)</div>
+          <input class="in" id="priceFcfa" inputmode="numeric" placeholder="Ex: 7000"/>
+        </div>
       </div>
 
-      <div class="muted" style="margin-top:10px" id="msg">Prêt.</div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="btnSave">💾 Enregistrer</button>
+        <button class="btn" id="btnReload">↻ Rafraîchir</button>
+      </div>
 
-      <div class="hint">
-        Prochaine étape : brancher ce formulaire à une table SQL dédiée aux tarifs chauffeur.
+      <div class="msg" id="msg">Prêt.</div>
+    </div>
+
+    <div class="card">
+      <h2>Mes tarifs actifs</h2>
+      <div class="muted">Chaque ligne est liée à ton slug chauffeur.</div>
+
+      <div class="list" id="ratesList">
+        <div class="item">Chargement…</div>
       </div>
     </div>
 
   </div>
-</div>
 
-<script>
-(function(){
-  "use strict";
+  <script>
+    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
-  const PAGE = "./profil-chauffeur.html";
-  const DASHBOARD = "./dashboard-pro.html";
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const qs = new URLSearchParams(location.search);
-  let slug = (qs.get("slug") || "").trim();
+    const qs = new URLSearchParams(location.search);
+    let slug = (qs.get("slug") || "").trim();
 
-  const $ = (id)=>document.getElementById(id);
-  const gs = $("guard_status");
+    function money(n){
+      return Number(n || 0).toLocaleString("fr-FR") + " FCFA";
+    }
 
-  function withSlug(url){
-    if(!slug) return url;
-    return url + (url.includes("?") ? "&" : "?") + "slug=" + encodeURIComponent(slug);
-  }
+    function setMsg(txt, type){
+      const el = document.getElementById("msg");
+      el.textContent = txt;
+      el.className = "msg " + (type || "");
+    }
 
-  function goBack(){
-    location.href = withSlug(DASHBOARD);
-  }
+    function withSlug(base){
+      const u = new URL(base, location.href);
+      if (slug) u.searchParams.set("slug", slug);
+      return u.pathname + u.search;
+    }
 
-  function openGate(){
-    $("gate").style.display = "block";
-    $("content").style.display = "none";
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
 
-    if(gs) gs.style.display = "none";
-
-    $("btnOpen").onclick = ()=>{
-      const s = ($("gateSlug").value || "").trim();
-      if(!s) return;
-      location.href = PAGE + "?slug=" + encodeURIComponent(s);
-    };
-
-    $("btnBack").onclick = ()=>{
-      location.href = DASHBOARD;
-    };
-  }
-
-  function openContent(){
-    $("gate").style.display = "none";
-    $("content").style.display = "block";
-
-    $("btnBack2").onclick = goBack;
-    $("btnDashboard").onclick = ()=>{
-      location.href = withSlug(DASHBOARD);
-    };
-
-    $("btnSave").onclick = ()=>{
-      const name = ($("name").value || "").trim();
-      const priceRaw = ($("price").value || "").replace(/[^\d]/g, "");
-      const price = Number(priceRaw || 0);
-
-      if(!name || price <= 0){
-        $("msg").textContent = "⚠️ Remplis nom + prix.";
+    async function loadRates(){
+      if (!slug){
+        document.getElementById("ratesList").innerHTML = `<div class="item">Slug manquant</div>`;
         return;
       }
 
-      $("msg").textContent = "✅ Tarif enregistré (mock). Prochaine étape : SQL.";
-    };
-  }
+      const { data, error } = await sb.rpc("driver_list_rates_by_slug", { p_slug: slug });
 
-  async function boot(){
-    $("slugText").textContent = "slug: " + (slug || "—");
-
-    if(!slug){
-      openGate();
-      return;
-    }
-
-    if(!window.DIGIY_GUARD?.ready){
-      if(gs) gs.textContent = "❌ DIGIY_GUARD.ready manquant";
-      openContent();
-      return;
-    }
-
-    try{
-      const r = await window.DIGIY_GUARD.ready;
-
-      if(!r?.ok){
-        if(gs) gs.textContent = "❌ Accès refusé";
+      if (error){
+        console.error(error);
+        document.getElementById("ratesList").innerHTML = `<div class="item">Erreur de chargement</div>`;
         return;
       }
 
-      if(r.slug) slug = String(r.slug).trim();
+      const rows = data || [];
 
-      $("slugText").textContent = "slug: " + (slug || "—");
-
-      if(gs){
-        gs.textContent = "✅ OK";
-        setTimeout(()=>{ gs.style.display = "none"; }, 700);
+      if (!rows.length){
+        document.getElementById("ratesList").innerHTML = `<div class="item">Aucun tarif actif</div>`;
+        return;
       }
 
-      openContent();
+      document.getElementById("ratesList").innerHTML = rows.map(r => `
+        <div class="item">
+          <div>
+            <b>${escapeHtml(r.route_label)}</b>
+            <div class="muted">${money(r.price_fcfa)}</div>
+          </div>
+          <div class="actions">
+            <button class="btn gold" data-disable="${r.id}">Désactiver</button>
+          </div>
+        </div>
+      `).join("");
 
-    }catch(err){
-      console.error("profil-chauffeur guard error:", err);
-      if(gs) gs.textContent = "❌ Guard KO";
-      openContent();
+      document.querySelectorAll("[data-disable]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-disable");
+          if (!id) return;
+
+          try{
+            const { data, error } = await sb.rpc("driver_disable_rate_by_slug", {
+              p_slug: slug,
+              p_rate_id: id
+            });
+
+            if (error) throw error;
+            if (!data?.ok) throw new Error(data?.error || "disable_error");
+
+            setMsg("✅ Tarif désactivé", "ok");
+            await loadRates();
+          }catch(e){
+            console.error(e);
+            setMsg("❌ Erreur désactivation", "bad");
+          }
+        });
+      });
     }
-  }
 
-  boot();
+    document.getElementById("btnReload").addEventListener("click", loadRates);
 
-})();
-</script>
+    document.getElementById("btnSave").addEventListener("click", async () => {
+      const routeLabel = document.getElementById("routeLabel").value.trim();
+      const priceFcfa = parseInt(document.getElementById("priceFcfa").value || "0", 10);
+
+      if (!slug){
+        setMsg("❌ Slug manquant", "bad");
+        return;
+      }
+
+      if (!routeLabel){
+        setMsg("❌ Nom du trajet manquant", "bad");
+        return;
+      }
+
+      if (priceFcfa <= 0){
+        setMsg("❌ Prix invalide", "bad");
+        return;
+      }
+
+      try{
+        const { data, error } = await sb.rpc("driver_upsert_rate_by_slug", {
+          p_slug: slug,
+          p_route_label: routeLabel,
+          p_price_fcfa: priceFcfa
+        });
+
+        if (error) throw error;
+        if (!data?.ok) throw new Error(data?.error || "save_error");
+
+        setMsg("✅ Tarif enregistré en base", "ok");
+        document.getElementById("routeLabel").value = "";
+        document.getElementById("priceFcfa").value = "";
+        await loadRates();
+      }catch(e){
+        console.error(e);
+        setMsg("❌ Erreur enregistrement", "bad");
+      }
+    });
+
+    (async () => {
+      try{
+        if (window.DIGIY_GUARD?.ready){
+          const state = await window.DIGIY_GUARD.ready;
+          slug = (state?.slug || slug || "").trim().toLowerCase();
+        }
+
+        document.getElementById("slugPill").textContent = "slug : " + (slug || "—");
+        document.getElementById("btnCockpit").href = withSlug("./cockpit.html");
+
+        await loadRates();
+      }catch(e){
+        console.error(e);
+        setMsg("❌ Erreur chargement page", "bad");
+      }
+    })();
+  </script>
 </body>
 </html>
