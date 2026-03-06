@@ -1,5 +1,5 @@
-// cockpit-stats.js
-(function(){
+// cockpit-stats.js — SAFE READY (attend guard.ready avant RPC)
+(function () {
   "use strict";
 
   const money = (n) => `${Number(n || 0).toLocaleString("fr-FR")} FCFA`;
@@ -9,28 +9,58 @@
     if (el) el.textContent = (val ?? "—");
   };
 
-  async function load(){
-    try{
-      if(!window.DIGIY_GUARD?.rpc) {
-        console.warn("DIGIY_GUARD.rpc not ready");
+  const getSlug = () => {
+    try { return new URLSearchParams(location.search).get("slug") || ""; }
+    catch (_) { return ""; }
+  };
+
+  async function waitGuardReady(timeoutMs = 8000) {
+    const g = window.DIGIY_GUARD;
+    if (!g?.ready) return null;
+
+    // timeout propre (évite de “pendre” si un script manque)
+    let t = null;
+    const timeout = new Promise((resolve) => {
+      t = setTimeout(() => resolve({ ok: false, reason: "timeout" }), timeoutMs);
+    });
+
+    const res = await Promise.race([g.ready, timeout]).catch(() => ({ ok: false, reason: "crash" }));
+    if (t) clearTimeout(t);
+    return res;
+  }
+
+  async function load() {
+    try {
+      const g = window.DIGIY_GUARD;
+
+      // 1) attend le guard (session + access check)
+      const sess = await waitGuardReady(9000);
+
+      // Si guard absent → on ne fait rien (le HTML/guard doit être corrigé)
+      if (!g?.rpc || !sess) {
+        console.warn("[cockpit-stats] guard missing or not ready");
         return;
       }
 
-      const slug = new URLSearchParams(location.search).get("slug");
-      if(!slug) {
-        console.warn("No slug in URL");
+      // Si pas accès → le guard redirige normalement vers PAY (donc on stop ici)
+      if (!sess.ok) {
+        console.warn("[cockpit-stats] no access:", sess.reason);
         return;
       }
 
-      const res = await window.DIGIY_GUARD.rpc(
-        "cockpit_driver_stats_by_slug",
-        { p_slug: slug }
-      );
+      // 2) slug (priorité: session.slug, sinon URL)
+      const slug = (sess.slug || getSlug()).trim();
+      if (!slug) {
+        console.warn("[cockpit-stats] missing slug");
+        return;
+      }
+
+      // 3) RPC stats
+      const res = await g.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
 
       const data = res?.data ?? res;
       const s = Array.isArray(data) ? data[0] : data;
-
-      if(!s) return;
+      if (!s) return;
 
       set("kpiTripsToday", s.trips_today ?? 0);
       set("kpiRevenueToday", money(s.revenue_today_fcfa));
@@ -46,19 +76,24 @@
 
       set("kpiDriverStatus", s.driver_status || "—");
       set("kpiZone", s.zone_slug || "—");
-      set("kpiLastTripAt",
-        s.last_trip_at
-          ? new Date(s.last_trip_at).toLocaleString("fr-FR")
-          : "—"
-      );
 
-    } catch(e){
-      console.error("cockpit-stats load error:", e);
+      set(
+        "kpiLastTripAt",
+        s.last_trip_at ? new Date(s.last_trip_at).toLocaleString("fr-FR") : "—"
+      );
+    } catch (e) {
+      console.error("[cockpit-stats] load error:", e);
     }
   }
 
+  // DOM ready
   document.addEventListener("DOMContentLoaded", load);
 
-  window.DIGIY_COCKPIT_STATS = { load };
+  // Bonus: si on revient de PAY (ou si ton wait.html fait un replace), on peut recharger
+  window.addEventListener("pageshow", () => {
+    // pageshow arrive après bfcache aussi -> safe
+    try { load(); } catch (_) {}
+  });
 
+  window.DIGIY_COCKPIT_STATS = { load };
 })();
