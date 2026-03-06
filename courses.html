@@ -275,7 +275,9 @@
       }).join("");
 
     } catch(e){
-      console.error("loadToday error", e);
+      console.error("loadToday error RAW:", err);
+console.error("loadToday error JSON:", JSON.stringify(err, null, 2));
+alert("loadToday error:\n" + JSON.stringify(err, null, 2));
       box.innerHTML = `
         <div class="item">
           <div>
