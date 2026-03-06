@@ -3,14 +3,11 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>🦅 PORTE PIN — DIGIY PRO DRIVER</title>
+  <title>🦅 PORTE PIN — DIGIY DRIVER PRO</title>
   <meta name="theme-color" content="#061b14"/>
 
-  <!-- Supabase CDN (guard en dépend) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- ✅ Guard (doit être dans le même repo / même dossier que pin.html) -->
-  <script src="./guard.js?v=driver-pin-final"></script>
+  <script src="./guard.js?v=driver-pin-clean-20260306"></script>
 
   <style>
     :root{
@@ -125,7 +122,6 @@
       color:#042012;
       box-shadow:0 8px 22px rgba(34,197,94,.25);
     }
-    .primary:hover{box-shadow:0 12px 28px rgba(34,197,94,.35)}
     .ghost{
       background:rgba(255,255,255,.08);
       border:1px solid var(--line);
@@ -162,11 +158,11 @@
     <div class="card">
       <div class="top">
         <div class="brand">
-          <h1>🦅 PORTE PIN — DIGIY PRO DRIVER</h1>
-          <p class="sub">Accès sécurisé — PIN requis</p>
+          <h1>🦅 PORTE PIN — DIGIY DRIVER PRO</h1>
+          <p class="sub">Accès sécurisé au cockpit chauffeur</p>
         </div>
         <div class="chip">
-          <span>MODULE</span> <b>driver_pro</b>
+          <span>MODULE</span> <b>DRIVER</b>
         </div>
       </div>
 
@@ -183,16 +179,14 @@
       </div>
 
       <div class="row">
-        <input id="pin" inputmode="numeric" autocomplete="one-time-code" placeholder="••••" maxlength="8" />
+        <input id="pin" inputmode="numeric" autocomplete="one-time-code" placeholder="••••" maxlength="8"/>
         <button class="iconbtn" id="toggle" type="button" aria-label="Afficher/masquer PIN">👁️</button>
       </div>
 
       <button class="btn primary" id="btnEnter" type="button">🚀 ENTRER</button>
       <button class="btn ghost" id="btnBack" type="button">⬅️ Retour</button>
 
-      <div class="msg" id="msg">
-        🔒 Entre ton PIN pour ouvrir ton espace DRIVER PRO.
-      </div>
+      <div class="msg" id="msg">🔒 Vérification de l’accès…</div>
 
       <div class="tiny">
         <span>Support : <a class="a" href="https://wa.me/221771342889" target="_blank" rel="noopener noreferrer">WhatsApp</a></span>
@@ -202,205 +196,216 @@
   </div>
 
   <script>
-  (function(){
-    "use strict";
+    (() => {
+      "use strict";
 
-    // ✅ CONFIG : page cockpit cible
-    // Mets ici ta vraie page cockpit si ce n'est pas cockpit.html
-    const COCKPIT_PAGE = "./cockpit.html";
+      const COCKPIT_PAGE = "./cockpit.html";
+      const HOME_PAGE = "./index.html";
 
-    const $ = (id)=>document.getElementById(id);
-    const pinEl = $("pin");
-    const slugText = $("slugText");
-    const msg = $("msg");
-    const btnEnter = $("btnEnter");
-    const btnBack = $("btnBack");
-    const toggle = $("toggle");
-    const guardState = $("guardState");
-    const hint = $("hint");
+      const $ = (id) => document.getElementById(id);
 
-    function setMsg(text, kind){
-      msg.classList.remove("ok","bad");
-      if(kind) msg.classList.add(kind);
-      msg.textContent = text;
-    }
+      const pinEl = $("pin");
+      const slugText = $("slugText");
+      const msg = $("msg");
+      const btnEnter = $("btnEnter");
+      const btnBack = $("btnBack");
+      const toggle = $("toggle");
+      const guardState = $("guardState");
+      const hint = $("hint");
 
-    async function waitGuard(timeoutMs=7000){
-      const t0 = Date.now();
-      while(Date.now()-t0 < timeoutMs){
-        if(window.DIGIY_GUARD && typeof window.DIGIY_GUARD.getSlug === "function") return true;
-        await new Promise(r=>setTimeout(r, 50));
+      let slug = "";
+      let phone = "";
+
+      function normPhone(p){
+        const d = String(p || "").replace(/[^\d]/g, "");
+        return d.length >= 9 ? d : "";
       }
-      return false;
-    }
 
-    function go(url, mode){
-      try{
-        if(window.DIGIY_GUARD?.go) return window.DIGIY_GUARD.go(url, mode || "assign");
-      }catch(_){}
-      if(mode === "replace") location.replace(url);
-      else location.href = url;
-    }
+      function normSlug(s){
+        return String(s || "").trim().toLowerCase();
+      }
 
-    function smartBack(){
-      go("./index.html","replace");
-    }
+      function setMsg(text, kind){
+        msg.classList.remove("ok", "bad");
+        if (kind) msg.classList.add(kind);
+        msg.textContent = text;
+      }
 
-    function looksLikeLocSlug(slug){
-      const s = String(slug||"").toLowerCase();
-      return s.startsWith("chez-") || s.includes("logement") || s.includes("villa") || s.includes("appart") || s.includes("studio");
-    }
+      function go(url, replace = false){
+        if (replace) location.replace(url);
+        else location.href = url;
+      }
 
-    async function resolvePhoneFromSlug(slug){
-      // 1) si ton guard expose un resolver, on l'utilise
-      try{
-        if(window.DIGIY_GUARD?.resolvePhoneFromSlug){
-          const p = await window.DIGIY_GUARD.resolvePhoneFromSlug(slug);
-          if(p) return String(p);
+      async function checkAccessByPhone(p){
+        if (!window.DIGIY_GUARD?.rpc || !p) return false;
+
+        const res = await window.DIGIY_GUARD.rpc("digiy_has_access", {
+          p_phone: p,
+          p_module: "DRIVER"
+        });
+
+        const data = res?.data;
+        if (data === true) return true;
+        if (data === false) return false;
+        if (Array.isArray(data) && data[0] === true) return true;
+        if (data && typeof data === "object") {
+          if (data.has_access === true) return true;
+          if (data.active === true) return true;
+          if (String(data.status || "").toLowerCase() === "active") return true;
         }
-      }catch(_){}
+        return false;
+      }
 
-      // 2) fallback RPC publique
-      try{
-        if(window.DIGIY_GUARD?.rpc){
-          const r = await window.DIGIY_GUARD.rpc("digiy_subscriptions_public_by_slug", { p_slug: slug });
-          const data = r?.data ?? r;
-          const row = Array.isArray(data) ? data[0] : data;
-          return row?.phone ? String(row.phone) : "";
+      async function resolvePhoneBySlug(s){
+        if (!window.DIGIY_GUARD?.rpc || !s) return "";
+
+        const url =
+          "https://wesqmwjjtsefyjnluosj.supabase.co/rest/v1/digiy_subscriptions_public" +
+          `?select=phone,module,slug&module=eq.DRIVER&slug=eq.${encodeURIComponent(s)}&limit=1`;
+
+        const r = await fetch(url, {
+          headers: {
+            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA",
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA"
+          }
+        });
+
+        if (!r.ok) return "";
+
+        const rows = await r.json().catch(() => []);
+        if (!Array.isArray(rows) || !rows.length) return "";
+
+        return normPhone(rows[0]?.phone || "");
+      }
+
+      async function loginWithPin(s, pin){
+        if (!window.DIGIY_GUARD?.rpc) {
+          return { ok: false, error: "guard indisponible" };
         }
-      }catch(e){
-        console.warn("resolvePhoneFromSlug fallback error:", e);
-      }
-      return "";
-    }
 
-    async function hasAccessDriver(phone){
-      // ⚠️ si ta signature diffère, ajuste ici (mais chez toi on l'a déjà utilisée côté SQL)
-      const r = await window.DIGIY_GUARD.rpc("digiy_has_access", { p_phone: phone, p_module: "DRIVER" });
-      return (r?.data ?? r) === true;
-    }
+        const tries = [
+          { fn: "digiy_access_pin_login", body: { p_slug: s, p_pin: pin } },
+          { fn: "digiy_pin_login", body: { p_slug: s, p_pin: pin } },
+          { fn: "driver_pin_login", body: { p_slug: s, p_pin: pin } }
+        ];
 
-    async function bypassIfActive(slug){
-      try{
-        if(!slug || !window.DIGIY_GUARD?.rpc) return false;
+        for (const t of tries) {
+          try {
+            const res = await window.DIGIY_GUARD.rpc(t.fn, t.body);
+            if (!res?.ok) continue;
 
-        const phone = await resolvePhoneFromSlug(slug);
-        if(!phone) return false;
+            const data = res.data;
 
-        const ok = await hasAccessDriver(phone);
-        if(ok){
-          setMsg("✅ Abonnement actif. Entrée directe…", "ok");
-          go(COCKPIT_PAGE + "?slug=" + encodeURIComponent(slug), "replace");
-          return true;
+            if (data === true) return { ok: true, data };
+            if (data && typeof data === "object") {
+              if (data.ok === true) return { ok: true, data };
+              if (data.success === true) return { ok: true, data };
+              if (data.access === true) return { ok: true, data };
+            }
+          } catch (_) {}
         }
-      }catch(e){
-        console.warn("bypassIfActive error:", e);
-      }
-      return false;
-    }
 
-    async function boot(){
-      const ok = await waitGuard(7000);
-      if(!ok){
-        guardState.textContent = "Guard: ❌ non chargé";
-        setMsg("❌ guard.js non chargé (fichier introuvable ou erreur).", "bad");
-        return;
-      }
-      guardState.textContent = "Guard: ✅ prêt";
-
-      // sync slug URL -> LS
-      try{ window.DIGIY_GUARD.syncSlugFromUrl?.(); }catch(_){}
-
-      const slug = (window.DIGIY_GUARD.getSlug?.() || "").trim();
-      slugText.textContent = slug || "—";
-
-      if(!slug){
-        setMsg("⚠️ Slug manquant. Ouvre la porte avec ?slug=ton-slug", "bad");
-      }else if(looksLikeLocSlug(slug)){
-        setMsg("⚠️ Ce slug ressemble à un logement (LOC). Si tu veux DRIVER, utilise le slug chauffeur.", "bad");
-      }else{
-        setMsg("🔒 Entre ton PIN pour ouvrir ton espace DRIVER PRO.", null);
+        return { ok: false, error: "PIN invalide ou RPC absente" };
       }
 
-      // ✅ Si session déjà active : cockpit direct (pas index)
-      const s = window.DIGIY_GUARD.getSession?.();
-      if(s?.owner_id){
-        setMsg("✅ Session déjà active. Ouverture cockpit…", "ok");
-        go(COCKPIT_PAGE + "?slug=" + encodeURIComponent(slug), "replace");
-        return;
+      async function boot(){
+        try{
+          if (window.DIGIY_GUARD?.ready) {
+            const state = await window.DIGIY_GUARD.ready;
+            slug = normSlug(state?.slug || "");
+            phone = normPhone(state?.phone || "");
+          }
+
+          guardState.textContent = "Guard: ✅ prêt";
+          slugText.textContent = slug || "—";
+
+          if (!slug){
+            setMsg("❌ Slug manquant. Ouvre cette page avec ?slug=driver-...", "bad");
+            btnEnter.disabled = true;
+            return;
+          }
+
+          if (!phone) {
+            phone = await resolvePhoneBySlug(slug);
+          }
+
+          const accessOk = await checkAccessByPhone(phone);
+          if (accessOk){
+            setMsg("✅ Abonnement actif. Entrée directe vers le cockpit…", "ok");
+            go(COCKPIT_PAGE + "?slug=" + encodeURIComponent(slug), true);
+            return;
+          }
+
+          setMsg("🔒 Entre ton PIN pour ouvrir ton espace DRIVER PRO.", null);
+          pinEl.focus();
+        }catch(e){
+          console.error(e);
+          guardState.textContent = "Guard: ❌ erreur";
+          setMsg("❌ Erreur de chargement de la porte PIN.", "bad");
+        }
       }
 
-      // ✅ BYPASS si abonnement actif
-      if(slug){
-        const bypassed = await bypassIfActive(slug);
-        if(bypassed) return;
-      }
-
-      pinEl.focus();
-
-      // UX: masque/affiche
-      toggle.addEventListener("click", ()=>{
+      toggle.addEventListener("click", () => {
         const isPwd = pinEl.getAttribute("type") !== "text";
         pinEl.setAttribute("type", isPwd ? "text" : "password");
         toggle.textContent = isPwd ? "🙈" : "👁️";
-        hint.textContent = isPwd ? pinEl.value : "••••";
+        hint.textContent = isPwd ? (pinEl.value || "") : "••••";
       });
 
-      pinEl.addEventListener("input", ()=>{
-        const v0 = pinEl.value;
-        const v = v0.replace(/[^\d]/g,"");
-        if(v !== v0) pinEl.value = v;
+      pinEl.addEventListener("input", () => {
+        const raw = pinEl.value;
+        const clean = raw.replace(/[^\d]/g, "");
+        if (clean !== raw) pinEl.value = clean;
         hint.textContent = "••••";
       });
 
-      pinEl.addEventListener("keydown", (e)=>{
-        if(e.key === "Enter") doLogin();
+      pinEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") doLogin();
+      });
+
+      btnBack.addEventListener("click", () => {
+        go(HOME_PAGE + (slug ? ("?slug=" + encodeURIComponent(slug)) : ""), true);
       });
 
       btnEnter.addEventListener("click", doLogin);
-      btnBack.addEventListener("click", smartBack);
-    }
 
-    async function doLogin(){
-      btnEnter.disabled = true;
+      async function doLogin(){
+        const pin = String(pinEl.value || "").trim();
 
-      const slug = (window.DIGIY_GUARD.getSlug?.() || "").trim();
-      const pin = String(pinEl.value||"").trim();
-
-      if(!slug){
-        setMsg("❌ SLUG manquant. Mets ?slug=...", "bad");
-        btnEnter.disabled = false;
-        return;
-      }
-      if(!pin || pin.length < 3){
-        setMsg("❌ PIN trop court.", "bad");
-        btnEnter.disabled = false;
-        return;
-      }
-
-      setMsg("⏳ Vérification…", null);
-
-      try{
-        const res = await window.DIGIY_GUARD.loginWithPin(slug, pin);
-        if(!res?.ok){
-          setMsg("❌ " + (res?.error || "PIN invalide."), "bad");
-          btnEnter.disabled = false;
+        if (!slug){
+          setMsg("❌ Slug manquant.", "bad");
           return;
         }
 
-        setMsg("✅ Accès OK. Ouverture cockpit…", "ok");
-        go(COCKPIT_PAGE + "?slug=" + encodeURIComponent(slug), "replace");
-      }catch(e){
-        console.error(e);
-        setMsg("❌ Erreur: " + (e?.message || e), "bad");
-        btnEnter.disabled = false;
-      }
-    }
+        if (!pin || pin.length < 3){
+          setMsg("❌ PIN trop court.", "bad");
+          return;
+        }
 
-    // default type password
-    pinEl.setAttribute("type","password");
-    boot();
-  })();
+        btnEnter.disabled = true;
+        setMsg("⏳ Vérification du PIN…", null);
+
+        try{
+          const res = await loginWithPin(slug, pin);
+
+          if (!res.ok){
+            setMsg("❌ " + (res.error || "PIN invalide"), "bad");
+            btnEnter.disabled = false;
+            return;
+          }
+
+          setMsg("✅ Accès autorisé. Ouverture cockpit…", "ok");
+          go(COCKPIT_PAGE + "?slug=" + encodeURIComponent(slug), true);
+        }catch(e){
+          console.error(e);
+          setMsg("❌ Erreur pendant la vérification du PIN.", "bad");
+          btnEnter.disabled = false;
+        }
+      }
+
+      pinEl.setAttribute("type", "password");
+      boot();
+    })();
   </script>
 </body>
 </html>
