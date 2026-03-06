@@ -6,7 +6,6 @@
   <title>DIGIY DRIVER PRO — Nouvelle course</title>
   <meta name="theme-color" content="#061b14"/>
 
-  <!-- ✅ Supabase JS (pour SQL/RPC) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -120,7 +119,6 @@
       </div>
     </div>
 
-    <!-- ✅ Gate slug -->
     <div class="card gate" id="gate" style="margin-top:14px">
       <h2>Slug requis</h2>
       <div class="muted">Colle ton slug chauffeur pour accéder à tes courses.</div>
@@ -128,8 +126,8 @@
         <input class="in" id="gateSlug" placeholder="driver-221770000111"/>
       </div>
       <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="btnOpen">🚀 Ouvrir</button>
-        <button class="btn" id="btnHome">🏠 Accueil</button>
+        <button class="btn primary" id="btnOpen" type="button">🚀 Ouvrir</button>
+        <button class="btn" id="btnHome" type="button">🏠 Accueil</button>
       </div>
       <div class="msg" id="gateMsg">Astuce : après ouverture, on garde ton slug dans l’URL.</div>
     </div>
@@ -196,29 +194,27 @@
 (function(){
   "use strict";
 
-  // ✅ Même config que ton index (tu peux centraliser plus tard)
   const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const qs = new URLSearchParams(location.search);
   let slug = (qs.get("slug") || "").trim();
 
-  const $ = (id)=>document.getElementById(id);
-  const money = (n)=>`${Number(n||0).toLocaleString("fr-FR")} FCFA`;
-  const setMsg = (txt, kind)=>{
+  const $ = (id) => document.getElementById(id);
+  const money = (n) => `${Number(n || 0).toLocaleString("fr-FR")} FCFA`;
+
+  function setMsg(txt, kind){
     const el = $("msgCreate");
     if(!el) return;
-    el.classList.remove("ok","bad");
+    el.classList.remove("ok", "bad");
     if(kind) el.classList.add(kind);
     el.textContent = txt;
-  };
+  }
 
-  $("btnBack").onclick = ()=>{
-    // retour cockpit
-    if(slug) location.href = "./?slug=" + encodeURIComponent(slug);
+  $("btnBack").onclick = () => {
+    if (slug) location.href = "./?slug=" + encodeURIComponent(slug);
     else location.href = "./";
   };
 
@@ -227,66 +223,81 @@
   function openGate(){
     $("gate").classList.add("show");
     $("content").style.display = "none";
-    $("btnOpen").onclick = ()=>{
-      const s = ($("gateSlug").value||"").trim();
-      if(!s) return;
+
+    $("btnOpen").onclick = () => {
+      const s = ($("gateSlug").value || "").trim();
+      if (!s) return;
       location.href = "./courses.html?slug=" + encodeURIComponent(s);
     };
-    $("btnHome").onclick = ()=> location.href = "./";
+
+    $("btnHome").onclick = () => {
+      location.href = "./";
+    };
+  }
+
+  function renderTrips(data){
+    const box = $("todayList");
+    if (!box) return;
+
+    if (!Array.isArray(data) || data.length === 0){
+      box.innerHTML = `
+        <div class="item">
+          <div>
+            <div class="t">Aucune course aujourd’hui</div>
+            <div class="m">Crée la première.</div>
+          </div>
+          <div class="r">—<small>—</small></div>
+        </div>`;
+      return;
+    }
+
+    box.innerHTML = data.map((t) => {
+      const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
+      const meta = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
+      const extra = (Number(t.extras_fcfa || 0) > 0) ? `+${money(t.extras_fcfa)} extras` : "—";
+
+      return `
+        <div class="item">
+          <div>
+            <div class="t">${title}</div>
+            <div class="m">${meta}</div>
+          </div>
+          <div class="r">
+            ${money(t.revenue_fcfa)}
+            <small>${extra}</small>
+          </div>
+        </div>`;
+    }).join("");
   }
 
   async function loadToday(){
     const box = $("todayList");
-    if(!box) return;
+    if (!box) return;
 
-    // ✅ Ici on appelle ton RPC (si présent)
-    // cockpit_driver_today_list_by_slug(p_slug text, p_limit int)
-    try{
+    box.innerHTML = `
+      <div class="item">
+        <div>
+          <div class="t">Chargement…</div>
+          <div class="m">Récupération des courses</div>
+        </div>
+        <div class="r">—<small>—</small></div>
+      </div>`;
+
+    try {
       const { data, error } = await sb.rpc("driver_list_today_by_slug", { p_slug: slug });
-      if(error) throw error;
+
+      if (error) throw error;
+
       renderTrips(data);
-
-}catch(err){
-  console.error("loadToday error:", err);
-}
-      if(!Array.isArray(data) || data.length === 0){
-        box.innerHTML = `
-          <div class="item">
-            <div>
-              <div class="t">Aucune course aujourd’hui</div>
-              <div class="m">Crée la première.</div>
-            </div>
-            <div class="r">—<small>—</small></div>
-          </div>`;
-        return;
-      }
-
-      box.innerHTML = data.map(t=>{
-        const title = `${t.pickup_label || "—"} → ${t.drop_label || "—"}`;
-        const meta  = `${t.status || "—"} • ${t.paid ? "✅ Paiement OK" : "⏳ En attente"}`;
-        const extra = (t.extras_fcfa && t.extras_fcfa > 0) ? `+${t.extras_fcfa} extras` : "—";
-        return `
-          <div class="item">
-            <div>
-              <div class="t">${title}</div>
-              <div class="m">${meta}</div>
-            </div>
-            <div class="r">
-              ${money(t.revenue_fcfa)}
-              <small>${extra}</small>
-            </div>
-          </div>`;
-      }).join("");
-
-    } catch(e){
+    } catch (err) {
       console.error("loadToday error RAW:", err);
-console.error("loadToday error JSON:", JSON.stringify(err, null, 2));
-alert("loadToday error:\n" + JSON.stringify(err, null, 2));
+      console.error("loadToday error JSON:", JSON.stringify(err, null, 2));
+
       box.innerHTML = `
         <div class="item">
           <div>
             <div class="t">Erreur de chargement</div>
-            <div class="m">RPC absent ou erreur SQL.</div>
+            <div class="m">RPC absent, nom incorrect ou erreur SQL/RLS.</div>
           </div>
           <div class="r">—<small>—</small></div>
         </div>`;
@@ -299,31 +310,35 @@ alert("loadToday error:\n" + JSON.stringify(err, null, 2));
 
     $("btnReload").onclick = loadToday;
 
-    // ✅ Mock create (pas SQL pour l’instant)
-    $("btnCreate").onclick = async ()=>{
-      const pickup = ($("pickup").value||"").trim();
-      const drop   = ($("drop").value||"").trim();
-      const price  = Number(($("price").value||"0").replace(/[^\d]/g,"") || 0);
-      const extras = Number(($("extras").value||"0").replace(/[^\d]/g,"") || 0);
+    $("btnCreate").onclick = async () => {
+      const pickup = ($("pickup").value || "").trim();
+      const drop = ($("drop").value || "").trim();
+      const price = Number((($("price").value || "0").replace(/[^\d]/g, "")) || 0);
+      const extras = Number((($("extras").value || "0").replace(/[^\d]/g, "")) || 0);
 
-      if(!pickup || !drop || price <= 0){
+      if (!pickup || !drop || price <= 0){
         setMsg("⚠️ Remplis départ + arrivée + prix.", "bad");
         return;
       }
 
-      // Ici tu brancheras le vrai SQL :
-      // await sb.rpc("driver_trip_create_by_slug", { p_slug: slug, p_pickup_label: pickup, p_drop_label: drop, p_price_fcfa: price, p_extras_fcfa: extras })
-      setMsg("✅ Course créée (mock). Prochaine étape : RPC insert.", "ok");
+      // FUTUR BRANCHEMENT SQL :
+      // const { error } = await sb.rpc("driver_trip_create_by_slug", {
+      //   p_slug: slug,
+      //   p_pickup_label: pickup,
+      //   p_drop_label: drop,
+      //   p_price_fcfa: price,
+      //   p_extras_fcfa: extras
+      // });
+      // if (error) throw error;
 
-      // Refresh list
+      setMsg("✅ Course créée (mock). Prochaine étape : RPC insert.", "ok");
       await loadToday();
     };
 
     loadToday();
   }
 
-  // GO
-  if(!slug) openGate();
+  if (!slug) openGate();
   else openContent();
 
 })();
