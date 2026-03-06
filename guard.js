@@ -1,4 +1,4 @@
-// guard.js — DIGIY PRO access gate (slug-first) -> commencer-a-payer
+// guard.js — DIGIY PRO access gate (slug-first) + API globale (DIGIY_GUARD.ready/rpc/session)
 (() => {
   "use strict";
 
@@ -7,13 +7,14 @@
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
   // ✅ À CHANGER PAR MODULE
-  const MODULE_CODE = "DRIVER"; // ex: DRIVER, LOC, RESTO, POS, RESA...
+  const MODULE_CODE = "DRIVER";
 
   const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
 
-  // ✅ return par défaut = cette page (adapté au domaine courant)
+  // ✅ return par défaut = domaine courant
   const DEFAULT_RETURN = (() => {
-    try { return location.origin + "/?slug="; } catch(_) { return "https://pro-driver.digiylyfe.com/?slug="; }
+    try { return location.origin + "/?slug="; }
+    catch(_) { return "https://pro-driver.digiylyfe.com/?slug="; }
   })();
 
   const qs = new URLSearchParams(location.search);
@@ -21,7 +22,6 @@
   const phoneQ = (qs.get("phone") || "").trim();
 
   function normPhone(p) {
-    // digits-only (compatible Wave / stock DIGIY)
     const d = String(p || "").replace(/[^\d]/g, "");
     return d.length >= 9 ? d : "";
   }
@@ -47,32 +47,28 @@
       body: JSON.stringify(params || {}),
     });
 
-    const j = await r.json().catch(() => null);
-    return { ok: r.ok, status: r.status, data: j };
+    const text = await r.text().catch(() => "");
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch (_) { data = text || null; }
+
+    return { ok: r.ok, status: r.status, data };
   }
 
   function extractHasAccess(data) {
-    // ✅ accepte tous les formats possibles
     if (data === true) return true;
     if (data === false) return false;
-
     if (!data) return false;
 
-    // objet classique
     if (typeof data === "object" && !Array.isArray(data)) {
       if (data.has_access === true) return true;
-      if (data.ok === true && data.has_access == null) return true; // certains RPC retournent {ok:true}
       if (data.allowed === true) return true;
       if (data.access === true) return true;
       if (data.active === true) return true;
       if (data.status && String(data.status).toLowerCase() === "active") return true;
+      // ⚠️ si certains RPC retournent {ok:true} sans champ -> on ne devine pas
     }
 
-    // array (parfois RPC renvoie [{...}])
-    if (Array.isArray(data) && data.length) {
-      return extractHasAccess(data[0]);
-    }
-
+    if (Array.isArray(data) && data.length) return extractHasAccess(data[0]);
     return false;
   }
 
@@ -80,8 +76,6 @@
     const s = normSlug(slug);
     if (!s) return "";
 
-    // ✅ view publique minimaliste: phone + module + slug
-    // ✅ filtre module pour éviter collisions
     const url =
       `${SUPABASE_URL}/rest/v1/digiy_subscriptions_public` +
       `?select=phone,slug,module` +
@@ -90,10 +84,7 @@
       `&limit=1`;
 
     const r = await fetch(url, {
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
     });
 
     const arr = await r.json().catch(() => []);
@@ -102,10 +93,8 @@
   }
 
   function goPay({ phone, slug }) {
-    // évite boucle si on est déjà sur commencer-a-payer
-    try {
-      if (location.href.startsWith(PAY_URL)) return;
-    } catch (_) {}
+    // anti-boucle si déjà sur commencer-a-payer
+    try { if (location.href.startsWith(PAY_URL)) return; } catch (_) {}
 
     const u = new URL(PAY_URL);
     u.searchParams.set("module", MODULE_CODE);
@@ -116,41 +105,54 @@
     if (p) u.searchParams.set("phone", p);
     if (s) u.searchParams.set("slug", s);
 
-    // ✅ return = revenir sur CE domaine, avec slug
     const backSlug = s || (p ? (`${MODULE_CODE.toLowerCase()}-${p}`) : "");
     u.searchParams.set("return", DEFAULT_RETURN + encodeURIComponent(backSlug));
 
     location.replace(u.toString());
   }
 
-  async function main() {
+  // ✅ API globale pour tout le cockpit
+  const GUARD = {
+    module: MODULE_CODE,
+    session: { slug: "", phone: "" },
+    rpc: (name, params) => rpc(name, params),
+    ready: null, // Promise
+    checkAccess: async () => {
+      const p = normPhone(GUARD.session.phone);
+      if (!p) return false;
+      const res = await rpc("digiy_has_access", { p_phone: p, p_module: MODULE_CODE });
+      return !!(res.ok && extractHasAccess(res.data));
+    }
+  };
+
+  // IMPORTANT: dispo immédiatement (évite "not ready")
+  window.DIGIY_GUARD = GUARD;
+
+  GUARD.ready = (async function main() {
     const slug = normSlug(slugQ);
     let phone = normPhone(phoneQ);
 
-    // slug-first : si pas de phone, on résout via slug (et module)
-    if (!phone && slug) {
-      phone = normPhone(await resolvePhoneFromSlug(slug));
-    }
+    if (!phone && slug) phone = normPhone(await resolvePhoneFromSlug(slug));
 
-    // rien -> payer direct
+    GUARD.session.slug = slug || (phone ? `${MODULE_CODE.toLowerCase()}-${phone}` : "");
+    GUARD.session.phone = phone || "";
+
     if (!phone) {
-      goPay({ phone: "", slug });
-      return;
+      goPay({ phone: "", slug: GUARD.session.slug });
+      return { ok: false, reason: "no_phone", ...GUARD.session };
     }
 
-    // check access (backend truth)
     const res = await rpc("digiy_has_access", { p_phone: phone, p_module: MODULE_CODE });
-
     const has = res.ok ? extractHasAccess(res.data) : false;
-    if (has) return; // ✅ accès OK : on ne redirige pas
 
-    // pas accès -> payer
-    goPay({ phone, slug });
-  }
+    if (has) return { ok: true, reason: "access_ok", ...GUARD.session };
 
-  main().catch(() => {
-    // en cas de réseau down : on renvoie vers payer (safe)
-    goPay({ phone: phoneQ, slug: slugQ });
+    goPay({ phone, slug: GUARD.session.slug });
+    return { ok: false, reason: "no_access", ...GUARD.session };
+  })().catch((e) => {
+    console.warn("[guard] crash:", e);
+    // pas de redirection ici (évite boucles en cas réseau instable)
+    return { ok: false, reason: "crash", slug: normSlug(slugQ), phone: normPhone(phoneQ) };
   });
 
 })();
