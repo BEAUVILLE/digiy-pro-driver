@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DIGIY DRIVER — Dashboard</title>
+  <title>DIGIY DRIVER — Cockpit</title>
+  <meta name="theme-color" content="#0b1020" />
 
   <style>
     :root{
@@ -19,19 +20,24 @@
       --shadow: 0 12px 30px rgba(0,0,0,.35);
       --radius:18px;
       --pad:16px;
+      --max:980px;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      background: radial-gradient(1200px 700px at 20% -20%, rgba(99,102,241,.25), transparent 70%),
-                  radial-gradient(900px 600px at 100% 0%, rgba(34,197,94,.15), transparent 55%),
-                  var(--bg);
+      background:
+        radial-gradient(1200px 700px at 20% -20%, rgba(99,102,241,.25), transparent 70%),
+        radial-gradient(900px 600px at 100% 0%, rgba(34,197,94,.15), transparent 55%),
+        var(--bg);
       color:var(--text);
     }
-    .wrap{max-width:980px;margin:0 auto;padding:18px 14px 34px}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 6px;margin-bottom:10px}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.2px}
+    .wrap{max-width:var(--max);margin:0 auto;padding:18px 14px 34px}
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:12px;padding:10px 6px;margin-bottom:10px;
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.2px}
     .brand .badge{
       display:inline-flex;align-items:center;justify-content:center;
       width:34px;height:34px;border-radius:11px;
@@ -44,20 +50,25 @@
       background:rgba(255,255,255,.04);
       border:1px solid var(--line);
       color:var(--muted);
-      font-weight:600;font-size:13px;
+      font-weight:700;font-size:13px;
     }
-    .pill b{color:var(--text);font-weight:800}
+    .pill b{color:var(--text);font-weight:900}
     .btn{
       border:1px solid var(--line);
       background:rgba(255,255,255,.05);
       color:var(--text);
       padding:10px 12px;border-radius:12px;
-      font-weight:800;cursor:pointer;
+      font-weight:900;cursor:pointer;
     }
     .btn.primary{background:rgba(99,102,241,.22);border-color:rgba(99,102,241,.35)}
     .btn:disabled{opacity:.55;cursor:not-allowed}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:8px}
-    @media(min-width:920px){ .grid{grid-template-columns:1.05fr .95fr} }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      margin-top:8px;
+    }
+    @media(min-width:920px){ .grid{grid-template-columns: 1.05fr .95fr} }
     .card{
       background:rgba(18,26,51,.92);
       border:1px solid var(--line);
@@ -71,16 +82,25 @@
     .statusDot{width:10px;height:10px;border-radius:999px;background:var(--warn)}
     .statusDot.ok{background:var(--ok)}
     .statusDot.bad{background:var(--danger)}
-    .bigMoney{font-size:34px;font-weight:900;letter-spacing:-.8px;margin:6px 0 2px 0}
-    .mini{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted);font-weight:650}
     .hr{height:1px;background:var(--line);margin:12px 0}
-    .boostBox{
-      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
-      padding:12px;border-radius:16px;
-      background:rgba(99,102,241,.10);
-      border:1px solid rgba(99,102,241,.25);
+
+    /* KPIs */
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:10px;
+      margin-top:10px;
     }
-    .boostBox b{display:block;margin-bottom:4px}
+    @media(min-width:920px){ .kpis{ grid-template-columns: repeat(3, 1fr); } }
+    .kpi{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      border-radius:16px;
+      padding:12px 12px;
+    }
+    .kpi .lab{font-size:12px;color:var(--muted);font-weight:800}
+    .kpi .val{font-size:20px;font-weight:950;margin-top:6px}
+
     .notifList{display:flex;flex-direction:column;gap:8px;margin-top:8px}
     .notif{
       padding:10px 12px;border-radius:14px;border:1px solid var(--line);
@@ -88,7 +108,7 @@
       display:flex;align-items:flex-start;justify-content:space-between;gap:10px
     }
     .tag{
-      font-size:12px;font-weight:900;
+      font-size:12px;font-weight:950;
       padding:6px 9px;border-radius:999px;border:1px solid var(--line);
       color:var(--muted)
     }
@@ -96,7 +116,7 @@
     .tag.ok{color:#c9ffd9;border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.08)}
     .tag.info{color:#cfd6ff;border-color:rgba(99,102,241,.35);background:rgba(99,102,241,.10)}
     .footer{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .smallLink{color:var(--muted);text-decoration:none;font-weight:750}
+    .smallLink{color:var(--muted);text-decoration:none;font-weight:800}
     .smallLink:hover{color:var(--text)}
   </style>
 </head>
@@ -110,7 +130,7 @@
         <div class="badge">🦅</div>
         <div>
           <div id="brandTitle">DIGIY DRIVER</div>
-          <div class="muted" style="font-size:12px;font-weight:700;margin-top:2px" id="brandSub">
+          <div class="muted" style="font-size:12px;font-weight:800;margin-top:2px" id="brandSub">
             Cockpit — Statut & activité
           </div>
         </div>
@@ -131,61 +151,50 @@
         <div class="row">
           <div class="statusDot" id="dot"></div>
           <div style="flex:1">
-            <div style="font-weight:900" id="statusLine">Chargement…</div>
-            <div class="muted" style="font-weight:700;font-size:13px;margin-top:2px" id="expiryLine">—</div>
+            <div style="font-weight:950" id="statusLine">Chargement…</div>
+            <div class="muted" style="font-weight:800;font-size:13px;margin-top:2px" id="expiryLine">—</div>
           </div>
         </div>
 
         <div class="hr"></div>
 
-        <div class="mini" id="metaLine">
-          <span>Plan : —</span><span>•</span><span>Paiement : —</span>
-        </div>
-
-        <div class="footer">
-          <button class="btn" id="btnManageSub" type="button">Gérer mon abonnement</button>
-        </div>
-      </div>
-
-      <!-- CARD B: ARGENT + BOOST -->
-      <div class="card" id="cardMoney">
-        <h3>Argent</h3>
-
-        <div class="bigMoney" id="moneyMonth">— FCFA</div>
-        <div class="mini" id="moneyMeta">
-          <span id="txCount">— transactions</span><span>•</span><span id="todayHint">—</span>
+        <div class="row" style="justify-content:space-between">
+          <div class="muted" style="font-weight:900" id="metaLine">Plan : — • Paiement : —</div>
+          <button class="btn" id="btnManageSub" type="button">Gérer</button>
         </div>
 
         <div class="hr"></div>
 
-        <div class="boostBox">
-          <div>
-            <b>🚀 BOOST visibilité</b>
-            <div class="muted" style="font-weight:750;font-size:13px" id="boostText">
-              +50% d’apparition • 7 jours • 5 000 FCFA
-            </div>
-            <div class="muted" style="font-weight:750;font-size:12px;margin-top:6px" id="boostStatus">
-              Statut boost : —
-            </div>
-          </div>
+        <h3>Activité</h3>
+        <div class="kpis">
+          <div class="kpi"><div class="lab">Courses (aujourd’hui)</div><div class="val" id="kpiTripsToday">—</div></div>
+          <div class="kpi"><div class="lab">Revenu (aujourd’hui)</div><div class="val" id="kpiRevenueToday">—</div></div>
+          <div class="kpi"><div class="lab">Dernière course</div><div class="val" style="font-size:14px;font-weight:900" id="kpiLastTripAt">—</div></div>
 
-          <div style="display:flex;flex-direction:column;gap:8px;min-width:160px">
-            <button class="btn primary" id="btnBoost" type="button">Activer</button>
-            <button class="btn" id="btnBoostInfo" type="button">Détails</button>
-          </div>
+          <div class="kpi"><div class="lab">Courses (7 jours)</div><div class="val" id="kpiTrips7d">—</div></div>
+          <div class="kpi"><div class="lab">Revenu (7 jours)</div><div class="val" id="kpiRevenue7d">—</div></div>
+          <div class="kpi"><div class="lab">Zone</div><div class="val" id="kpiZone">—</div></div>
+
+          <div class="kpi"><div class="lab">Courses (30 jours)</div><div class="val" id="kpiTrips30d">—</div></div>
+          <div class="kpi"><div class="lab">Revenu (30 jours)</div><div class="val" id="kpiRevenue30d">—</div></div>
+          <div class="kpi"><div class="lab">Statut chauffeur</div><div class="val" id="kpiDriverStatus">—</div></div>
+
+          <div class="kpi"><div class="lab">Courses (total)</div><div class="val" id="kpiTripsTotal">—</div></div>
+          <div class="kpi"><div class="lab">Revenu (total)</div><div class="val" id="kpiRevenueTotal">—</div></div>
+          <div class="kpi"><div class="lab">Slug</div><div class="val" style="font-size:14px;font-weight:900" id="kpiSlug">—</div></div>
         </div>
       </div>
 
-      <!-- CARD C: ACTION + NOTIFS -->
-      <div class="card" id="cardAction" style="grid-column:1/-1">
+      <!-- CARD B: ACTIONS + NOTIFS -->
+      <div class="card" id="cardAction">
         <h3>Action principale</h3>
-        <div class="muted" style="font-weight:750;margin-bottom:10px" id="actionDesc">
+        <div class="muted" style="font-weight:800;margin-bottom:10px" id="actionDesc">
           Une action. Simple. Efficace.
         </div>
 
         <div class="row" style="justify-content:space-between">
-          <div class="muted" style="font-weight:800" id="actionHint">—</div>
-          <button class="btn primary" id="btnPrimaryAction" type="button">…</button>
+          <div class="muted" style="font-weight:900" id="actionHint">Gère tes courses et ta zone.</div>
+          <button class="btn primary" id="btnPrimaryAction" type="button">Ouvrir</button>
         </div>
 
         <div class="hr"></div>
@@ -194,7 +203,7 @@
         <div class="notifList" id="notifList"></div>
 
         <div class="footer">
-          <a class="smallLink" href="#" id="linkSupport">Support</a>
+          <a class="smallLink" href="https://wa.me/221771342889" target="_blank" rel="noopener">Support</a>
           <a class="smallLink" href="#" id="linkPayments">Mes paiements</a>
         </div>
       </div>
@@ -202,133 +211,31 @@
     </div>
   </div>
 
-  <!-- ✅ SCRIPTS À LA FIN (IMPORTANT) -->
+  <!-- ✅ SCRIPTS EN BAS (ordre important) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- 1) GUARD en premier : il crée window.DIGIY_GUARD + DIGIY_GUARD.ready -->
+  <!-- 1) Guard unique : crée window.DIGIY_GUARD + DIGIY_GUARD.ready -->
   <script src="./guard.js?v=20260306"></script>
 
-  <!-- 2) Cockpit ensuite : il attend DIGIY_GUARD.ready puis remplit l’UI -->
-  <script src="./cockpit-stats.js?v=20260306"></script>
-
-</body>
-</html>cardMoney">
-        <h3>Argent</h3>
-
-        <div class="bigMoney" id="moneyMonth">— FCFA</div>
-        <div class="mini" id="moneyMeta">
-          <span id="txCount">— transactions</span>
-          <span>•</span>
-          <span id="todayHint">—</span>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="boostBox">
-          <div>
-            <b>🚀 BOOST visibilité</b>
-            <div class="muted" style="font-weight:750;font-size:13px" id="boostText">
-              +50% d’apparition • 7 jours • 5 000 FCFA
-            </div>
-            <div class="muted" style="font-weight:750;font-size:12px;margin-top:6px" id="boostStatus">
-              Statut boost : —
-            </div>
-          </div>
-
-          <div style="display:flex;flex-direction:column;gap:8px;min-width:160px">
-            <button class="btn primary" id="btnBoost" type="button">Activer</button>
-            <button class="btn" id="btnBoostInfo" type="button">Détails</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- CARD C: ACTION PRINCIPALE -->
-      <div class="card" id="cardAction" style="grid-column:1/-1">
-        <h3>Action principale</h3>
-        <div class="muted" style="font-weight:750;margin-bottom:10px" id="actionDesc">
-          Une action. Simple. Efficace.
-        </div>
-
-        <div class="row" style="justify-content:space-between">
-          <div class="muted" style="font-weight:800" id="actionHint">—</div>
-          <button class="btn primary" id="btnPrimaryAction" type="button">…</button>
-        </div>
-
-        <div class="hr"></div>
-
-        <h3>Notifications</h3>
-        <div class="notifList" id="notifList"></div>
-
-        <div class="footer">
-          <a class="smallLink" href="#" id="linkSupport">Support</a>
-          <a class="smallLink" href="#" id="linkPayments">Mes paiements</a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ✅ SCRIPTS EN BAS = plus de "rpc not ready" -->
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="./guard-pro.js?v=1"></script>
-
+  <!-- 2) Stats cockpit : attend DIGIY_GUARD.ready -->
   <script>
+  // cockpit-stats.js (inline safe) — tu peux aussi le mettre en fichier séparé, même code.
   (function(){
     "use strict";
 
-    /**
-     * ✅ DIGIY PRO DASH — minimal, terrain, universel
-     * - Lit ?slug=
-     * - Résout phone via digiy_subscriptions_public (view)
-     * - Vérifie accès via digiy_has_access(phone,module)
-     *
-     * NOTE: On n'utilise PAS DIGIY_GUARD.rpc ici → donc plus de warning.
-     */
+    const money = (n) => `${Number(n || 0).toLocaleString("fr-FR")} FCFA`;
 
-    /* =========================
-       CONFIG — MODULE DRIVER
-       ========================= */
-    const MODULE_CODE = "DRIVER";
-    const MODULE_LABEL = "DIGIY DRIVER";
-    const PRIMARY_ACTION_LABEL = "Publier un produit";
-    const PRIMARY_ACTION_HINT  = "Ajoute un produit ou gère tes commandes.";
-
-    /* =========================
-       SUPABASE OFFICIEL DIGIY
-       ========================= */
-    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    const SUPABASE_ANON =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-
-    // ✅ Mets ici TA vraie URL ABOS (celle qui doit s'ouvrir quand pas d'accès)
-    const ABOS_URL = "https://apps.digiylyfe.com/abos/";
-
-    const BOOST = {
-      module: "BOOST",
-      plan: "boost_7d",
-      price_xof: 5000,
-      label: "BOOST visibilité",
-      duration_days: 7
+    const set = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = (val ?? "—");
     };
 
-    const $ = (id) => document.getElementById(id);
-
-    function fmtDateFR(iso){
-      if(!iso) return "—";
-      const d = new Date(iso);
-      return d.toLocaleDateString("fr-FR", { year:"numeric", month:"long", day:"numeric" });
-    }
-
-    function getSlug(){
-      const u = new URL(location.href);
-      return (u.searchParams.get("slug") || "").trim();
-    }
-
     function setNotifs(items){
-      const box = $("notifList");
+      const box = document.getElementById("notifList");
+      if(!box) return;
       box.innerHTML = "";
-      if(!items.length){
-        box.innerHTML = `<div class="notif"><div><b>Rien à signaler</b><div class="muted" style="font-weight:750;margin-top:2px">Tout roule.</div></div><div class="tag ok">OK</div></div>`;
+      if(!items || !items.length){
+        box.innerHTML = `<div class="notif"><div><b>Tout roule</b><div class="muted" style="font-weight:800;margin-top:2px">Aucune alerte.</div></div><div class="tag ok">OK</div></div>`;
         return;
       }
       for(const it of items){
@@ -338,7 +245,7 @@
         div.innerHTML = `
           <div>
             <b>${it.title}</b>
-            <div class="muted" style="font-weight:750;margin-top:2px">${it.text}</div>
+            <div class="muted" style="font-weight:800;margin-top:2px">${it.text}</div>
           </div>
           <div class="tag ${tagClass}">${it.tag}</div>
         `;
@@ -346,202 +253,93 @@
       }
     }
 
-    function daysBetween(aIso, bIso){
-      const a = new Date(aIso).getTime();
-      const b = new Date(bIso).getTime();
-      return Math.ceil((b - a) / (1000*60*60*24));
-    }
-
-    async function sbGetSubscriptionBySlug(slug){
-      const url = `${SUPABASE_URL}/rest/v1/digiy_subscriptions_public?select=phone,module,slug&slug=eq.${encodeURIComponent(slug)}&limit=1`;
-      const r = await fetch(url, {
-        headers: { apikey: SUPABASE_ANON, authorization: `Bearer ${SUPABASE_ANON}` }
-      });
-      if(!r.ok) throw new Error("Cannot read digiy_subscriptions_public");
-      const data = await r.json();
-      return data[0] || null;
-    }
-
-    async function sbRpc(name, payload){
-      const url = `${SUPABASE_URL}/rest/v1/rpc/${name}`;
-      const r = await fetch(url, {
-        method:"POST",
-        headers: {
-          "content-type":"application/json",
-          apikey: SUPABASE_ANON,
-          authorization: `Bearer ${SUPABASE_ANON}`
-        },
-        body: JSON.stringify(payload || {})
-      });
-      if(!r.ok){
-        const t = await r.text().catch(()=> "");
-        throw new Error(`RPC ${name} failed: ${t || r.status}`);
-      }
-      return r.json();
-    }
-
-    async function digiyHasAccess(phone, module){
-      const res = await sbRpc("digiy_has_access", { p_phone: phone, p_module: module });
-      if(typeof res === "boolean") return res;
-      if(res && typeof res.ok === "boolean") return res.ok;
-      if(res && typeof res.has_access === "boolean") return res.has_access;
-      return !!res;
-    }
-
-    async function digiyGetSubscriptionFull(phone, module){
+    async function load(){
       try{
-        return await sbRpc("digiy_get_subscription_status", { p_phone: phone, p_module: module });
-      }catch(_){
-        return null;
-      }
-    }
-
-    async function digiyGetDashboardStats(phone, module){
-      try{
-        return await sbRpc("digiy_get_dashboard_stats", { p_phone: phone, p_module: module });
-      }catch(_){
-        return { month_xof: null, tx_count: null, today_hint: "Aujourd’hui" };
-      }
-    }
-
-    async function digiyGetBoostStatus(phone){
-      try{
-        return await sbRpc("digiy_get_boost_status", { p_phone: phone });
-      }catch(_){
-        return null;
-      }
-    }
-
-    async function digiyBuildPayUrl(module, phone, plan){
-      return await sbRpc("digiy_build_pay_url", { p_module: module, p_phone: phone, p_plan_code: plan });
-    }
-
-    async function start(){
-      $("brandTitle").textContent = MODULE_LABEL;
-      $("btnPrimaryAction").textContent = PRIMARY_ACTION_LABEL;
-      $("actionHint").textContent = PRIMARY_ACTION_HINT;
-      $("pillStatus").innerHTML = `Statut : <b>…</b>`;
-
-      const slug = getSlug();
-      if(!slug){
-        $("statusLine").textContent = "Slug manquant";
-        $("expiryLine").textContent = "Ajoute ?slug=…";
-        $("dot").classList.add("bad");
-        $("pillStatus").innerHTML = `Statut : <b>Bloqué</b>`;
-        setNotifs([{level:"warn",tag:"ACTION",title:"Lien invalide",text:"Le lien doit contenir ?slug=…"}]);
-        return;
-      }
-
-      let subPublic = null;
-      try{
-        subPublic = await sbGetSubscriptionBySlug(slug);
-      }catch(_){
-        $("statusLine").textContent = "Erreur connexion";
-        $("expiryLine").textContent = "Impossible de vérifier le compte.";
-        $("dot").classList.add("bad");
-        setNotifs([{level:"warn",tag:"RÉSEAU",title:"Connexion",text:"Vérifie internet ou config Supabase."}]);
-        return;
-      }
-
-      if(!subPublic || !subPublic.phone){
-        $("statusLine").textContent = "Compte introuvable";
-        $("expiryLine").textContent = "Ce slug n’existe pas.";
-        $("dot").classList.add("bad");
-        $("pillStatus").innerHTML = `Statut : <b>Inconnu</b>`;
-        setNotifs([{level:"warn",tag:"INFO",title:"Slug inconnu",text:"Demande un nouveau lien d’accès."}]);
-        return;
-      }
-
-      const phone = subPublic.phone;
-      const ok = await digiyHasAccess(phone, MODULE_CODE).catch(()=> false);
-
-      if(!ok){
-        $("statusLine").textContent = "Abonnement requis";
-        $("expiryLine").textContent = "Active ton accès en 1 clic.";
-        $("dot").classList.add("bad");
-        $("pillStatus").innerHTML = `Statut : <b>Inactif</b>`;
-        setNotifs([{level:"warn",tag:"ABO",title:"Accès fermé",text:"Ton abonnement n’est pas actif sur ce module."}]);
-
-        $("btnManageSub").onclick = () => {
-          location.href = `${ABOS_URL}?module=${encodeURIComponent(MODULE_CODE)}&phone=${encodeURIComponent(phone)}`;
-        };
-        return;
-      }
-
-      const status = await digiyGetSubscriptionFull(phone, MODULE_CODE);
-      const expiresAt = status?.expires_at || status?.current_period_end || null;
-      const plan = status?.plan || "standard";
-      const pay = status?.payment_ref ? "validé" : "ok";
-
-      $("dot").classList.add("ok");
-      $("statusLine").textContent = "Abonnement actif";
-      $("expiryLine").textContent = expiresAt ? `Expire le ${fmtDateFR(expiresAt)}` : "Expiration : —";
-      $("pillStatus").innerHTML = `Statut : <b>Actif</b>`;
-      $("metaLine").innerHTML = `<span>Plan : ${plan}</span><span>•</span><span>Paiement : ${pay}</span>`;
-
-      const stats = await digiyGetDashboardStats(phone, MODULE_CODE);
-      const month = (stats?.month_xof ?? null);
-      const tx = (stats?.tx_count ?? null);
-
-      $("moneyMonth").textContent = month ? `${Number(month).toLocaleString("fr-FR")} FCFA` : "— FCFA";
-      $("txCount").textContent = tx ? `${tx} transactions` : "— transactions";
-      $("todayHint").textContent = stats?.today_hint || "Aujourd’hui";
-
-      const notifs = [];
-      if(expiresAt){
-        const d = daysBetween(new Date().toISOString(), expiresAt);
-        if(d <= 3) notifs.push({level:"warn",tag:"J-3",title:"Abonnement bientôt expiré",text:`Expire dans ${d} jour(s). Renouvelle pour éviter coupure.`});
-        else notifs.push({level:"ok",tag:"OK",title:"Abonnement",text:`Actif — prochain contrôle : J-3.`});
-      }else{
-        notifs.push({level:"info",tag:"INFO",title:"Expiration",text:"Aucune date d'expiration fournie (RPC statut)."});
-      }
-
-      const boost = await digiyGetBoostStatus(phone);
-      if(boost?.active){
-        $("boostStatus").textContent = `Statut boost : actif jusqu’au ${fmtDateFR(boost.expires_at)} • +${boost.views_today || 0} vues aujourd’hui`;
-        $("btnBoost").textContent = "Actif";
-        $("btnBoost").disabled = true;
-        notifs.push({level:"info",tag:"BOOST",title:"Boost actif",text:"Visibilité augmentée. Continue ton activité."});
-      }else{
-        $("boostStatus").textContent = "Statut boost : inactif";
-        notifs.push({level:"info",tag:"OPTION",title:"Boost disponible",text:"Active le BOOST si tu veux plus de visibilité."});
-      }
-
-      setNotifs(notifs);
-
-      $("btnManageSub").onclick = () => {
-        location.href = `${ABOS_URL}?module=${encodeURIComponent(MODULE_CODE)}&phone=${encodeURIComponent(phone)}`;
-      };
-
-      $("btnPrimaryAction").onclick = () => alert("Action principale — branche ici ton flow module.");
-      $("btnBoostInfo").onclick = () => alert("BOOST : +50% d’apparition pendant 7 jours. Paiement direct. Aucun spam.");
-
-      $("btnBoost").onclick = async () => {
-        try{
-          $("btnBoost").disabled = true;
-          $("btnBoost").textContent = "…";
-          const pay = await digiyBuildPayUrl(BOOST.module, phone, BOOST.plan);
-          const url = (typeof pay === "string") ? pay : (pay?.url || pay?.pay_url || null);
-          if(!url) throw new Error("URL paiement BOOST manquante");
-          location.href = url;
-        }catch(e){
-          console.error(e);
-          alert("Impossible d’activer le BOOST. Vérifie digiy_build_pay_url.");
-          $("btnBoost").disabled = false;
-          $("btnBoost").textContent = "Activer";
+        // ✅ attendre le guard (stop "rpc not ready")
+        if(!window.DIGIY_GUARD?.ready) {
+          console.warn("DIGIY_GUARD.ready missing");
+          return;
         }
-      };
+        const guardRes = await window.DIGIY_GUARD.ready;
 
-      $("btnSettings").onclick = () => alert("Paramètres — branche ici ton écran simple (profil, tel, etc.)");
-      $("linkSupport").onclick = (ev) => { ev.preventDefault(); alert("Support — branche ton WhatsApp/numéro support."); };
-      $("linkPayments").onclick = (ev) => { ev.preventDefault(); alert("Mes paiements — branche ton écran historique."); };
+        const slug = new URLSearchParams(location.search).get("slug") || "";
+        set("kpiSlug", slug || "—");
+
+        // si guard a dit ok=false, c'est qu'il a redirigé vers payer (normal)
+        // ici on affiche juste au cas où
+        if(guardRes && guardRes.ok === false){
+          setNotifs([{level:"warn",tag:"ABO",title:"Accès fermé",text:"Abonnement requis. Redirection paiement."}]);
+          return;
+        }
+
+        if(!window.DIGIY_GUARD?.rpc) {
+          console.warn("DIGIY_GUARD.rpc missing");
+          setNotifs([{level:"warn",tag:"TECH",title:"Guard incomplet",text:"rpc indisponible. Vérifie guard.js."}]);
+          return;
+        }
+
+        // ✅ stats by slug
+        const res = await window.DIGIY_GUARD.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
+        const data = res?.data ?? res;
+        const s = Array.isArray(data) ? data[0] : data;
+
+        if(!s){
+          setNotifs([{level:"info",tag:"INFO",title:"Aucune donnée",text:"Pas encore de courses / stats pour ce profil."}]);
+          return;
+        }
+
+        set("kpiTripsToday", s.trips_today ?? 0);
+        set("kpiRevenueToday", money(s.revenue_today_fcfa));
+
+        set("kpiTrips7d", s.trips_7d ?? 0);
+        set("kpiRevenue7d", money(s.revenue_7d_fcfa));
+
+        set("kpiTrips30d", s.trips_30d ?? 0);
+        set("kpiRevenue30d", money(s.revenue_30d_fcfa));
+
+        set("kpiTripsTotal", s.trips_total ?? 0);
+        set("kpiRevenueTotal", money(s.revenue_total_fcfa));
+
+        set("kpiDriverStatus", s.driver_status || "—");
+        set("kpiZone", s.zone_slug || "—");
+        set("kpiLastTripAt", s.last_trip_at ? new Date(s.last_trip_at).toLocaleString("fr-FR") : "—");
+
+        // UI statut (simple)
+        const dot = document.getElementById("dot");
+        const pill = document.getElementById("pillStatus");
+        const statusLine = document.getElementById("statusLine");
+        const expiryLine = document.getElementById("expiryLine");
+        const metaLine = document.getElementById("metaLine");
+
+        if(dot) dot.classList.add("ok");
+        if(pill) pill.innerHTML = `Statut : <b>Actif</b>`;
+        if(statusLine) statusLine.textContent = "Abonnement actif";
+        if(expiryLine) expiryLine.textContent = "OK";
+        if(metaLine) metaLine.textContent = "Plan : standard • Paiement : ok";
+
+        setNotifs([{level:"ok",tag:"OK",title:"Cockpit prêt",text:"Stats chargées. Prochain step : brancher les courses & demandes."}]);
+
+      }catch(e){
+        console.error("cockpit load error:", e);
+        setNotifs([{level:"warn",tag:"TECH",title:"Erreur cockpit",text:"Vérifie RPC cockpit_driver_stats_by_slug et guard.js."}]);
+      }
     }
 
-    // ✅ démarre quand le DOM est prêt (et scripts chargés)
-    if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
-    else start();
+    document.addEventListener("DOMContentLoaded", () => {
+      // actions boutons
+      const btn = document.getElementById("btnPrimaryAction");
+      if(btn) btn.onclick = () => alert("Prochaine étape : écran Courses (live) + historique.");
+      const settings = document.getElementById("btnSettings");
+      if(settings) settings.onclick = () => alert("Paramètres : profil, zone, véhicule, disponibilité.");
+      const pay = document.getElementById("linkPayments");
+      if(pay) pay.onclick = (ev) => { ev.preventDefault(); alert("Mes paiements : écran à brancher (historique)."); };
+      const manage = document.getElementById("btnManageSub");
+      if(manage) manage.onclick = () => location.href = "https://apps.digiylyfe.com/abos/?module=DRIVER";
+      load();
+    });
 
   })();
   </script>
+
 </body>
 </html>
