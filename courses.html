@@ -242,9 +242,13 @@
     // ✅ Ici on appelle ton RPC (si présent)
     // cockpit_driver_today_list_by_slug(p_slug text, p_limit int)
     try{
-      const { data, error } = await sb.rpc("cockpit_driver_today_list_by_slug", { p_slug: slug, p_limit: 10 });
+      const { data, error } = await sb.rpc("driver_list_today_by_slug", { p_slug: slug });
       if(error) throw error;
+      renderTrips(data);
 
+}catch(err){
+  console.error("loadToday error:", err);
+}
       if(!Array.isArray(data) || data.length === 0){
         box.innerHTML = `
           <div class="item">
