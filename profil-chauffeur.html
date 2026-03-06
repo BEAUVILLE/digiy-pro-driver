@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#061b14"/>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-profile-real-20260306"></script>
+  <script src="./guard.js?v=driver-profile-real-20260306b"></script>
 
   <style>
     :root{
@@ -26,6 +26,7 @@
     }
 
     *{box-sizing:border-box}
+
     body{
       margin:0;
       padding:16px;
@@ -181,7 +182,7 @@
     <div class="top">
       <div>
         <h1>👤 Profil chauffeur</h1>
-        <div class="muted">Profil, véhicule, zone, WhatsApp pro et tarifs — liés à ton slug DRIVER.</div>
+        <div class="muted">Profil, véhicule, zone, WhatsApp pro, publication et tarifs — liés à ton slug DRIVER.</div>
       </div>
 
       <div class="row" style="flex:0 0 auto">
@@ -281,6 +282,26 @@
     </div>
 
     <div class="card">
+      <h2>Publication chauffeur</h2>
+      <div class="muted">Contrôle simple de visibilité du profil chauffeur.</div>
+
+      <div class="list" style="margin-top:12px">
+        <div class="item">
+          <div>
+            <b>État de publication</b>
+            <div class="muted small" id="publishState">Chargement…</div>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="btnPublish">✅ Publier</button>
+            <button class="btn warn" id="btnUnpublish">🙈 Masquer</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="msg" id="msgPublish">Prêt.</div>
+    </div>
+
+    <div class="card">
       <h2>Mes tarifs actifs</h2>
 
       <div class="row">
@@ -347,6 +368,52 @@
       el.className = "msg " + (type || "");
     }
 
+    function setMsgPublish(txt, type){
+      const el = document.getElementById("msgPublish");
+      if (!el) return;
+      el.textContent = txt;
+      el.className = "msg " + (type || "");
+    }
+
+    function renderPublishState(row){
+      const el = document.getElementById("publishState");
+      if (!el) return;
+
+      if (!row){
+        el.textContent = "Profil introuvable";
+        return;
+      }
+
+      const published = row.is_published ? "Publié" : "Masqué";
+      const status = row.status || "—";
+      const sub = row.subscription_status || "—";
+
+      el.textContent = `${published} • statut: ${status} • abonnement: ${sub}`;
+    }
+
+    async function setPublishState(isPublished){
+      if (!slug){
+        setMsgPublish("❌ Slug manquant", "bad");
+        return;
+      }
+
+      try{
+        const { data, error } = await sb.rpc("driver_set_publish_by_slug", {
+          p_slug: slug,
+          p_is_published: isPublished
+        });
+
+        if (error) throw error;
+        if (!data?.ok) throw new Error(data?.error || "publish_error");
+
+        setMsgPublish(isPublished ? "✅ Chauffeur publié" : "✅ Chauffeur masqué", "ok");
+        await loadProfile();
+      }catch(e){
+        console.error(e);
+        setMsgPublish("❌ Erreur publication", "bad");
+      }
+    }
+
     async function loadProfile(){
       if (!slug) return;
 
@@ -378,157 +445,137 @@
     }
 
     async function saveProfile(){
-  try{
-    const payload = {
-      p_slug: slug,
-      p_display_name: document.getElementById("displayName").value.trim(),
-      p_vehicle_type: document.getElementById("vehicleType").value.trim(),
-      p_vehicle_brand: document.getElementById("vehicleBrand").value.trim(),
-      p_vehicle_model: document.getElementById("vehicleModel").value.trim(),
-      p_vehicle_year: document.getElementById("vehicleYear").value.trim(),
-      p_vehicle_color: document.getElementById("vehicleColor").value.trim(),
-      p_has_ac: document.getElementById("hasAc").checked,
-      p_city: document.getElementById("city").value.trim(),
-      p_zones_text: document.getElementById("zonesText").value.trim(),
-      p_airport_ok: document.getElementById("airportOk").checked,
-      p_long_distance_ok: document.getElementById("longDistanceOk").checked,
-      p_whatsapp: document.getElementById("whatsapp").value.trim(),
-      p_contact_note: document.getElementById("contactNote").value.trim(),
-      p_bio: document.getElementById("bio").value.trim()
-    };
+      try{
+        const payload = {
+          p_slug: slug,
+          p_display_name: document.getElementById("displayName").value.trim(),
+          p_vehicle_type: document.getElementById("vehicleType").value.trim(),
+          p_vehicle_brand: document.getElementById("vehicleBrand").value.trim(),
+          p_vehicle_model: document.getElementById("vehicleModel").value.trim(),
+          p_vehicle_year: document.getElementById("vehicleYear").value.trim(),
+          p_vehicle_color: document.getElementById("vehicleColor").value.trim(),
+          p_has_ac: document.getElementById("hasAc").checked,
+          p_city: document.getElementById("city").value.trim(),
+          p_zones_text: document.getElementById("zonesText").value.trim(),
+          p_airport_ok: document.getElementById("airportOk").checked,
+          p_long_distance_ok: document.getElementById("longDistanceOk").checked,
+          p_whatsapp: document.getElementById("whatsapp").value.trim(),
+          p_contact_note: document.getElementById("contactNote").value.trim(),
+          p_bio: document.getElementById("bio").value.trim()
+        };
 
-    const { data, error } = await sb.rpc("driver_upsert_profile_by_slug", payload);
-    if (error) throw error;
-    if (!data?.ok) throw new Error(data?.error || "save_profile_error");
+        const { data, error } = await sb.rpc("driver_upsert_profile_by_slug", payload);
+        if (error) throw error;
+        if (!data?.ok) throw new Error(data?.error || "save_profile_error");
 
-    setMsgProfile("✅ Profil enregistré en base", "ok");
-    await loadProfile();
-  }catch(e){
-    console.error(e);
-    setMsgProfile("❌ Erreur enregistrement profil", "bad");
-  }
-}
+        setMsgProfile("✅ Profil enregistré en base", "ok");
+        await loadProfile();
+      }catch(e){
+        console.error(e);
+        setMsgProfile("❌ Erreur enregistrement profil", "bad");
+      }
+    }
 
-async function loadRates(){
-  if (!slug){
-    document.getElementById("ratesList").innerHTML = `<div class="item">Slug manquant</div>`;
-    return;
-  }
+    async function loadRates(){
+      if (!slug){
+        document.getElementById("ratesList").innerHTML = `<div class="item">Slug manquant</div>`;
+        return;
+      }
 
-  const { data, error } = await sb.rpc("driver_list_rates_by_slug", { p_slug: slug });
-  if (error){
-    console.error(error);
-    document.getElementById("ratesList").innerHTML = `<div class="item">Erreur de chargement</div>`;
-    return;
-  }
+      const { data, error } = await sb.rpc("driver_list_rates_by_slug", { p_slug: slug });
+      if (error){
+        console.error(error);
+        document.getElementById("ratesList").innerHTML = `<div class="item">Erreur de chargement</div>`;
+        return;
+      }
 
-  const rows = data || [];
-  if (!rows.length){
-    document.getElementById("ratesList").innerHTML = `<div class="item">Aucun tarif actif</div>`;
-    return;
-  }
+      const rows = data || [];
+      if (!rows.length){
+        document.getElementById("ratesList").innerHTML = `<div class="item">Aucun tarif actif</div>`;
+        return;
+      }
 
-  document.getElementById("ratesList").innerHTML = rows.map(r => `
-    <div class="item">
-      <div>
-        <b>${escapeHtml(r.route_label)}</b>
-        <div class="muted">${money(r.price_fcfa)}</div>
-      </div>
-      <div class="actions">
-        <button class="btn gold" data-disable="${r.id}">Désactiver</button>
-      </div>
-    </div>
-  `).join("");
+      document.getElementById("ratesList").innerHTML = rows.map(r => `
+        <div class="item">
+          <div>
+            <b>${escapeHtml(r.route_label)}</b>
+            <div class="muted">${money(r.price_fcfa)}</div>
+          </div>
+          <div class="actions">
+            <button class="btn gold" data-disable="${r.id}">Désactiver</button>
+          </div>
+        </div>
+      `).join("");
 
-  document.querySelectorAll("[data-disable]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const id = btn.getAttribute("data-disable");
-      if (!id) return;
+      document.querySelectorAll("[data-disable]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-disable");
+          if (!id) return;
+
+          try{
+            const { data, error } = await sb.rpc("driver_disable_rate_by_slug", {
+              p_slug: slug,
+              p_rate_id: id
+            });
+
+            if (error) throw error;
+            if (!data?.ok) throw new Error(data?.error || "disable_rate_error");
+
+            setMsgRates("✅ Tarif désactivé", "ok");
+            await loadRates();
+          }catch(e){
+            console.error(e);
+            setMsgRates("❌ Erreur désactivation tarif", "bad");
+          }
+        });
+      });
+    }
+
+    async function saveRate(){
+      const routeLabel = document.getElementById("routeLabel").value.trim();
+      const priceFcfa = parseInt(document.getElementById("priceFcfa").value || "0", 10);
+
+      if (!slug){
+        setMsgRates("❌ Slug manquant", "bad");
+        return;
+      }
+
+      if (!routeLabel){
+        setMsgRates("❌ Nom du trajet manquant", "bad");
+        return;
+      }
+
+      if (priceFcfa <= 0){
+        setMsgRates("❌ Prix invalide", "bad");
+        return;
+      }
 
       try{
-        const { data, error } = await sb.rpc("driver_disable_rate_by_slug", {
+        const { data, error } = await sb.rpc("driver_upsert_rate_by_slug", {
           p_slug: slug,
-          p_rate_id: id
+          p_route_label: routeLabel,
+          p_price_fcfa: priceFcfa
         });
 
         if (error) throw error;
-        if (!data?.ok) throw new Error(data?.error || "disable_rate_error");
+        if (!data?.ok) throw new Error(data?.error || "save_rate_error");
 
-        setMsgRates("✅ Tarif désactivé", "ok");
+        setMsgRates("✅ Tarif enregistré en base", "ok");
+        document.getElementById("routeLabel").value = "";
+        document.getElementById("priceFcfa").value = "";
         await loadRates();
       }catch(e){
         console.error(e);
-        setMsgRates("❌ Erreur désactivation tarif", "bad");
+        setMsgRates("❌ Erreur enregistrement tarif", "bad");
       }
-    });
-  });
-}
-
-async function saveRate(){
-  const routeLabel = document.getElementById("routeLabel").value.trim();
-  const priceFcfa = parseInt(document.getElementById("priceFcfa").value || "0", 10);
-
-  if (!slug){
-    setMsgRates("❌ Slug manquant", "bad");
-    return;
-  }
-
-  if (!routeLabel){
-    setMsgRates("❌ Nom du trajet manquant", "bad");
-    return;
-  }
-
-  if (priceFcfa <= 0){
-    setMsgRates("❌ Prix invalide", "bad");
-    return;
-  }
-
-  try{
-    const { data, error } = await sb.rpc("driver_upsert_rate_by_slug", {
-      p_slug: slug,
-      p_route_label: routeLabel,
-      p_price_fcfa: priceFcfa
-    });
-
-    if (error) throw error;
-    if (!data?.ok) throw new Error(data?.error || "save_rate_error");
-
-    setMsgRates("✅ Tarif enregistré en base", "ok");
-    document.getElementById("routeLabel").value = "";
-    document.getElementById("priceFcfa").value = "";
-    await loadRates();
-  }catch(e){
-    console.error(e);
-    setMsgRates("❌ Erreur enregistrement tarif", "bad");
-  }
-}
-
-document.getElementById("btnSaveProfile").addEventListener("click", saveProfile);
-document.getElementById("btnReloadProfile").addEventListener("click", loadProfile);
-document.getElementById("btnSaveRate").addEventListener("click", saveRate);
-document.getElementById("btnReloadRates").addEventListener("click", loadRates);
-
-(async () => {
-  try{
-    if (window.DIGIY_GUARD?.ready){
-      const state = await window.DIGIY_GUARD.ready;
-      slug = (state?.slug || slug || "").trim().toLowerCase();
     }
 
-    document.getElementById("slugPill").textContent = "slug : " + (slug || "—");
-    document.getElementById("btnCockpit").href = withSlug("./cockpit.html");
-
-    await loadProfile();
-    await loadRates();
-  }catch(e){
-    console.error(e);
-    setMsgProfile("❌ Erreur chargement page", "bad");
-  }
-})();
     document.getElementById("btnSaveProfile").addEventListener("click", saveProfile);
     document.getElementById("btnReloadProfile").addEventListener("click", loadProfile);
     document.getElementById("btnSaveRate").addEventListener("click", saveRate);
     document.getElementById("btnReloadRates").addEventListener("click", loadRates);
+    document.getElementById("btnPublish").addEventListener("click", () => setPublishState(true));
+    document.getElementById("btnUnpublish").addEventListener("click", () => setPublishState(false));
 
     (async () => {
       try{
