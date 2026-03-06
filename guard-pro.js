@@ -1,4 +1,6 @@
-// guard-pro.js — DIGIY PRO access gate (slug-first) -> ABOS (ANTI-BOUCLE)
+// guard-pro.js — DIGIY PRO access gate (slug-first) + API globale (ready/rpc/session)
+// Objectif: cockpit-stats.js peut appeler DIGIY_GUARD.rpc sans erreur.
+// Anti-boucle: ne redirige jamais si déjà sur PAY_URL.
 (() => {
   "use strict";
 
@@ -8,8 +10,11 @@
 
   const MODULE_CODE = "DRIVER";
   const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
-  const PRO_ENTRY_URL = "https://pro-driver.digiylyfe.com/";
+  const PRO_ENTRY_URL = "https://pro-driver.digiylyfe.com/"; // return back
 
+  // -------------------------
+  // Helpers
+  // -------------------------
   const qs = new URLSearchParams(location.search);
   const slugQ  = (qs.get("slug")  || "").trim();
   const phoneQ = (qs.get("phone") || "").trim();
@@ -29,7 +34,6 @@
       .replace(/^-|-$/g, "");
   }
 
-  // ✅ Patch important : si slug = driver-22177..., on peut déduire le phone direct
   function phoneFromDriverSlug(slug) {
     const s = String(slug || "").trim().toLowerCase();
     if (!s.startsWith("driver-")) return "";
@@ -48,19 +52,22 @@
       body: JSON.stringify(params || {}),
     });
 
-    const j = await r.json().catch(() => null);
-    return { ok: r.ok, status: r.status, data: j };
+    const text = await r.text().catch(() => "");
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch (_) { data = text || null; }
+
+    return { ok: r.ok, status: r.status, data };
   }
 
   async function resolvePhoneFromSlug(slug) {
     const s = normSlug(slug);
     if (!s) return "";
 
-    // 1) priorité: déduction driver-xxxx
+    // 1) driver-xxxx => phone direct
     const direct = phoneFromDriverSlug(s);
     if (direct) return direct;
 
-    // 2) fallback: subscriptions_public si dispo
+    // 2) fallback: view digiy_subscriptions_public si dispo
     const url =
       `${SUPABASE_URL}/rest/v1/digiy_subscriptions_public` +
       `?select=phone,slug,module&slug=eq.${encodeURIComponent(s)}&limit=1`;
@@ -84,6 +91,7 @@
   }
 
   function goPay({ phone, slug }) {
+    // anti-boucle si déjà sur commencer-a-payer
     try { if (location.href.startsWith(PAY_URL)) return; } catch (_) {}
 
     const p = normPhone(phone);
@@ -98,29 +106,64 @@
     location.replace(u.toString());
   }
 
-  async function main() {
+  // -------------------------
+  // Expose DIGIY_GUARD API (IMPORTANT)
+  // -------------------------
+  const GUARD = {
+    module: MODULE_CODE,
+    session: { slug: "", phone: "" },
+    rpc: (name, params) => rpc(name, params), // cockpit-stats.js l'utilise
+    ready: null, // Promise
+    // util: force re-check
+    checkAccess: async () => {
+      const p = normPhone(GUARD.session.phone);
+      if (!p) return false;
+      const res = await rpc("digiy_has_access", { p_phone: p, p_module: MODULE_CODE });
+      return !!(res.ok && res.data === true);
+    }
+  };
+
+  // IMPORTANT: on pose tout de suite l'objet pour éviter "not ready"
+  window.DIGIY_GUARD = GUARD;
+
+  // -------------------------
+  // Main init (sets ready)
+  // -------------------------
+  GUARD.ready = (async function main() {
     const slug = normSlug(slugQ);
     let phone = normPhone(phoneQ);
 
     if (!phone && slug) phone = normPhone(await resolvePhoneFromSlug(slug));
+
+    // stock session
+    GUARD.session.slug = slug || (phone ? `driver-${phone}` : "");
+    GUARD.session.phone = phone || "";
+
+    // si phone absent => payer
     if (!phone) {
-      goPay({ phone: "", slug });
-      return;
+      goPay({ phone: "", slug: GUARD.session.slug });
+      return { ok: false, reason: "no_phone", ...GUARD.session };
     }
 
+    // check access
     const res = await rpc("digiy_has_access", { p_phone: phone, p_module: MODULE_CODE });
 
-    if (res.ok && res.data === true) return;
-
-    if (res.ok && res.data === false) {
-      goPay({ phone, slug });
-      return;
+    if (res.ok && res.data === true) {
+      return { ok: true, reason: "access_ok", ...GUARD.session };
     }
 
-    console.warn("[guard-pro] digiy_has_access unexpected:", res);
-  }
+    // pas accès => payer
+    if (res.ok && res.data === false) {
+      goPay({ phone, slug: GUARD.session.slug });
+      return { ok: false, reason: "no_access", ...GUARD.session };
+    }
 
-  main().catch((e) => {
+    // cas chelou: RPC error => on ne redirige pas en boucle, mais on signale
+    console.warn("[guard-pro] digiy_has_access unexpected:", res);
+    return { ok: false, reason: "rpc_error", ...GUARD.session };
+  })().catch((e) => {
     console.warn("[guard-pro] crash:", e);
+    return { ok: false, reason: "crash", slug: normSlug(slugQ), phone: normPhone(phoneQ) };
   });
+
 })();
