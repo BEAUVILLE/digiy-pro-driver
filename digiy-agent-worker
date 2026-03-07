@@ -19,18 +19,32 @@ jobs:
           script: |
             set -e
             cd /opt/digiy-agent-worker
+
+            echo "=== ENV ==="
+            node -v
+            npm -v
+
+            echo "=== GIT SYNC ==="
             git fetch --all
             git reset --hard origin/main
             git clean -fd
 
+            echo "=== INSTALL ==="
             if [ -f package-lock.json ]; then
               npm ci --omit=dev
             else
               npm install --omit=dev
             fi
 
+            echo "=== PM2 RESTART ==="
             pm2 restart digiy-agent-worker || pm2 start worker.mjs --name digiy-agent-worker
             pm2 save
 
+            echo "=== DEPLOY INFO ==="
             echo "Deployed WORKER: $(date -u) | $(git rev-parse --short HEAD)"
+
+            echo "=== PM2 STATUS ==="
             pm2 status digiy-agent-worker
+
+            echo "=== PM2 LOGS ==="
+            pm2 logs digiy-agent-worker --lines 20 --nostream
