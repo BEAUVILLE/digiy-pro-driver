@@ -1,57 +1,64 @@
-// guard.js — DIGIY DRIVER PRO access gate (slug-first, via public view + fallback)
+// guard.js — DIGIY DRIVER PRO access gate (preview-safe, slug-first, cockpit-compatible)
 (() => {
   "use strict";
 
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_URL =
+    window.DIGIY_SUPABASE_URL ||
+    "https://wesqmwjjtsefyjnluosj.supabase.co";
+
   const SUPABASE_ANON_KEY =
+    window.DIGIY_SUPABASE_ANON ||
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
   const MODULE_CODE = "DRIVER";
   const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
-  const DEFAULT_RETURN = (() => {
-    try {
-      return location.origin + "/dashboard-pro.html?slug=";
-    } catch (_) {
-      return "https://pro-driver.digiylyfe.com/dashboard-pro.html?slug=";
-    }
-  })();
+
+  // true  => sans identité, on laisse voir le logiciel
+  // false => sans identité, on considère que la page doit être paywallée
+  const ALLOW_PREVIEW_WITHOUT_IDENTITY = true;
 
   const qs = new URLSearchParams(location.search);
   const slugQ = (qs.get("slug") || "").trim();
   const phoneQ = (qs.get("phone") || "").trim();
 
-  function normPhone(p) {
-    const d = String(p || "").replace(/[^\d]/g, "");
+  function normPhone(v) {
+    const d = String(v || "").replace(/[^\d]/g, "");
     return d.length >= 9 ? d : "";
   }
 
-  function normSlug(s) {
-    return String(s || "").trim().toLowerCase();
+  function normSlug(v) {
+    return String(v || "").trim().toLowerCase();
   }
 
   function phoneFromDriverSlug(slug) {
     const s = normSlug(slug);
     if (!s.startsWith("driver-")) return "";
-    const digits = s.replace(/^driver-/, "").replace(/[^\d]/g, "");
+    const digits = s.slice("driver-".length).replace(/[^\d]/g, "");
     return digits.length >= 9 ? digits : "";
+  }
+
+  function buildHeaders(withJson = false) {
+    const headers = {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+    };
+    if (withJson) headers["Content-Type"] = "application/json";
+    return headers;
   }
 
   async function rpc(name, params) {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
       method: "POST",
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(params || {}),
+      headers: buildHeaders(true),
+      body: JSON.stringify(params || {})
     });
 
     const text = await r.text().catch(() => "");
     let data = null;
+
     try {
       data = text ? JSON.parse(text) : null;
-    } catch (_) {
+    } catch {
       data = text || null;
     }
 
@@ -71,10 +78,7 @@
 
     const r = await fetch(url, {
       method: "GET",
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
+      headers: buildHeaders(false)
     });
 
     if (!r.ok) return null;
@@ -82,7 +86,39 @@
     const rows = await r.json().catch(() => []);
     if (!Array.isArray(rows) || !rows.length) return null;
 
-    return rows[0] || null;
+    return {
+      phone: normPhone(rows[0].phone || ""),
+      slug: normSlug(rows[0].slug || ""),
+      module: String(rows[0].module || "").toUpperCase().trim()
+    };
+  }
+
+  async function fetchPublicByPhone(phone) {
+    const p = normPhone(phone);
+    if (!p) return null;
+
+    const url =
+      `${SUPABASE_URL}/rest/v1/digiy_subscriptions_public` +
+      `?select=phone,module,slug` +
+      `&module=eq.${encodeURIComponent(MODULE_CODE)}` +
+      `&phone=eq.${encodeURIComponent(p)}` +
+      `&limit=1`;
+
+    const r = await fetch(url, {
+      method: "GET",
+      headers: buildHeaders(false)
+    });
+
+    if (!r.ok) return null;
+
+    const rows = await r.json().catch(() => []);
+    if (!Array.isArray(rows) || !rows.length) return null;
+
+    return {
+      phone: normPhone(rows[0].phone || ""),
+      slug: normSlug(rows[0].slug || ""),
+      module: String(rows[0].module || "").toUpperCase().trim()
+    };
   }
 
   function extractHasAccess(data) {
@@ -93,7 +129,7 @@
     if (typeof data === "object" && !Array.isArray(data)) {
       if (data.has_access === true) return true;
       if (data.active === true) return true;
-      if (data.status && String(data.status).toLowerCase() === "active") return true;
+      if (String(data.status || "").toLowerCase() === "active") return true;
     }
 
     if (Array.isArray(data) && data.length) {
@@ -103,100 +139,203 @@
     return false;
   }
 
-  function buildReturnSlug(slug, phone) {
-    const s = normSlug(slug);
-    const p = normPhone(phone);
-    if (s) return s;
-    if (p) return `driver-${p}`;
-    return "";
-  }
-
-  function goPay({ phone, slug }) {
-    try {
-      if (location.href.startsWith(PAY_URL)) return;
-    } catch (_) {}
-
+  function buildPayUrl({ phone, slug }) {
     const p = normPhone(phone);
     const s = normSlug(slug);
-    const backSlug = buildReturnSlug(s, p);
 
     const u = new URL(PAY_URL);
     u.searchParams.set("module", MODULE_CODE);
+
     if (p) u.searchParams.set("phone", p);
     if (s) u.searchParams.set("slug", s);
-    if (backSlug) u.searchParams.set("return", DEFAULT_RETURN + backSlug);
 
-    location.replace(u.toString());
+    // retour vers la page courante
+    u.searchParams.set("return", location.href);
+
+    return u.toString();
   }
 
-  const GUARD = {
-    module: MODULE_CODE,
-    session: { slug: "", phone: "" },
-    rpc: (name, params) => rpc(name, params),
-    ready: null,
-    checkAccess: async () => {
-      const p = normPhone(GUARD.session.phone);
-      if (!p) return false;
+  function rememberIdentity({ slug, phone }) {
+    const s = normSlug(slug);
+    const p = normPhone(phone);
 
-      const res = await rpc("digiy_has_access", {
-        p_phone: p,
-        p_module: MODULE_CODE,
-      });
+    if (s) {
+      sessionStorage.setItem("digiy_driver_slug", s);
+      sessionStorage.setItem("digiy_driver_last_slug", s);
+      localStorage.setItem("digiy_driver_last_slug", s);
+    }
 
-      return !!(res.ok && extractHasAccess(res.data));
-    },
-  };
+    if (p) {
+      sessionStorage.setItem("digiy_driver_phone", p);
+      localStorage.setItem("digiy_driver_phone", p);
+      localStorage.setItem("digiy_last_phone", p);
+    }
+  }
 
-  window.DIGIY_GUARD = GUARD;
+  function enrichUrlIfMissingSlug(slug) {
+    const s = normSlug(slug);
+    if (!s) return;
 
-  GUARD.ready = (async () => {
+    const u = new URL(location.href);
+    const currentSlug = normSlug(u.searchParams.get("slug") || "");
+    if (currentSlug === s) return;
+
+    u.searchParams.set("slug", s);
+    history.replaceState(null, "", u.toString());
+  }
+
+  async function computeState() {
     let slug = normSlug(slugQ);
     let phone = normPhone(phoneQ);
 
-    // 1) Si slug fourni, on tente d'abord la vue publique
+    const state = {
+      ok: true,
+      preview: false,
+      has_identity: false,
+      slug: "",
+      phone: "",
+      module: MODULE_CODE,
+      access_ok: false,
+      should_pay: false,
+      pay_url: buildPayUrl({ phone, slug }),
+      reason: null,
+      error: null
+    };
+
+    // 1) Rien => aperçu
+    if (!slug && !phone) {
+      state.preview = !!ALLOW_PREVIEW_WITHOUT_IDENTITY;
+      state.reason = ALLOW_PREVIEW_WITHOUT_IDENTITY ? "preview_no_identity" : "missing_identity";
+      state.ok = ALLOW_PREVIEW_WITHOUT_IDENTITY;
+      return state;
+    }
+
+    // 2) slug-first
     if (slug && !phone) {
       const row = await fetchPublicBySlug(slug);
-      if (row && row.phone) {
+      if (row?.phone) {
         phone = normPhone(row.phone);
         slug = normSlug(row.slug || slug);
       }
     }
 
-    // 2) Fallback slug DRIVER téléphonique
+    // 3) fallback driver-221...
     if (!phone && slug) {
       phone = phoneFromDriverSlug(slug);
     }
 
-    // 3) Si phone fourni mais pas slug, on reconstruit un slug standard
-    if (!slug && phone) {
-      slug = `driver-${phone}`;
+    // 4) phone-only => retrouver le slug public
+    if (phone && !slug) {
+      const row = await fetchPublicByPhone(phone);
+      if (row?.slug) {
+        slug = normSlug(row.slug);
+      } else {
+        slug = `driver-${phone}`;
+      }
     }
 
-    GUARD.session.slug = slug || "";
-    GUARD.session.phone = phone || "";
+    state.slug = slug || "";
+    state.phone = phone || "";
+    state.has_identity = !!(slug || phone);
+    state.pay_url = buildPayUrl({ phone, slug });
 
+    if (slug || phone) {
+      rememberIdentity({ slug, phone });
+      if (slug) enrichUrlIfMissingSlug(slug);
+    }
+
+    // 5) pas de téléphone résolu
     if (!phone) {
-      goPay({ phone: "", slug });
-      return { ok: false, reason: "no_phone", slug, phone: "" };
+      if (ALLOW_PREVIEW_WITHOUT_IDENTITY) {
+        state.preview = true;
+        state.reason = "preview_no_phone";
+        return state;
+      }
+
+      state.ok = false;
+      state.should_pay = true;
+      state.reason = "no_phone";
+      return state;
     }
 
+    // 6) vérité backend
     const res = await rpc("digiy_has_access", {
       p_phone: phone,
-      p_module: MODULE_CODE,
+      p_module: MODULE_CODE
     });
 
     const has = !!(res.ok && extractHasAccess(res.data));
+    state.access_ok = has;
 
     if (has) {
-      return { ok: true, reason: "access_ok", slug, phone };
+      state.reason = "access_ok";
+      return state;
     }
 
-    goPay({ phone, slug });
-    return { ok: false, reason: "no_access", slug, phone };
-  })().catch((e) => {
-    console.warn("[DIGIY_GUARD][DRIVER] crash:", e);
-    const slug = normSlug(slugQ);
-    const phone = normPhone(phoneQ);
-    return { ok: false, reason: "crash", slug, phone };
+    state.ok = false;
+    state.reason = "no_subscription";
+    state.should_pay = true;
+    return state;
+  }
+
+  async function refresh() {
+    try {
+      const state = await computeState();
+      window.DIGIY_GUARD.state = state;
+      return state;
+    } catch (e) {
+      const fallback = {
+        ok: false,
+        preview: !!ALLOW_PREVIEW_WITHOUT_IDENTITY,
+        has_identity: false,
+        slug: normSlug(slugQ),
+        phone: normPhone(phoneQ),
+        module: MODULE_CODE,
+        access_ok: false,
+        should_pay: false,
+        pay_url: buildPayUrl({ phone: phoneQ, slug: slugQ }),
+        reason: "guard_error",
+        error: String(e?.message || e)
+      };
+
+      window.DIGIY_GUARD.state = fallback;
+      return fallback;
+    }
+  }
+
+  async function requirePaidAccess() {
+    const st = await refresh();
+
+    if (st.preview) return st;
+    if (st.access_ok) return st;
+
+    if (st.should_pay && st.pay_url) {
+      location.replace(st.pay_url);
+      return st;
+    }
+
+    return st;
+  }
+
+  async function checkAccess() {
+    const st = await refresh();
+    return !!st.access_ok;
+  }
+
+  window.DIGIY_GUARD = {
+    module: MODULE_CODE,
+    session: { slug: "", phone: "" },
+    state: null,
+    ready: null,
+    rpc,
+    refresh,
+    requirePaidAccess,
+    checkAccess
+  };
+
+  window.DIGIY_GUARD.ready = refresh().then((st) => {
+    window.DIGIY_GUARD.session.slug = st.slug || "";
+    window.DIGIY_GUARD.session.phone = st.phone || "";
+    return st;
   });
 })();
