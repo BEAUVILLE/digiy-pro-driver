@@ -1,4 +1,4 @@
-// cockpit-stats.js — DRIVER cockpit (waits DIGIY_GUARD.ready)
+// cockpit-stats.js — DRIVER cockpit (guard-aware, preview-safe)
 (function(){
   "use strict";
 
@@ -21,7 +21,6 @@
         it.level === "ok" ? "ok" : "info";
 
       const div = document.createElement("div");
-
       div.className = "notif";
       div.innerHTML = `
         <div>
@@ -32,48 +31,121 @@
         </div>
         <div class="tag ${tagClass}">${it.tag}</div>
       `;
-
       box.appendChild(div);
     });
   }
 
+  function setPreviewUi(reason){
+    const pill = document.getElementById("pillStatus");
+    const dot  = document.getElementById("dot");
+    const sLine = document.getElementById("statusLine");
+    const btnA = document.getElementById("btnPrimaryAction");
+    const hint = document.getElementById("actionHint");
+    const desc = document.getElementById("actionDesc");
+
+    if(pill) pill.innerHTML = `Statut : <b>Aperçu</b>`;
+    if(dot) {
+      dot.classList.remove("ok");
+      dot.classList.add("warn");
+    }
+    if(sLine) {
+      if(reason === "no_subscription") sLine.textContent = "Abonnement inactif";
+      else sLine.textContent = "Mode aperçu";
+    }
+
+    if(btnA) btnA.textContent = "Voir le logiciel";
+    if(hint) hint.textContent = "Aperçu du cockpit DRIVER avant accès réel.";
+    if(desc) desc.textContent = "Le chauffeur peut voir l’outil sans ouvrir les vraies données.";
+
+    set("kpiTripsToday", 2);
+    set("kpiTrips7d", 9);
+    set("kpiTrips30d", 28);
+    set("kpiZone", "Saly");
+    set("kpiDriverStatus", "preview");
+    set("kpiLastTripAt", "—");
+    set("moneyMonth", money(245000));
+    set("txCount", "28 courses");
+    set("todayHint", "Aperçu");
+
+    notif([
+      {
+        level:"info",
+        tag:"APERÇU",
+        title:"Cockpit visible",
+        text: reason === "no_subscription"
+          ? "Accès réel inactif. Aperçu affiché."
+          : "Le logiciel reste visible en mode aperçu."
+      }
+    ]);
+  }
+
+  function setLiveUi(){
+    const pill = document.getElementById("pillStatus");
+    const dot  = document.getElementById("dot");
+    const sLine = document.getElementById("statusLine");
+    const btnA = document.getElementById("btnPrimaryAction");
+    const hint = document.getElementById("actionHint");
+    const desc = document.getElementById("actionDesc");
+
+    if(pill) pill.innerHTML = `Statut : <b>Actif</b>`;
+    if(dot) {
+      dot.classList.remove("warn");
+      dot.classList.add("ok");
+    }
+    if(sLine) sLine.textContent = "Abonnement actif";
+
+    if(btnA) btnA.textContent = "Ouvrir mes courses";
+    if(hint) hint.textContent = "Gère tes courses, zones, et historique.";
+    if(desc) desc.textContent = "Accès cockpit DRIVER — stats & opérations.";
+  }
+
+  async function getGuardState(){
+    const g = window.DIGIY_GUARD;
+
+    if(!g?.ready){
+      return {
+        ok:false,
+        preview:true,
+        access_ok:false,
+        slug:"",
+        reason:"guard_missing"
+      };
+    }
+
+    await g.ready;
+    return g.state || {
+      ok:false,
+      preview:true,
+      access_ok:false,
+      slug:"",
+      reason:"guard_empty"
+    };
+  }
+
   async function load(){
-
     try{
-
       const g = window.DIGIY_GUARD;
+      const st = await getGuardState();
 
-      if(!g?.ready){
-        console.warn("DIGIY_GUARD.ready missing");
+      if(st?.preview){
+        setPreviewUi(st.reason);
         return;
       }
 
-      const r = await g.ready;
+      if(!st?.access_ok){
+        setPreviewUi(st?.reason || "access_ko");
+        return;
+      }
 
-      if(!r?.ok) return;
+      const slug = st.slug;
+      if(!slug){
+        setPreviewUi("missing_slug");
+        return;
+      }
 
-      const slug = r.slug;
+      setLiveUi();
 
-      // UI statut
-      const pill = document.getElementById("pillStatus");
-      const dot  = document.getElementById("dot");
-      const sLine = document.getElementById("statusLine");
-
-      if(pill) pill.innerHTML = `Statut : <b>Actif</b>`;
-      if(dot) dot.classList.add("ok");
-      if(sLine) sLine.textContent = "Abonnement actif";
-
-      const btnA = document.getElementById("btnPrimaryAction");
-      const hint = document.getElementById("actionHint");
-      const desc = document.getElementById("actionDesc");
-
-      if(btnA) btnA.textContent = "Ouvrir mes courses";
-      if(hint) hint.textContent = "Gère tes courses, zones, et historique.";
-      if(desc) desc.textContent = "Accès cockpit DRIVER — stats & opérations.";
-
-      // appel RPC
       let res;
-
       try{
         res = await g.rpc("cockpit_driver_stats_by_slug", { p_slug: slug });
       }catch(e){
@@ -89,25 +161,26 @@
         return;
       }
 
-      if(res?.error){
-        console.error("RPC error:", res.error);
+      if(!res?.ok){
+        const errText =
+          res?.data?.message ||
+          res?.data?.error ||
+          "Erreur RPC inconnue";
         notif([
           {
             level:"warn",
             tag:"SQL",
             title:"Erreur stats",
-            text: res.error.message
+            text: errText
           }
         ]);
         return;
       }
 
-      const data = res?.data ?? res;
-
+      const data = res?.data;
       const s = Array.isArray(data) ? data[0] : data;
 
       if(!s){
-
         notif([
           {
             level:"info",
@@ -116,11 +189,9 @@
             text:"Aucune donnée de course pour l’instant."
           }
         ]);
-
         return;
       }
 
-      // KPIs
       set("kpiTripsToday", s.trips_today ?? 0);
       set("kpiTrips7d", s.trips_7d ?? 0);
       set("kpiTrips30d", s.trips_30d ?? 0);
@@ -136,9 +207,7 @@
       );
 
       set("moneyMonth", money(s.revenue_30d_fcfa || 0));
-
       set("txCount", `${s.trips_30d ?? 0} courses`);
-
       set("todayHint", "Aujourd’hui");
 
       notif([
@@ -149,9 +218,7 @@
           text:"Accès validé. Données chargées."
         }
       ]);
-
     }catch(e){
-
       console.error("cockpit-stats load error:", e);
 
       notif([
@@ -162,15 +229,24 @@
           text:"Erreur cockpit. Regarde la console."
         }
       ]);
-
     }
   }
 
-  if(document.readyState === "loading")
+  async function reload(){
+    if(window.DIGIY_GUARD?.refresh){
+      await window.DIGIY_GUARD.refresh();
+    }
+    await load();
+  }
+
+  if(document.readyState === "loading"){
     document.addEventListener("DOMContentLoaded", load);
-  else
+  }else{
     load();
+  }
 
-  window.DIGIY_COCKPIT_STATS = { load };
-
+  window.DIGIY_COCKPIT_STATS = {
+    load,
+    reload
+  };
 })();
