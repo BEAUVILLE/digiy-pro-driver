@@ -6,9 +6,12 @@
   <title>Générateur fiche — DIGIY DRIVER PRO</title>
   <meta name="theme-color" content="#061b14"/>
 
-  <!-- Supabase + Guard -->
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=20260306-1"></script>
+  <script src="./guard.js?v=driver-cardgen-20260307"></script>
 
   <style>
     :root{
@@ -43,9 +46,6 @@
       border: 1px solid rgba(255,255,255,.10);
     }
 
-    .app{display:none;}
-    html.access-ok .app{display:block;}
-
     .wrap{max-width:1100px;margin:0 auto;}
     .topbar{
       display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
@@ -79,6 +79,9 @@
       font-size:13px;
       font-weight:900;
     }
+    .pill.ok{border-color:rgba(34,197,94,.30); color:#bbf7d0}
+    .pill.warn{border-color:rgba(250,204,21,.30); color:#fde68a}
+    .pill.bad{border-color:rgba(251,113,133,.30); color:#fecaca}
 
     .grid{
       display:grid;
@@ -119,6 +122,10 @@
       outline:none;
       font-weight:850;
     }
+    input:disabled, textarea:disabled{
+      opacity:.72;
+      cursor:not-allowed;
+    }
     textarea{min-height:120px;resize:vertical;line-height:1.5}
 
     .hint{font-size:12px;color:rgba(234,255,241,.70);line-height:1.5;margin-top:6px}
@@ -138,6 +145,11 @@
       font-size:14px;
       transition:all .2s;
       flex:1; min-width:190px;
+    }
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      pointer-events:none;
     }
     .primary{
       background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
@@ -224,6 +236,7 @@
     }
     .toast.ok{border-color:rgba(34,197,94,.30);background:rgba(34,197,94,.12)}
     .toast.bad{border-color:rgba(251,113,133,.30);background:rgba(251,113,133,.12)}
+    .toast.warn{border-color:rgba(250,204,21,.30);background:rgba(250,204,21,.12)}
 
     .disabled-note{
       margin-top:10px;
@@ -242,142 +255,140 @@
 <body>
   <div id="guard_status">🔐 Vérification…</div>
 
-  <div class="app">
-    <div class="wrap">
+  <div class="wrap">
 
-      <div class="topbar">
-        <div class="brand">
-          <div class="badge">D</div>
-          <div>
-            <h1>Générateur fiche — DIGIY DRIVER PRO</h1>
-            <div class="sub">Ta vitrine perso (publiée dans le listing)</div>
-          </div>
-        </div>
-
-        <div class="pill">
-          ✅ <span id="mePhone">+221…</span> • <span id="meSlug">slug</span>
+    <div class="topbar">
+      <div class="brand">
+        <div class="badge">D</div>
+        <div>
+          <h1>Générateur fiche — DIGIY DRIVER PRO</h1>
+          <div class="sub" id="topSub">Ta vitrine perso (publiée dans le listing)</div>
         </div>
       </div>
 
-      <div class="grid">
+      <div class="pill" id="statusPill">
+        ✅ <span id="mePhone">+221…</span> • <span id="meSlug">slug</span>
+      </div>
+    </div>
 
-        <div class="card">
-          <div class="sectionTitle">🧾 Ta fiche chauffeur</div>
+    <div class="grid">
 
-          <div class="row">
-            <div>
-              <label>Nom affiché</label>
-              <input id="f_display_name" placeholder="Ex: Lamine" />
-            </div>
-            <div>
-              <label>Ville</label>
-              <input id="f_city" placeholder="Ex: Saly / Dakar" />
-            </div>
+      <div class="card">
+        <div class="sectionTitle">🧾 Ta fiche chauffeur</div>
+
+        <div class="row">
+          <div>
+            <label>Nom affiché</label>
+            <input id="f_display_name" placeholder="Ex: Lamine" />
           </div>
-
-          <div class="row">
-            <div>
-              <label>WhatsApp</label>
-              <input id="f_whatsapp" placeholder="Ex: 221784413680" />
-              <div class="hint">Format sans “+”. Exemple : 22177xxxxxxx</div>
-            </div>
-            <div>
-              <label>Photo (URL)</label>
-              <input id="f_photo_url" placeholder="https://..." />
-              <div class="hint">Optionnel. Sinon on met les initiales.</div>
-            </div>
+          <div>
+            <label>Ville</label>
+            <input id="f_city" placeholder="Ex: Saly / Dakar" />
           </div>
+        </div>
 
-          <label>Carte partenaire (URL)</label>
-          <input id="f_profile_url" placeholder="https://... (ta carte)" />
-
-          <label>Bio</label>
-          <textarea id="f_bio" placeholder="Ex: Transferts AIBD, circuits touristiques, dispo sur demande…"></textarea>
-
-          <div class="row">
-            <div>
-              <label>Zones (séparées par virgule)</label>
-              <input id="f_zones" placeholder="Saly, Petite Côte, Dakar, AIBD" />
-            </div>
-            <div>
-              <label>Tags (séparés par virgule)</label>
-              <input id="f_tags" placeholder="AIBD, Transfert, Circuit, 24/7" />
-            </div>
+        <div class="row">
+          <div>
+            <label>WhatsApp</label>
+            <input id="f_whatsapp" placeholder="Ex: 221784413680" />
+            <div class="hint">Format sans “+”. Exemple : 22177xxxxxxx</div>
           </div>
+          <div>
+            <label>Photo (URL)</label>
+            <input id="f_photo_url" placeholder="https://..." />
+            <div class="hint">Optionnel. Sinon on met les initiales.</div>
+          </div>
+        </div>
 
-          <div class="row">
-            <div>
-              <label>Priorité (1 = en haut)</label>
-              <input id="f_priority" type="number" min="1" value="100" />
-            </div>
-            <div>
-              <label>Statut</label>
-              <div class="row" style="grid-template-columns:1fr 1fr;gap:10px">
-                <div style="display:flex;gap:10px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22);border-radius:14px;padding:12px">
-                  <input id="f_is_active" type="checkbox" checked style="width:18px;height:18px;margin:0" />
-                  <div style="font-weight:1000">Actif</div>
-                </div>
-                <div style="display:flex;gap:10px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22);border-radius:14px;padding:12px">
-                  <input id="f_is_published" type="checkbox" style="width:18px;height:18px;margin:0" />
-                  <div style="font-weight:1000">Publié</div>
-                </div>
+        <label>Carte partenaire (URL)</label>
+        <input id="f_profile_url" placeholder="https://... (ta carte)" />
+
+        <label>Bio</label>
+        <textarea id="f_bio" placeholder="Ex: Transferts AIBD, circuits touristiques, dispo sur demande…"></textarea>
+
+        <div class="row">
+          <div>
+            <label>Zones (séparées par virgule)</label>
+            <input id="f_zones" placeholder="Saly, Petite Côte, Dakar, AIBD" />
+          </div>
+          <div>
+            <label>Tags (séparés par virgule)</label>
+            <input id="f_tags" placeholder="AIBD, Transfert, Circuit, 24/7" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Priorité (1 = en haut)</label>
+            <input id="f_priority" type="number" min="1" value="100" />
+          </div>
+          <div>
+            <label>Statut</label>
+            <div class="row" style="grid-template-columns:1fr 1fr;gap:10px">
+              <div style="display:flex;gap:10px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22);border-radius:14px;padding:12px">
+                <input id="f_is_active" type="checkbox" checked style="width:18px;height:18px;margin:0" />
+                <div style="font-weight:1000">Actif</div>
               </div>
-              <div class="hint">Publié = visible sur la vitrine publique.</div>
+              <div style="display:flex;gap:10px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22);border-radius:14px;padding:12px">
+                <input id="f_is_published" type="checkbox" style="width:18px;height:18px;margin:0" />
+                <div style="font-weight:1000">Publié</div>
+              </div>
+            </div>
+            <div class="hint">Publié = visible sur la vitrine publique.</div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="actions">
+          <button class="btn ghost" id="btnLoad" type="button">↻ Charger ma fiche</button>
+          <button class="btn secondary" id="btnSaveDraft" type="button">💾 Enregistrer (brouillon)</button>
+          <button class="btn primary" id="btnPublish" type="button">🚀 Publier sur la vitrine</button>
+          <button class="btn danger" id="btnUnpublish" type="button">🙈 Dépublier</button>
+        </div>
+
+        <div id="toast" class="toast"></div>
+        <div id="disabledNote" class="disabled-note">⚠️ Écriture désactivée en mode aperçu ou accès non actif.</div>
+
+        <div class="hint" style="margin-top:12px">
+          🔐 Accès réel réservé aux chauffeurs activés.<br/>
+          Une fois publiée, ta fiche doit remonter sur la vitrine <strong>DRIVER</strong>.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sectionTitle">👀 Aperçu vitrine (live)</div>
+
+        <div class="pgrid">
+          <div class="pCard" id="previewCard">
+            <div class="pTop">
+              <div class="pAvatar" id="pAvatar">DR</div>
+              <div>
+                <p class="pName" id="pName">Chauffeur</p>
+                <p class="pMeta" id="pMeta">Ville • Zones</p>
+              </div>
+            </div>
+
+            <div class="pBadges" id="pBadges"></div>
+            <p class="pBio" id="pBio">Ta bio apparaîtra ici.</p>
+
+            <div class="pActions">
+              <a class="pBtn" id="pCardBtn" href="#" target="_blank" rel="noopener">Voir la carte</a>
+              <a class="pBtn green" id="pWaBtn" href="#" target="_blank" rel="noopener">WhatsApp</a>
             </div>
           </div>
 
-          <div class="hr"></div>
+          <div class="hint">
+            ⚡ Ce preview sert à voir le rendu. Le listing public affiche seulement les profils <strong>publiés + actifs</strong>.
+          </div>
 
           <div class="actions">
-            <button class="btn ghost" id="btnLoad" type="button">↻ Charger ma fiche</button>
-            <button class="btn secondary" id="btnSaveDraft" type="button">💾 Enregistrer (brouillon)</button>
-            <button class="btn primary" id="btnPublish" type="button">🚀 Publier sur la vitrine</button>
-            <button class="btn danger" id="btnUnpublish" type="button">🙈 Dépublier</button>
-          </div>
-
-          <div id="toast" class="toast"></div>
-          <div id="disabledNote" class="disabled-note">⚠️ owner_id introuvable dans la session. Lecture OK, écriture désactivée tant que le guard ne remonte pas owner_id.</div>
-
-          <div class="hint" style="margin-top:12px">
-            🔐 Accès réservé aux chauffeurs activés (paiement OK).<br/>
-            Une fois publié, ta fiche sort automatiquement sur <strong>digiy-driver</strong> (listing Supabase).
+            <a class="btn ghost" href="./cockpit.html" id="btnBack">← Retour cockpit</a>
+            <button class="btn ghost" id="btnLogout" type="button">🚪 Retour PIN</button>
           </div>
         </div>
-
-        <div class="card">
-          <div class="sectionTitle">👀 Aperçu vitrine (live)</div>
-
-          <div class="pgrid">
-            <div class="pCard" id="previewCard">
-              <div class="pTop">
-                <div class="pAvatar" id="pAvatar">DR</div>
-                <div>
-                  <p class="pName" id="pName">Chauffeur</p>
-                  <p class="pMeta" id="pMeta">Ville • Zones</p>
-                </div>
-              </div>
-
-              <div class="pBadges" id="pBadges"></div>
-              <p class="pBio" id="pBio">Ta bio apparaîtra ici.</p>
-
-              <div class="pActions">
-                <a class="pBtn" id="pCardBtn" href="#" target="_blank" rel="noopener">Voir la carte</a>
-                <a class="pBtn green" id="pWaBtn" href="#" target="_blank" rel="noopener">WhatsApp</a>
-              </div>
-            </div>
-
-            <div class="hint">
-              ⚡ Ce preview sert à voir le rendu. Le listing public affiche seulement les profils <strong>publiés + actifs</strong>.
-            </div>
-
-            <div class="actions">
-              <a class="btn ghost" href="./dashboard-pro.html" id="btnBack">← Retour dashboard</a>
-              <button class="btn ghost" id="btnLogout" type="button">🚪 Me déconnecter</button>
-            </div>
-          </div>
-        </div>
-
       </div>
+
     </div>
   </div>
 
@@ -386,12 +397,14 @@
     "use strict";
 
     const TABLE = "digiy_driver_public_profiles";
-    const MODULE = "DRIVER";
-    const PAY_URL = "https://beauville.github.io/commencer-a-payer/?module=DRIVER&offre=DRIVER";
+    const PIN_URL = "./pin.html";
 
-    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    const SUPABASE_ANON_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: false }
+    });
 
     const $ = (id)=>document.getElementById(id);
     const gs = $("guard_status");
@@ -399,16 +412,17 @@
     const disabledNote = $("disabledNote");
 
     let ACCESS = {
-      ok: false,
+      preview: true,
+      access_ok: false,
       slug: "",
       phone: "",
-      owner_id: null
+      reason: "preview_no_identity"
     };
 
-    function showToast(msg, ok){
+    function showToast(msg, tone = "ok"){
       if(!toast) return;
       toast.textContent = msg;
-      toast.className = "toast " + (ok ? "ok" : "bad");
+      toast.className = "toast " + tone;
       toast.style.display = "block";
       setTimeout(()=>{ toast.style.display = "none"; }, 3200);
     }
@@ -486,9 +500,7 @@
       zones.slice(0,3).forEach(z => badges.push(z));
       tags.slice(0,3).forEach(t => badges.push(t));
 
-      const box = $("pBadges");
-      box.innerHTML = badges.map(b => `<span class="pBadge">${b}</span>`).join("");
-
+      $("pBadges").innerHTML = badges.map(b => `<span class="pBadge">${b}</span>`).join("");
       $("pWaBtn").href = waLink(whatsapp, name);
       $("pCardBtn").href = profileUrl || "#";
       $("pCardBtn").style.opacity = profileUrl ? "1" : ".55";
@@ -512,115 +524,74 @@
       });
     }
 
-    function getSb(){
-      try{
-        if(window.DIGIY_GUARD?.sb) return window.DIGIY_GUARD.sb;
-      }catch(_){}
-      return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
-
-    function getQuerySlug(){
-      return (new URLSearchParams(location.search).get("slug") || "").trim();
-    }
-
     function withSlug(url){
-      const slug = ACCESS.slug || getQuerySlug();
-      if(!slug) return url;
-      return url + (url.includes("?") ? "&" : "?") + "slug=" + encodeURIComponent(slug);
+      const s = ACCESS.slug || "";
+      if(!s) return url;
+      return url + (url.includes("?") ? "&" : "?") + "slug=" + encodeURIComponent(s);
     }
 
-    function setWriteEnabled(enabled){
+    function deriveNameFromSlug(s){
+      const v = String(s || "").replace(/^driver-/, "").trim();
+      return v ? `Chauffeur ${v}` : "Chauffeur";
+    }
+
+    function setWriteEnabled(enabled, noteText = ""){
       ["btnSaveDraft","btnPublish","btnUnpublish"].forEach(id => {
         const el = $(id);
         if(el) el.disabled = !enabled;
-        if(el) el.style.opacity = enabled ? "1" : ".55";
-        if(el) el.style.pointerEvents = enabled ? "auto" : "none";
       });
-      if(disabledNote) disabledNote.style.display = enabled ? "none" : "block";
+
+      if(disabledNote){
+        disabledNote.style.display = enabled ? "none" : "block";
+        if(noteText) disabledNote.textContent = noteText;
+      }
     }
 
-    async function upsertProfile({ publish }){
-      const sb = getSb();
-
-      if(!ACCESS.owner_id){
-        showToast("owner_id manquant dans la session.", false);
-        return;
-      }
-
-      const display_name = $("f_display_name").value.trim();
-      if(!display_name){
-        showToast("Nom affiché obligatoire.", false);
-        return;
-      }
-
-      const slug = ACCESS.slug || slugify(display_name);
-      if(!slug){
-        showToast("Slug invalide.", false);
-        return;
-      }
-
-      const payload = {
-        owner_id: ACCESS.owner_id,
-        slug,
-        display_name,
-        city: $("f_city").value.trim() || null,
-        whatsapp: $("f_whatsapp").value.trim() || null,
-        photo_url: $("f_photo_url").value.trim() || null,
-        profile_url: $("f_profile_url").value.trim() || null,
-        bio: $("f_bio").value.trim() || null,
-        zones: cleanCsv($("f_zones").value),
-        tags: cleanCsv($("f_tags").value),
-        priority: Number($("f_priority").value || 100),
-        is_active: !!$("f_is_active").checked,
-        is_published: publish ? true : !!$("f_is_published").checked
-      };
-
-      if(publish) $("f_is_published").checked = true;
-
-      const { error } = await sb
-        .from(TABLE)
-        .upsert(payload, { onConflict: "slug" });
-
-      if(error){
-        console.error("upsert error", error);
-        showToast("Erreur sauvegarde: " + (error.message || "inconnue"), false);
-        return;
-      }
-
-      showToast(publish ? "🚀 Publié ! Ta fiche est en vitrine." : "💾 Enregistré (brouillon).", true);
+    function setStatusPill(mode, text){
+      const el = $("statusPill");
+      el.className = "pill " + mode;
+      el.innerHTML = `${mode === "ok" ? "✅" : mode === "warn" ? "👀" : "⚠️"} <span id="mePhone">${ACCESS.phone || "+221…"}</span> • <span id="meSlug">${ACCESS.slug || "slug"}</span>`;
+      $("mePhone").textContent = ACCESS.phone || "+221…";
+      $("meSlug").textContent = ACCESS.slug || "slug";
+      if(gs) gs.textContent = text;
     }
 
-    async function unpublishProfile(){
-      const sb = getSb();
-      const slug = ACCESS.slug || slugify($("f_display_name").value.trim());
+    function setPreviewMode(reason){
+      ACCESS.preview = true;
+      ACCESS.access_ok = false;
 
-      if(!slug){
-        showToast("Slug introuvable pour dépublier.", false);
-        return;
+      $("topSub").textContent =
+        reason === "no_subscription"
+          ? "Accès non actif. Aperçu du générateur affiché."
+          : "Aperçu du générateur. Le logiciel reste visible.";
+
+      setStatusPill("warn", "👀 Aperçu");
+      setWriteEnabled(false, "⚠️ Écriture désactivée en mode aperçu ou accès non actif.");
+
+      if(ACCESS.phone && !$("f_whatsapp").value.trim()){
+        $("f_whatsapp").value = ACCESS.phone;
       }
 
-      const { error } = await sb
-        .from(TABLE)
-        .update({ is_published: false })
-        .eq("slug", slug);
-
-      if(error){
-        console.error("unpublish error", error);
-        showToast("Erreur dépublication: " + (error.message || "inconnue"), false);
-        return;
+      if(!$("f_display_name").value.trim()){
+        $("f_display_name").value = deriveNameFromSlug(ACCESS.slug);
       }
 
-      $("f_is_published").checked = false;
-      showToast("🙈 Dépublié. La fiche n'apparaît plus sur la vitrine.", true);
+      refreshPreview();
+    }
+
+    function setLiveMode(){
+      ACCESS.preview = false;
+      ACCESS.access_ok = true;
+
+      $("topSub").textContent = "Ta vitrine perso (mode vivant).";
+      setStatusPill("ok", "✅ Accès OK");
+      setWriteEnabled(true);
     }
 
     async function loadMyProfile(){
-      const sb = getSb();
-      const fallbackName = $("f_display_name").value.trim();
-      const slug = ACCESS.slug || slugify(fallbackName);
-
+      const slug = ACCESS.slug || slugify($("f_display_name").value.trim());
       if(!slug){
-        showToast("Entre ton nom pour générer le slug, puis recharge.", false);
+        showToast("Entre ton nom pour préparer la fiche.", "warn");
         refreshPreview();
         return;
       }
@@ -634,13 +605,13 @@
 
       if(error){
         console.error("load error", error);
-        showToast("Erreur chargement: " + (error.message || "inconnue"), false);
+        showToast("Erreur chargement: " + (error.message || "inconnue"), "bad");
         return;
       }
 
       if(!data){
-        showToast("Aucune fiche trouvée. Remplis puis Enregistre.", true);
         refreshPreview();
+        showToast("Aucune fiche trouvée. Remplis puis enregistre.", "ok");
         return;
       }
 
@@ -656,8 +627,98 @@
       $("f_is_active").checked = (data.is_active !== false);
       $("f_priority").value = Number(data.priority || 100);
 
-      showToast("↻ Fiche chargée.", true);
       refreshPreview();
+      showToast("↻ Fiche chargée.", "ok");
+    }
+
+    async function upsertProfile({ publish }){
+      if(!ACCESS.access_ok){
+        showToast("Mode aperçu : enregistrement réel désactivé.", "warn");
+        return;
+      }
+
+      const display_name = $("f_display_name").value.trim();
+      if(!display_name){
+        showToast("Nom affiché obligatoire.", "bad");
+        return;
+      }
+
+      const finalSlug = ACCESS.slug || slugify(display_name);
+      if(!finalSlug){
+        showToast("Slug invalide.", "bad");
+        return;
+      }
+
+      if(publish) $("f_is_published").checked = true;
+
+      const payload = {
+        slug: finalSlug,
+        display_name,
+        city: $("f_city").value.trim() || null,
+        whatsapp: $("f_whatsapp").value.trim() || null,
+        photo_url: $("f_photo_url").value.trim() || null,
+        profile_url: $("f_profile_url").value.trim() || null,
+        bio: $("f_bio").value.trim() || null,
+        zones: cleanCsv($("f_zones").value),
+        tags: cleanCsv($("f_tags").value),
+        priority: Number($("f_priority").value || 100),
+        is_active: !!$("f_is_active").checked,
+        is_published: publish ? true : !!$("f_is_published").checked
+      };
+
+      const { error } = await sb
+        .from(TABLE)
+        .upsert(payload, { onConflict: "slug" });
+
+      if(error){
+        console.error("upsert error", error);
+
+        const msg = String(error.message || "").toLowerCase();
+        if(msg.includes("row-level security") || msg.includes("permission denied")){
+          showToast("Écriture refusée par la RLS. Il faudra passer cette page sur RPC.", "bad");
+          return;
+        }
+        if(msg.includes("owner_id")){
+          showToast("La table demande probablement owner_id. Il faudra passer cette page sur RPC.", "bad");
+          return;
+        }
+
+        showToast("Erreur sauvegarde: " + (error.message || "inconnue"), "bad");
+        return;
+      }
+
+      ACCESS.slug = finalSlug;
+      $("meSlug").textContent = finalSlug;
+      $("slugPill").textContent = "slug : " + finalSlug;
+
+      showToast(publish ? "🚀 Publié ! Ta fiche est en vitrine." : "💾 Enregistré (brouillon).", "ok");
+    }
+
+    async function unpublishProfile(){
+      if(!ACCESS.access_ok){
+        showToast("Mode aperçu : dépublication inactive.", "warn");
+        return;
+      }
+
+      const finalSlug = ACCESS.slug || slugify($("f_display_name").value.trim());
+      if(!finalSlug){
+        showToast("Slug introuvable pour dépublier.", "bad");
+        return;
+      }
+
+      const { error } = await sb
+        .from(TABLE)
+        .update({ is_published: false })
+        .eq("slug", finalSlug);
+
+      if(error){
+        console.error("unpublish error", error);
+        showToast("Erreur dépublication: " + (error.message || "inconnue"), "bad");
+        return;
+      }
+
+      $("f_is_published").checked = false;
+      showToast("🙈 Dépublié. La fiche n'apparaît plus sur la vitrine.", "ok");
     }
 
     function bindButtons(){
@@ -669,24 +730,20 @@
       });
 
       $("btnUnpublish").addEventListener("click", ()=>{
-        if(!confirm("Dépublier ta fiche (elle disparaît de la vitrine) ?")) return;
+        if(!confirm("Dépublier ta fiche ?")) return;
         unpublishProfile();
       });
 
-      $("btnLoad").addEventListener("click", ()=>loadMyProfile());
+      $("btnLoad").addEventListener("click", loadMyProfile);
 
       $("btnLogout").addEventListener("click", ()=>{
-        if(!confirm("Tu veux te déconnecter frérot ?")) return;
-
-        const pinUrl = window.DIGIY_GUARD?.withSlug
-          ? window.DIGIY_GUARD.withSlug("./pin.html")
-          : "./pin.html";
-
-        if(window.DIGIY_GUARD?.logout){
-          window.DIGIY_GUARD.logout(pinUrl);
-        } else {
-          location.href = pinUrl;
-        }
+        const target = withSlug(PIN_URL);
+        try{
+          sessionStorage.removeItem("digiy_driver_slug");
+          sessionStorage.removeItem("digiy_driver_last_slug");
+          sessionStorage.removeItem("digiy_driver_phone");
+        }catch(_){}
+        location.href = target;
       });
     }
 
@@ -696,60 +753,46 @@
       refreshPreview();
 
       if(!window.DIGIY_GUARD?.ready){
-        if(gs) gs.textContent = "❌ DIGIY_GUARD.ready manquant";
+        if(gs) gs.textContent = "❌ Guard manquant";
+        setPreviewMode("guard_missing");
         return;
       }
 
-      let ready;
+      let st;
       try{
-        ready = await window.DIGIY_GUARD.ready;
-      } catch(err){
+        await window.DIGIY_GUARD.ready;
+        st = window.DIGIY_GUARD.state || null;
+      }catch(err){
         console.error("guard ready error:", err);
-        if(gs) gs.textContent = "❌ Guard KO";
-        return;
+        st = null;
       }
 
-      if(!ready?.ok){
-        if(gs) gs.textContent = "❌ Accès refusé";
-        return;
-      }
+      ACCESS.slug = String(st?.slug || "").trim();
+      ACCESS.phone = String(st?.phone || "").trim();
+      ACCESS.reason = st?.reason || "preview_no_identity";
 
-      ACCESS.ok = true;
-      ACCESS.slug = String(ready.slug || getQuerySlug() || "").trim();
-      ACCESS.phone = String(ready.phone || "").trim();
-      ACCESS.owner_id = ready.owner_id || ready.user_id || ready.ownerId || null;
-
-      document.documentElement.classList.add("access-ok");
-
-      if(gs){
-        gs.textContent = "✅ OK";
-        setTimeout(()=>{ gs.style.display = "none"; }, 700);
-      }
-
-      $("mePhone").textContent = ACCESS.phone || "+221…";
-      $("meSlug").textContent = ACCESS.slug || "slug";
-
-      $("btnBack").href = ACCESS.slug
-        ? "./dashboard-pro.html?slug=" + encodeURIComponent(ACCESS.slug)
-        : "./dashboard-pro.html";
+      $("btnBack").href = withSlug("./cockpit.html");
 
       if(ACCESS.phone && !$("f_whatsapp").value.trim()){
-        const digits = ACCESS.phone.replace(/[^\d]/g,"");
-        if(digits) $("f_whatsapp").value = digits;
+        $("f_whatsapp").value = ACCESS.phone.replace(/[^\d]/g,"");
       }
 
       if(!$("f_display_name").value.trim() && ACCESS.slug){
-        $("f_display_name").value = ACCESS.slug.replace(/^driver-/, "Chauffeur ");
+        $("f_display_name").value = deriveNameFromSlug(ACCESS.slug);
       }
 
-      setWriteEnabled(!!ACCESS.owner_id);
+      if(st?.access_ok){
+        setLiveMode();
+        await loadMyProfile();
+        if(gs) setTimeout(()=>{ gs.style.display = "none"; }, 900);
+        return;
+      }
 
-      refreshPreview();
+      setPreviewMode(st?.reason === "no_subscription" ? "no_subscription" : "preview");
       await loadMyProfile();
     }
 
     boot();
-
   })();
   </script>
 </body>
