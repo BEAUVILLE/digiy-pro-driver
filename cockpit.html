@@ -6,8 +6,12 @@
   <title>DIGIY DRIVER PRO — Cockpit</title>
   <meta name="theme-color" content="#061b14"/>
 
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-cockpit-kpi-20260306"></script>
+  <script src="./guard.js?v=driver-cockpit-guard-20260307"></script>
 
   <style>
     :root{
@@ -37,7 +41,6 @@
     }
 
     a{color:inherit;text-decoration:none}
-
     .wrap{max-width:var(--max);margin:auto}
 
     .top{
@@ -108,9 +111,7 @@
       color:#fde68a;
     }
 
-    .btn.ghost{
-      background:transparent;
-    }
+    .btn.ghost{background:transparent}
 
     .stack{display:grid;gap:14px;margin-top:14px}
     .grid2{display:grid;gap:14px}
@@ -264,6 +265,8 @@
       background:var(--line);
       margin:12px 0;
     }
+
+    .loading{opacity:.72;pointer-events:none}
   </style>
 </head>
 <body>
@@ -271,14 +274,14 @@
 
     <div class="top">
       <div>
-        <h1>🦅 DIGIY DRIVER PRO</h1>
-        <div class="muted">Cockpit principal chauffeur. Courses, accès, navigation, contrôle.</div>
+        <h1 id="titleMain">🦅 DIGIY DRIVER PRO</h1>
+        <div class="muted" id="subMain">Cockpit principal chauffeur. Courses, accès, navigation, contrôle.</div>
       </div>
 
       <div class="rightMini">
         <div class="pill" id="slugPill">slug : —</div>
         <div class="pill" id="phonePill">phone : —</div>
-        <div class="pill warn" id="accessPill">accès : vérification…</div>
+        <div class="pill warn" id="accessPill">accès : aperçu</div>
       </div>
     </div>
 
@@ -288,12 +291,12 @@
         <div class="row">
           <div>
             <h2>Tableau de bord</h2>
-            <div class="muted">Le cœur du module DRIVER. Tu pilotes depuis ici.</div>
+            <div class="muted" id="boardLead">Le cœur du module DRIVER. Tu pilotes depuis ici.</div>
           </div>
           <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-            <button class="btn" id="btnCheckAccess">🔄 Vérifier mon accès</button>
-            <button class="btn warn" id="btnPin">🔐 Refaire PIN</button>
-            <button class="btn ghost" id="btnPay">💳 Abonnement</button>
+            <button class="btn" id="btnCheckAccess" type="button">🔄 Vérifier mon accès</button>
+            <button class="btn warn" id="btnPin" type="button">🔐 Refaire PIN</button>
+            <button class="btn ghost" id="btnPay" type="button">💳 Abonnement</button>
           </div>
         </div>
 
@@ -397,9 +400,9 @@
           </div>
 
           <div class="row" style="margin-top:10px">
-            <button class="btn primary" id="btnCreate">➕ Créer</button>
-            <button class="btn" id="btnReload">↻ Rafraîchir</button>
-            <button class="btn" id="btnResetForm">🧹 Vider</button>
+            <button class="btn primary" id="btnCreate" type="button">➕ Créer</button>
+            <button class="btn" id="btnReload" type="button">↻ Rafraîchir</button>
+            <button class="btn" id="btnResetForm" type="button">🧹 Vider</button>
           </div>
 
           <div class="msg" id="msgCreate">Prêt.</div>
@@ -409,9 +412,9 @@
           <h2>Actions rapides</h2>
 
           <div class="list">
-            <button class="btn" id="btnScrollToday">📋 Aller aux courses du jour</button>
-            <button class="btn" id="btnHome">🏠 Retour accueil module</button>
-            <button class="btn" id="btnReloadAll">♻️ Recharger cockpit</button>
+            <button class="btn" id="btnScrollToday" type="button">📋 Aller aux courses du jour</button>
+            <button class="btn" id="btnHome" type="button">🏠 Retour accueil module</button>
+            <button class="btn" id="btnReloadAll" type="button">♻️ Recharger cockpit</button>
           </div>
 
           <div class="sep"></div>
@@ -435,7 +438,7 @@
             <div class="item">
               <div>
                 <b>Accès</b>
-                <div class="muted small" id="sessionAccess">Vérification…</div>
+                <div class="muted small" id="sessionAccess">Aperçu actif</div>
               </div>
             </div>
           </div>
@@ -449,7 +452,7 @@
             <div class="muted">Vue rapide des courses saisies aujourd’hui.</div>
           </div>
           <div style="flex:0 0 auto">
-            <button class="btn" id="btnReloadToday">↻ Rafraîchir la liste</button>
+            <button class="btn" id="btnReloadToday" type="button">↻ Rafraîchir la liste</button>
           </div>
         </div>
 
@@ -465,7 +468,7 @@
             <div class="muted">Tes dernières courses enregistrées dans la base.</div>
           </div>
           <div style="flex:0 0 auto">
-            <button class="btn" id="btnReloadRecent">↻ Rafraîchir historique</button>
+            <button class="btn" id="btnReloadRecent" type="button">↻ Rafraîchir historique</button>
           </div>
         </div>
 
@@ -478,19 +481,20 @@
   </div>
 
   <script>
-    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
     const MODULE = "DRIVER";
     const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
     const PIN_URL = "./pin.html";
     const HOME_URL = "./index.html";
     const PROFIL_URL = "./profil-chauffeur.html";
 
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const $ = (id) => document.getElementById(id);
 
-    const qs = new URLSearchParams(location.search);
-    let slug = (qs.get("slug") || "").trim();
-    let phone = (qs.get("phone") || "").trim();
+    let slug = "";
+    let phone = "";
+    let IS_PREVIEW = true;
 
     function normPhone(p){
       const d = String(p || "").replace(/[^\d]/g, "");
@@ -512,29 +516,40 @@
     }
 
     function setMsg(txt, type){
-      const el = document.getElementById("msgCreate");
+      const el = $("msgCreate");
       el.textContent = txt;
       el.className = "msg " + (type || "");
     }
 
     function setAccessState(ok, txt){
-      const pill = document.getElementById("accessPill");
-      const s = document.getElementById("sessionAccess");
+      const pill = $("accessPill");
+      const s = $("sessionAccess");
       pill.className = "pill " + (ok ? "ok" : "bad");
       pill.textContent = "accès : " + txt;
       s.textContent = txt;
     }
 
-    function updateSessionUi(){
-      document.getElementById("slugPill").textContent = "slug : " + (slug || "—");
-      document.getElementById("phonePill").textContent = "phone : " + (phone || "—");
-      document.getElementById("sessionSlug").textContent = slug || "—";
-      document.getElementById("sessionPhone").textContent = phone || "—";
+    function setPreviewState(msg){
+      $("titleMain").textContent = "🦅 DIGIY DRIVER PRO";
+      $("subMain").textContent = "Aperçu du cockpit chauffeur. Tu vois le logiciel avant l’ouverture réelle.";
+      setAccessState(false, msg || "aperçu actif");
+      $("msgCreate").textContent = "Mode aperçu actif.";
+      $("msgCreate").className = "msg warn";
+      $("kpiToday").textContent = "12 000 FCFA";
+      $("kpi7d").textContent = "78 000 FCFA";
+      $("kpi30d").textContent = "245 000 FCFA";
+    }
 
-      document.getElementById("btnTarifs").href = withSlug(PROFIL_URL);
-      document.getElementById("btnProfil").href = withSlug(PROFIL_URL);
-      document.getElementById("btnPinPage").href = withSlug(PIN_URL);
-      document.getElementById("btnIndexPage").href = withSlug(HOME_URL);
+    function updateSessionUi(){
+      $("slugPill").textContent = "slug : " + (slug || "—");
+      $("phonePill").textContent = "phone : " + (phone || "—");
+      $("sessionSlug").textContent = slug || "—";
+      $("sessionPhone").textContent = phone || "—";
+
+      $("btnTarifs").href = withSlug(PROFIL_URL);
+      $("btnProfil").href = withSlug(PROFIL_URL);
+      $("btnPinPage").href = withSlug(PIN_URL);
+      $("btnIndexPage").href = withSlug(HOME_URL);
     }
 
     function goPay(){
@@ -542,23 +557,18 @@
       u.searchParams.set("module", MODULE);
       if (phone) u.searchParams.set("phone", phone);
       if (slug) u.searchParams.set("slug", slug);
-      u.searchParams.set("return", location.origin + location.pathname + "?slug=" + encodeURIComponent(slug));
+      u.searchParams.set("return", location.origin + location.pathname + (slug ? "?slug=" + encodeURIComponent(slug) : ""));
       location.href = u.toString();
     }
 
-    function goPin(){
-      location.href = withSlug(PIN_URL);
-    }
-
-    function goHome(){
-      location.href = withSlug(HOME_URL);
-    }
+    function goPin(){ location.href = withSlug(PIN_URL); }
+    function goHome(){ location.href = withSlug(HOME_URL); }
 
     function resetForm(){
-      document.getElementById("pickup").value = "";
-      document.getElementById("drop").value = "";
-      document.getElementById("price").value = "";
-      document.getElementById("extras").value = "0";
+      $("pickup").value = "";
+      $("drop").value = "";
+      $("price").value = "";
+      $("extras").value = "0";
     }
 
     function escapeHtml(str){
@@ -570,8 +580,23 @@
         .replaceAll("'", "&#039;");
     }
 
+    function previewTodayTrips(){
+      return [
+        { pickup_label:"Saly centre", drop_label:"AIBD", amount_fcfa:15000, status:"done" },
+        { pickup_label:"Ngaparou", drop_label:"Saly", amount_fcfa:3000, status:"done" }
+      ];
+    }
+
+    function previewRecentTrips(){
+      return [
+        { pickup_label:"Saly centre", drop_label:"AIBD", amount_fcfa:15000, status:"done", paid:true },
+        { pickup_label:"Saly", drop_label:"Somone", amount_fcfa:4000, status:"done", paid:true },
+        { pickup_label:"Ngaparou", drop_label:"Dakar", amount_fcfa:25000, status:"pending", paid:false }
+      ];
+    }
+
     function renderTodayTrips(data){
-      const box = document.getElementById("todayList");
+      const box = $("todayList");
 
       if (!data || data.length === 0){
         box.innerHTML = `<div class="item">Aucune course aujourd'hui</div>`;
@@ -590,7 +615,7 @@
     }
 
     function renderRecentTrips(data){
-      const box = document.getElementById("recentTripsList");
+      const box = $("recentTripsList");
 
       if (!data || data.length === 0){
         box.innerHTML = `<div class="item">Aucune course récente</div>`;
@@ -609,8 +634,8 @@
     }
 
     async function loadToday(){
-      if (!slug){
-        renderTodayTrips([]);
+      if (!slug || IS_PREVIEW){
+        renderTodayTrips(previewTodayTrips());
         return;
       }
 
@@ -621,7 +646,7 @@
 
       if (error){
         console.error(error);
-        document.getElementById("todayList").innerHTML = `<div class="item">Erreur de chargement</div>`;
+        $("todayList").innerHTML = `<div class="item">Erreur de chargement</div>`;
         return;
       }
 
@@ -635,8 +660,8 @@
     }
 
     async function loadRecentTrips(){
-      if (!slug){
-        renderRecentTrips([]);
+      if (!slug || IS_PREVIEW){
+        renderRecentTrips(previewRecentTrips());
         return;
       }
 
@@ -647,7 +672,7 @@
 
       if (error){
         console.error(error);
-        document.getElementById("recentTripsList").innerHTML = `<div class="item">Erreur de chargement</div>`;
+        $("recentTripsList").innerHTML = `<div class="item">Erreur de chargement</div>`;
         return;
       }
 
@@ -655,10 +680,10 @@
     }
 
     async function loadStats(){
-      if (!slug){
-        document.getElementById("kpiToday").textContent = "0 FCFA";
-        document.getElementById("kpi7d").textContent = "0 FCFA";
-        document.getElementById("kpi30d").textContent = "0 FCFA";
+      if (!slug || IS_PREVIEW){
+        $("kpiToday").textContent = "12 000 FCFA";
+        $("kpi7d").textContent = "78 000 FCFA";
+        $("kpi30d").textContent = "245 000 FCFA";
         return;
       }
 
@@ -670,21 +695,41 @@
       }
 
       const stats = data || {};
-      document.getElementById("kpiToday").textContent = money(stats.today_total || 0);
-      document.getElementById("kpi7d").textContent = money(stats.days7_total || 0);
-      document.getElementById("kpi30d").textContent = money(stats.days30_total || 0);
+      $("kpiToday").textContent = money(stats.today_total || 0);
+      $("kpi7d").textContent = money(stats.days7_total || 0);
+      $("kpi30d").textContent = money(stats.days30_total || 0);
     }
 
-    async function checkAccessNow(){
+    async function refreshAccessState(){
       try{
-        if (!window.DIGIY_GUARD || !window.DIGIY_GUARD.checkAccess){
+        if (!window.DIGIY_GUARD?.refresh){
           setAccessState(false, "guard absent");
           return false;
         }
 
-        const ok = await window.DIGIY_GUARD.checkAccess();
-        setAccessState(!!ok, ok ? "abonnement OK" : "abonnement KO");
-        return !!ok;
+        const st = await window.DIGIY_GUARD.refresh();
+
+        slug = normSlug(st?.slug || slug);
+        phone = normPhone(st?.phone || phone);
+        updateSessionUi();
+
+        if (st?.access_ok){
+          setAccessState(true, "abonnement OK");
+          return true;
+        }
+
+        if (st?.preview){
+          setAccessState(false, "aperçu actif");
+          return false;
+        }
+
+        if (st?.reason === "no_subscription"){
+          setAccessState(false, "abonnement KO");
+          return false;
+        }
+
+        setAccessState(false, st?.reason || "accès KO");
+        return false;
       }catch(e){
         console.error(e);
         setAccessState(false, "erreur contrôle");
@@ -692,114 +737,125 @@
       }
     }
 
-    const btnReload = document.getElementById("btnReload");
-    const btnReloadToday = document.getElementById("btnReloadToday");
-    const btnReloadRecent = document.getElementById("btnReloadRecent");
-    const btnCheckAccess = document.getElementById("btnCheckAccess");
-    const btnPin = document.getElementById("btnPin");
-    const btnPay = document.getElementById("btnPay");
-    const btnHome = document.getElementById("btnHome");
-    const btnReloadAll = document.getElementById("btnReloadAll");
-    const btnScrollToday = document.getElementById("btnScrollToday");
-    const btnResetForm = document.getElementById("btnResetForm");
-    const btnAccessTools = document.getElementById("btnAccessTools");
-    const btnCreate = document.getElementById("btnCreate");
+    async function createTrip(){
+      const pickup = $("pickup").value.trim();
+      const drop = $("drop").value.trim();
+      const price = parseInt($("price").value || "0", 10);
+      const extras = parseInt($("extras").value || "0", 10);
 
-    if (btnReload) btnReload.addEventListener("click", async () => {
-      await loadToday();
-      await loadRecentTrips();
-      await loadStats();
-    });
+      if (IS_PREVIEW){
+        setMsg("⚠️ Mode aperçu : entre par PIN pour créer une vraie course", "warn");
+        return;
+      }
 
-    if (btnReloadToday) btnReloadToday.addEventListener("click", loadToday);
-    if (btnReloadRecent) btnReloadRecent.addEventListener("click", loadRecentTrips);
-    if (btnCheckAccess) btnCheckAccess.addEventListener("click", checkAccessNow);
-    if (btnPin) btnPin.addEventListener("click", goPin);
-    if (btnPay) btnPay.addEventListener("click", goPay);
-    if (btnHome) btnHome.addEventListener("click", goHome);
-    if (btnReloadAll) btnReloadAll.addEventListener("click", () => location.reload());
+      if (!slug){
+        setMsg("⚠️ Slug manquant", "bad");
+        return;
+      }
 
-    if (btnScrollToday) {
-      btnScrollToday.addEventListener("click", () => {
-        document.getElementById("todayBlock")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    }
+      if (!pickup || !drop || price <= 0){
+        setMsg("⚠️ Remplis tous les champs", "bad");
+        return;
+      }
 
-    if (btnResetForm) btnResetForm.addEventListener("click", resetForm);
-
-    if (btnAccessTools) {
-      btnAccessTools.addEventListener("click", () => {
-        const ok = confirm("OK = vérifier l'accès maintenant.\nAnnuler = aller vers l'abonnement.");
-        if (ok) checkAccessNow();
-        else goPay();
-      });
-    }
-
-    if (btnCreate) {
-      btnCreate.addEventListener("click", async () => {
-        const pickup = document.getElementById("pickup").value.trim();
-        const drop = document.getElementById("drop").value.trim();
-        const price = parseInt(document.getElementById("price").value || "0", 10);
-        const extras = parseInt(document.getElementById("extras").value || "0", 10);
-
-        if (!slug){
-          setMsg("⚠️ Slug manquant", "bad");
-          return;
-        }
-
-        if (!pickup || !drop || price <= 0){
-          setMsg("⚠️ Remplis tous les champs", "bad");
-          return;
-        }
-
-        try{
-          const { data, error } = await sb.rpc("driver_create_trip_by_slug", {
-            p_slug: slug,
-            p_pickup_label: pickup,
-            p_drop_label: drop,
-            p_price_fcfa: price,
-            p_extras_fcfa: extras
-          });
-
-          if (error) throw error;
-          if (!data) throw new Error("trip_create_failed");
-
-          setMsg("✅ Course enregistrée", "ok");
-          resetForm();
-          await loadToday();
-          await loadRecentTrips();
-          await loadStats();
-        }catch(e){
-          console.error(e);
-          setMsg("❌ Erreur création", "bad");
-        }
-      });
-    }
-
-    (async () => {
       try{
-        if (window.DIGIY_GUARD && window.DIGIY_GUARD.ready){
-          const state = await window.DIGIY_GUARD.ready;
-          slug = normSlug((state && state.slug) || slug);
-          phone = normPhone((state && state.phone) || phone);
-        } else {
-          slug = normSlug(slug);
-          phone = normPhone(phone);
-        }
+        const { data, error } = await sb.rpc("driver_create_trip_by_slug", {
+          p_slug: slug,
+          p_pickup_label: pickup,
+          p_drop_label: drop,
+          p_price_fcfa: price,
+          p_extras_fcfa: extras
+        });
 
+        if (error) throw error;
+        if (!data) throw new Error("trip_create_failed");
+
+        setMsg("✅ Course enregistrée", "ok");
+        resetForm();
+        await loadToday();
+        await loadRecentTrips();
+        await loadStats();
+      }catch(e){
+        console.error(e);
+        setMsg("❌ Erreur création", "bad");
+      }
+    }
+
+    async function boot(){
+      document.body.classList.add("loading");
+
+      try{
+        await window.DIGIY_GUARD.ready;
+        const st = window.DIGIY_GUARD.state;
+
+        slug = normSlug(st?.slug || "");
+        phone = normPhone(st?.phone || "");
         updateSessionUi();
 
-        const accessOk = await checkAccessNow();
-        if (!accessOk) return;
+        if (st?.preview){
+          IS_PREVIEW = true;
+          setPreviewState("aperçu actif");
+          await loadStats();
+          await loadToday();
+          await loadRecentTrips();
+          return;
+        }
 
+        if (st?.access_ok){
+          IS_PREVIEW = false;
+          setAccessState(true, "abonnement OK");
+          await loadStats();
+          await loadToday();
+          await loadRecentTrips();
+          return;
+        }
+
+        IS_PREVIEW = true;
+        setPreviewState(st?.reason === "no_subscription" ? "abonnement KO" : "aperçu actif");
         await loadStats();
         await loadToday();
         await loadRecentTrips();
       } catch (e){
         console.error(e);
-        setAccessState(false, "crash cockpit");
+        IS_PREVIEW = true;
+        setPreviewState("crash cockpit");
+        await loadStats();
+        await loadToday();
+        await loadRecentTrips();
+      } finally {
+        document.body.classList.remove("loading");
       }
-    })();
+    }
+
+    $("btnReload")?.addEventListener("click", async () => {
+      await loadToday();
+      await loadRecentTrips();
+      await loadStats();
+    });
+
+    $("btnReloadToday")?.addEventListener("click", loadToday);
+    $("btnReloadRecent")?.addEventListener("click", loadRecentTrips);
+    $("btnCheckAccess")?.addEventListener("click", refreshAccessState);
+    $("btnPin")?.addEventListener("click", goPin);
+    $("btnPay")?.addEventListener("click", goPay);
+    $("btnHome")?.addEventListener("click", goHome);
+    $("btnReloadAll")?.addEventListener("click", () => location.reload());
+
+    $("btnScrollToday")?.addEventListener("click", () => {
+      $("todayBlock")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    $("btnResetForm")?.addEventListener("click", resetForm);
+
+    $("btnAccessTools")?.addEventListener("click", () => {
+      const ok = confirm("OK = vérifier l'accès maintenant.\nAnnuler = aller vers l'abonnement.");
+      if (ok) refreshAccessState();
+      else goPay();
+    });
+
+    $("btnCreate")?.addEventListener("click", createTrip);
+
+    boot();
   </script>
 </body>
 </html>
