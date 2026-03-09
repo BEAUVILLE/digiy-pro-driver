@@ -11,7 +11,7 @@
     window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-cockpit-guard-20260307"></script>
+  <script src="./guard.js?v=driver-cockpit-guard-20260309"></script>
 
   <style>
     :root{
@@ -109,6 +109,11 @@
     .btn.warn{
       background:rgba(245,158,11,.15);
       color:#fde68a;
+    }
+
+    .btn.danger{
+      background:rgba(239,68,68,.14);
+      color:#fecaca;
     }
 
     .btn.ghost{background:transparent}
@@ -255,6 +260,84 @@
       background:rgba(0,0,0,.16);
     }
 
+    .itemCol{
+      display:grid;
+      gap:10px;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+    }
+
+    .rideHead{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+
+    .rideTitle{
+      font-weight:1000;
+      font-size:15px;
+      line-height:1.35;
+    }
+
+    .rideMeta{
+      display:grid;
+      gap:6px;
+    }
+
+    .metaLine{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .rideActions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .badge{
+      padding:8px 10px;
+      border-radius:999px;
+      font-weight:1000;
+      font-size:11px;
+      border:1px solid var(--line);
+      white-space:nowrap;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .badge.accepted,
+    .badge.assigned{
+      color:#fde68a;
+      border-color:rgba(245,158,11,.35);
+      background:rgba(245,158,11,.12);
+    }
+
+    .badge.in_progress{
+      color:#bbf7d0;
+      border-color:rgba(34,197,94,.35);
+      background:rgba(34,197,94,.12);
+    }
+
+    .badge.completed{
+      color:#d1fae5;
+      border-color:rgba(255,255,255,.2);
+      background:rgba(255,255,255,.06);
+    }
+
+    .badge.cancelled,
+    .badge.canceled{
+      color:#fecaca;
+      border-color:rgba(239,68,68,.35);
+      background:rgba(239,68,68,.12);
+    }
+
     .msg{margin-top:10px;font-weight:900}
     .msg.ok{color:#86efac}
     .msg.bad{color:#fca5a5}
@@ -267,6 +350,20 @@
     }
 
     .loading{opacity:.72;pointer-events:none}
+
+    .empty{
+      padding:14px;
+      border-radius:16px;
+      border:1px dashed rgba(255,255,255,.16);
+      color:var(--muted);
+      font-weight:800;
+      background:rgba(255,255,255,.03);
+    }
+
+    @media(max-width:720px){
+      .kpis{grid-template-columns:1fr}
+      .item{flex-direction:column}
+    }
   </style>
 </head>
 <body>
@@ -302,30 +399,30 @@
 
         <div class="kpis">
           <div class="kpi">
-            <div class="label">Aujourd’hui</div>
-            <div class="value" id="kpiToday">0 FCFA</div>
+            <div class="label">Assignées / acceptées</div>
+            <div class="value" id="kpiAssigned">0</div>
           </div>
           <div class="kpi">
-            <div class="label">7 jours</div>
-            <div class="value" id="kpi7d">0 FCFA</div>
+            <div class="label">En course</div>
+            <div class="value" id="kpiInProgress">0</div>
           </div>
           <div class="kpi">
-            <div class="label">30 jours</div>
-            <div class="value" id="kpi30d">0 FCFA</div>
+            <div class="label">Terminées</div>
+            <div class="value" id="kpiCompleted">0</div>
           </div>
         </div>
 
         <div class="quickGrid">
           <div class="quick">
-            <h3>➕ Nouvelle course</h3>
-            <div class="muted">Créer une course et encaisser tout de suite.</div>
-            <a class="go" href="#createCourse">Ouvrir</a>
+            <h3>🚕 Courses assignées</h3>
+            <div class="muted">Voir les courses de ce chauffeur et déclencher les actions métier.</div>
+            <a class="go" href="#todayBlock">Ouvrir</a>
           </div>
 
           <div class="quick">
-            <h3>📋 Courses du jour</h3>
-            <div class="muted">Voir les trajets saisis aujourd’hui.</div>
-            <a class="go" href="#todayBlock">Voir</a>
+            <h3>🕘 Historique récent</h3>
+            <div class="muted">Voir les dernières courses liées au chauffeur connecté.</div>
+            <a class="go" href="#recentBlock">Voir</a>
           </div>
 
           <div class="quick">
@@ -372,37 +469,25 @@
       </div>
 
       <div class="grid2">
-        <div class="card" id="createCourse">
-          <h2>Créer une course</h2>
+        <div class="card">
+          <h2>Lecture ciblée chauffeur</h2>
 
           <div class="row">
             <div>
-              <div class="muted">Départ</div>
-              <input class="in" id="pickup" placeholder="Ex: Saly centre"/>
+              <div class="muted">Téléphone chauffeur utilisé pour la lecture</div>
+              <input class="in" id="driverPhone" placeholder="+221771234567"/>
             </div>
 
             <div>
-              <div class="muted">Arrivée</div>
-              <input class="in" id="drop" placeholder="Ex: AIBD / Dakar / Somone"/>
+              <div class="muted">Dernière synchronisation</div>
+              <input class="in" id="lastSync" value="Pas encore chargé" readonly/>
             </div>
           </div>
 
           <div class="row" style="margin-top:10px">
-            <div>
-              <div class="muted">Prix</div>
-              <input class="in" id="price" inputmode="numeric" placeholder="Ex: 15000"/>
-            </div>
-
-            <div>
-              <div class="muted">Extras</div>
-              <input class="in" id="extras" inputmode="numeric" value="0"/>
-            </div>
-          </div>
-
-          <div class="row" style="margin-top:10px">
-            <button class="btn primary" id="btnCreate" type="button">➕ Créer</button>
-            <button class="btn" id="btnReload" type="button">↻ Rafraîchir</button>
-            <button class="btn" id="btnResetForm" type="button">🧹 Vider</button>
+            <button class="btn primary" id="btnReload" type="button">↻ Charger / rafraîchir</button>
+            <button class="btn" id="btnAuto" type="button">⏱️ Auto refresh : ON</button>
+            <button class="btn" id="btnResetFilter" type="button">🧹 Reprendre la session</button>
           </div>
 
           <div class="msg" id="msgCreate">Prêt.</div>
@@ -412,7 +497,7 @@
           <h2>Actions rapides</h2>
 
           <div class="list">
-            <button class="btn" id="btnScrollToday" type="button">📋 Aller aux courses du jour</button>
+            <button class="btn" id="btnScrollToday" type="button">📋 Aller aux courses assignées</button>
             <button class="btn" id="btnHome" type="button">🏠 Retour accueil module</button>
             <button class="btn" id="btnReloadAll" type="button">♻️ Recharger cockpit</button>
           </div>
@@ -448,8 +533,8 @@
       <div class="card" id="todayBlock">
         <div class="row">
           <div>
-            <h2>Mes courses du jour</h2>
-            <div class="muted">Vue rapide des courses saisies aujourd’hui.</div>
+            <h2>Mes courses assignées</h2>
+            <div class="muted">Client, départ, destination, prix, statut et actions chauffeur.</div>
           </div>
           <div style="flex:0 0 auto">
             <button class="btn" id="btnReloadToday" type="button">↻ Rafraîchir la liste</button>
@@ -461,11 +546,11 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="recentBlock">
         <div class="row">
           <div>
             <h2>Historique récent</h2>
-            <div class="muted">Tes dernières courses enregistrées dans la base.</div>
+            <div class="muted">Tes dernières courses liées au chauffeur connecté.</div>
           </div>
           <div style="flex:0 0 auto">
             <button class="btn" id="btnReloadRecent" type="button">↻ Rafraîchir historique</button>
@@ -495,10 +580,47 @@
     let slug = "";
     let phone = "";
     let IS_PREVIEW = true;
+    let AUTO_REFRESH = true;
+    let refreshTimer = null;
+    let ALL_RIDES = [];
 
     function normPhone(p){
-      const d = String(p || "").replace(/[^\d]/g, "");
-      return d.length >= 9 ? d : "";
+      const raw = String(p || "").trim();
+      const digits = raw.replace(/[^\d]/g, "");
+      if (!digits) return "";
+      if (digits.startsWith("221") && digits.length === 12) return "+" + digits;
+      if (digits.length === 9) return "+221" + digits;
+      if (raw.startsWith("+")) return raw;
+      return "+" + digits;
+    }
+
+    function phoneDigits(p){
+      return String(p || "").replace(/[^\d]/g, "");
+    }
+
+    function phoneVariants(p){
+      const raw = String(p || "").trim();
+      const normalized = normPhone(raw);
+      const digits = phoneDigits(raw);
+      const out = new Set();
+
+      if (raw) out.add(raw);
+      if (normalized) out.add(normalized);
+      if (digits) out.add(digits);
+
+      if (digits.length === 9) {
+        out.add("221" + digits);
+        out.add("+221" + digits);
+      }
+
+      if (digits.startsWith("221")) {
+        out.add(digits);
+        out.add("+" + digits);
+      }
+
+      if (normalized.startsWith("+")) out.add(normalized.slice(1));
+
+      return Array.from(out).filter(Boolean);
     }
 
     function normSlug(s){
@@ -506,7 +628,8 @@
     }
 
     function money(n){
-      return Number(n || 0).toLocaleString("fr-FR") + " FCFA";
+      const x = Number(n || 0);
+      return Number.isFinite(x) ? x.toLocaleString("fr-FR") + " FCFA" : "—";
     }
 
     function withSlug(base){
@@ -533,11 +656,10 @@
       $("titleMain").textContent = "🦅 DIGIY DRIVER PRO";
       $("subMain").textContent = "Aperçu du cockpit chauffeur. Tu vois le logiciel avant l’ouverture réelle.";
       setAccessState(false, msg || "aperçu actif");
-      $("msgCreate").textContent = "Mode aperçu actif.";
-      $("msgCreate").className = "msg warn";
-      $("kpiToday").textContent = "12 000 FCFA";
-      $("kpi7d").textContent = "78 000 FCFA";
-      $("kpi30d").textContent = "245 000 FCFA";
+      setMsg("Mode aperçu actif.", "warn");
+      $("kpiAssigned").textContent = "2";
+      $("kpiInProgress").textContent = "1";
+      $("kpiCompleted").textContent = "7";
     }
 
     function updateSessionUi(){
@@ -550,12 +672,16 @@
       $("btnProfil").href = withSlug(PROFIL_URL);
       $("btnPinPage").href = withSlug(PIN_URL);
       $("btnIndexPage").href = withSlug(HOME_URL);
+
+      if (!$("driverPhone").value.trim() && phone) {
+        $("driverPhone").value = phone;
+      }
     }
 
     function goPay(){
       const u = new URL(PAY_URL);
       u.searchParams.set("module", MODULE);
-      if (phone) u.searchParams.set("phone", phone);
+      if (phone) u.searchParams.set("phone", phoneDigits(phone));
       if (slug) u.searchParams.set("slug", slug);
       u.searchParams.set("return", location.origin + location.pathname + (slug ? "?slug=" + encodeURIComponent(slug) : ""));
       location.href = u.toString();
@@ -563,13 +689,6 @@
 
     function goPin(){ location.href = withSlug(PIN_URL); }
     function goHome(){ location.href = withSlug(HOME_URL); }
-
-    function resetForm(){
-      $("pickup").value = "";
-      $("drop").value = "";
-      $("price").value = "";
-      $("extras").value = "0";
-    }
 
     function escapeHtml(str){
       return String(str || "")
@@ -580,124 +699,350 @@
         .replaceAll("'", "&#039;");
     }
 
-    function previewTodayTrips(){
+    function pick(obj, keys, fallback = "—"){
+      for (const k of keys) {
+        const v = obj?.[k];
+        if (v !== null && v !== undefined && String(v).trim() !== "") return v;
+      }
+      return fallback;
+    }
+
+    function statusLabel(s){
+      const v = String(s || "").toLowerCase();
+      if (v === "accepted") return "acceptée";
+      if (v === "assigned") return "assignée";
+      if (v === "in_progress") return "en course";
+      if (v === "completed") return "terminée";
+      if (v === "cancelled" || v === "canceled") return "annulée";
+      return v || "—";
+    }
+
+    function fmtDate(v){
+      if (!v) return "—";
+      const d = new Date(v);
+      if (Number.isNaN(d.getTime())) return String(v);
+      return d.toLocaleString("fr-FR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function firstDate(obj){
+      const keys = ["updated_at","completed_at","started_at","accepted_at","created_at","requested_at"];
+      for (const k of keys){
+        const v = obj?.[k];
+        if (!v) continue;
+        const t = new Date(v).getTime();
+        if (!Number.isNaN(t)) return t;
+      }
+      return 0;
+    }
+
+    function sortRows(rows){
+      return [...rows].sort((a,b) => firstDate(b) - firstDate(a));
+    }
+
+    function previewAssignedTrips(){
       return [
-        { pickup_label:"Saly centre", drop_label:"AIBD", amount_fcfa:15000, status:"done" },
-        { pickup_label:"Ngaparou", drop_label:"Saly", amount_fcfa:3000, status:"done" }
+        {
+          id:"preview-1",
+          client_name:"Client test",
+          client_phone:"+221771342889",
+          pickup_address:"Saly centre",
+          dropoff_address:"AIBD",
+          vehicle_type:"Berline",
+          estimated_price_xof:15000,
+          status:"accepted",
+          created_at:new Date().toISOString()
+        },
+        {
+          id:"preview-2",
+          client_name:"Client test 2",
+          client_phone:"+221770000000",
+          pickup_address:"Ngaparou",
+          dropoff_address:"Somone",
+          vehicle_type:"Taxi",
+          estimated_price_xof:4000,
+          status:"in_progress",
+          started_at:new Date().toISOString()
+        }
       ];
     }
 
     function previewRecentTrips(){
       return [
-        { pickup_label:"Saly centre", drop_label:"AIBD", amount_fcfa:15000, status:"done", paid:true },
-        { pickup_label:"Saly", drop_label:"Somone", amount_fcfa:4000, status:"done", paid:true },
-        { pickup_label:"Ngaparou", drop_label:"Dakar", amount_fcfa:25000, status:"pending", paid:false }
+        {
+          id:"preview-3",
+          client_name:"Client récent",
+          client_phone:"+221771111111",
+          pickup_address:"Saly centre",
+          dropoff_address:"AIBD",
+          vehicle_type:"Berline",
+          final_price_xof:15000,
+          status:"completed",
+          completed_at:new Date().toISOString()
+        },
+        {
+          id:"preview-4",
+          client_name:"Client récent 2",
+          client_phone:"+221772222222",
+          pickup_address:"Saly",
+          dropoff_address:"Dakar",
+          vehicle_type:"SUV",
+          final_price_xof:25000,
+          status:"completed",
+          completed_at:new Date().toISOString()
+        }
       ];
     }
 
-    function renderTodayTrips(data){
+    function renderAssignedTrips(data){
       const box = $("todayList");
 
       if (!data || data.length === 0){
-        box.innerHTML = `<div class="item">Aucune course aujourd'hui</div>`;
+        box.innerHTML = `<div class="empty">Aucune course assignée pour ce chauffeur.</div>`;
         return;
       }
 
-      box.innerHTML = data.map(t => `
-        <div class="item">
-          <div>
-            <b>${escapeHtml(t.pickup_label || "—")} → ${escapeHtml(t.drop_label || "—")}</b>
-            <div class="muted">${escapeHtml(t.status || "—")}</div>
+      box.innerHTML = data.map(t => {
+        const id = pick(t, ["id"], "");
+        const status = String(pick(t, ["status"], "—")).toLowerCase();
+        const clientName = pick(t, ["client_name","customer_name","passenger_name","name"]);
+        const clientPhone = pick(t, ["client_phone","customer_phone","phone","rider_phone"]);
+        const pickup = pick(t, ["pickup_address","pickup_text","departure_text","depart_text","from_text","pickup_location"]);
+        const dropoff = pick(t, ["dropoff_address","dropoff_text","destination_text","to_text","dropoff_location"]);
+        const vehicle = pick(t, ["vehicle_type","car_type","ride_type","service_type","trip_type"]);
+        const price = pick(t, ["final_price_xof","estimated_price_xof","price_xof","amount_xof","prix_xof"], null);
+
+        const canStart = ["accepted","assigned"].includes(status);
+        const canFinish = status === "in_progress";
+        const disabled = IS_PREVIEW ? "disabled" : "";
+
+        return `
+          <div class="itemCol">
+            <div class="rideHead">
+              <div>
+                <div class="rideTitle">${escapeHtml(clientName)} — ${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</div>
+                <div class="metaLine">ID : ${escapeHtml(id)}</div>
+              </div>
+              <div class="badge ${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</div>
+            </div>
+
+            <div class="rideMeta">
+              <div class="metaLine">📞 Client : ${escapeHtml(clientPhone)}</div>
+              <div class="metaLine">🚘 Véhicule : ${escapeHtml(vehicle)}</div>
+              <div class="metaLine">💰 Prix : ${price === null ? "—" : escapeHtml(money(price))}</div>
+              <div class="metaLine">🕘 Créée : ${escapeHtml(fmtDate(pick(t, ["created_at","requested_at"], null)))}</div>
+              <div class="metaLine">▶️ Démarrée : ${escapeHtml(fmtDate(pick(t, ["started_at"], null)))}</div>
+              <div class="metaLine">✅ Terminée : ${escapeHtml(fmtDate(pick(t, ["completed_at"], null)))}</div>
+            </div>
+
+            <div class="rideActions">
+              <button class="btn primary jsRideAction" data-action="start" data-id="${escapeHtml(id)}" ${canStart ? "" : "disabled"} ${disabled}>DÉMARRER</button>
+              <button class="btn danger jsRideAction" data-action="finish" data-id="${escapeHtml(id)}" ${canFinish ? "" : "disabled"} ${disabled}>TERMINER</button>
+            </div>
           </div>
-          <div>${money(t.amount_fcfa || 0)}</div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
+
+      box.querySelectorAll(".jsRideAction").forEach(btn => {
+        btn.addEventListener("click", onRideAction);
+      });
     }
 
     function renderRecentTrips(data){
       const box = $("recentTripsList");
 
       if (!data || data.length === 0){
-        box.innerHTML = `<div class="item">Aucune course récente</div>`;
+        box.innerHTML = `<div class="empty">Aucune course récente</div>`;
         return;
       }
 
-      box.innerHTML = data.map(t => `
-        <div class="item">
-          <div>
-            <b>${escapeHtml(t.pickup_label || "—")} → ${escapeHtml(t.drop_label || "—")}</b>
-            <div class="muted">${escapeHtml(t.status || "—")} • ${t.paid ? "payé" : "non payé"}</div>
+      box.innerHTML = data.map(t => {
+        const status = String(pick(t, ["status"], "—")).toLowerCase();
+        const clientName = pick(t, ["client_name","customer_name","passenger_name","name"]);
+        const pickup = pick(t, ["pickup_address","pickup_text","departure_text","depart_text","from_text","pickup_location"]);
+        const dropoff = pick(t, ["dropoff_address","dropoff_text","destination_text","to_text","dropoff_location"]);
+        const price = pick(t, ["final_price_xof","estimated_price_xof","price_xof","amount_xof","prix_xof"], null);
+        const at = pick(t, ["completed_at","started_at","created_at","requested_at"], null);
+
+        return `
+          <div class="item">
+            <div>
+              <b>${escapeHtml(clientName)} — ${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</b>
+              <div class="muted">${escapeHtml(statusLabel(status))} • ${escapeHtml(fmtDate(at))}</div>
+            </div>
+            <div>${price === null ? "—" : escapeHtml(money(price))}</div>
           </div>
-          <div>${money(t.amount_fcfa || 0)}</div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
+    }
+
+    function updateKpis(rows){
+      const assigned = rows.filter(r => {
+        const s = String(r.status || "").toLowerCase();
+        return s === "accepted" || s === "assigned";
+      }).length;
+
+      const inProgress = rows.filter(r => String(r.status || "").toLowerCase() === "in_progress").length;
+      const completed = rows.filter(r => String(r.status || "").toLowerCase() === "completed").length;
+
+      $("kpiAssigned").textContent = String(assigned);
+      $("kpiInProgress").textContent = String(inProgress);
+      $("kpiCompleted").textContent = String(completed);
+    }
+
+    async function fetchDriverRides(){
+      const filterPhone = $("driverPhone").value.trim() || phone;
+      const variants = phoneVariants(filterPhone);
+
+      if (!variants.length) {
+        ALL_RIDES = [];
+        updateKpis([]);
+        renderAssignedTrips([]);
+        renderRecentTrips([]);
+        setMsg("⚠️ Téléphone chauffeur manquant.", "bad");
+        return [];
+      }
+
+      const { data, error } = await sb
+        .from("ride_requests")
+        .select("*")
+        .in("assigned_driver_phone", variants);
+
+      if (error) throw error;
+
+      const rows = sortRows(data || []);
+      ALL_RIDES = rows;
+      $("lastSync").value = new Date().toLocaleString("fr-FR");
+      return rows;
     }
 
     async function loadToday(){
-      if (!slug || IS_PREVIEW){
-        renderTodayTrips(previewTodayTrips());
+      if (IS_PREVIEW){
+        const rows = previewAssignedTrips();
+        updateKpis(rows);
+        renderAssignedTrips(rows);
         return;
       }
 
-      const { data, error } = await sb.rpc("driver_list_recent_trips_by_slug", {
-        p_slug: slug,
-        p_limit: 20
+      const rows = ALL_RIDES.length ? ALL_RIDES : await fetchDriverRides();
+      const activeRows = rows.filter(r => {
+        const s = String(r.status || "").toLowerCase();
+        return s === "accepted" || s === "assigned" || s === "in_progress";
       });
 
-      if (error){
-        console.error(error);
-        $("todayList").innerHTML = `<div class="item">Erreur de chargement</div>`;
-        return;
-      }
-
-      const rows = (data || []).filter(t => {
-        const dt = new Date(t.completed_at || t.created_at || 0);
-        const now = new Date();
-        return dt.toDateString() === now.toDateString();
-      });
-
-      renderTodayTrips(rows);
+      renderAssignedTrips(activeRows);
     }
 
     async function loadRecentTrips(){
-      if (!slug || IS_PREVIEW){
+      if (IS_PREVIEW){
         renderRecentTrips(previewRecentTrips());
         return;
       }
 
-      const { data, error } = await sb.rpc("driver_list_recent_trips_by_slug", {
-        p_slug: slug,
-        p_limit: 10
-      });
-
-      if (error){
-        console.error(error);
-        $("recentTripsList").innerHTML = `<div class="item">Erreur de chargement</div>`;
-        return;
-      }
-
-      renderRecentTrips(data || []);
+      const rows = ALL_RIDES.length ? ALL_RIDES : await fetchDriverRides();
+      renderRecentTrips(rows.slice(0, 20));
     }
 
     async function loadStats(){
-      if (!slug || IS_PREVIEW){
-        $("kpiToday").textContent = "12 000 FCFA";
-        $("kpi7d").textContent = "78 000 FCFA";
-        $("kpi30d").textContent = "245 000 FCFA";
+      if (IS_PREVIEW){
+        $("kpiAssigned").textContent = "2";
+        $("kpiInProgress").textContent = "1";
+        $("kpiCompleted").textContent = "7";
         return;
       }
 
-      const { data, error } = await sb.rpc("driver_stats_by_slug", { p_slug: slug });
+      const rows = ALL_RIDES.length ? ALL_RIDES : await fetchDriverRides();
+      updateKpis(rows);
+    }
 
-      if (error){
-        console.error(error);
+    async function reloadAllData(){
+      try{
+        if (IS_PREVIEW){
+          setPreviewState("aperçu actif");
+          await loadStats();
+          await loadToday();
+          await loadRecentTrips();
+          return;
+        }
+
+        ALL_RIDES = [];
+        const rows = await fetchDriverRides();
+        updateKpis(rows);
+        await loadToday();
+        await loadRecentTrips();
+        setMsg("✅ Cockpit synchronisé.", "ok");
+      }catch(e){
+        console.error(e);
+        setMsg("❌ Erreur de chargement cockpit", "bad");
+        $("todayList").innerHTML = `<div class="empty">Erreur de chargement</div>`;
+        $("recentTripsList").innerHTML = `<div class="empty">Erreur de chargement</div>`;
+      }
+    }
+
+    async function rpcWithFallback(functionName, rideId, driverPhone){
+      const attempts = [
+        { p_ride_id: rideId, p_driver_phone: driverPhone },
+        { ride_id: rideId, driver_phone: driverPhone },
+        { p_id: rideId, p_phone: driverPhone },
+        { id: rideId, phone: driverPhone }
+      ];
+
+      let lastError = null;
+
+      for (const args of attempts){
+        const { data, error } = await sb.rpc(functionName, args);
+        if (!error) return data;
+        lastError = error;
+      }
+
+      throw lastError || new Error("rpc_failed");
+    }
+
+    async function onRideAction(ev){
+      const btn = ev.currentTarget;
+      const action = btn.dataset.action;
+      const rideId = btn.dataset.id;
+      const currentPhone = $("driverPhone").value.trim() || phone;
+
+      if (IS_PREVIEW){
+        setMsg("⚠️ Mode aperçu : entre par PIN pour agir sur une vraie course", "warn");
         return;
       }
 
-      const stats = data || {};
-      $("kpiToday").textContent = money(stats.today_total || 0);
-      $("kpi7d").textContent = money(stats.days7_total || 0);
-      $("kpi30d").textContent = money(stats.days30_total || 0);
+      if (!rideId){
+        setMsg("⚠️ Course introuvable", "bad");
+        return;
+      }
+
+      if (!currentPhone){
+        setMsg("⚠️ Téléphone chauffeur manquant", "bad");
+        return;
+      }
+
+      btn.disabled = true;
+
+      try{
+        if (action === "start"){
+          await rpcWithFallback("digiy_driver_start_ride", rideId, currentPhone);
+          setMsg("✅ Course démarrée", "ok");
+        } else if (action === "finish"){
+          await rpcWithFallback("digiy_driver_complete_ride", rideId, currentPhone);
+          setMsg("✅ Course terminée", "ok");
+        }
+
+        ALL_RIDES = [];
+        await reloadAllData();
+      }catch(e){
+        console.error(e);
+        setMsg("❌ Action impossible", "bad");
+      }finally{
+        btn.disabled = false;
+      }
     }
 
     async function refreshAccessState(){
@@ -714,70 +1059,57 @@
         updateSessionUi();
 
         if (st?.access_ok){
+          IS_PREVIEW = false;
           setAccessState(true, "abonnement OK");
+          await reloadAllData();
           return true;
         }
 
         if (st?.preview){
+          IS_PREVIEW = true;
           setAccessState(false, "aperçu actif");
+          await reloadAllData();
           return false;
         }
 
         if (st?.reason === "no_subscription"){
+          IS_PREVIEW = true;
           setAccessState(false, "abonnement KO");
+          await reloadAllData();
           return false;
         }
 
+        IS_PREVIEW = true;
         setAccessState(false, st?.reason || "accès KO");
+        await reloadAllData();
         return false;
       }catch(e){
         console.error(e);
+        IS_PREVIEW = true;
         setAccessState(false, "erreur contrôle");
+        await reloadAllData();
         return false;
       }
     }
 
-    async function createTrip(){
-      const pickup = $("pickup").value.trim();
-      const drop = $("drop").value.trim();
-      const price = parseInt($("price").value || "0", 10);
-      const extras = parseInt($("extras").value || "0", 10);
+    function resetFilter(){
+      $("driverPhone").value = phone || "";
+      setMsg("Filtre remis sur la session chauffeur.", "ok");
+    }
 
-      if (IS_PREVIEW){
-        setMsg("⚠️ Mode aperçu : entre par PIN pour créer une vraie course", "warn");
-        return;
+    function toggleAutoRefresh(){
+      AUTO_REFRESH = !AUTO_REFRESH;
+      $("btnAuto").textContent = "⏱️ Auto refresh : " + (AUTO_REFRESH ? "ON" : "OFF");
+
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
       }
 
-      if (!slug){
-        setMsg("⚠️ Slug manquant", "bad");
-        return;
-      }
-
-      if (!pickup || !drop || price <= 0){
-        setMsg("⚠️ Remplis tous les champs", "bad");
-        return;
-      }
-
-      try{
-        const { data, error } = await sb.rpc("driver_create_trip_by_slug", {
-          p_slug: slug,
-          p_pickup_label: pickup,
-          p_drop_label: drop,
-          p_price_fcfa: price,
-          p_extras_fcfa: extras
-        });
-
-        if (error) throw error;
-        if (!data) throw new Error("trip_create_failed");
-
-        setMsg("✅ Course enregistrée", "ok");
-        resetForm();
-        await loadToday();
-        await loadRecentTrips();
-        await loadStats();
-      }catch(e){
-        console.error(e);
-        setMsg("❌ Erreur création", "bad");
+      if (AUTO_REFRESH){
+        refreshTimer = setInterval(() => {
+          if (!document.hidden) reloadAllData();
+        }, 15000);
       }
     }
 
@@ -795,65 +1127,61 @@
         if (st?.preview){
           IS_PREVIEW = true;
           setPreviewState("aperçu actif");
-          await loadStats();
-          await loadToday();
-          await loadRecentTrips();
-          return;
-        }
-
-        if (st?.access_ok){
+          await reloadAllData();
+        } else if (st?.access_ok){
           IS_PREVIEW = false;
           setAccessState(true, "abonnement OK");
-          await loadStats();
-          await loadToday();
-          await loadRecentTrips();
-          return;
+          await reloadAllData();
+        } else {
+          IS_PREVIEW = true;
+          setPreviewState(st?.reason === "no_subscription" ? "abonnement KO" : "aperçu actif");
+          await reloadAllData();
         }
 
-        IS_PREVIEW = true;
-        setPreviewState(st?.reason === "no_subscription" ? "abonnement KO" : "aperçu actif");
-        await loadStats();
-        await loadToday();
-        await loadRecentTrips();
+        refreshTimer = setInterval(() => {
+          if (AUTO_REFRESH && !document.hidden) reloadAllData();
+        }, 15000);
+
       } catch (e){
         console.error(e);
         IS_PREVIEW = true;
         setPreviewState("crash cockpit");
-        await loadStats();
-        await loadToday();
-        await loadRecentTrips();
+        await reloadAllData();
       } finally {
         document.body.classList.remove("loading");
       }
     }
 
-    $("btnReload")?.addEventListener("click", async () => {
+    $("btnReload")?.addEventListener("click", reloadAllData);
+    $("btnReloadToday")?.addEventListener("click", async () => {
+      if (!IS_PREVIEW) ALL_RIDES = [];
       await loadToday();
+      await loadStats();
+    });
+
+    $("btnReloadRecent")?.addEventListener("click", async () => {
+      if (!IS_PREVIEW) ALL_RIDES = [];
       await loadRecentTrips();
       await loadStats();
     });
 
-    $("btnReloadToday")?.addEventListener("click", loadToday);
-    $("btnReloadRecent")?.addEventListener("click", loadRecentTrips);
     $("btnCheckAccess")?.addEventListener("click", refreshAccessState);
     $("btnPin")?.addEventListener("click", goPin);
     $("btnPay")?.addEventListener("click", goPay);
     $("btnHome")?.addEventListener("click", goHome);
     $("btnReloadAll")?.addEventListener("click", () => location.reload());
+    $("btnResetFilter")?.addEventListener("click", resetFilter);
+    $("btnAuto")?.addEventListener("click", toggleAutoRefresh);
 
     $("btnScrollToday")?.addEventListener("click", () => {
       $("todayBlock")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-
-    $("btnResetForm")?.addEventListener("click", resetForm);
 
     $("btnAccessTools")?.addEventListener("click", () => {
       const ok = confirm("OK = vérifier l'accès maintenant.\nAnnuler = aller vers l'abonnement.");
       if (ok) refreshAccessState();
       else goPay();
     });
-
-    $("btnCreate")?.addEventListener("click", createTrip);
 
     boot();
   </script>
