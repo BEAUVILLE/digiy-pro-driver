@@ -11,7 +11,7 @@
     window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-cockpit-guard-20260309"></script>
+  <script src="./guard.js?v=driver-cockpit-guard-20260309-final"></script>
 
   <style>
     :root{
@@ -97,9 +97,16 @@
       font-weight:900;
       cursor:pointer;
       min-height:44px;
+      transition:.15s ease;
     }
 
     .btn:hover{transform:translateY(-1px)}
+    .btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+      transform:none;
+    }
+
     .btn.primary{
       background:var(--primary);
       color:#042012;
@@ -140,7 +147,7 @@
 
     .kpis{
       display:grid;
-      grid-template-columns:repeat(3,1fr);
+      grid-template-columns:repeat(4,1fr);
       gap:10px;
       margin-top:12px;
     }
@@ -360,7 +367,11 @@
       background:rgba(255,255,255,.03);
     }
 
-    @media(max-width:720px){
+    @media(max-width:760px){
+      .kpis{grid-template-columns:1fr 1fr}
+    }
+
+    @media(max-width:560px){
       .kpis{grid-template-columns:1fr}
       .item{flex-direction:column}
     }
@@ -399,7 +410,7 @@
 
         <div class="kpis">
           <div class="kpi">
-            <div class="label">Assignées / acceptées</div>
+            <div class="label">Assignées</div>
             <div class="value" id="kpiAssigned">0</div>
           </div>
           <div class="kpi">
@@ -410,24 +421,28 @@
             <div class="label">Terminées</div>
             <div class="value" id="kpiCompleted">0</div>
           </div>
+          <div class="kpi">
+            <div class="label">Annulées</div>
+            <div class="value" id="kpiCancelled">0</div>
+          </div>
         </div>
 
         <div class="quickGrid">
           <div class="quick">
-            <h3>🚕 Courses assignées</h3>
-            <div class="muted">Voir les courses de ce chauffeur et déclencher les actions métier.</div>
+            <h3>🚕 Courses actives</h3>
+            <div class="muted">Voir les courses assignées au chauffeur et agir dessus.</div>
             <a class="go" href="#todayBlock">Ouvrir</a>
           </div>
 
           <div class="quick">
-            <h3>🕘 Historique récent</h3>
-            <div class="muted">Voir les dernières courses liées au chauffeur connecté.</div>
+            <h3>🕘 Historique</h3>
+            <div class="muted">Voir les dernières courses terminées ou annulées.</div>
             <a class="go" href="#recentBlock">Voir</a>
           </div>
 
           <div class="quick">
             <h3>🔐 Accès & abonnement</h3>
-            <div class="muted">Contrôle d’accès, PIN, retour vers abonnement.</div>
+            <div class="muted">Contrôle d’accès, PIN, abonnement, session.</div>
             <button class="go" id="btnAccessTools" type="button">Gérer</button>
           </div>
         </div>
@@ -497,7 +512,7 @@
           <h2>Actions rapides</h2>
 
           <div class="list">
-            <button class="btn" id="btnScrollToday" type="button">📋 Aller aux courses assignées</button>
+            <button class="btn" id="btnScrollToday" type="button">📋 Aller aux courses actives</button>
             <button class="btn" id="btnHome" type="button">🏠 Retour accueil module</button>
             <button class="btn" id="btnReloadAll" type="button">♻️ Recharger cockpit</button>
           </div>
@@ -533,8 +548,8 @@
       <div class="card" id="todayBlock">
         <div class="row">
           <div>
-            <h2>Mes courses assignées</h2>
-            <div class="muted">Client, départ, destination, prix, statut et actions chauffeur.</div>
+            <h2>Mes courses actives</h2>
+            <div class="muted">Cours en direct : en course, acceptées, assignées.</div>
           </div>
           <div style="flex:0 0 auto">
             <button class="btn" id="btnReloadToday" type="button">↻ Rafraîchir la liste</button>
@@ -550,7 +565,7 @@
         <div class="row">
           <div>
             <h2>Historique récent</h2>
-            <div class="muted">Tes dernières courses liées au chauffeur connecté.</div>
+            <div class="muted">Dernières courses terminées ou annulées.</div>
           </div>
           <div style="flex:0 0 auto">
             <button class="btn" id="btnReloadRecent" type="button">↻ Rafraîchir historique</button>
@@ -660,6 +675,7 @@
       $("kpiAssigned").textContent = "2";
       $("kpiInProgress").textContent = "1";
       $("kpiCompleted").textContent = "7";
+      $("kpiCancelled").textContent = "1";
     }
 
     function updateSessionUi(){
@@ -717,6 +733,16 @@
       return v || "—";
     }
 
+    function rideStatusRank(s){
+      const v = String(s || "").toLowerCase();
+      if (v === "in_progress") return 0;
+      if (v === "accepted") return 1;
+      if (v === "assigned") return 2;
+      if (v === "completed") return 3;
+      if (v === "cancelled" || v === "canceled") return 4;
+      return 9;
+    }
+
     function fmtDate(v){
       if (!v) return "—";
       const d = new Date(v);
@@ -749,7 +775,7 @@
       return [
         {
           id:"preview-1",
-          client_name:"Client test",
+          client_name:"",
           client_phone:"+221771342889",
           pickup_address:"Saly centre",
           dropoff_address:"AIBD",
@@ -760,7 +786,7 @@
         },
         {
           id:"preview-2",
-          client_name:"Client test 2",
+          client_name:"",
           client_phone:"+221770000000",
           pickup_address:"Ngaparou",
           dropoff_address:"Somone",
@@ -776,7 +802,7 @@
       return [
         {
           id:"preview-3",
-          client_name:"Client récent",
+          client_name:"",
           client_phone:"+221771111111",
           pickup_address:"Saly centre",
           dropoff_address:"AIBD",
@@ -787,7 +813,7 @@
         },
         {
           id:"preview-4",
-          client_name:"Client récent 2",
+          client_name:"",
           client_phone:"+221772222222",
           pickup_address:"Saly",
           dropoff_address:"Dakar",
@@ -803,15 +829,21 @@
       const box = $("todayList");
 
       if (!data || data.length === 0){
-        box.innerHTML = `<div class="empty">Aucune course assignée pour ce chauffeur.</div>`;
+        box.innerHTML = `<div class="empty">Aucune course active pour ce chauffeur.</div>`;
         return;
       }
 
       box.innerHTML = data.map(t => {
         const id = pick(t, ["id"], "");
         const status = String(pick(t, ["status"], "—")).toLowerCase();
+
         const clientName = pick(t, ["client_name","customer_name","passenger_name","name"]);
         const clientPhone = pick(t, ["client_phone","customer_phone","phone","rider_phone"]);
+        const clientDisplay =
+          clientName !== "—" ? clientName :
+          clientPhone !== "—" ? clientPhone :
+          "Client";
+
         const pickup = pick(t, ["pickup_address","pickup_text","departure_text","depart_text","from_text","pickup_location"]);
         const dropoff = pick(t, ["dropoff_address","dropoff_text","destination_text","to_text","dropoff_location"]);
         const vehicle = pick(t, ["vehicle_type","car_type","ride_type","service_type","trip_type"]);
@@ -825,7 +857,7 @@
           <div class="itemCol">
             <div class="rideHead">
               <div>
-                <div class="rideTitle">${escapeHtml(clientName)} — ${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</div>
+                <div class="rideTitle">${escapeHtml(clientDisplay)} — ${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</div>
                 <div class="metaLine">ID : ${escapeHtml(id)}</div>
               </div>
               <div class="badge ${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</div>
@@ -864,6 +896,12 @@
       box.innerHTML = data.map(t => {
         const status = String(pick(t, ["status"], "—")).toLowerCase();
         const clientName = pick(t, ["client_name","customer_name","passenger_name","name"]);
+        const clientPhone = pick(t, ["client_phone","customer_phone","phone","rider_phone"]);
+        const clientDisplay =
+          clientName !== "—" ? clientName :
+          clientPhone !== "—" ? clientPhone :
+          "Client";
+
         const pickup = pick(t, ["pickup_address","pickup_text","departure_text","depart_text","from_text","pickup_location"]);
         const dropoff = pick(t, ["dropoff_address","dropoff_text","destination_text","to_text","dropoff_location"]);
         const price = pick(t, ["final_price_xof","estimated_price_xof","price_xof","amount_xof","prix_xof"], null);
@@ -872,7 +910,7 @@
         return `
           <div class="item">
             <div>
-              <b>${escapeHtml(clientName)} — ${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</b>
+              <b>${escapeHtml(clientDisplay)} — ${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</b>
               <div class="muted">${escapeHtml(statusLabel(status))} • ${escapeHtml(fmtDate(at))}</div>
             </div>
             <div>${price === null ? "—" : escapeHtml(money(price))}</div>
@@ -889,10 +927,15 @@
 
       const inProgress = rows.filter(r => String(r.status || "").toLowerCase() === "in_progress").length;
       const completed = rows.filter(r => String(r.status || "").toLowerCase() === "completed").length;
+      const cancelled = rows.filter(r => {
+        const s = String(r.status || "").toLowerCase();
+        return s === "cancelled" || s === "canceled";
+      }).length;
 
       $("kpiAssigned").textContent = String(assigned);
       $("kpiInProgress").textContent = String(inProgress);
       $("kpiCompleted").textContent = String(completed);
+      $("kpiCancelled").textContent = String(cancelled);
     }
 
     async function fetchDriverRides(){
@@ -923,17 +966,29 @@
 
     async function loadToday(){
       if (IS_PREVIEW){
-        const rows = previewAssignedTrips();
+        const rows = previewAssignedTrips()
+          .sort((a, b) => {
+            const byStatus = rideStatusRank(a.status) - rideStatusRank(b.status);
+            if (byStatus !== 0) return byStatus;
+            return firstDate(b) - firstDate(a);
+          });
         updateKpis(rows);
         renderAssignedTrips(rows);
         return;
       }
 
       const rows = ALL_RIDES.length ? ALL_RIDES : await fetchDriverRides();
-      const activeRows = rows.filter(r => {
-        const s = String(r.status || "").toLowerCase();
-        return s === "accepted" || s === "assigned" || s === "in_progress";
-      });
+
+      const activeRows = rows
+        .filter(r => {
+          const s = String(r.status || "").toLowerCase();
+          return s === "accepted" || s === "assigned" || s === "in_progress";
+        })
+        .sort((a, b) => {
+          const byStatus = rideStatusRank(a.status) - rideStatusRank(b.status);
+          if (byStatus !== 0) return byStatus;
+          return firstDate(b) - firstDate(a);
+        });
 
       renderAssignedTrips(activeRows);
     }
@@ -945,7 +1000,15 @@
       }
 
       const rows = ALL_RIDES.length ? ALL_RIDES : await fetchDriverRides();
-      renderRecentTrips(rows.slice(0, 20));
+
+      const historyRows = rows
+        .filter(r => {
+          const s = String(r.status || "").toLowerCase();
+          return s === "completed" || s === "cancelled" || s === "canceled";
+        })
+        .sort((a, b) => firstDate(b) - firstDate(a));
+
+      renderRecentTrips(historyRows.slice(0, 20));
     }
 
     async function loadStats(){
@@ -953,6 +1016,7 @@
         $("kpiAssigned").textContent = "2";
         $("kpiInProgress").textContent = "1";
         $("kpiCompleted").textContent = "7";
+        $("kpiCancelled").textContent = "1";
         return;
       }
 
@@ -1153,6 +1217,7 @@
     }
 
     $("btnReload")?.addEventListener("click", reloadAllData);
+
     $("btnReloadToday")?.addEventListener("click", async () => {
       if (!IS_PREVIEW) ALL_RIDES = [];
       await loadToday();
