@@ -5,936 +5,598 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Rejoindre DIGIY DRIVER — Ambassadeur de mobilité</title>
   <meta name="theme-color" content="#040f09"/>
-  <meta name="description" content="DIGIY DRIVER recrute des ambassadeurs de mobilité. Pas des chauffeurs — des professionnels d'exception. 0% commission. Liberté totale."/>
+  <meta name="description" content="DIGIY DRIVER recrute des ambassadeurs de mobilité. Pas des chauffeurs — des professionnels d’exception. 0% commission. Liberté totale."/>
+  <meta name="keywords" content="DIGIY DRIVER, chauffeur privé, mobilité, Sénégal, Saly, Dakar, VTC, transport premium, plateforme chauffeur, 0% commission"/>
+  <meta name="author" content="DIGIYLYFE"/>
 
   <link rel="canonical" href="https://driver.digiylyfe.com/"/>
+
   <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Rejoindre DIGIY DRIVER — Ambassadeur de mobilité"/>
   <meta property="og:url" content="https://driver.digiylyfe.com/"/>
   <meta property="og:description" content="0% commission. Liberté totale. Prestige du service. Rejoins le réseau DIGIY DRIVER."/>
   <meta property="og:image" content="https://driver.digiylyfe.com/og-driver.jpg"/>
+
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:title" content="Rejoindre DIGIY DRIVER — Ambassadeur de mobilité"/>
-  <meta name="twitter:description" content="0% commission. Liberté totale. Prestige du service."/>
+  <meta name="twitter:description" content="0% commission. Liberté totale. Prestige du service. Rejoins DIGIY DRIVER."/>
   <meta name="twitter:image" content="https://driver.digiylyfe.com/og-driver.jpg"/>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
-
   <style>
-    :root {
-      --bg: #040f09;
-      --bg2: #071810;
-      --card: #0a2016;
-      --line: rgba(255,255,255,.10);
-      --line2: rgba(250,204,21,.18);
-      --text: #eafff1;
-      --muted: rgba(234,255,241,.58);
-      --soft: rgba(234,255,241,.36);
-      --primary: #22c55e;
-      --gold: #facc15;
-      --gold2: #fde68a;
-      --shadow: 0 24px 80px rgba(0,0,0,.55);
-      --max: 860px;
+    :root{
+      --bg:#040f09;
+      --bg-soft:#0a1c13;
+      --panel:rgba(255,255,255,.06);
+      --panel-2:rgba(255,255,255,.08);
+      --line:rgba(255,255,255,.12);
+      --text:#eefcf3;
+      --muted:rgba(238,252,243,.74);
+      --gold:#f4c95d;
+      --gold-2:#e7b63f;
+      --green:#2ed573;
+      --danger:#ff7675;
+      --shadow:0 18px 50px rgba(0,0,0,.28);
+      --radius:24px;
+      --radius-sm:18px;
+      --max:1180px;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; overflow-x: hidden; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', system-ui, sans-serif;
-      font-size: 15px;
-      line-height: 1.65;
-      overflow-x: hidden;
-    }
-
-    .skip{
-      position:absolute; left:-999px; top:10px;
-      background:#fff; color:#000; padding:10px 12px; border-radius:10px;
-      z-index:9999;
-    }
-    .skip:focus{ left:10px; }
-
-    body::after {
-      content: '';
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      opacity: .5;
-    }
-
-    @media (max-width: 600px){
-      body::after{ opacity: 0.18; }
-    }
-    @media (prefers-reduced-motion: reduce){
-      body::after{ display:none; }
-      *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
-    }
-
-    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
-
-    .topbar {
-      position: sticky; top: 0; z-index: 100;
-      padding: 14px 20px;
-      display: flex; align-items: center; justify-content: space-between; gap: 14px;
-      background: rgba(4,15,9,.88);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid var(--line);
-    }
-    .topbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo {
-      width: 38px; height: 38px; border-radius: 12px;
-      display: grid; place-items: center;
-      border: 1px solid var(--line2);
-      background: rgba(0,0,0,.25);
-      font-size: 18px; color: var(--gold);
-    }
-    .brand-name { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 14px; color: var(--text); }
-    .brand-sub { font-size: 11px; color: var(--muted); }
-
-    .top-actions{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end
-    }
-
-    .btn-cta-top {
-      padding: 10px 18px; border-radius: 999px;
-      background: linear-gradient(135deg, var(--primary), #16a34a);
-      color: #041a0a; font-weight: 700; font-size: 13px;
-      border: none; cursor: pointer; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 6px;
-      transition: transform .15s, box-shadow .15s;
-      white-space: nowrap;
-    }
-    .btn-cta-top:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(34,197,94,.35); }
-
-    .btn-cta-top.ghost{
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.14);
-      color: var(--text);
-    }
-    .btn-cta-top.gold{
-      background: rgba(250,204,21,.12);
-      border: 1px solid rgba(250,204,21,.28);
-      color: var(--gold);
-    }
-
-    .hero {
-      min-height: 92vh;
-      display: flex; flex-direction: column; justify-content: center;
-      padding: 80px 20px 60px;
-      position: relative; overflow: hidden;
-    }
-    .hero-bg {
-      position: absolute; inset: 0; z-index: 0;
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
       background:
-        radial-gradient(ellipse 700px 500px at 15% 30%, rgba(34,197,94,.16), transparent 65%),
-        radial-gradient(ellipse 500px 400px at 85% 70%, rgba(250,204,21,.09), transparent 60%),
-        var(--bg);
-    }
-    .hero-content { position: relative; z-index: 1; max-width: var(--max); margin: 0 auto; width: 100%; }
-
-    .hero-label {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 7px 14px; border-radius: 999px;
-      border: 1px solid var(--line2);
-      background: rgba(250,204,21,.06);
-      color: var(--gold); font-size: 12px; font-weight: 700;
-      letter-spacing: 1.4px; text-transform: uppercase;
-      margin-bottom: 28px;
-      opacity: 0; animation: fadeUp .7s .1s forwards;
-    }
-    .hero-label::before {
-      content: ''; width: 6px; height: 6px; border-radius: 50%;
-      background: var(--gold);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .4; transform: scale(.7); }
+        radial-gradient(circle at top left, rgba(244,201,93,.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(46,213,115,.07), transparent 22%),
+        linear-gradient(180deg,#040f09 0%,#07140d 100%);
+      color:var(--text);
     }
 
-    .hero h1 {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(42px, 8vw, 82px);
-      font-weight: 600; line-height: 1.06;
-      letter-spacing: -.5px;
-      margin-bottom: 10px;
-      opacity: 0; animation: fadeUp .8s .25s forwards;
-    }
-    .hero h1 em { font-style: italic; color: var(--gold); }
-    .hero h1 .strike {
-      position: relative; color: var(--muted);
-      text-decoration: line-through;
-      text-decoration-color: rgba(239,68,68,.6);
-      text-decoration-thickness: 3px;
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+
+    .wrap{width:min(var(--max),calc(100% - 28px));margin:0 auto}
+
+    .topbar{
+      position:sticky;top:0;z-index:50;
+      backdrop-filter:blur(16px);
+      background:rgba(4,15,9,.72);
+      border-bottom:1px solid rgba(255,255,255,.08);
     }
 
-    .hero-sub {
-      font-size: 17px; color: var(--muted); font-weight: 300;
-      max-width: 560px; margin-top: 20px; line-height: 1.7;
-      opacity: 0; animation: fadeUp .8s .45s forwards;
-    }
-    .hero-sub strong { color: var(--text); font-weight: 500; }
-
-    .hero-ctas {
-      display: flex; flex-wrap: wrap; gap: 12px;
-      margin-top: 38px;
-      opacity: 0; animation: fadeUp .8s .65s forwards;
-    }
-    .btn-main {
-      padding: 16px 32px; border-radius: 999px;
-      background: linear-gradient(135deg, var(--primary), #16a34a);
-      color: #041a0a; font-weight: 700; font-size: 15px;
-      border: none; cursor: pointer; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 8px;
-      transition: transform .15s, box-shadow .15s;
-    }
-    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(34,197,94,.4); }
-    .btn-ghost {
-      padding: 16px 28px; border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      color: var(--text); font-weight: 500; font-size: 15px;
-      cursor: pointer; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 8px;
-      transition: border-color .2s, background .2s;
-    }
-    .btn-ghost:hover { border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.08); }
-
-    .hero-stat-row {
-      display: flex; flex-wrap: wrap; gap: 32px;
-      margin-top: 52px; padding-top: 36px;
-      border-top: 1px solid var(--line);
-      opacity: 0; animation: fadeUp .8s .85s forwards;
-    }
-    .stat-item .num {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 38px; font-weight: 700; color: var(--gold);
-      line-height: 1;
-    }
-    .stat-item .lab { font-size: 12px; color: var(--muted); margin-top: 5px; font-weight: 500; }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(22px); }
-      to   { opacity: 1; transform: translateY(0); }
+    .topbar-inner{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:16px;padding:14px 0;
     }
 
-    section { padding: 80px 20px; position: relative; z-index: 1; }
-    .section-label {
-      font-size: 11px; font-weight: 700; letter-spacing: 2px;
-      text-transform: uppercase; color: var(--gold);
-      margin-bottom: 14px;
-    }
-    .section-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(32px, 5vw, 52px);
-      font-weight: 600; line-height: 1.1;
-      margin-bottom: 18px;
-    }
-    .section-title em { font-style: italic; color: var(--gold); }
-    .section-body { font-size: 16px; color: var(--muted); max-width: 560px; line-height: 1.75; }
-
-    .divider { border: none; border-top: 1px solid var(--line); margin: 0; }
-
-    .philo-grid { display: grid; gap: 2px; margin-top: 48px; }
-    .philo-item {
-      display: grid; grid-template-columns: 64px 1fr;
-      gap: 20px; align-items: start;
-      padding: 28px 24px;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
-      margin-bottom: 10px;
-      transition: border-color .2s, background .2s;
-    }
-    .philo-item:hover {
-      border-color: rgba(250,204,21,.22);
-      background: linear-gradient(135deg, rgba(250,204,21,.04), rgba(255,255,255,.02));
-    }
-    .philo-icon {
-      width: 56px; height: 56px; border-radius: 16px;
-      display: grid; place-items: center;
-      background: rgba(250,204,21,.08);
-      border: 1px solid var(--line2);
-      font-size: 26px; flex-shrink: 0;
-    }
-    .philo-item h3 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px; font-weight: 600; margin-bottom: 8px;
-    }
-    .philo-item p { font-size: 14px; color: var(--muted); line-height: 1.7; }
-
-    .standards-section { background: linear-gradient(180deg, var(--bg2), var(--bg)); }
-    .standards-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px; margin-top: 44px;
-    }
-    .std-card {
-      padding: 28px 22px;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
-      transition: transform .2s, border-color .2s;
-    }
-    .std-card:hover { transform: translateY(-4px); border-color: rgba(34,197,94,.28); }
-    .std-num {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 44px; font-weight: 700;
-      color: rgba(250,204,21,.18); line-height: 1;
-      margin-bottom: 12px;
-    }
-    .std-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--gold2); }
-    .std-card p { font-size: 13px; color: var(--muted); line-height: 1.65; }
-
-    .model-section { position: relative; overflow: hidden; }
-    .model-section::before {
-      content: '0%';
-      position: absolute; right: -2%; top: 50%; transform: translateY(-50%);
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(160px, 28vw, 320px);
-      font-weight: 700;
-      color: rgba(34,197,94,.04);
-      line-height: 1; pointer-events: none; user-select: none;
-      white-space: nowrap;
-    }
-    .model-grid { display: grid; gap: 14px; margin-top: 44px; }
-    @media (min-width: 640px) { .model-grid { grid-template-columns: 1fr 1fr; } }
-    .model-card {
-      padding: 28px 24px;
-      border-radius: 20px;
-      border: 1px solid var(--line);
-      background: linear-gradient(145deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
-    }
-    .model-card.highlight {
-      border-color: rgba(34,197,94,.35);
-      background: linear-gradient(145deg, rgba(34,197,94,.08), rgba(34,197,94,.02));
-    }
-    .model-card .icon { font-size: 28px; margin-bottom: 14px; }
-    .model-card h4 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px; font-weight: 600; margin-bottom: 10px;
-    }
-    .model-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
-    .model-card .tag {
-      display: inline-block; margin-top: 14px;
-      padding: 5px 12px; border-radius: 999px;
-      font-size: 12px; font-weight: 700;
-      background: rgba(34,197,94,.12);
-      border: 1px solid rgba(34,197,94,.28);
-      color: var(--primary);
+    .brand{
+      display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:.02em;
     }
 
-    .profil-section { background: linear-gradient(180deg, var(--bg), var(--bg2)); }
-    .profil-inner {
-      margin-top: 44px;
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      overflow: hidden;
-    }
-    .profil-oui { padding: 32px 28px; border-bottom: 1px solid var(--line); }
-    .profil-non { padding: 32px 28px; }
-    .profil-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
-    .profil-badge {
-      padding: 6px 14px; border-radius: 999px;
-      font-size: 12px; font-weight: 700; letter-spacing: .5px;
-    }
-    .badge-oui { background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.3); color: var(--primary); }
-    .badge-non { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25); color: #fca5a5; }
-    .check-list { display: grid; gap: 10px; }
-    .check-item { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--muted); line-height: 1.55; }
-    .check-item .ic { flex-shrink: 0; margin-top: 1px; font-size: 16px; }
-
-    .mini-form {
-      margin-top: 38px;
-      border: 1px solid rgba(250,204,21,.16);
-      background: linear-gradient(160deg, rgba(250,204,21,.04), rgba(34,197,94,.03));
-      border-radius: 24px;
-      padding: 18px;
-      max-width: 720px;
-    }
-    .mini-form .row { display:grid; gap:10px; }
-    @media(min-width:640px){ .mini-form .row{ grid-template-columns: 1fr 1fr; } }
-    .mini-form label{ display:block; font-size:12px; color:var(--soft); margin:0 0 6px 2px; font-weight:700; letter-spacing:.3px; }
-    .mini-form input, .mini-form select{
-      width:100%;
-      padding: 14px 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.20);
-      color: var(--text);
-      font-weight: 600;
-      outline: none;
-    }
-    .mini-form input::placeholder{ color: rgba(234,255,241,.40); font-weight:500; }
-    .mini-form .actions{ display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; }
-    .mini-form .note{ margin-top:10px; font-size:12px; color:var(--soft); line-height:1.55; }
-
-    .quote-section { padding: 60px 20px; }
-    .quote-block {
-      max-width: 700px; margin: 0 auto;
-      text-align: center; padding: 52px 32px;
-      border: 1px solid var(--line2);
-      border-radius: 28px;
-      background: linear-gradient(160deg, rgba(250,204,21,.04), rgba(34,197,94,.03));
-      position: relative;
-    }
-    .quote-mark {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 120px; line-height: .5;
-      color: rgba(250,204,21,.12);
-      display: block; margin-bottom: 10px;
-      user-select: none;
-    }
-    .quote-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(22px, 4vw, 34px);
-      font-style: italic; font-weight: 400;
-      line-height: 1.4; color: var(--text);
-      margin-bottom: 20px;
-    }
-    .quote-author { font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: .5px; }
-
-    .cta-section {
-      padding: 80px 20px 100px;
-      text-align: center;
-      position: relative; overflow: hidden;
-    }
-    .cta-section::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse 600px 400px at 50% 50%, rgba(34,197,94,.10), transparent 70%);
-      pointer-events: none;
-    }
-    .cta-inner { position: relative; z-index: 1; }
-    .cta-infinity {
-      font-size: 64px; display: block; margin-bottom: 16px;
-      filter: drop-shadow(0 0 20px rgba(250,204,21,.4));
-      animation: float 3s ease-in-out infinite;
-    }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-    .cta-section .section-title { margin-bottom: 14px; text-align: center; }
-    .cta-section .section-body { margin: 0 auto 36px; text-align: center; }
-
-    .cta-buttons { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
-
-    .btn-whatsapp {
-      padding: 18px 38px; border-radius: 999px;
-      background: linear-gradient(135deg, #25d366, #128c7e);
-      color: #fff; font-weight: 700; font-size: 16px;
-      border: none; cursor: pointer; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 10px;
-      transition: transform .15s, box-shadow .15s;
-      box-shadow: 0 12px 40px rgba(37,211,102,.3);
-    }
-    .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 18px 55px rgba(37,211,102,.45); }
-
-    .fine-print {
-      margin-top: 28px; font-size: 12px; color: var(--soft);
-      max-width: 520px; margin-left: auto; margin-right: auto;
-      line-height: 1.6;
+    .brand-badge{
+      width:42px;height:42px;border-radius:14px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--gold),#fff0b5);
+      color:#07140d;font-weight:1000;
+      box-shadow:var(--shadow);
     }
 
-    footer {
-      padding: 28px 20px;
-      border-top: 1px solid var(--line);
-      display: flex; flex-wrap: wrap; gap: 12px;
-      align-items: center; justify-content: space-between;
-      font-size: 12px; color: var(--soft);
-      position: relative; z-index: 1;
+    .brand small{
+      display:block;
+      color:var(--muted);
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-size:.68rem;
     }
-    footer a { color: var(--muted); text-decoration: none; }
-    footer a:hover { color: var(--text); }
 
-    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s, transform .7s; }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-    .reveal-delay-1 { transition-delay: .1s; }
-    .reveal-delay-2 { transition-delay: .2s; }
-    .reveal-delay-3 { transition-delay: .3s; }
-    .reveal-delay-4 { transition-delay: .4s; }
+    .nav-cta{
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    }
 
-    @media (max-width: 600px) {
-      .hero-stat-row { gap: 20px; }
-      .profil-oui, .profil-non { padding: 24px 18px; }
-      .quote-block { padding: 36px 20px; }
-      .topbar{padding:12px 14px}
-      .btn-cta-top{padding:10px 14px}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      min-height:48px;padding:0 18px;border-radius:999px;
+      border:1px solid transparent;font-weight:800;letter-spacing:.01em;
+      transition:.2s ease;cursor:pointer;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{
+      background:linear-gradient(135deg,var(--gold),var(--gold-2));
+      color:#08110b;
+      box-shadow:0 10px 30px rgba(244,201,93,.18);
+    }
+
+    .btn-secondary{
+      background:rgba(255,255,255,.04);
+      border-color:rgba(255,255,255,.12);
+      color:var(--text);
+    }
+
+    .btn-whatsapp{
+      background:rgba(46,213,115,.14);
+      border-color:rgba(46,213,115,.28);
+      color:#d8ffe7;
+    }
+
+    .hero{
+      padding:46px 0 26px;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.18fr .82fr;
+      gap:24px;
+      align-items:stretch;
+    }
+
+    .hero-card,
+    .panel{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.04));
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    .hero-card{
+      padding:30px;
+      position:relative;
+      overflow:hidden;
+      min-height:520px;
+    }
+
+    .hero-card::before{
+      content:"";
+      position:absolute;inset:auto -80px -120px auto;
+      width:280px;height:280px;border-radius:50%;
+      background:radial-gradient(circle,rgba(244,201,93,.18),transparent 68%);
+      pointer-events:none;
+    }
+
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:10px;
+      padding:8px 14px;border-radius:999px;
+      background:rgba(244,201,93,.12);
+      border:1px solid rgba(244,201,93,.25);
+      color:#ffe6a0;font-weight:800;font-size:.86rem;
+    }
+
+    h1{
+      margin:18px 0 14px;
+      font-size:clamp(2.2rem,5vw,4.6rem);
+      line-height:.96;
+      letter-spacing:-.04em;
+      max-width:11ch;
+    }
+
+    .lead{
+      color:var(--muted);
+      font-size:1.06rem;
+      line-height:1.75;
+      max-width:62ch;
+      margin:0 0 22px;
+    }
+
+    .hero-points{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+      margin:22px 0 26px;
+    }
+
+    .point{
+      display:flex;gap:12px;align-items:flex-start;
+      padding:14px 14px;border-radius:18px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .point b{display:block;margin-bottom:4px}
+    .point span{color:var(--muted);font-size:.94rem;line-height:1.55}
+
+    .dot{
+      width:12px;height:12px;border-radius:50%;margin-top:6px;
+      background:linear-gradient(135deg,var(--gold),#fff2ad);
+      flex:0 0 auto;
+      box-shadow:0 0 0 6px rgba(244,201,93,.08);
+    }
+
+    .hero-actions{
+      display:flex;gap:12px;flex-wrap:wrap;
+    }
+
+    .side-card{
+      padding:24px;
+      display:flex;flex-direction:column;gap:18px;
+    }
+
+    .mini-stat{
+      padding:18px;border-radius:20px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .mini-stat .label{
+      color:var(--muted);
+      font-size:.85rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-bottom:8px;
+    }
+
+    .mini-stat .value{
+      font-size:1.55rem;font-weight:900;line-height:1.1;
+    }
+
+    .mini-stat .desc{
+      margin-top:8px;color:var(--muted);line-height:1.55;font-size:.95rem;
+    }
+
+    .quote{
+      padding:18px;
+      border-radius:20px;
+      background:linear-gradient(180deg,rgba(244,201,93,.10),rgba(255,255,255,.04));
+      border:1px solid rgba(244,201,93,.18);
+      color:#fff5cf;
+      line-height:1.65;
+      font-weight:700;
+    }
+
+    section{
+      padding:18px 0 0;
+    }
+
+    .section-head{
+      display:flex;align-items:end;justify-content:space-between;gap:18px;
+      margin-bottom:18px;
+    }
+
+    .section-head h2{
+      margin:0;
+      font-size:clamp(1.5rem,3vw,2.35rem);
+      letter-spacing:-.03em;
+    }
+
+    .section-head p{
+      margin:0;color:var(--muted);max-width:60ch;line-height:1.7;
+    }
+
+    .grid-3{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+    }
+
+    .card{
+      padding:22px;
+      border-radius:24px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.035));
+      box-shadow:var(--shadow);
+    }
+
+    .card h3{
+      margin:0 0 10px;
+      font-size:1.14rem;
+      letter-spacing:-.02em;
+    }
+
+    .card p{
+      margin:0;color:var(--muted);line-height:1.7;
+    }
+
+    .pill-row{
+      display:flex;flex-wrap:wrap;gap:10px;
+      margin-top:14px;
+    }
+
+    .pill{
+      padding:8px 12px;border-radius:999px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      color:#eaf9ef;font-size:.9rem;font-weight:700;
+    }
+
+    .steps{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .step{
+      padding:22px;border-radius:22px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .step-num{
+      width:38px;height:38px;border-radius:12px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--gold),#fff0b8);
+      color:#08110b;font-weight:1000;margin-bottom:14px;
+    }
+
+    .step h3{
+      margin:0 0 8px;font-size:1rem;
+    }
+
+    .step p{
+      margin:0;color:var(--muted);line-height:1.65;font-size:.95rem;
+    }
+
+    .cta-band{
+      margin:24px 0 40px;
+      padding:26px;
+      border-radius:28px;
+      border:1px solid rgba(244,201,93,.18);
+      background:
+        radial-gradient(circle at top right, rgba(244,201,93,.12), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      box-shadow:var(--shadow);
+      display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+    }
+
+    .cta-band h2{
+      margin:0 0 8px;
+      font-size:clamp(1.45rem,3vw,2.2rem);
+      letter-spacing:-.03em;
+    }
+
+    .cta-band p{
+      margin:0;color:var(--muted);line-height:1.7;max-width:62ch;
+    }
+
+    footer{
+      padding:0 0 40px;
+    }
+
+    .footer-card{
+      padding:20px 22px;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.035);
+      display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+      color:var(--muted);
+    }
+
+    .footer-card b{color:var(--text)}
+
+    @media (max-width:980px){
+      .hero-grid,
+      .grid-3,
+      .steps{
+        grid-template-columns:1fr;
+      }
+
+      .hero-card{min-height:auto}
+      .section-head{align-items:flex-start;flex-direction:column}
+    }
+
+    @media (max-width:640px){
+      .topbar-inner{align-items:flex-start;flex-direction:column}
+      .hero{padding-top:28px}
+      .hero-card,.side-card,.card,.step,.cta-band{padding:20px}
+      .hero-points{grid-template-columns:1fr}
+      .hero-actions,.nav-cta{width:100%}
+      .btn{width:100%}
+      .footer-card{padding:18px}
     }
   </style>
 </head>
-
 <body>
-  <a href="#pourquoi" class="skip">Aller au contenu</a>
 
-  <nav class="topbar" aria-label="Navigation principale">
-    <a href="./index.html" class="topbar-brand" aria-label="Retour accueil DIGIY DRIVER">
-      <div class="logo">♾</div>
-      <div>
-        <div class="brand-name">DIGIY DRIVER</div>
-        <div class="brand-sub">L'Afrique enracinée, connectée au monde</div>
-      </div>
-    </a>
-
-    <div class="top-actions">
-      <a id="btnCockpitTop" href="./cockpit.html" class="btn-cta-top ghost" aria-label="Ouvrir le cockpit pro">
-        🚖 Cockpit DRIVER
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="https://digiylyfe.com/" aria-label="Retour au site DIGIYLYFE">
+        <div class="brand-badge">D</div>
+        <div>
+          DIGIY DRIVER
+          <small>Ambassadeur de mobilité</small>
+        </div>
       </a>
-      <a id="btnPinTop" href="./pin.html" class="btn-cta-top gold" aria-label="Ouvrir la porte PIN">
-        🔐 Porte PIN
-      </a>
-      <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-cta-top" aria-label="Postuler via WhatsApp">
-        🚖 Postuler via WhatsApp
-      </a>
+
+      <div class="nav-cta">
+        <a class="btn btn-secondary" href="https://digiylyfe.com/">Retour au site</a>
+        <a class="btn btn-primary" href="https://commencer-a-payer.digiylyfe.com/">Je veux mon module</a>
+      </div>
     </div>
-  </nav>
+  </header>
 
-  <section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-content">
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-card">
+          <div class="eyebrow">0% commission • Liberté totale • Image premium</div>
+          <h1>Pas des chauffeurs. Des professionnels d’exception.</h1>
+          <p class="lead">
+            DIGIY DRIVER ouvre la porte à une nouvelle génération de mobilité :
+            plus digne, plus propre, plus directe, plus forte.
+            Ici, tu gardes ton identité, ton numéro, ton rythme et ta valeur.
+          </p>
 
-      <div class="hero-label">DIGIY DRIVER — Recrutement</div>
+          <div class="hero-points">
+            <div class="point">
+              <div class="dot"></div>
+              <div>
+                <b>0% commission</b>
+                <span>Le client te contacte. L’argent va vers toi. Pas de ponction cachée.</span>
+              </div>
+            </div>
 
-      <h1>
-        Nous ne cherchons pas<br>
-        des <span class="strike">chauffeurs</span>.<br>
-        Nous cherchons des <em>ambassadeurs.</em>
-      </h1>
+            <div class="point">
+              <div class="dot"></div>
+              <div>
+                <b>Liberté de travail</b>
+                <span>Tu gardes tes horaires, tes zones, ton organisation et ta manière de servir.</span>
+              </div>
+            </div>
 
-      <p class="hero-sub">
-        DIGIY DRIVER est une plateforme africaine de mobilité premium.<br>
-        <strong>0% de commission. Liberté totale. Prestige du service.</strong><br>
-        Rejoindre DIGIY, c'est rejoindre un mouvement — pas une application.
-      </p>
+            <div class="point">
+              <div class="dot"></div>
+              <div>
+                <b>Image sérieuse</b>
+                <span>Une vitrine propre, rassurante, élégante, pensée pour le terrain réel.</span>
+              </div>
+            </div>
 
-      <div class="hero-ctas">
-        <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-main" aria-label="Demander un entretien via WhatsApp">
-          🚖 Demander un entretien
-        </a>
-        <a href="#pourquoi" class="btn-ghost">En savoir plus ↓</a>
-        <a id="btnCockpitHero" href="./cockpit.html" class="btn-ghost" aria-label="Ouvrir le cockpit">🚖 Cockpit DRIVER</a>
-        <a id="btnPinHero" href="./pin.html" class="btn-ghost" aria-label="Ouvrir la porte PIN">🔐 Porte PIN</a>
+            <div class="point">
+              <div class="dot"></div>
+              <div>
+                <b>Rail DIGIY</b>
+                <span>Un écosystème vivant : visibilité, contact direct, montée en gamme, souveraineté locale.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://commencer-a-payer.digiylyfe.com/">Activer mon module</a>
+            <a class="btn btn-whatsapp" href="https://wa.me/221771342889" target="_blank" rel="noopener">Parler sur WhatsApp</a>
+          </div>
+        </div>
+
+        <aside class="panel side-card">
+          <div class="mini-stat">
+            <div class="label">Positionnement</div>
+            <div class="value">Mobilité propre, directe et valorisante</div>
+            <div class="desc">Le but n’est pas de te noyer dans la masse. Le but, c’est de te faire monter en image et en qualité.</div>
+          </div>
+
+          <div class="mini-stat">
+            <div class="label">Modèle</div>
+            <div class="value">Client ↔ Pro</div>
+            <div class="desc">Contact direct. Présence claire. Plus de respect pour le travail bien fait.</div>
+          </div>
+
+          <div class="quote">
+            “Quand la mobilité devient digne, tout le reste suit :
+            confiance, ponctualité, réputation, bouche-à-oreille.”
+          </div>
+        </aside>
       </div>
+    </section>
 
-      <div class="hero-stat-row">
-        <div class="stat-item">
-          <div class="num">0%</div>
-          <div class="lab">Commission prélevée</div>
-        </div>
-        <div class="stat-item">
-          <div class="num">9</div>
-          <div class="lab">Modules DIGIYLYFE</div>
-        </div>
-        <div class="stat-item">
-          <div class="num">♾</div>
-          <div class="lab">Afrique enracinée</div>
-        </div>
-      </div>
-
-      <div class="mini-form reveal" style="margin-top:44px">
-        <div class="section-label" style="margin-bottom:8px">Postuler en 15 secondes</div>
-        <div class="section-body" style="max-width:720px;margin-bottom:14px">
-          Donne-nous juste l’essentiel — et WhatsApp s’ouvre tout seul avec ton message prêt.
-        </div>
-
-        <div class="row">
+    <section>
+      <div class="wrap">
+        <div class="section-head">
           <div>
-            <label for="fCity">Ville</label>
-            <select id="fCity">
-              <option value="Dakar">Dakar</option>
-              <option value="Saly">Saly</option>
-              <option value="Mbour">Mbour</option>
-              <option value="Rufisque">Rufisque</option>
-              <option value="Thiès">Thiès</option>
-              <option value="Autre">Autre</option>
-            </select>
+            <h2>Pourquoi rejoindre DIGIY DRIVER ?</h2>
           </div>
+          <p>
+            Parce qu’un vrai professionnel ne doit pas être traité comme un simple bouton dans une grande machine.
+            Ici, on remet l’humain, la réputation et la relation directe au centre.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <article class="card">
+            <h3>Tu gardes ta dignité</h3>
+            <p>
+              Ton activité n’est pas avalée par une plateforme géante. Tu restes visible comme professionnel,
+              pas comme une ligne anonyme dans un algorithme.
+            </p>
+            <div class="pill-row">
+              <span class="pill">Image</span>
+              <span class="pill">Respect</span>
+              <span class="pill">Présence</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Tu gardes ta valeur</h3>
+            <p>
+              Pas de commission qui t’épuise. Tu encaisses directement et tu pilotes ton activité avec plus de clarté.
+            </p>
+            <div class="pill-row">
+              <span class="pill">0% commission</span>
+              <span class="pill">Direct au pro</span>
+              <span class="pill">Plus net</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Tu montes en gamme</h3>
+            <p>
+              Une belle présentation change tout : confiance client, perception du service, qualité du contact et fidélité.
+            </p>
+            <div class="pill-row">
+              <span class="pill">Premium</span>
+              <span class="pill">Sérieux</span>
+              <span class="pill">Confiance</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
           <div>
-            <label for="fVehicle">Véhicule</label>
-            <input id="fVehicle" placeholder="Ex: Berline 2018 / SUV 2020 / Van…"/>
+            <h2>Comment ça marche ?</h2>
           </div>
+          <p>
+            On va au simple. Pas de labyrinthe. Pas de cirque. Juste un chemin propre pour activer et avancer.
+          </p>
         </div>
 
-        <div class="row" style="margin-top:10px">
+        <div class="steps">
+          <article class="step">
+            <div class="step-num">1</div>
+            <h3>Tu demandes ton module</h3>
+            <p>Tu passes par la page d’activation et tu entres dans le rail DIGIY.</p>
+          </article>
+
+          <article class="step">
+            <div class="step-num">2</div>
+            <h3>On prépare ta présence</h3>
+            <p>Nom, contact, image, zone, posture professionnelle : on pose une base claire.</p>
+          </article>
+
+          <article class="step">
+            <div class="step-num">3</div>
+            <h3>Ton espace devient visible</h3>
+            <p>Le client comprend qui tu es, comment te joindre, et pourquoi te choisir.</p>
+          </article>
+
+          <article class="step">
+            <div class="step-num">4</div>
+            <h3>Tu travailles librement</h3>
+            <p>Tu prends les demandes, tu gères ton service, tu restes maître de ton terrain.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="cta-band">
           <div>
-            <label for="fAvail">Disponibilité</label>
-            <input id="fAvail" placeholder="Ex: Soirs + Week-end / Tous les jours / Matin…"/>
+            <h2>Le terrain bouge. Les vrais pros se positionnent.</h2>
+            <p>
+              DIGIY DRIVER n’est pas juste une page. C’est une porte.
+              Une porte vers une mobilité plus propre, plus respectueuse, plus rentable et plus humaine.
+            </p>
           </div>
-          <div>
-            <label for="fName">Nom (optionnel)</label>
-            <input id="fName" placeholder="Ex: Mamadou / Awa / Ibrahima…"/>
-          </div>
-        </div>
 
-        <div class="actions">
-          <a id="btnApplyNow" class="btn-main" href="#" target="_blank" rel="noopener">💬 Ouvrir WhatsApp</a>
-          <a href="#standards" class="btn-ghost">Voir les standards</a>
-          <a id="btnCockpitMini" class="btn-ghost" href="./cockpit.html">🚖 Cockpit DRIVER</a>
-          <a id="btnPinMini" class="btn-ghost" href="./pin.html">🔐 Porte PIN</a>
-        </div>
-
-        <div class="note">
-          On ne fait pas du volume. On fait du solide. Si ton profil est aligné, on te rappelle vite (selon affluence).
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <hr class="divider"/>
-
-  <section id="pourquoi">
-    <div class="wrap">
-      <div class="reveal">
-        <div class="section-label">Notre philosophie</div>
-        <h2 class="section-title">Ce qui nous <em>distingue</em></h2>
-        <p class="section-body">
-          Uber prend. Booking prend. Tous les grands acteurs étrangers prennent.
-          DIGIY ne prend rien. L'argent reste entre toi et ton client.
-          C'est ça, la souveraineté numérique africaine.
-        </p>
-      </div>
-
-      <div class="philo-grid" style="margin-top:44px">
-        <div class="philo-item reveal reveal-delay-1">
-          <div class="philo-icon">🦅</div>
-          <div>
-            <h3>La vision de l'aigle</h3>
-            <p>Tu ne regardes pas le sol — tu vois loin. Un ambassadeur DIGIY comprend qu'il construit quelque chose qui dépasse une course. Il construit la confiance, pierre par pierre, trajet par trajet.</p>
-          </div>
-        </div>
-        <div class="philo-item reveal reveal-delay-2">
-          <div class="philo-icon">🌍</div>
-          <div>
-            <h3>L'Afrique d'abord</h3>
-            <p>Chaque abonnement DIGIY garde la valeur en Afrique. Pas d'extraction vers l'étranger. Ce que tu gagnes, tu le réinvestes ici. C'est un choix économique et stratégique.</p>
-          </div>
-        </div>
-        <div class="philo-item reveal reveal-delay-3">
-          <div class="philo-icon">🎩</div>
-          <div>
-            <h3>Le savoir-être avant tout</h3>
-            <p>Tenue soignée. Véhicule propre. Accueil chaleureux. Discrétion. Ponctualité. Ce ne sont pas des options — c'est la définition même d'un hôte de mobilité DIGIY.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://commencer-a-payer.digiylyfe.com/">Je veux mon module</a>
+            <a class="btn btn-whatsapp" href="https://wa.me/221771342889" target="_blank" rel="noopener">WhatsApp direct</a>
           </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <hr class="divider"/>
-
-  <section class="standards-section" id="standards">
-    <div class="wrap">
-      <div class="reveal">
-        <div class="section-label">Nos exigences</div>
-        <h2 class="section-title">Les standards <em>DIGIY</em></h2>
-        <p class="section-body">
-          Être ambassadeur DIGIY, c'est un engagement. Voici les piliers
-          qui définissent chaque professionnel de notre réseau.
-        </p>
-      </div>
-
-      <div class="standards-grid">
-        <div class="std-card reveal reveal-delay-1">
-          <div class="std-num">01</div>
-          <h4>Présentation irréprochable</h4>
-          <p>Tenue propre, soignée, adaptée. Le premier regard que le client pose sur toi, c'est le premier regard qu'il pose sur DIGIY.</p>
-        </div>
-        <div class="std-card reveal reveal-delay-2">
-          <div class="std-num">02</div>
-          <h4>Véhicule de qualité</h4>
-          <p>Propre, entretenu, sans odeur. L'intérieur est un espace de confort. Tu en es l'hôte.</p>
-        </div>
-        <div class="std-card reveal reveal-delay-3">
-          <div class="std-num">03</div>
-          <h4>Maîtrise du territoire</h4>
-          <p>Dakar, Saly, Mbour — tu connais les repères, les raccourcis, les lieux de vie. Pas besoin de GPS pour chaque rue.</p>
-        </div>
-        <div class="std-card reveal reveal-delay-4">
-          <div class="std-num">04</div>
-          <h4>Communication posée</h4>
-          <p>Tu parles quand c'est utile. Tu écoutes toujours. Pas de politique, pas de problèmes personnels avec le client. Sérénité.</p>
-        </div>
-        <div class="std-card reveal reveal-delay-1">
-          <div class="std-num">05</div>
-          <h4>Ponctualité sans excuses</h4>
-          <p>Tu arrives avant l'heure. Les retards sans prévenir, c'est non. La fiabilité est ta réputation.</p>
-        </div>
-        <div class="std-card reveal reveal-delay-2">
-          <div class="std-num">06</div>
-          <h4>Respect total du client</h4>
-          <p>Homme, femme, local, diaspora, étranger — chaque client reçoit le même niveau de service d'exception. Zéro jugement.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider"/>
-
-  <section class="model-section" id="modele">
-    <div class="wrap">
-      <div class="reveal">
-        <div class="section-label">Le modèle économique</div>
-        <h2 class="section-title">Zéro commission.<br><em>Liberté totale.</em></h2>
-        <p class="section-body">
-          Chez DIGIY, tu paies un abonnement fixe mensuel.
-          Tout ce que tu gagnes sur tes courses, c'est <strong>100% pour toi</strong>.
-          Pas de surprise. Pas d'algorithme qui décide de ton tarif.
-        </p>
-      </div>
-
-      <div class="model-grid">
-        <div class="model-card highlight reveal reveal-delay-1">
-          <div class="icon">💚</div>
-          <h4>Abonnement DIGIY</h4>
-          <p>Un abonnement mensuel fixe et accessible. Tu sais exactement ce que tu paies. Ce que tu gagnes t'appartient entièrement — DIGIY ne touche jamais à tes courses.</p>
-          <span class="tag">✅ Transparent</span>
-        </div>
-        <div class="model-card reveal reveal-delay-2">
-          <div class="icon">🚗</div>
-          <h4>Tes courses, tes règles</h4>
-          <p>Tu fixes tes disponibilités. Tu travailles quand tu veux. Le cockpit DIGIY DRIVER PRO centralise tout : demandes, acceptations, historique.</p>
-          <span class="tag">✅ Liberté</span>
-        </div>
-        <div class="model-card reveal reveal-delay-3">
-          <div class="icon">📲</div>
-          <h4>Outil pro inclus</h4>
-          <p>Ton espace pro DIGIY DRIVER : stats en temps réel, demandes live, gestion de profil, paiements. Un cockpit digne d'un professionnel.</p>
-          <span class="tag">✅ Inclus</span>
-        </div>
-        <div class="model-card reveal reveal-delay-4">
-          <div class="icon">🌍</div>
-          <h4>Réseau DIGIYLYFE</h4>
-          <p>Rejoindre DIGIY DRIVER, c'est entrer dans l'écosystème DIGIYLYFE : 9 modules, des milliers d'utilisateurs, une vision commune pour l'Afrique.</p>
-          <span class="tag">✅ Communauté</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider"/>
-
-  <section class="profil-section" id="profil">
-    <div class="wrap">
-      <div class="reveal">
-        <div class="section-label">Profil recherché</div>
-        <h2 class="section-title">Es-tu <em>l'ambassadeur</em><br>que nous cherchons ?</h2>
-        <p class="section-body">
-          Nous ne recrutons pas en masse. Chaque ambassadeur est sélectionné après entretien.
-          Voici ce qui nous anime — et ce qui ne correspond pas à notre vision.
-        </p>
-      </div>
-
-      <div class="profil-inner reveal" style="margin-top:44px">
-        <div class="profil-oui">
-          <div class="profil-head">
-            <span class="profil-badge badge-oui">✅ C'est toi si…</span>
-          </div>
-          <div class="check-list">
-            <div class="check-item"><span class="ic">🦅</span><span>Tu es fier de ton travail et tu vois le métier comme un acte de service, pas juste un revenu</span></div>
-            <div class="check-item"><span class="ic">🎩</span><span>Ta présentation est naturellement soignée — tu ne fais pas un effort, c'est qui tu es</span></div>
-            <div class="check-item"><span class="ic">📍</span><span>Tu connais ton territoire : les routes, les repères, les habitudes locales</span></div>
-            <div class="check-item"><span class="ic">💬</span><span>Tu communiques clairement, tu es à l'aise avec un smartphone et des outils numériques simples</span></div>
-            <div class="check-item"><span class="ic">🤝</span><span>Tu comprends que ta liberté économique passe par un modèle qui te respecte — sans intermédiaire qui prend ta part</span></div>
-            <div class="check-item"><span class="ic">♾</span><span>Tu crois à l'Afrique qui se connecte au monde sans perdre ses racines</span></div>
-          </div>
-        </div>
-        <div class="profil-non">
-          <div class="profil-head">
-            <span class="profil-badge badge-non">⛔ Ce n'est pas toi si…</span>
-          </div>
-          <div class="check-list">
-            <div class="check-item"><span class="ic">❌</span><span>Tu vois le client comme un problème à gérer plutôt qu'une personne à servir avec dignité</span></div>
-            <div class="check-item"><span class="ic">❌</span><span>La propreté du véhicule et la tenue ne sont pas une priorité</span></div>
-            <div class="check-item"><span class="ic">❌</span><span>Tu négocies les tarifs en cours de route ou tu cherches à contourner les règles du réseau</span></div>
-            <div class="check-item"><span class="ic">❌</span><span>Tu n'as pas envie d'appartenir à quelque chose — juste faire des courses et partir</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="quote-section">
-    <div class="wrap">
-      <div class="quote-block reveal">
-        <span class="quote-mark">"</span>
-        <p class="quote-text">
-          Un chauffeur conduit d'un point A à un point B.
-          Un ambassadeur DIGIY crée une expérience que le client n'oublie pas
-          et à laquelle il revient.
-        </p>
-        <div class="quote-author">— La philosophie DIGIY · L'Afrique enracinée, connectée au monde ♾</div>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider"/>
-
-  <section class="cta-section" id="postuler">
-    <div class="cta-inner">
-      <span class="cta-infinity">♾</span>
-
-      <div class="section-label" style="text-align:center">Rejoindre le réseau</div>
-      <h2 class="section-title reveal">Tu es prêt ?<br><em>Parlons-nous.</em></h2>
-      <p class="section-body reveal">
-        L'entretien est simple et humain. Pas de formulaire interminable.
-        Une conversation WhatsApp pour faire connaissance, vérifier le profil,
-        et t'accueillir dans le réseau DIGIY si c'est le bon moment.
-      </p>
-
-      <div class="cta-buttons reveal">
-        <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-whatsapp" aria-label="Contacter via WhatsApp">
-          💬 Contacter via WhatsApp
-        </a>
-        <a id="btnCockpitBottom" href="./cockpit.html" class="btn-ghost">🚖 Cockpit DRIVER</a>
-        <a id="btnPinBottom" href="./pin.html" class="btn-ghost">🔐 Porte PIN</a>
-      </div>
-
-      <p class="fine-print reveal">
-        Entretien mené par l'équipe DIGIY. Réponse rapide selon affluence.
-        Seuls les profils alignés avec nos valeurs sont retenus.
-        Nous préférons la qualité au volume.
-      </p>
-    </div>
-  </section>
+    </section>
+  </main>
 
   <footer>
-    <div><strong>DIGIY DRIVER PRO</strong> — Module DIGIYLYFE ♾</div>
-    <div style="display:flex; gap:16px; flex-wrap:wrap">
-      <a href="./cockpit.html">Cockpit</a>
-      <a href="./pin.html">Porte PIN</a>
-      <a href="https://wa.me/221771342889" target="_blank" rel="noopener">Support</a>
-      <span id="vtag">v20260306</span>
+    <div class="wrap">
+      <div class="footer-card">
+        <div><b>DIGIY DRIVER</b> — Ambassadeur de mobilité</div>
+        <div>Contact WhatsApp : <b>+221 77 134 28 89</b></div>
+      </div>
     </div>
   </footer>
 
-  <script>
-    (function(){
-      "use strict";
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if(e.isIntersecting) e.target.classList.add('visible');
-        });
-      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-
-      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-      document.querySelectorAll('a[href^="#"]').forEach(a => {
-        a.addEventListener('click', e => {
-          const target = document.querySelector(a.getAttribute('href'));
-          if(target){
-            e.preventDefault();
-            target.scrollIntoView({ behavior:'smooth', block:'start' });
-          }
-        });
-      });
-
-      const qs = new URLSearchParams(location.search);
-      const slug = (qs.get("slug") || "").trim();
-
-      const PRO_COCKPIT_URL = "./cockpit.html";
-      const PRO_PIN_URL = "./pin.html";
-
-      function withSlug(base){
-        if(!slug) return base;
-        const u = new URL(base, location.href);
-        u.searchParams.set("slug", slug);
-        return u.pathname + u.search;
-      }
-
-      [
-        "btnCockpitTop",
-        "btnCockpitBottom",
-        "btnCockpitHero",
-        "btnCockpitMini"
-      ].forEach(id=>{
-        const a = document.getElementById(id);
-        if(a) a.href = withSlug(PRO_COCKPIT_URL);
-      });
-
-      [
-        "btnPinTop",
-        "btnPinBottom",
-        "btnPinHero",
-        "btnPinMini"
-      ].forEach(id=>{
-        const a = document.getElementById(id);
-        if(a) a.href = withSlug(PRO_PIN_URL);
-      });
-
-      const WA_PHONE = "221771342889";
-
-      function buildLeadId(){
-        return "DRV-" + Date.now().toString(36).toUpperCase();
-      }
-
-      function waLink(msg){
-        return "https://wa.me/" + WA_PHONE + "?text=" + encodeURIComponent(msg);
-      }
-
-      const lead = buildLeadId();
-      const ua = navigator.userAgent || "";
-      const device = /Android|iPhone|iPad|iPod/i.test(ua) ? "mobile" : "desktop";
-
-      function baseMsg(extraLines){
-        const lines = [
-          "Bonjour, je souhaite rejoindre DIGIY DRIVER en tant qu'ambassadeur de mobilité.",
-          "Lead: " + lead,
-          "Source: index-driver",
-          "Device: " + device
-        ];
-        if (slug) lines.push("Slug: " + slug);
-        if(Array.isArray(extraLines)) lines.push(...extraLines.filter(Boolean));
-        return lines.join("\n");
-      }
-
-      document.querySelectorAll('a[data-wa="join"]').forEach(a=>{
-        a.href = waLink(baseMsg([
-          "Ville: (Dakar/Saly/Mbour/Autre)",
-          "Véhicule: (type + année)",
-          "Disponibilité: (jours/heures)"
-        ]));
-      });
-
-      const $ = (id)=>document.getElementById(id);
-      const btn = $("btnApplyNow");
-
-      if(btn){
-        const update = ()=>{
-          const city = ($("fCity")?.value || "").trim();
-          const veh  = ($("fVehicle")?.value || "").trim();
-          const av   = ($("fAvail")?.value || "").trim();
-          const name = ($("fName")?.value || "").trim();
-
-          const extra = [];
-          if(name) extra.push("Nom: " + name);
-          if(city) extra.push("Ville: " + city);
-          if(veh)  extra.push("Véhicule: " + veh);
-          if(av)   extra.push("Disponibilité: " + av);
-
-          btn.href = waLink(baseMsg(extra.length ? extra : [
-            "Ville: " + (city || "(à préciser)"),
-            "Véhicule: " + (veh || "(à préciser)"),
-            "Disponibilité: " + (av || "(à préciser)")
-          ]));
-        };
-
-        ["fCity","fVehicle","fAvail","fName"].forEach(id=>{
-          const el = $(id);
-          if(el){
-            el.addEventListener("input", update);
-            el.addEventListener("change", update);
-          }
-        });
-
-        update();
-      }
-
-      const v = qs.get("v");
-      if(v) {
-        const t = document.getElementById("vtag");
-        if(t) t.textContent = "v" + v;
-      }
-    })();
-  </script>
 </body>
 </html>
