@@ -453,18 +453,61 @@
     .reveal-delay-3 { transition-delay: .3s; }
     .reveal-delay-4 { transition-delay: .4s; }
 
+    .floating-site-btn{
+      position: fixed;
+      right: 16px;
+      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      z-index: 120;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 16px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      background: rgba(4,15,9,.88);
+      border: 1px solid rgba(250,204,21,.22);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 16px 40px rgba(0,0,0,.35);
+      transition: transform .15s, box-shadow .15s, border-color .15s;
+    }
+    .floating-site-btn:hover{
+      transform: translateY(-2px);
+      border-color: rgba(250,204,21,.40);
+      box-shadow: 0 20px 50px rgba(0,0,0,.42);
+    }
+
     @media (max-width: 600px) {
       .hero-stat-row { gap: 20px; }
       .profil-oui, .profil-non { padding: 24px 18px; }
       .quote-block { padding: 36px 20px; }
       .topbar{padding:12px 14px}
       .btn-cta-top{padding:10px 14px}
+      .floating-site-btn{
+        right: 12px;
+        left: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        padding: 15px 16px;
+        font-size: 13px;
+      }
     }
   </style>
 </head>
 
 <body>
   <a href="#pourquoi" class="skip">Aller au contenu</a>
+
+  <a
+    class="floating-site-btn"
+    href="https://digiylyfe.com/"
+    aria-label="Retour au site DIGIYLYFE"
+    title="Retour au site"
+  >
+    ← Retour au site
+  </a>
 
   <nav class="topbar" aria-label="Navigation principale">
     <a href="./index.html" class="topbar-brand" aria-label="Retour accueil DIGIY DRIVER">
