@@ -3,15 +3,16 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER PRO — Profil chauffeur</title>
+  <title>DIGIY PRO DRIVER — Profil chauffeur</title>
   <meta name="theme-color" content="#061b14"/>
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-profile-guard-20260307"></script>
+  <script src="./guard.js?v=driver-profile-guard-20260312-clean"></script>
 
   <style>
     :root{
@@ -192,6 +193,15 @@
       align-items:center;
       font-weight:900;
     }
+
+    .empty{
+      padding:14px;
+      border-radius:16px;
+      border:1px dashed rgba(255,255,255,.16);
+      color:var(--muted);
+      font-weight:800;
+      background:rgba(255,255,255,.03);
+    }
   </style>
 </head>
 <body>
@@ -199,13 +209,14 @@
 
     <div class="top">
       <div>
-        <h1 id="titleMain">👤 Profil chauffeur</h1>
-        <div class="muted" id="subMain">Profil, véhicule, zone, WhatsApp pro, publication et tarifs — liés à ton slug DRIVER.</div>
+        <h1 id="titleMain">👤 DIGIY PRO DRIVER — Profil chauffeur</h1>
+        <div class="muted" id="subMain">Profil réel, publication et tarifs liés à ton slug actif. Aucune démo partagée.</div>
       </div>
 
       <div class="row" style="flex:0 0 auto">
         <div class="pill" id="slugPill">slug : —</div>
-        <div class="pill warn" id="accessPill">accès : aperçu</div>
+        <div class="pill" id="phonePill">phone : —</div>
+        <div class="pill warn" id="accessPill">accès : contrôle…</div>
         <a class="btn" id="btnCockpit" href="#">⬅️ Retour cockpit</a>
       </div>
     </div>
@@ -342,174 +353,362 @@
       <div class="msg" id="msgRates">Prêt.</div>
 
       <div class="list" id="ratesList">
-        <div class="item">Chargement…</div>
+        <div class="empty">Chargement…</div>
       </div>
     </div>
 
   </div>
 
   <script>
-    const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
-    const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    (function(){
+      "use strict";
 
-    const $ = (id) => document.getElementById(id);
-
-    let slug = "";
-    let phone = "";
-    let IS_PREVIEW = true;
-
-    function normSlug(v){
-      return String(v || "").trim().toLowerCase();
-    }
-
-    function normPhone(v){
-      const d = String(v || "").replace(/[^\d]/g, "");
-      return d.length >= 9 ? d : "";
-    }
-
-    function withSlug(base){
-      const u = new URL(base, location.href);
-      if (slug) u.searchParams.set("slug", slug);
-      return u.pathname + u.search;
-    }
-
-    function money(n){
-      return Number(n || 0).toLocaleString("fr-FR") + " FCFA";
-    }
-
-    function escapeHtml(str){
-      return String(str || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    function setMsgProfile(txt, type){
-      const el = $("msgProfile");
-      el.textContent = txt;
-      el.className = "msg " + (type || "");
-    }
-
-    function setMsgRates(txt, type){
-      const el = $("msgRates");
-      el.textContent = txt;
-      el.className = "msg " + (type || "");
-    }
-
-    function setMsgPublish(txt, type){
-      const el = $("msgPublish");
-      el.textContent = txt;
-      el.className = "msg " + (type || "");
-    }
-
-    function setAccessState(ok, txt){
-      const el = $("accessPill");
-      el.className = "pill " + (ok ? "ok" : "warn");
-      el.textContent = "accès : " + txt;
-    }
-
-    function setFormDisabled(disabled){
-      [
-        "displayName","vehicleType","vehicleBrand","vehicleModel","vehicleYear","vehicleColor",
-        "city","zonesText","whatsapp","contactNote","bio","routeLabel","priceFcfa"
-      ].forEach(id => { $(id).disabled = disabled; });
-
-      ["hasAc","airportOk","longDistanceOk"].forEach(id => { $(id).disabled = disabled; });
-
-      ["btnSaveProfile","btnPublish","btnUnpublish","btnSaveRate"].forEach(id => {
-        $(id).disabled = disabled;
+      const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+      const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
+      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
       });
-    }
 
-    function previewProfile(){
-      return {
-        display_name: "Chauffeur Royal Saly",
-        vehicle_type: "Berline",
-        vehicle_brand: "Toyota",
-        vehicle_model: "Corolla",
-        vehicle_year: "2018",
-        vehicle_color: "Blanc",
-        has_ac: true,
-        city: "Saly",
-        zones_text: "Saly, Ngaparou, Somone, Dakar, AIBD",
-        airport_ok: true,
-        long_distance_ok: true,
-        whatsapp: "221771342889",
-        contact_note: "Disponible sur réservation",
-        bio: "Chauffeur propre, ponctuel, terrain.",
-        is_published: true,
-        status: "active",
-        subscription_status: "active"
-      };
-    }
+      const $ = (id) => document.getElementById(id);
+      const META_PREFIX = "__DIGIY_DRIVER_META__:";
 
-    function previewRates(){
-      return [
-        { id:"p1", route_label:"Saly → AIBD", price_fcfa:15000 },
-        { id:"p2", route_label:"Saly → Dakar", price_fcfa:25000 },
-        { id:"p3", route_label:"Saly → Somone", price_fcfa:4000 }
-      ];
-    }
+      let slug = "";
+      let phone = "";
+      let ACCESS_OK = false;
+      let CURRENT_COCKPIT = null;
+      let CURRENT_IS_PUBLISHED = false;
+      let RATES_RPC_READY = true;
 
-    function renderPublishState(row){
-      if (!row){
-        $("publishState").textContent = "Profil introuvable";
-        return;
+      function normSlug(v){
+        return String(v || "").trim().toLowerCase();
       }
 
-      const published = row.is_published ? "Publié" : "Masqué";
-      const status = row.status || "—";
-      const sub = row.subscription_status || "—";
-
-      $("publishState").textContent = `${published} • statut: ${status} • abonnement: ${sub}`;
-    }
-
-    function fillProfileForm(row){
-      const p = row || previewProfile();
-
-      $("displayName").value = p.display_name || "";
-      $("vehicleType").value = p.vehicle_type || "";
-      $("vehicleBrand").value = p.vehicle_brand || "";
-      $("vehicleModel").value = p.vehicle_model || "";
-      $("vehicleYear").value = p.vehicle_year || "";
-      $("vehicleColor").value = p.vehicle_color || "";
-      $("hasAc").checked = !!p.has_ac;
-      $("city").value = p.city || "";
-      $("zonesText").value = p.zones_text || "";
-      $("airportOk").checked = !!p.airport_ok;
-      $("longDistanceOk").checked = !!p.long_distance_ok;
-      $("whatsapp").value = p.whatsapp || "";
-      $("contactNote").value = p.contact_note || "";
-      $("bio").value = p.bio || "";
-
-      renderPublishState(p);
-    }
-
-    function renderRates(rows){
-      const data = rows || [];
-      if (!data.length){
-        $("ratesList").innerHTML = `<div class="item">Aucun tarif actif</div>`;
-        return;
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
       }
 
-      $("ratesList").innerHTML = data.map(r => `
-        <div class="item">
-          <div>
-            <b>${escapeHtml(r.route_label)}</b>
-            <div class="muted">${money(r.price_fcfa)}</div>
-          </div>
-          <div class="actions">
-            ${IS_PREVIEW
-              ? `<button class="btn gold" type="button" disabled>Désactiver</button>`
-              : `<button class="btn gold" type="button" data-disable="${escapeHtml(r.id)}">Désactiver</button>`}
-          </div>
-        </div>
-      `).join("");
+      function displayPhone(v){
+        const d = normPhone(v);
+        return d ? "+" + d : "—";
+      }
 
-      if (!IS_PREVIEW){
+      function withSlug(base){
+        const u = new URL(base, location.href);
+        if (slug) u.searchParams.set("slug", slug);
+        return u.pathname + u.search;
+      }
+
+      function setMsgProfile(txt, type){
+        const el = $("msgProfile");
+        el.textContent = txt;
+        el.className = "msg " + (type || "");
+      }
+
+      function setMsgRates(txt, type){
+        const el = $("msgRates");
+        el.textContent = txt;
+        el.className = "msg " + (type || "");
+      }
+
+      function setMsgPublish(txt, type){
+        const el = $("msgPublish");
+        el.textContent = txt;
+        el.className = "msg " + (type || "");
+      }
+
+      function setAccessState(ok, txt){
+        ACCESS_OK = !!ok;
+        const el = $("accessPill");
+        el.className = "pill " + (ok ? "ok" : "bad");
+        el.textContent = "accès : " + txt;
+      }
+
+      function setFormDisabled(disabled){
+        [
+          "displayName","vehicleType","vehicleBrand","vehicleModel","vehicleYear","vehicleColor",
+          "city","zonesText","whatsapp","contactNote","bio","routeLabel","priceFcfa"
+        ].forEach(id => { $(id).disabled = disabled; });
+
+        ["hasAc","airportOk","longDistanceOk"].forEach(id => { $(id).disabled = disabled; });
+
+        ["btnSaveProfile","btnPublish","btnUnpublish","btnSaveRate"].forEach(id => {
+          $(id).disabled = disabled;
+        });
+      }
+
+      function resolveSlug(){
+        const qs = new URLSearchParams(location.search);
+        const fromUrl = normSlug(qs.get("slug") || "");
+        if (fromUrl) return fromUrl;
+
+        const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug || "");
+        if (fromGuard) return fromGuard;
+
+        return "";
+      }
+
+      async function waitGuardIfAny(){
+        try{
+          if (window.DIGIY_GUARD?.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
+            await window.DIGIY_GUARD.ready;
+          }
+        }catch(e){
+          console.warn("Guard ready warning:", e);
+        }
+      }
+
+      function clearForm(){
+        $("displayName").value = "";
+        $("vehicleType").value = "";
+        $("vehicleBrand").value = "";
+        $("vehicleModel").value = "";
+        $("vehicleYear").value = "";
+        $("vehicleColor").value = "";
+        $("hasAc").checked = false;
+        $("city").value = "";
+        $("zonesText").value = "";
+        $("airportOk").checked = false;
+        $("longDistanceOk").checked = false;
+        $("whatsapp").value = phone || "";
+        $("contactNote").value = "";
+        $("bio").value = "";
+      }
+
+      function safeJsonParse(raw, fallback){
+        try{
+          return JSON.parse(raw);
+        }catch(_){
+          return fallback;
+        }
+      }
+
+      function readBridgeMeta(profile){
+        const raw = String(profile?.address || "").trim();
+        if (!raw.startsWith(META_PREFIX)) return {};
+        return safeJsonParse(raw.slice(META_PREFIX.length), {});
+      }
+
+      function buildBridgeMeta(){
+        return META_PREFIX + JSON.stringify({
+          vehicle_brand: $("vehicleBrand").value.trim(),
+          vehicle_model: $("vehicleModel").value.trim(),
+          vehicle_year: $("vehicleYear").value.trim(),
+          vehicle_color: $("vehicleColor").value.trim(),
+          has_ac: !!$("hasAc").checked,
+          airport_ok: !!$("airportOk").checked,
+          long_distance_ok: !!$("longDistanceOk").checked,
+          contact_note: $("contactNote").value.trim()
+        });
+      }
+
+      function buildVehicleLabel(){
+        const parts = [
+          $("vehicleBrand").value.trim(),
+          $("vehicleModel").value.trim(),
+          $("vehicleYear").value.trim(),
+          $("vehicleColor").value.trim(),
+          $("hasAc").checked ? "Clim" : ""
+        ].filter(Boolean);
+
+        return parts.join(" • ");
+      }
+
+      function fillFormFromCockpit(cockpit){
+        CURRENT_COCKPIT = cockpit || null;
+
+        const p = cockpit?.profile || {};
+        const meta = readBridgeMeta(p);
+        const displayName = String(p.driver_name || p.business_name || "").trim();
+
+        clearForm();
+
+        $("displayName").value = displayName;
+        $("vehicleType").value = p.vehicle_type || "";
+        $("vehicleBrand").value = meta.vehicle_brand || "";
+        $("vehicleModel").value = meta.vehicle_model || "";
+        $("vehicleYear").value = meta.vehicle_year || "";
+        $("vehicleColor").value = meta.vehicle_color || "";
+        $("hasAc").checked = !!meta.has_ac;
+        $("city").value = p.city || "";
+        $("zonesText").value = p.zones || "";
+        $("airportOk").checked = !!meta.airport_ok;
+        $("longDistanceOk").checked = !!meta.long_distance_ok;
+        $("whatsapp").value = p.whatsapp || normPhone(phone);
+        $("contactNote").value = meta.contact_note || "";
+        $("bio").value = p.description || "";
+
+        CURRENT_IS_PUBLISHED = !!p.is_published;
+        renderPublishState();
+      }
+
+      function renderPublishState(){
+        const published = CURRENT_IS_PUBLISHED ? "Publié" : "Masqué";
+        const active = CURRENT_COCKPIT?.profile?.is_active ? "active" : "inactive";
+        const access = ACCESS_OK ? "abonnement OK" : "accès KO";
+        $("publishState").textContent = `${published} • profil: ${active} • ${access}`;
+      }
+
+      async function fetchCockpit(){
+        if (!slug){
+          return { ok:false, reason:"slug_manquant" };
+        }
+
+        const { data, error } = await sb.rpc("digiy_driver_get_cockpit_by_slug", { p_slug: slug });
+        if (error) throw error;
+        return data || { ok:false, reason:"empty_response" };
+      }
+
+      function isRpcMissing(error){
+        const txt = String(error?.message || error?.details || error?.hint || "");
+        return error?.code === "PGRST202" || txt.includes("Could not find the function");
+      }
+
+      async function loadProfile(){
+        setMsgProfile("⏳ Chargement du profil réel…", "warn");
+
+        try{
+          const data = await fetchCockpit();
+
+          if (!data?.ok){
+            CURRENT_COCKPIT = null;
+            CURRENT_IS_PUBLISHED = false;
+            setAccessState(false, data?.reason || "accès KO");
+            clearForm();
+            renderPublishState();
+            setFormDisabled(true);
+            setMsgProfile("⚠️ Accès non ouvert pour ce slug. Passe par la porte PIN ou l’abonnement.", "bad");
+            return;
+          }
+
+          phone = normPhone(data.phone || phone);
+          setAccessState(true, data.access || "abonnement OK");
+          setFormDisabled(false);
+
+          $("titleMain").textContent = "👤 " + (data.public_label || "DIGIY PRO DRIVER") + " — Profil chauffeur";
+          $("subMain").textContent = data.is_blank
+            ? "Ton moule personnel est vierge. Complète-le maintenant, sans démo."
+            : "Profil réel retrouvé par téléphone. Tu peux le modifier librement.";
+
+          $("slugPill").textContent = "slug : " + (data.slug || "—");
+          $("phonePill").textContent = "phone : " + displayPhone(phone);
+
+          fillFormFromCockpit(data);
+
+          setMsgProfile(data.is_blank
+            ? "✅ Profil vierge chargé. Tu peux commencer à personnaliser."
+            : "✅ Profil réel chargé.", "ok");
+
+        }catch(e){
+          console.error(e);
+          setAccessState(false, "erreur");
+          setFormDisabled(true);
+          clearForm();
+          setMsgProfile("❌ Erreur de chargement du profil.", "bad");
+        }
+      }
+
+      async function saveProfile(isPublishedOverride = null){
+        if (!ACCESS_OK){
+          setMsgProfile("⚠️ Accès non valide pour enregistrer le profil.", "bad");
+          return;
+        }
+
+        if (!slug){
+          setMsgProfile("❌ Slug manquant.", "bad");
+          return;
+        }
+
+        const displayName = $("displayName").value.trim();
+        const city = $("city").value.trim();
+        const zones = $("zonesText").value.trim();
+        const whatsapp = $("whatsapp").value.trim();
+        const vehicleType = $("vehicleType").value.trim();
+        const vehicleLabel = buildVehicleLabel();
+        const bio = $("bio").value.trim();
+        const bridgeMeta = buildBridgeMeta();
+
+        try{
+          const { data, error } = await sb.rpc("digiy_driver_save_profile", {
+            p_slug: slug,
+            p_business_name: displayName,
+            p_driver_name: displayName,
+            p_city: city,
+            p_zones: zones,
+            p_address: bridgeMeta,
+            p_whatsapp: whatsapp,
+            p_vehicle_type: vehicleType,
+            p_vehicle_label: vehicleLabel,
+            p_vehicle_plate: "",
+            p_photo_url: "",
+            p_cover_url: "",
+            p_description: bio,
+            p_priority: 100,
+            p_is_published: typeof isPublishedOverride === "boolean" ? isPublishedOverride : CURRENT_IS_PUBLISHED,
+            p_is_active: true
+          });
+
+          if (error) throw error;
+          if (!data?.ok) throw new Error(data?.reason || "save_profile_error");
+
+          if (typeof isPublishedOverride === "boolean"){
+            CURRENT_IS_PUBLISHED = isPublishedOverride;
+          }
+
+          await loadProfile();
+          setMsgProfile("✅ Profil enregistré en base.", "ok");
+        }catch(e){
+          console.error(e);
+          setMsgProfile("❌ Erreur enregistrement profil.", "bad");
+        }
+      }
+
+      async function setPublishState(isPublished){
+        if (!ACCESS_OK){
+          setMsgPublish("⚠️ Accès non valide pour modifier la publication.", "bad");
+          return;
+        }
+
+        setMsgPublish("⏳ Mise à jour publication…", "warn");
+        await saveProfile(isPublished);
+        CURRENT_IS_PUBLISHED = !!isPublished;
+        renderPublishState();
+        setMsgPublish(isPublished ? "✅ Chauffeur publié." : "✅ Chauffeur masqué.", "ok");
+      }
+
+      function renderRates(rows){
+        const data = Array.isArray(rows) ? rows : [];
+
+        if (!ACCESS_OK){
+          $("ratesList").innerHTML = `<div class="empty">Aucun tarif lisible tant que l’accès n’est pas validé.</div>`;
+          return;
+        }
+
+        if (!RATES_RPC_READY){
+          $("ratesList").innerHTML = `<div class="empty">Le rail tarifs n’est pas encore branché sur ce module. On garde la page propre, sans démo.</div>`;
+          return;
+        }
+
+        if (!data.length){
+          $("ratesList").innerHTML = `<div class="empty">Aucun tarif actif pour l’instant.</div>`;
+          return;
+        }
+
+        $("ratesList").innerHTML = data.map(r => `
+          <div class="item">
+            <div>
+              <b>${escapeHtml(r.route_label || "Trajet")}</b>
+              <div class="muted">${Number(r.price_fcfa || 0).toLocaleString("fr-FR")} FCFA</div>
+            </div>
+            <div class="actions">
+              <button class="btn gold" type="button" data-disable="${escapeHtml(r.id || "")}">Désactiver</button>
+            </div>
+          </div>
+        `).join("");
+
         document.querySelectorAll("[data-disable]").forEach(btn => {
           btn.addEventListener("click", async () => {
             const id = btn.getAttribute("data-disable");
@@ -521,234 +720,142 @@
                 p_rate_id: id
               });
 
-              if (error) throw error;
-              if (!data?.ok) throw new Error(data?.error || "disable_rate_error");
+              if (error){
+                if (isRpcMissing(error)){
+                  RATES_RPC_READY = false;
+                  renderRates([]);
+                  setMsgRates("⚠️ Fonction tarifs non branchée pour la désactivation.", "warn");
+                  return;
+                }
+                throw error;
+              }
 
-              setMsgRates("✅ Tarif désactivé", "ok");
+              if (data && data.ok === false) throw new Error(data.error || "disable_rate_error");
+
+              setMsgRates("✅ Tarif désactivé.", "ok");
               await loadRates();
             }catch(e){
               console.error(e);
-              setMsgRates("❌ Erreur désactivation tarif", "bad");
+              setMsgRates("❌ Erreur désactivation tarif.", "bad");
             }
           });
         });
       }
-    }
 
-    async function loadProfile(){
-      if (!slug || IS_PREVIEW){
-        fillProfileForm(previewProfile());
-        return;
+      async function loadRates(){
+        if (!ACCESS_OK){
+          RATES_RPC_READY = true;
+          renderRates([]);
+          setMsgRates("⚠️ Accès non valide pour lire les tarifs.", "bad");
+          return;
+        }
+
+        setMsgRates("⏳ Chargement tarifs…", "warn");
+
+        try{
+          const { data, error } = await sb.rpc("driver_list_rates_by_slug", { p_slug: slug });
+
+          if (error){
+            if (isRpcMissing(error)){
+              RATES_RPC_READY = false;
+              renderRates([]);
+              setMsgRates("⚠️ Rail tarifs pas encore branché. Aucune démo affichée.", "warn");
+              return;
+            }
+            throw error;
+          }
+
+          RATES_RPC_READY = true;
+          renderRates(data || []);
+          setMsgRates("✅ Tarifs synchronisés.", "ok");
+        }catch(e){
+          console.error(e);
+          setMsgRates("❌ Erreur chargement tarifs.", "bad");
+          $("ratesList").innerHTML = `<div class="empty">Erreur de chargement des tarifs.</div>`;
+        }
       }
 
-      const { data, error } = await sb.rpc("driver_get_profile_by_slug", { p_slug: slug });
-      if (error){
-        console.error(error);
-        setMsgProfile("❌ Erreur chargement profil", "bad");
-        return;
+      async function saveRate(){
+        const routeLabel = $("routeLabel").value.trim();
+        const priceFcfa = parseInt($("priceFcfa").value || "0", 10);
+
+        if (!ACCESS_OK){
+          setMsgRates("⚠️ Accès non valide pour enregistrer un tarif.", "bad");
+          return;
+        }
+
+        if (!routeLabel){
+          setMsgRates("❌ Nom du trajet manquant.", "bad");
+          return;
+        }
+
+        if (priceFcfa <= 0){
+          setMsgRates("❌ Prix invalide.", "bad");
+          return;
+        }
+
+        try{
+          const { data, error } = await sb.rpc("driver_upsert_rate_by_slug", {
+            p_slug: slug,
+            p_route_label: routeLabel,
+            p_price_fcfa: priceFcfa
+          });
+
+          if (error){
+            if (isRpcMissing(error)){
+              RATES_RPC_READY = false;
+              renderRates([]);
+              setMsgRates("⚠️ Fonction tarifs non branchée pour l’enregistrement.", "warn");
+              return;
+            }
+            throw error;
+          }
+
+          if (data && data.ok === false) throw new Error(data.error || "save_rate_error");
+
+          setMsgRates("✅ Tarif enregistré en base.", "ok");
+          $("routeLabel").value = "";
+          $("priceFcfa").value = "";
+          await loadRates();
+        }catch(e){
+          console.error(e);
+          setMsgRates("❌ Erreur enregistrement tarif.", "bad");
+        }
       }
 
-      const row = Array.isArray(data) ? data[0] : data;
-      if (!row){
-        fillProfileForm(previewProfile());
-        return;
-      }
+      async function boot(){
+        await waitGuardIfAny();
 
-      fillProfileForm(row);
-    }
-
-    async function saveProfile(){
-      if (IS_PREVIEW){
-        setMsgProfile("⚠️ Mode aperçu : entre par PIN pour enregistrer le vrai profil", "warn");
-        return;
-      }
-
-      if (!slug){
-        setMsgProfile("❌ Slug manquant", "bad");
-        return;
-      }
-
-      try{
-        const payload = {
-          p_slug: slug,
-          p_display_name: $("displayName").value.trim(),
-          p_vehicle_type: $("vehicleType").value.trim(),
-          p_vehicle_brand: $("vehicleBrand").value.trim(),
-          p_vehicle_model: $("vehicleModel").value.trim(),
-          p_vehicle_year: $("vehicleYear").value.trim(),
-          p_vehicle_color: $("vehicleColor").value.trim(),
-          p_has_ac: $("hasAc").checked,
-          p_city: $("city").value.trim(),
-          p_zones_text: $("zonesText").value.trim(),
-          p_airport_ok: $("airportOk").checked,
-          p_long_distance_ok: $("longDistanceOk").checked,
-          p_whatsapp: $("whatsapp").value.trim(),
-          p_contact_note: $("contactNote").value.trim(),
-          p_bio: $("bio").value.trim()
-        };
-
-        const { data, error } = await sb.rpc("driver_upsert_profile_by_slug", payload);
-        if (error) throw error;
-        if (!data?.ok) throw new Error(data?.error || "save_profile_error");
-
-        setMsgProfile("✅ Profil enregistré en base", "ok");
-        await loadProfile();
-      }catch(e){
-        console.error(e);
-        setMsgProfile("❌ Erreur enregistrement profil", "bad");
-      }
-    }
-
-    async function setPublishState(isPublished){
-      if (IS_PREVIEW){
-        setMsgPublish("⚠️ Mode aperçu : publication inactive", "warn");
-        return;
-      }
-
-      if (!slug){
-        setMsgPublish("❌ Slug manquant", "bad");
-        return;
-      }
-
-      try{
-        const { data, error } = await sb.rpc("driver_set_publish_by_slug", {
-          p_slug: slug,
-          p_is_published: isPublished
-        });
-
-        if (error) throw error;
-        if (!data?.ok) throw new Error(data?.error || "publish_error");
-
-        setMsgPublish(isPublished ? "✅ Chauffeur publié" : "✅ Chauffeur masqué", "ok");
-        await loadProfile();
-      }catch(e){
-        console.error(e);
-        setMsgPublish("❌ Erreur publication", "bad");
-      }
-    }
-
-    async function loadRates(){
-      if (!slug || IS_PREVIEW){
-        renderRates(previewRates());
-        return;
-      }
-
-      const { data, error } = await sb.rpc("driver_list_rates_by_slug", { p_slug: slug });
-      if (error){
-        console.error(error);
-        $("ratesList").innerHTML = `<div class="item">Erreur de chargement</div>`;
-        return;
-      }
-
-      renderRates(data || []);
-    }
-
-    async function saveRate(){
-      const routeLabel = $("routeLabel").value.trim();
-      const priceFcfa = parseInt($("priceFcfa").value || "0", 10);
-
-      if (IS_PREVIEW){
-        setMsgRates("⚠️ Mode aperçu : entre par PIN pour enregistrer un vrai tarif", "warn");
-        return;
-      }
-
-      if (!slug){
-        setMsgRates("❌ Slug manquant", "bad");
-        return;
-      }
-
-      if (!routeLabel){
-        setMsgRates("❌ Nom du trajet manquant", "bad");
-        return;
-      }
-
-      if (priceFcfa <= 0){
-        setMsgRates("❌ Prix invalide", "bad");
-        return;
-      }
-
-      try{
-        const { data, error } = await sb.rpc("driver_upsert_rate_by_slug", {
-          p_slug: slug,
-          p_route_label: routeLabel,
-          p_price_fcfa: priceFcfa
-        });
-
-        if (error) throw error;
-        if (!data?.ok) throw new Error(data?.error || "save_rate_error");
-
-        setMsgRates("✅ Tarif enregistré en base", "ok");
-        $("routeLabel").value = "";
-        $("priceFcfa").value = "";
-        await loadRates();
-      }catch(e){
-        console.error(e);
-        setMsgRates("❌ Erreur enregistrement tarif", "bad");
-      }
-    }
-
-    async function boot(){
-      try{
-        await window.DIGIY_GUARD.ready;
-        const st = window.DIGIY_GUARD.state;
-
-        slug = normSlug(st?.slug || "");
-        phone = normPhone(st?.phone || "");
-
+        slug = resolveSlug();
         $("slugPill").textContent = "slug : " + (slug || "—");
+        $("phonePill").textContent = "phone : —";
         $("btnCockpit").href = withSlug("./cockpit.html");
 
-        if (st?.preview){
-          IS_PREVIEW = true;
-          setAccessState(false, "aperçu actif");
-          $("subMain").textContent = "Aperçu du profil chauffeur. Le logiciel est visible avant l’ouverture réelle.";
+        if (!slug){
+          setAccessState(false, "slug manquant");
           setFormDisabled(true);
-          fillProfileForm(previewProfile());
-          renderRates(previewRates());
-          setMsgProfile("Mode aperçu actif.", "warn");
-          setMsgRates("Mode aperçu actif.", "warn");
-          setMsgPublish("Mode aperçu actif.", "warn");
+          clearForm();
+          renderPublishState();
+          $("ratesList").innerHTML = `<div class="empty">Aucun slug détecté. Passe par la porte PIN ou par un lien valide.</div>`;
+          setMsgProfile("⚠️ Slug manquant.", "bad");
+          setMsgRates("⚠️ Slug manquant.", "bad");
+          setMsgPublish("⚠️ Slug manquant.", "bad");
           return;
         }
 
-        if (st?.access_ok){
-          IS_PREVIEW = false;
-          setAccessState(true, "abonnement OK");
-          setFormDisabled(false);
-          await loadProfile();
-          await loadRates();
-          return;
-        }
-
-        IS_PREVIEW = true;
-        setAccessState(false, st?.reason === "no_subscription" ? "abonnement KO" : "aperçu actif");
-        $("subMain").textContent = "Accès non actif. Aperçu du profil chauffeur affiché.";
-        setFormDisabled(true);
-        fillProfileForm(previewProfile());
-        renderRates(previewRates());
-        setMsgProfile("Accès non actif. Aperçu affiché.", "warn");
-        setMsgRates("Accès non actif. Aperçu affiché.", "warn");
-        setMsgPublish("Accès non actif. Aperçu affiché.", "warn");
-      }catch(e){
-        console.error(e);
-        IS_PREVIEW = true;
-        setAccessState(false, "erreur");
-        $("subMain").textContent = "Erreur de chargement. Aperçu du profil chauffeur affiché.";
-        setFormDisabled(true);
-        fillProfileForm(previewProfile());
-        renderRates(previewRates());
-        setMsgProfile("❌ Erreur chargement page", "bad");
+        await loadProfile();
+        await loadRates();
       }
-    }
 
-    $("btnSaveProfile").addEventListener("click", saveProfile);
-    $("btnReloadProfile").addEventListener("click", loadProfile);
-    $("btnSaveRate").addEventListener("click", saveRate);
-    $("btnReloadRates").addEventListener("click", loadRates);
-    $("btnPublish").addEventListener("click", () => setPublishState(true));
-    $("btnUnpublish").addEventListener("click", () => setPublishState(false));
+      $("btnSaveProfile").addEventListener("click", () => saveProfile(null));
+      $("btnReloadProfile").addEventListener("click", loadProfile);
+      $("btnSaveRate").addEventListener("click", saveRate);
+      $("btnReloadRates").addEventListener("click", loadRates);
+      $("btnPublish").addEventListener("click", () => setPublishState(true));
+      $("btnUnpublish").addEventListener("click", () => setPublishState(false));
 
-    boot();
+      boot();
+    })();
   </script>
 </body>
 </html>
