@@ -3,15 +3,16 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER PRO — Cockpit</title>
+  <title>DIGIY PRO DRIVER — Cockpit</title>
   <meta name="theme-color" content="#061b14"/>
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-cockpit-guard-20260309-final"></script>
+  <script src="./guard.js?v=driver-cockpit-guard-20260312-clean"></script>
 
   <style>
     :root{
@@ -130,7 +131,7 @@
     .grid4{display:grid;gap:10px}
 
     @media(min-width:900px){
-      .grid2{grid-template-columns:1.2fr .8fr}
+      .grid2{grid-template-columns:1.15fr .85fr}
     }
 
     @media(min-width:760px){
@@ -319,8 +320,8 @@
       letter-spacing:.04em;
     }
 
-    .badge.accepted,
-    .badge.assigned{
+    .badge.assigned,
+    .badge.accepted{
       color:#fde68a;
       border-color:rgba(245,158,11,.35);
       background:rgba(245,158,11,.12);
@@ -334,7 +335,7 @@
 
     .badge.completed{
       color:#d1fae5;
-      border-color:rgba(255,255,255,.2);
+      border-color:rgba(255,255,255,.20);
       background:rgba(255,255,255,.06);
     }
 
@@ -367,6 +368,61 @@
       background:rgba(255,255,255,.03);
     }
 
+    .profileState{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:1000;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+    }
+
+    .profileState.blank{
+      border-color:rgba(245,158,11,.35);
+      color:#fde68a;
+      background:rgba(245,158,11,.12);
+    }
+
+    .profileState.ready{
+      border-color:rgba(34,197,94,.35);
+      color:#bbf7d0;
+      background:rgba(34,197,94,.12);
+    }
+
+    .profileGrid{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    @media(min-width:760px){
+      .profileGrid{grid-template-columns:1fr 1fr}
+    }
+
+    .fieldBox{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(0,0,0,.16);
+    }
+
+    .fieldLabel{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .fieldValue{
+      font-size:14px;
+      font-weight:900;
+      line-height:1.5;
+      word-break:break-word;
+    }
+
     @media(max-width:760px){
       .kpis{grid-template-columns:1fr 1fr}
     }
@@ -382,14 +438,14 @@
 
     <div class="top">
       <div>
-        <h1 id="titleMain">🦅 DIGIY DRIVER PRO</h1>
-        <div class="muted" id="subMain">Cockpit principal chauffeur. Courses, accès, navigation, contrôle.</div>
+        <h1 id="titleMain">🦅 DIGIY PRO DRIVER</h1>
+        <div class="muted" id="subMain">Cockpit personnel chauffeur. Profil, courses, accès, navigation.</div>
       </div>
 
       <div class="rightMini">
         <div class="pill" id="slugPill">slug : —</div>
         <div class="pill" id="phonePill">phone : —</div>
-        <div class="pill warn" id="accessPill">accès : aperçu</div>
+        <div class="pill warn" id="accessPill">accès : contrôle…</div>
       </div>
     </div>
 
@@ -399,7 +455,7 @@
         <div class="row">
           <div>
             <h2>Tableau de bord</h2>
-            <div class="muted" id="boardLead">Le cœur du module DRIVER. Tu pilotes depuis ici.</div>
+            <div class="muted" id="boardLead">Le cœur de ton module chauffeur. Ici, aucune démo partagée : seulement ton accès et tes vraies données.</div>
           </div>
           <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
             <button class="btn" id="btnCheckAccess" type="button">🔄 Vérifier mon accès</button>
@@ -430,20 +486,64 @@
         <div class="quickGrid">
           <div class="quick">
             <h3>🚕 Courses actives</h3>
-            <div class="muted">Voir les courses assignées au chauffeur et agir dessus.</div>
+            <div class="muted">Voir les courses assignées à ton téléphone chauffeur et agir dessus.</div>
             <a class="go" href="#todayBlock">Ouvrir</a>
           </div>
 
           <div class="quick">
             <h3>🕘 Historique</h3>
-            <div class="muted">Voir les dernières courses terminées ou annulées.</div>
+            <div class="muted">Voir tes dernières courses terminées ou annulées.</div>
             <a class="go" href="#recentBlock">Voir</a>
           </div>
 
           <div class="quick">
-            <h3>🔐 Accès & abonnement</h3>
-            <div class="muted">Contrôle d’accès, PIN, abonnement, session.</div>
-            <button class="go" id="btnAccessTools" type="button">Gérer</button>
+            <h3>👤 Profil pro</h3>
+            <div class="muted">Compléter ou ajuster ton moule personnel DIGIY PRO DRIVER.</div>
+            <a class="go" id="btnProfilQuick" href="#">Ouvrir</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div>
+            <h2>Mon profil DIGIY PRO DRIVER</h2>
+            <div class="muted" id="profileHint">Ton profil réel est chargé par téléphone. S’il n’existe pas encore, la coque reste vierge.</div>
+          </div>
+          <div style="flex:0 0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span class="profileState blank" id="profileState">Profil à compléter</span>
+            <a class="btn primary" id="btnProfil" href="#">👤 Ouvrir le profil</a>
+          </div>
+        </div>
+
+        <div class="profileGrid">
+          <div class="fieldBox">
+            <div class="fieldLabel">Nom activité / enseigne</div>
+            <div class="fieldValue" id="pBusinessName">À compléter</div>
+          </div>
+          <div class="fieldBox">
+            <div class="fieldLabel">Nom chauffeur</div>
+            <div class="fieldValue" id="pDriverName">À compléter</div>
+          </div>
+          <div class="fieldBox">
+            <div class="fieldLabel">Ville</div>
+            <div class="fieldValue" id="pCity">À compléter</div>
+          </div>
+          <div class="fieldBox">
+            <div class="fieldLabel">Zones</div>
+            <div class="fieldValue" id="pZones">À compléter</div>
+          </div>
+          <div class="fieldBox">
+            <div class="fieldLabel">Véhicule</div>
+            <div class="fieldValue" id="pVehicle">À compléter</div>
+          </div>
+          <div class="fieldBox">
+            <div class="fieldLabel">WhatsApp</div>
+            <div class="fieldValue" id="pWhatsapp">À compléter</div>
+          </div>
+          <div class="fieldBox" style="grid-column:1/-1">
+            <div class="fieldLabel">Présentation</div>
+            <div class="fieldValue" id="pDescription">À compléter</div>
           </div>
         </div>
       </div>
@@ -452,32 +552,32 @@
         <div class="row">
           <div>
             <h2>Navigation chauffeur</h2>
-            <div class="muted">Tes portes métier secondaires, branchées au slug actif.</div>
+            <div class="muted">Tes portes métier secondaires, toutes branchées avec le slug actif.</div>
           </div>
         </div>
 
         <div class="grid4">
           <div class="navbox">
             <div class="title">💰 Mes tarifs</div>
-            <div class="desc">Ouvrir la page tarifs chauffeur pour poser ou ajuster tes prix terrain.</div>
+            <div class="desc">Ouvrir ta page métier liée aux tarifs / réglages terrain.</div>
             <a class="go" id="btnTarifs" href="#">Ouvrir</a>
           </div>
 
           <div class="navbox">
             <div class="title">👤 Profil chauffeur</div>
-            <div class="desc">Accéder au profil métier et à ses réglages liés au chauffeur.</div>
-            <a class="go" id="btnProfil" href="#">Ouvrir</a>
+            <div class="desc">Compléter ton moule personnel sans toucher à une démo partagée.</div>
+            <a class="go" id="btnProfilPage" href="#">Ouvrir</a>
           </div>
 
           <div class="navbox">
             <div class="title">🔐 Porte PIN</div>
-            <div class="desc">Repasser par la porte sécurisée avec le slug déjà transmis.</div>
+            <div class="desc">Repasser par la porte sécurisée avec ton slug déjà transmis.</div>
             <a class="go" id="btnPinPage" href="#">Ouvrir</a>
           </div>
 
           <div class="navbox">
             <div class="title">🏠 Vitrine DRIVER</div>
-            <div class="desc">Revenir à la vitrine du module tout en gardant ton slug actif.</div>
+            <div class="desc">Revenir à la vitrine du module sans perdre ton slug actif.</div>
             <a class="go" id="btnIndexPage" href="#">Ouvrir</a>
           </div>
         </div>
@@ -485,12 +585,12 @@
 
       <div class="grid2">
         <div class="card">
-          <h2>Lecture ciblée chauffeur</h2>
+          <h2>Lecture personnelle</h2>
 
           <div class="row">
             <div>
-              <div class="muted">Téléphone chauffeur utilisé pour la lecture</div>
-              <input class="in" id="driverPhone" placeholder="+221771234567"/>
+              <div class="muted">Téléphone chauffeur reconnu</div>
+              <input class="in" id="driverPhone" readonly/>
             </div>
 
             <div>
@@ -502,24 +602,15 @@
           <div class="row" style="margin-top:10px">
             <button class="btn primary" id="btnReload" type="button">↻ Charger / rafraîchir</button>
             <button class="btn" id="btnAuto" type="button">⏱️ Auto refresh : ON</button>
-            <button class="btn" id="btnResetFilter" type="button">🧹 Reprendre la session</button>
+            <button class="btn" id="btnResetSession" type="button">🧹 Reprendre ma session</button>
           </div>
 
           <div class="msg" id="msgCreate">Prêt.</div>
         </div>
 
         <div class="card">
-          <h2>Actions rapides</h2>
+          <h2>Session DRIVER</h2>
 
-          <div class="list">
-            <button class="btn" id="btnScrollToday" type="button">📋 Aller aux courses actives</button>
-            <button class="btn" id="btnHome" type="button">🏠 Retour accueil module</button>
-            <button class="btn" id="btnReloadAll" type="button">♻️ Recharger cockpit</button>
-          </div>
-
-          <div class="sep"></div>
-
-          <div class="muted">Session DRIVER</div>
           <div class="list" style="margin-top:10px">
             <div class="item">
               <div>
@@ -538,9 +629,17 @@
             <div class="item">
               <div>
                 <b>Accès</b>
-                <div class="muted small" id="sessionAccess">Aperçu actif</div>
+                <div class="muted small" id="sessionAccess">contrôle…</div>
               </div>
             </div>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="list">
+            <button class="btn" id="btnScrollToday" type="button">📋 Aller aux courses actives</button>
+            <button class="btn" id="btnHome" type="button">🏠 Retour accueil module</button>
+            <button class="btn" id="btnReloadAll" type="button">♻️ Recharger cockpit</button>
           </div>
         </div>
       </div>
@@ -549,7 +648,7 @@
         <div class="row">
           <div>
             <h2>Mes courses actives</h2>
-            <div class="muted">Cours en direct : en course, acceptées, assignées.</div>
+            <div class="muted">Courses liées à ton `driver_phone`, pas à une démo.</div>
           </div>
           <div style="flex:0 0 auto">
             <button class="btn" id="btnReloadToday" type="button">↻ Rafraîchir la liste</button>
@@ -557,7 +656,7 @@
         </div>
 
         <div class="list" id="todayList" style="margin-top:12px">
-          <div class="item">Chargement…</div>
+          <div class="empty">Aucune course active chargée.</div>
         </div>
       </div>
 
@@ -573,7 +672,7 @@
         </div>
 
         <div class="list" id="recentTripsList" style="margin-top:12px">
-          <div class="item">Chargement…</div>
+          <div class="empty">Aucun historique chargé.</div>
         </div>
       </div>
 
@@ -581,674 +680,616 @@
   </div>
 
   <script>
-    const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
-    const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
-    const MODULE = "DRIVER";
-    const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
-    const PIN_URL = "./pin.html";
-    const HOME_URL = "./index.html";
-    const PROFIL_URL = "./profil-chauffeur.html";
+    (function(){
+      "use strict";
 
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const $ = (id) => document.getElementById(id);
+      const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+      const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
+      const MODULE = "DRIVER";
+      const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
+      const PIN_URL = "./pin.html";
+      const HOME_URL = "./index.html";
+      const PROFIL_URL = "./profil-chauffeur.html";
+      const TARIFS_URL = "./profil-chauffeur.html";
 
-    let slug = "";
-    let phone = "";
-    let IS_PREVIEW = true;
-    let AUTO_REFRESH = true;
-    let refreshTimer = null;
-    let ALL_RIDES = [];
+      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
+      });
 
-    function normPhone(p){
-      const raw = String(p || "").trim();
-      const digits = raw.replace(/[^\d]/g, "");
-      if (!digits) return "";
-      if (digits.startsWith("221") && digits.length === 12) return "+" + digits;
-      if (digits.length === 9) return "+221" + digits;
-      if (raw.startsWith("+")) return raw;
-      return "+" + digits;
-    }
+      const $ = (id) => document.getElementById(id);
 
-    function phoneDigits(p){
-      return String(p || "").replace(/[^\d]/g, "");
-    }
+      let slug = "";
+      let phone = "";
+      let ACCESS_OK = false;
+      let AUTO_REFRESH = true;
+      let refreshTimer = null;
+      let ALL_RIDES = [];
+      let COCKPIT = null;
 
-    function phoneVariants(p){
-      const raw = String(p || "").trim();
-      const normalized = normPhone(raw);
-      const digits = phoneDigits(raw);
-      const out = new Set();
-
-      if (raw) out.add(raw);
-      if (normalized) out.add(normalized);
-      if (digits) out.add(digits);
-
-      if (digits.length === 9) {
-        out.add("221" + digits);
-        out.add("+221" + digits);
+      function normSlug(s){
+        return String(s || "").trim().toLowerCase();
       }
 
-      if (digits.startsWith("221")) {
+      function phoneDigits(p){
+        return String(p || "").replace(/[^\d]/g, "");
+      }
+
+      function normPhone(p){
+        const digits = phoneDigits(p);
+        if (!digits) return "";
+        if (digits.startsWith("221") && digits.length === 12) return digits;
+        if (digits.length === 9) return "221" + digits;
+        return digits;
+      }
+
+      function displayPhone(p){
+        const digits = normPhone(p);
+        return digits ? "+" + digits : "—";
+      }
+
+      function phoneVariants(p){
+        const digits = normPhone(p);
+        const out = new Set();
+        if (!digits) return [];
         out.add(digits);
         out.add("+" + digits);
-      }
-
-      if (normalized.startsWith("+")) out.add(normalized.slice(1));
-
-      return Array.from(out).filter(Boolean);
-    }
-
-    function normSlug(s){
-      return String(s || "").trim().toLowerCase();
-    }
-
-    function money(n){
-      const x = Number(n || 0);
-      return Number.isFinite(x) ? x.toLocaleString("fr-FR") + " FCFA" : "—";
-    }
-
-    function withSlug(base){
-      const u = new URL(base, location.href);
-      if (slug) u.searchParams.set("slug", slug);
-      return u.pathname + u.search;
-    }
-
-    function setMsg(txt, type){
-      const el = $("msgCreate");
-      el.textContent = txt;
-      el.className = "msg " + (type || "");
-    }
-
-    function setAccessState(ok, txt){
-      const pill = $("accessPill");
-      const s = $("sessionAccess");
-      pill.className = "pill " + (ok ? "ok" : "bad");
-      pill.textContent = "accès : " + txt;
-      s.textContent = txt;
-    }
-
-    function setPreviewState(msg){
-      $("titleMain").textContent = "🦅 DIGIY DRIVER PRO";
-      $("subMain").textContent = "Aperçu du cockpit chauffeur. Tu vois le logiciel avant l’ouverture réelle.";
-      setAccessState(false, msg || "aperçu actif");
-      setMsg("Mode aperçu actif.", "warn");
-      $("kpiAssigned").textContent = "2";
-      $("kpiInProgress").textContent = "1";
-      $("kpiCompleted").textContent = "7";
-      $("kpiCancelled").textContent = "1";
-    }
-
-    function updateSessionUi(){
-      $("slugPill").textContent = "slug : " + (slug || "—");
-      $("phonePill").textContent = "phone : " + (phone || "—");
-      $("sessionSlug").textContent = slug || "—";
-      $("sessionPhone").textContent = phone || "—";
-
-      $("btnTarifs").href = withSlug(PROFIL_URL);
-      $("btnProfil").href = withSlug(PROFIL_URL);
-      $("btnPinPage").href = withSlug(PIN_URL);
-      $("btnIndexPage").href = withSlug(HOME_URL);
-
-      if (!$("driverPhone").value.trim() && phone) {
-        $("driverPhone").value = phone;
-      }
-    }
-
-    function goPay(){
-      const u = new URL(PAY_URL);
-      u.searchParams.set("module", MODULE);
-      if (phone) u.searchParams.set("phone", phoneDigits(phone));
-      if (slug) u.searchParams.set("slug", slug);
-      u.searchParams.set("return", location.origin + location.pathname + (slug ? "?slug=" + encodeURIComponent(slug) : ""));
-      location.href = u.toString();
-    }
-
-    function goPin(){ location.href = withSlug(PIN_URL); }
-    function goHome(){ location.href = withSlug(HOME_URL); }
-
-    function escapeHtml(str){
-      return String(str || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function pick(obj, keys, fallback = "—"){
-      for (const k of keys) {
-        const v = obj?.[k];
-        if (v !== null && v !== undefined && String(v).trim() !== "") return v;
-      }
-      return fallback;
-    }
-
-    function statusLabel(s){
-      const v = String(s || "").toLowerCase();
-      if (v === "accepted") return "acceptée";
-      if (v === "assigned") return "assignée";
-      if (v === "in_progress") return "en course";
-      if (v === "completed") return "terminée";
-      if (v === "cancelled" || v === "canceled") return "annulée";
-      return v || "—";
-    }
-
-    function rideStatusRank(s){
-      const v = String(s || "").toLowerCase();
-      if (v === "in_progress") return 0;
-      if (v === "accepted") return 1;
-      if (v === "assigned") return 2;
-      if (v === "completed") return 3;
-      if (v === "cancelled" || v === "canceled") return 4;
-      return 9;
-    }
-
-    function fmtDate(v){
-      if (!v) return "—";
-      const d = new Date(v);
-      if (Number.isNaN(d.getTime())) return String(v);
-      return d.toLocaleString("fr-FR", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    }
-
-    function firstDate(obj){
-      const keys = ["updated_at","completed_at","started_at","accepted_at","created_at","requested_at"];
-      for (const k of keys){
-        const v = obj?.[k];
-        if (!v) continue;
-        const t = new Date(v).getTime();
-        if (!Number.isNaN(t)) return t;
-      }
-      return 0;
-    }
-
-    function sortRows(rows){
-      return [...rows].sort((a,b) => firstDate(b) - firstDate(a));
-    }
-
-    function previewAssignedTrips(){
-      return [
-        {
-          id:"preview-1",
-          client_name:"",
-          client_phone:"+221771342889",
-          pickup_address:"Saly centre",
-          dropoff_address:"AIBD",
-          vehicle_type:"Berline",
-          estimated_price_xof:15000,
-          status:"accepted",
-          created_at:new Date().toISOString()
-        },
-        {
-          id:"preview-2",
-          client_name:"",
-          client_phone:"+221770000000",
-          pickup_address:"Ngaparou",
-          dropoff_address:"Somone",
-          vehicle_type:"Taxi",
-          estimated_price_xof:4000,
-          status:"in_progress",
-          started_at:new Date().toISOString()
+        if (digits.startsWith("221") && digits.length === 12) {
+          out.add(digits.slice(3));
+          out.add("+221" + digits.slice(3));
         }
-      ];
-    }
-
-    function previewRecentTrips(){
-      return [
-        {
-          id:"preview-3",
-          client_name:"",
-          client_phone:"+221771111111",
-          pickup_address:"Saly centre",
-          dropoff_address:"AIBD",
-          vehicle_type:"Berline",
-          final_price_xof:15000,
-          status:"completed",
-          completed_at:new Date().toISOString()
-        },
-        {
-          id:"preview-4",
-          client_name:"",
-          client_phone:"+221772222222",
-          pickup_address:"Saly",
-          dropoff_address:"Dakar",
-          vehicle_type:"SUV",
-          final_price_xof:25000,
-          status:"completed",
-          completed_at:new Date().toISOString()
-        }
-      ];
-    }
-
-    function renderAssignedTrips(data){
-      const box = $("todayList");
-
-      if (!data || data.length === 0){
-        box.innerHTML = `<div class="empty">Aucune course active pour ce chauffeur.</div>`;
-        return;
+        return Array.from(out).filter(Boolean);
       }
 
-      box.innerHTML = data.map(t => {
-        const id = pick(t, ["id"], "");
-        const status = String(pick(t, ["status"], "—")).toLowerCase();
+      function escapeHtml(str){
+        return String(str || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
 
-        const clientName = pick(t, ["client_name","customer_name","passenger_name","name"]);
-        const clientPhone = pick(t, ["client_phone","customer_phone","phone","rider_phone"]);
-        const clientDisplay =
-          clientName !== "—" ? clientName :
-          clientPhone !== "—" ? clientPhone :
-          "Client";
+      function valueOrEmpty(v, fallback = "À compléter"){
+        const s = String(v ?? "").trim();
+        return s ? s : fallback;
+      }
 
-        const pickup = pick(t, ["pickup_address","pickup_text","departure_text","depart_text","from_text","pickup_location"]);
-        const dropoff = pick(t, ["dropoff_address","dropoff_text","destination_text","to_text","dropoff_location"]);
-        const vehicle = pick(t, ["vehicle_type","car_type","ride_type","service_type","trip_type"]);
-        const price = pick(t, ["final_price_xof","estimated_price_xof","price_xof","amount_xof","prix_xof"], null);
+      function money(n){
+        const x = Number(n || 0);
+        return Number.isFinite(x) ? x.toLocaleString("fr-FR") + " FCFA" : "—";
+      }
 
-        const canStart = ["accepted","assigned"].includes(status);
-        const canFinish = status === "in_progress";
-        const disabled = IS_PREVIEW ? "disabled" : "";
+      function withSlug(base){
+        const u = new URL(base, location.href);
+        if (slug) u.searchParams.set("slug", slug);
+        return u.pathname + u.search;
+      }
 
-        return `
-          <div class="itemCol">
-            <div class="rideHead">
-              <div>
-                <div class="rideTitle">${escapeHtml(clientDisplay)} — ${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</div>
-                <div class="metaLine">ID : ${escapeHtml(id)}</div>
+      function setMsg(txt, type){
+        const el = $("msgCreate");
+        el.textContent = txt;
+        el.className = "msg " + (type || "");
+      }
+
+      function setAccessState(ok, txt){
+        ACCESS_OK = !!ok;
+        const pill = $("accessPill");
+        const s = $("sessionAccess");
+        pill.className = "pill " + (ok ? "ok" : "bad");
+        pill.textContent = "accès : " + txt;
+        s.textContent = txt;
+      }
+
+      function updateSessionUi(){
+        $("slugPill").textContent = "slug : " + (slug || "—");
+        $("phonePill").textContent = "phone : " + displayPhone(phone);
+        $("sessionSlug").textContent = slug || "—";
+        $("sessionPhone").textContent = displayPhone(phone);
+        $("driverPhone").value = displayPhone(phone) === "—" ? "" : displayPhone(phone);
+
+        $("btnTarifs").href = withSlug(TARIFS_URL);
+        $("btnProfil").href = withSlug(PROFIL_URL);
+        $("btnProfilQuick").href = withSlug(PROFIL_URL);
+        $("btnProfilPage").href = withSlug(PROFIL_URL);
+        $("btnPinPage").href = withSlug(PIN_URL);
+        $("btnIndexPage").href = withSlug(HOME_URL);
+      }
+
+      function goPay(){
+        const u = new URL(PAY_URL);
+        u.searchParams.set("module", MODULE);
+        if (phone) u.searchParams.set("phone", normPhone(phone));
+        if (slug) u.searchParams.set("slug", slug);
+        u.searchParams.set("return", location.origin + location.pathname + (slug ? "?slug=" + encodeURIComponent(slug) : ""));
+        location.href = u.toString();
+      }
+
+      function goPin(){ location.href = withSlug(PIN_URL); }
+      function goHome(){ location.href = withSlug(HOME_URL); }
+
+      function statusLabel(s){
+        const v = String(s || "").toLowerCase();
+        if (v === "accepted") return "acceptée";
+        if (v === "assigned") return "assignée";
+        if (v === "in_progress") return "en course";
+        if (v === "completed") return "terminée";
+        if (v === "cancelled" || v === "canceled") return "annulée";
+        return v || "—";
+      }
+
+      function rideStatusRank(s){
+        const v = String(s || "").toLowerCase();
+        if (v === "in_progress") return 0;
+        if (v === "accepted") return 1;
+        if (v === "assigned") return 2;
+        if (v === "completed") return 3;
+        if (v === "cancelled" || v === "canceled") return 4;
+        return 9;
+      }
+
+      function fmtDate(v){
+        if (!v) return "—";
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return String(v);
+        return d.toLocaleString("fr-FR", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      }
+
+      function firstDate(obj){
+        const keys = ["updated_at","completed_at","created_at"];
+        for (const k of keys){
+          const v = obj?.[k];
+          if (!v) continue;
+          const t = new Date(v).getTime();
+          if (!Number.isNaN(t)) return t;
+        }
+        return 0;
+      }
+
+      function sortRows(rows){
+        return [...rows].sort((a,b) => firstDate(b) - firstDate(a));
+      }
+
+      function pick(obj, keys, fallback = "—"){
+        for (const k of keys){
+          const v = obj?.[k];
+          if (v !== null && v !== undefined && String(v).trim() !== "") return v;
+        }
+        return fallback;
+      }
+
+      function clearProfileUi(){
+        $("pBusinessName").textContent = "À compléter";
+        $("pDriverName").textContent = "À compléter";
+        $("pCity").textContent = "À compléter";
+        $("pZones").textContent = "À compléter";
+        $("pVehicle").textContent = "À compléter";
+        $("pWhatsapp").textContent = "À compléter";
+        $("pDescription").textContent = "À compléter";
+        $("profileState").className = "profileState blank";
+        $("profileState").textContent = "Profil à compléter";
+        $("profileHint").textContent = "Ton profil réel est chargé par téléphone. S’il n’existe pas encore, la coque reste vierge.";
+      }
+
+      function renderProfile(data){
+        const p = data?.profile || {};
+        const vehicle = [p.vehicle_type, p.vehicle_label, p.vehicle_plate]
+          .map(v => String(v || "").trim())
+          .filter(Boolean)
+          .join(" • ");
+
+        $("pBusinessName").textContent = valueOrEmpty(p.business_name);
+        $("pDriverName").textContent = valueOrEmpty(p.driver_name);
+        $("pCity").textContent = valueOrEmpty(p.city);
+        $("pZones").textContent = valueOrEmpty(p.zones);
+        $("pVehicle").textContent = valueOrEmpty(vehicle);
+        $("pWhatsapp").textContent = valueOrEmpty(p.whatsapp, displayPhone(phone));
+        $("pDescription").textContent = valueOrEmpty(p.description);
+
+        const state = $("profileState");
+        if (data?.is_blank) {
+          state.className = "profileState blank";
+          state.textContent = "Profil à compléter";
+          $("profileHint").textContent = "Bienvenue. Ton moule DIGIY PRO DRIVER est prêt : complète ton profil pour personnaliser ton cockpit.";
+        } else {
+          state.className = "profileState ready";
+          state.textContent = "Profil chargé";
+          $("profileHint").textContent = "Profil réel retrouvé par téléphone. Tu peux le modifier ou le compléter à tout moment.";
+        }
+      }
+
+      function renderStats(stats){
+        $("kpiAssigned").textContent = String(Number(stats?.assigned || 0));
+        $("kpiInProgress").textContent = String(Number(stats?.in_progress || 0));
+        $("kpiCompleted").textContent = String(Number(stats?.completed || 0));
+        $("kpiCancelled").textContent = String(Number(stats?.cancelled || 0));
+      }
+
+      function renderCockpitMeta(data){
+        COCKPIT = data;
+        phone = normPhone(data?.phone || phone);
+
+        $("titleMain").textContent = "🦅 " + (data?.public_label || "DIGIY PRO DRIVER");
+        $("subMain").textContent = data?.is_blank
+          ? "Cockpit personnel vierge. Complète ton profil pour lancer ton univers chauffeur."
+          : "Cockpit personnel chauffeur. Tes vraies données sont rechargées par téléphone.";
+        $("boardLead").textContent = data?.is_blank
+          ? "Tu es bien dans ton cockpit personnel. Aucun faux chauffeur, aucune démo : commence par remplir ton profil."
+          : "Tu pilotes depuis ici avec ton vrai profil et tes vraies données.";
+
+        setAccessState(true, data?.access || "abonnement OK");
+        updateSessionUi();
+        renderStats(data?.stats || {});
+        renderProfile(data);
+      }
+
+      function setBlockedState(msg){
+        COCKPIT = null;
+        phone = "";
+        updateSessionUi();
+        clearProfileUi();
+        renderStats({ assigned:0, in_progress:0, completed:0, cancelled:0 });
+        setAccessState(false, msg || "accès KO");
+        $("todayList").innerHTML = `<div class="empty">Accès non ouvert. Passe par la porte PIN ou l’abonnement.</div>`;
+        $("recentTripsList").innerHTML = `<div class="empty">Aucun historique lisible sans accès valide.</div>`;
+      }
+
+      async function waitGuardIfAny(){
+        try{
+          if (window.DIGIY_GUARD?.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
+            await window.DIGIY_GUARD.ready;
+          }
+        }catch(e){
+          console.warn("Guard ready warning:", e);
+        }
+      }
+
+      function resolveSlug(){
+        const qs = new URLSearchParams(location.search);
+        const fromUrl = normSlug(qs.get("slug") || "");
+        if (fromUrl) return fromUrl;
+
+        const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug || "");
+        if (fromGuard) return fromGuard;
+
+        return "";
+      }
+
+      async function fetchCockpit(){
+        if (!slug){
+          return { ok:false, reason:"slug_manquant" };
+        }
+
+        const { data, error } = await sb.rpc("digiy_driver_get_cockpit_by_slug", { p_slug: slug });
+        if (error) throw error;
+        return data || { ok:false, reason:"empty_response" };
+      }
+
+      async function fetchDriverTrips(){
+        if (!phone){
+          ALL_RIDES = [];
+          return [];
+        }
+
+        const variants = phoneVariants(phone);
+        if (!variants.length){
+          ALL_RIDES = [];
+          return [];
+        }
+
+        const { data, error } = await sb
+          .from("digiy_driver_trips")
+          .select("*")
+          .in("driver_phone", variants)
+          .order("created_at", { ascending:false });
+
+        if (error) throw error;
+
+        ALL_RIDES = sortRows(data || []);
+        return ALL_RIDES;
+      }
+
+      function renderAssignedTrips(data){
+        const box = $("todayList");
+
+        if (!data || data.length === 0){
+          box.innerHTML = `<div class="empty">Aucune course active pour ce chauffeur.</div>`;
+          return;
+        }
+
+        box.innerHTML = data.map(t => {
+          const id = pick(t, ["id"], "");
+          const status = String(pick(t, ["status"], "—")).toLowerCase();
+
+          const clientPhone = pick(t, ["customer_phone"], "—");
+          const pickup = pick(t, ["pickup_label"], "Départ à préciser");
+          const dropoff = pick(t, ["drop_label"], "Destination à préciser");
+          const vehicle = pick(t, ["vehicle_type"], "service chauffeur");
+          const price = pick(t, ["final_price_fcfa","price_fcfa"], null);
+
+          const canStart = ["accepted","assigned"].includes(status);
+          const canFinish = status === "in_progress";
+
+          return `
+            <div class="itemCol">
+              <div class="rideHead">
+                <div>
+                  <div class="rideTitle">${escapeHtml(clientPhone)} — ${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</div>
+                  <div class="metaLine">ID : ${escapeHtml(id)}</div>
+                </div>
+                <div class="badge ${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</div>
               </div>
-              <div class="badge ${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</div>
+
+              <div class="rideMeta">
+                <div class="metaLine">📞 Client : ${escapeHtml(clientPhone)}</div>
+                <div class="metaLine">🚘 Véhicule : ${escapeHtml(vehicle)}</div>
+                <div class="metaLine">💰 Prix : ${price === null ? "—" : escapeHtml(money(price))}</div>
+                <div class="metaLine">🕘 Créée : ${escapeHtml(fmtDate(pick(t, ["created_at"], null)))}</div>
+                <div class="metaLine">✅ Terminée : ${escapeHtml(fmtDate(pick(t, ["completed_at"], null)))}</div>
+              </div>
+
+              <div class="rideActions">
+                <button class="btn primary jsRideAction" data-action="start" data-id="${escapeHtml(id)}" ${canStart ? "" : "disabled"}>DÉMARRER</button>
+                <button class="btn danger jsRideAction" data-action="finish" data-id="${escapeHtml(id)}" ${canFinish ? "" : "disabled"}>TERMINER</button>
+              </div>
             </div>
+          `;
+        }).join("");
 
-            <div class="rideMeta">
-              <div class="metaLine">📞 Client : ${escapeHtml(clientPhone)}</div>
-              <div class="metaLine">🚘 Véhicule : ${escapeHtml(vehicle)}</div>
-              <div class="metaLine">💰 Prix : ${price === null ? "—" : escapeHtml(money(price))}</div>
-              <div class="metaLine">🕘 Créée : ${escapeHtml(fmtDate(pick(t, ["created_at","requested_at"], null)))}</div>
-              <div class="metaLine">▶️ Démarrée : ${escapeHtml(fmtDate(pick(t, ["started_at"], null)))}</div>
-              <div class="metaLine">✅ Terminée : ${escapeHtml(fmtDate(pick(t, ["completed_at"], null)))}</div>
-            </div>
-
-            <div class="rideActions">
-              <button class="btn primary jsRideAction" data-action="start" data-id="${escapeHtml(id)}" ${canStart ? "" : "disabled"} ${disabled}>DÉMARRER</button>
-              <button class="btn danger jsRideAction" data-action="finish" data-id="${escapeHtml(id)}" ${canFinish ? "" : "disabled"} ${disabled}>TERMINER</button>
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      box.querySelectorAll(".jsRideAction").forEach(btn => {
-        btn.addEventListener("click", onRideAction);
-      });
-    }
-
-    function renderRecentTrips(data){
-      const box = $("recentTripsList");
-
-      if (!data || data.length === 0){
-        box.innerHTML = `<div class="empty">Aucune course récente</div>`;
-        return;
+        box.querySelectorAll(".jsRideAction").forEach(btn => {
+          btn.addEventListener("click", onRideAction);
+        });
       }
 
-      box.innerHTML = data.map(t => {
-        const status = String(pick(t, ["status"], "—")).toLowerCase();
-        const clientName = pick(t, ["client_name","customer_name","passenger_name","name"]);
-        const clientPhone = pick(t, ["client_phone","customer_phone","phone","rider_phone"]);
-        const clientDisplay =
-          clientName !== "—" ? clientName :
-          clientPhone !== "—" ? clientPhone :
-          "Client";
+      function renderRecentTrips(data){
+        const box = $("recentTripsList");
 
-        const pickup = pick(t, ["pickup_address","pickup_text","departure_text","depart_text","from_text","pickup_location"]);
-        const dropoff = pick(t, ["dropoff_address","dropoff_text","destination_text","to_text","dropoff_location"]);
-        const price = pick(t, ["final_price_xof","estimated_price_xof","price_xof","amount_xof","prix_xof"], null);
-        const at = pick(t, ["completed_at","started_at","created_at","requested_at"], null);
+        if (!data || data.length === 0){
+          box.innerHTML = `<div class="empty">Aucune course récente</div>`;
+          return;
+        }
 
-        return `
-          <div class="item">
-            <div>
-              <b>${escapeHtml(clientDisplay)} — ${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</b>
-              <div class="muted">${escapeHtml(statusLabel(status))} • ${escapeHtml(fmtDate(at))}</div>
+        box.innerHTML = data.map(t => {
+          const status = String(pick(t, ["status"], "—")).toLowerCase();
+          const clientPhone = pick(t, ["customer_phone"], "—");
+          const pickup = pick(t, ["pickup_label"], "Départ à préciser");
+          const dropoff = pick(t, ["drop_label"], "Destination à préciser");
+          const price = pick(t, ["final_price_fcfa","price_fcfa"], null);
+          const at = pick(t, ["completed_at","updated_at","created_at"], null);
+
+          return `
+            <div class="item">
+              <div>
+                <b>${escapeHtml(clientPhone)} — ${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</b>
+                <div class="muted">${escapeHtml(statusLabel(status))} • ${escapeHtml(fmtDate(at))}</div>
+              </div>
+              <div>${price === null ? "—" : escapeHtml(money(price))}</div>
             </div>
-            <div>${price === null ? "—" : escapeHtml(money(price))}</div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function updateKpis(rows){
-      const assigned = rows.filter(r => {
-        const s = String(r.status || "").toLowerCase();
-        return s === "accepted" || s === "assigned";
-      }).length;
-
-      const inProgress = rows.filter(r => String(r.status || "").toLowerCase() === "in_progress").length;
-      const completed = rows.filter(r => String(r.status || "").toLowerCase() === "completed").length;
-      const cancelled = rows.filter(r => {
-        const s = String(r.status || "").toLowerCase();
-        return s === "cancelled" || s === "canceled";
-      }).length;
-
-      $("kpiAssigned").textContent = String(assigned);
-      $("kpiInProgress").textContent = String(inProgress);
-      $("kpiCompleted").textContent = String(completed);
-      $("kpiCancelled").textContent = String(cancelled);
-    }
-
-    async function fetchDriverRides(){
-      const filterPhone = $("driverPhone").value.trim() || phone;
-      const variants = phoneVariants(filterPhone);
-
-      if (!variants.length) {
-        ALL_RIDES = [];
-        updateKpis([]);
-        renderAssignedTrips([]);
-        renderRecentTrips([]);
-        setMsg("⚠️ Téléphone chauffeur manquant.", "bad");
-        return [];
+          `;
+        }).join("");
       }
 
-      const { data, error } = await sb
-        .from("ride_requests")
-        .select("*")
-        .in("assigned_driver_phone", variants);
+      async function loadTripsAndRender(){
+        if (!ACCESS_OK || !phone){
+          $("todayList").innerHTML = `<div class="empty">Aucune lecture active tant que l’accès n’est pas validé.</div>`;
+          $("recentTripsList").innerHTML = `<div class="empty">Aucun historique lisible pour l’instant.</div>`;
+          return;
+        }
 
-      if (error) throw error;
+        const rows = await fetchDriverTrips();
 
-      const rows = sortRows(data || []);
-      ALL_RIDES = rows;
-      $("lastSync").value = new Date().toLocaleString("fr-FR");
-      return rows;
-    }
-
-    async function loadToday(){
-      if (IS_PREVIEW){
-        const rows = previewAssignedTrips()
+        const activeRows = rows
+          .filter(r => {
+            const s = String(r.status || "").toLowerCase();
+            return s === "accepted" || s === "assigned" || s === "in_progress";
+          })
           .sort((a, b) => {
             const byStatus = rideStatusRank(a.status) - rideStatusRank(b.status);
             if (byStatus !== 0) return byStatus;
             return firstDate(b) - firstDate(a);
           });
-        updateKpis(rows);
-        renderAssignedTrips(rows);
-        return;
+
+        const historyRows = rows
+          .filter(r => {
+            const s = String(r.status || "").toLowerCase();
+            return s === "completed" || s === "cancelled" || s === "canceled";
+          })
+          .sort((a, b) => firstDate(b) - firstDate(a));
+
+        renderAssignedTrips(activeRows);
+        renderRecentTrips(historyRows.slice(0, 20));
       }
 
-      const rows = ALL_RIDES.length ? ALL_RIDES : await fetchDriverRides();
+      async function reloadAllData(){
+        document.body.classList.add("loading");
+        setMsg("⏳ Chargement du cockpit personnel…", "warn");
 
-      const activeRows = rows
-        .filter(r => {
-          const s = String(r.status || "").toLowerCase();
-          return s === "accepted" || s === "assigned" || s === "in_progress";
-        })
-        .sort((a, b) => {
-          const byStatus = rideStatusRank(a.status) - rideStatusRank(b.status);
-          if (byStatus !== 0) return byStatus;
-          return firstDate(b) - firstDate(a);
-        });
+        try{
+          slug = resolveSlug();
+          updateSessionUi();
 
-      renderAssignedTrips(activeRows);
-    }
+          if (!slug){
+            setBlockedState("slug manquant");
+            setMsg("⚠️ Aucun slug détecté. Passe par la porte PIN ou par un lien d’accès valide.", "bad");
+            return;
+          }
 
-    async function loadRecentTrips(){
-      if (IS_PREVIEW){
-        renderRecentTrips(previewRecentTrips());
-        return;
+          const data = await fetchCockpit();
+
+          if (!data?.ok){
+            setBlockedState(data?.reason || "accès KO");
+            setMsg("⚠️ Accès non ouvert pour ce slug. Passe par la porte PIN ou l’abonnement.", "bad");
+            return;
+          }
+
+          renderCockpitMeta(data);
+          await loadTripsAndRender();
+
+          $("lastSync").value = new Date().toLocaleString("fr-FR");
+          setMsg(data.is_blank
+            ? "✅ Cockpit vierge chargé. Tu peux maintenant compléter ton profil."
+            : "✅ Cockpit personnel synchronisé.", "ok");
+
+        }catch(e){
+          console.error(e);
+          setBlockedState("erreur cockpit");
+          setMsg("❌ Erreur de chargement du cockpit personnel.", "bad");
+        }finally{
+          document.body.classList.remove("loading");
+        }
       }
 
-      const rows = ALL_RIDES.length ? ALL_RIDES : await fetchDriverRides();
+      async function rpcWithFallback(functionName, rideId, driverPhone){
+        const attempts = [
+          { p_ride_id: rideId, p_driver_phone: driverPhone },
+          { ride_id: rideId, driver_phone: driverPhone },
+          { p_id: rideId, p_phone: driverPhone },
+          { id: rideId, phone: driverPhone }
+        ];
 
-      const historyRows = rows
-        .filter(r => {
-          const s = String(r.status || "").toLowerCase();
-          return s === "completed" || s === "cancelled" || s === "canceled";
-        })
-        .sort((a, b) => firstDate(b) - firstDate(a));
+        let lastError = null;
 
-      renderRecentTrips(historyRows.slice(0, 20));
-    }
+        for (const args of attempts){
+          const { data, error } = await sb.rpc(functionName, args);
+          if (!error) return data;
+          lastError = error;
+        }
 
-    async function loadStats(){
-      if (IS_PREVIEW){
-        $("kpiAssigned").textContent = "2";
-        $("kpiInProgress").textContent = "1";
-        $("kpiCompleted").textContent = "7";
-        $("kpiCancelled").textContent = "1";
-        return;
+        throw lastError || new Error("rpc_failed");
       }
 
-      const rows = ALL_RIDES.length ? ALL_RIDES : await fetchDriverRides();
-      updateKpis(rows);
-    }
+      async function onRideAction(ev){
+        const btn = ev.currentTarget;
+        const action = btn.dataset.action;
+        const rideId = btn.dataset.id;
 
-    async function reloadAllData(){
-      try{
-        if (IS_PREVIEW){
-          setPreviewState("aperçu actif");
-          await loadStats();
-          await loadToday();
-          await loadRecentTrips();
+        if (!ACCESS_OK){
+          setMsg("⚠️ Accès non valide pour agir sur les courses.", "bad");
           return;
         }
 
-        ALL_RIDES = [];
-        const rows = await fetchDriverRides();
-        updateKpis(rows);
-        await loadToday();
-        await loadRecentTrips();
-        setMsg("✅ Cockpit synchronisé.", "ok");
-      }catch(e){
-        console.error(e);
-        setMsg("❌ Erreur de chargement cockpit", "bad");
-        $("todayList").innerHTML = `<div class="empty">Erreur de chargement</div>`;
-        $("recentTripsList").innerHTML = `<div class="empty">Erreur de chargement</div>`;
-      }
-    }
-
-    async function rpcWithFallback(functionName, rideId, driverPhone){
-      const attempts = [
-        { p_ride_id: rideId, p_driver_phone: driverPhone },
-        { ride_id: rideId, driver_phone: driverPhone },
-        { p_id: rideId, p_phone: driverPhone },
-        { id: rideId, phone: driverPhone }
-      ];
-
-      let lastError = null;
-
-      for (const args of attempts){
-        const { data, error } = await sb.rpc(functionName, args);
-        if (!error) return data;
-        lastError = error;
-      }
-
-      throw lastError || new Error("rpc_failed");
-    }
-
-    async function onRideAction(ev){
-      const btn = ev.currentTarget;
-      const action = btn.dataset.action;
-      const rideId = btn.dataset.id;
-      const currentPhone = $("driverPhone").value.trim() || phone;
-
-      if (IS_PREVIEW){
-        setMsg("⚠️ Mode aperçu : entre par PIN pour agir sur une vraie course", "warn");
-        return;
-      }
-
-      if (!rideId){
-        setMsg("⚠️ Course introuvable", "bad");
-        return;
-      }
-
-      if (!currentPhone){
-        setMsg("⚠️ Téléphone chauffeur manquant", "bad");
-        return;
-      }
-
-      btn.disabled = true;
-
-      try{
-        if (action === "start"){
-          await rpcWithFallback("digiy_driver_start_ride", rideId, currentPhone);
-          setMsg("✅ Course démarrée", "ok");
-        } else if (action === "finish"){
-          await rpcWithFallback("digiy_driver_complete_ride", rideId, currentPhone);
-          setMsg("✅ Course terminée", "ok");
+        if (!rideId){
+          setMsg("⚠️ Course introuvable.", "bad");
+          return;
         }
 
-        ALL_RIDES = [];
+        if (!phone){
+          setMsg("⚠️ Téléphone chauffeur manquant.", "bad");
+          return;
+        }
+
+        btn.disabled = true;
+
+        try{
+          if (action === "start"){
+            await rpcWithFallback("digiy_driver_start_ride", rideId, phone);
+            setMsg("✅ Course démarrée.", "ok");
+          } else if (action === "finish"){
+            await rpcWithFallback("digiy_driver_complete_ride", rideId, phone);
+            setMsg("✅ Course terminée.", "ok");
+          }
+
+          ALL_RIDES = [];
+          await reloadAllData();
+        }catch(e){
+          console.error(e);
+          setMsg("❌ Action impossible pour cette course.", "bad");
+        }finally{
+          btn.disabled = false;
+        }
+      }
+
+      async function refreshAccessState(){
+        try{
+          if (window.DIGIY_GUARD?.refresh){
+            await window.DIGIY_GUARD.refresh();
+          }
+        }catch(e){
+          console.warn("Guard refresh warning:", e);
+        }
         await reloadAllData();
-      }catch(e){
-        console.error(e);
-        setMsg("❌ Action impossible", "bad");
-      }finally{
-        btn.disabled = false;
       }
-    }
 
-    async function refreshAccessState(){
-      try{
-        if (!window.DIGIY_GUARD?.refresh){
-          setAccessState(false, "guard absent");
-          return false;
-        }
-
-        const st = await window.DIGIY_GUARD.refresh();
-
-        slug = normSlug(st?.slug || slug);
-        phone = normPhone(st?.phone || phone);
+      function resetSession(){
+        slug = resolveSlug();
         updateSessionUi();
-
-        if (st?.access_ok){
-          IS_PREVIEW = false;
-          setAccessState(true, "abonnement OK");
-          await reloadAllData();
-          return true;
-        }
-
-        if (st?.preview){
-          IS_PREVIEW = true;
-          setAccessState(false, "aperçu actif");
-          await reloadAllData();
-          return false;
-        }
-
-        if (st?.reason === "no_subscription"){
-          IS_PREVIEW = true;
-          setAccessState(false, "abonnement KO");
-          await reloadAllData();
-          return false;
-        }
-
-        IS_PREVIEW = true;
-        setAccessState(false, st?.reason || "accès KO");
-        await reloadAllData();
-        return false;
-      }catch(e){
-        console.error(e);
-        IS_PREVIEW = true;
-        setAccessState(false, "erreur contrôle");
-        await reloadAllData();
-        return false;
-      }
-    }
-
-    function resetFilter(){
-      $("driverPhone").value = phone || "";
-      setMsg("Filtre remis sur la session chauffeur.", "ok");
-    }
-
-    function toggleAutoRefresh(){
-      AUTO_REFRESH = !AUTO_REFRESH;
-      $("btnAuto").textContent = "⏱️ Auto refresh : " + (AUTO_REFRESH ? "ON" : "OFF");
-
-      if (refreshTimer) {
-        clearInterval(refreshTimer);
-        refreshTimer = null;
+        setMsg("Session slug rechargée.", "ok");
       }
 
-      if (AUTO_REFRESH){
-        refreshTimer = setInterval(() => {
-          if (!document.hidden) reloadAllData();
-        }, 15000);
+      function toggleAutoRefresh(){
+        AUTO_REFRESH = !AUTO_REFRESH;
+        $("btnAuto").textContent = "⏱️ Auto refresh : " + (AUTO_REFRESH ? "ON" : "OFF");
+
+        if (refreshTimer){
+          clearInterval(refreshTimer);
+          refreshTimer = null;
+        }
+
+        if (AUTO_REFRESH){
+          refreshTimer = setInterval(() => {
+            if (!document.hidden) reloadAllData();
+          }, 15000);
+        }
       }
-    }
 
-    async function boot(){
-      document.body.classList.add("loading");
-
-      try{
-        await window.DIGIY_GUARD.ready;
-        const st = window.DIGIY_GUARD.state;
-
-        slug = normSlug(st?.slug || "");
-        phone = normPhone(st?.phone || "");
+      async function boot(){
+        await waitGuardIfAny();
+        slug = resolveSlug();
         updateSessionUi();
-
-        if (st?.preview){
-          IS_PREVIEW = true;
-          setPreviewState("aperçu actif");
-          await reloadAllData();
-        } else if (st?.access_ok){
-          IS_PREVIEW = false;
-          setAccessState(true, "abonnement OK");
-          await reloadAllData();
-        } else {
-          IS_PREVIEW = true;
-          setPreviewState(st?.reason === "no_subscription" ? "abonnement KO" : "aperçu actif");
-          await reloadAllData();
-        }
+        clearProfileUi();
+        renderStats({ assigned:0, in_progress:0, completed:0, cancelled:0 });
+        await reloadAllData();
 
         refreshTimer = setInterval(() => {
           if (AUTO_REFRESH && !document.hidden) reloadAllData();
         }, 15000);
-
-      } catch (e){
-        console.error(e);
-        IS_PREVIEW = true;
-        setPreviewState("crash cockpit");
-        await reloadAllData();
-      } finally {
-        document.body.classList.remove("loading");
       }
-    }
 
-    $("btnReload")?.addEventListener("click", reloadAllData);
+      $("btnReload")?.addEventListener("click", reloadAllData);
 
-    $("btnReloadToday")?.addEventListener("click", async () => {
-      if (!IS_PREVIEW) ALL_RIDES = [];
-      await loadToday();
-      await loadStats();
-    });
+      $("btnReloadToday")?.addEventListener("click", async () => {
+        try{
+          ALL_RIDES = [];
+          await loadTripsAndRender();
+          $("lastSync").value = new Date().toLocaleString("fr-FR");
+          setMsg("✅ Courses actives rafraîchies.", "ok");
+        }catch(e){
+          console.error(e);
+          setMsg("❌ Impossible de rafraîchir les courses actives.", "bad");
+        }
+      });
 
-    $("btnReloadRecent")?.addEventListener("click", async () => {
-      if (!IS_PREVIEW) ALL_RIDES = [];
-      await loadRecentTrips();
-      await loadStats();
-    });
+      $("btnReloadRecent")?.addEventListener("click", async () => {
+        try{
+          ALL_RIDES = [];
+          await loadTripsAndRender();
+          $("lastSync").value = new Date().toLocaleString("fr-FR");
+          setMsg("✅ Historique rafraîchi.", "ok");
+        }catch(e){
+          console.error(e);
+          setMsg("❌ Impossible de rafraîchir l’historique.", "bad");
+        }
+      });
 
-    $("btnCheckAccess")?.addEventListener("click", refreshAccessState);
-    $("btnPin")?.addEventListener("click", goPin);
-    $("btnPay")?.addEventListener("click", goPay);
-    $("btnHome")?.addEventListener("click", goHome);
-    $("btnReloadAll")?.addEventListener("click", () => location.reload());
-    $("btnResetFilter")?.addEventListener("click", resetFilter);
-    $("btnAuto")?.addEventListener("click", toggleAutoRefresh);
+      $("btnCheckAccess")?.addEventListener("click", refreshAccessState);
+      $("btnPin")?.addEventListener("click", goPin);
+      $("btnPay")?.addEventListener("click", goPay);
+      $("btnHome")?.addEventListener("click", goHome);
+      $("btnReloadAll")?.addEventListener("click", () => location.reload());
+      $("btnResetSession")?.addEventListener("click", resetSession);
+      $("btnAuto")?.addEventListener("click", toggleAutoRefresh);
 
-    $("btnScrollToday")?.addEventListener("click", () => {
-      $("todayBlock")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+      $("btnScrollToday")?.addEventListener("click", () => {
+        $("todayBlock")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
 
-    $("btnAccessTools")?.addEventListener("click", () => {
-      const ok = confirm("OK = vérifier l'accès maintenant.\nAnnuler = aller vers l'abonnement.");
-      if (ok) refreshAccessState();
-      else goPay();
-    });
-
-    boot();
+      boot();
+    })();
   </script>
 </body>
 </html>
