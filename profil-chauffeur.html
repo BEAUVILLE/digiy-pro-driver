@@ -8,11 +8,13 @@
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "DRIVER";
   </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-profile-guard-20260312-clean"></script>
+  <script src="./guard.js?v=driver-profile-guard-20260314-recousu"></script>
 
   <style>
     :root{
@@ -202,6 +204,22 @@
       font-weight:800;
       background:rgba(255,255,255,.03);
     }
+
+    .nav{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .nav .btn{
+      flex:0 0 auto;
+    }
+
+    @media (max-width:720px){
+      body{padding:12px}
+      .top,.card{padding:12px}
+    }
   </style>
 </head>
 <body>
@@ -211,13 +229,19 @@
       <div>
         <h1 id="titleMain">👤 DIGIY PRO DRIVER — Profil chauffeur</h1>
         <div class="muted" id="subMain">Profil réel, publication et tarifs liés à ton slug actif. Aucune démo partagée.</div>
+
+        <div class="nav">
+          <a class="btn" id="btnCockpit" href="#">⬅️ Cockpit</a>
+          <a class="btn" id="btnDashboard" href="#">📊 Dashboard</a>
+          <a class="btn" id="btnPin" href="#">🔑 PIN</a>
+          <a class="btn" id="btnFiche" href="#">👁️ Fiche publique</a>
+        </div>
       </div>
 
       <div class="row" style="flex:0 0 auto">
         <div class="pill" id="slugPill">slug : —</div>
         <div class="pill" id="phonePill">phone : —</div>
         <div class="pill warn" id="accessPill">accès : contrôle…</div>
-        <a class="btn" id="btnCockpit" href="#">⬅️ Retour cockpit</a>
       </div>
     </div>
 
@@ -396,6 +420,18 @@
         return d ? "+" + d : "—";
       }
 
+      function escapeHtml(v){
+        return String(v ?? "").replace(/[&<>"']/g, function(ch){
+          return ({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            "\"":"&quot;",
+            "'":"&#39;"
+          })[ch];
+        });
+      }
+
       function withSlug(base){
         const u = new URL(base, location.href);
         if (slug) u.searchParams.set("slug", slug);
@@ -425,6 +461,20 @@
         const el = $("accessPill");
         el.className = "pill " + (ok ? "ok" : "bad");
         el.textContent = "accès : " + txt;
+      }
+
+      function setActionButtonsDisabled(disabled){
+        [
+          "btnSaveProfile",
+          "btnReloadProfile",
+          "btnPublish",
+          "btnUnpublish",
+          "btnSaveRate",
+          "btnReloadRates"
+        ].forEach(id => {
+          const el = $(id);
+          if (el) el.disabled = !!disabled;
+        });
       }
 
       function setFormDisabled(disabled){
@@ -507,6 +557,7 @@
 
       function buildVehicleLabel(){
         const parts = [
+          $("vehicleType").value.trim(),
           $("vehicleBrand").value.trim(),
           $("vehicleModel").value.trim(),
           $("vehicleYear").value.trim(),
@@ -537,7 +588,7 @@
         $("zonesText").value = p.zones || "";
         $("airportOk").checked = !!meta.airport_ok;
         $("longDistanceOk").checked = !!meta.long_distance_ok;
-        $("whatsapp").value = p.whatsapp || normPhone(phone);
+        $("whatsapp").value = normPhone(p.whatsapp || phone);
         $("contactNote").value = meta.contact_note || "";
         $("bio").value = p.description || "";
 
@@ -567,6 +618,13 @@
         return error?.code === "PGRST202" || txt.includes("Could not find the function");
       }
 
+      function bindNav(){
+        $("btnCockpit").href = withSlug("./cockpit.html");
+        $("btnDashboard").href = withSlug("./dashboard-pro.html");
+        $("btnPin").href = withSlug("./pin.html");
+        $("btnFiche").href = withSlug("./fiche.html");
+      }
+
       async function loadProfile(){
         setMsgProfile("⏳ Chargement du profil réel…", "warn");
 
@@ -581,7 +639,7 @@
             renderPublishState();
             setFormDisabled(true);
             setMsgProfile("⚠️ Accès non ouvert pour ce slug. Passe par la porte PIN ou l’abonnement.", "bad");
-            return;
+            return false;
           }
 
           phone = normPhone(data.phone || phone);
@@ -597,39 +655,49 @@
           $("phonePill").textContent = "phone : " + displayPhone(phone);
 
           fillFormFromCockpit(data);
+          bindNav();
 
-          setMsgProfile(data.is_blank
-            ? "✅ Profil vierge chargé. Tu peux commencer à personnaliser."
-            : "✅ Profil réel chargé.", "ok");
+          setMsgProfile(
+            data.is_blank
+              ? "✅ Profil vierge chargé. Tu peux commencer à personnaliser."
+              : "✅ Profil réel chargé.",
+            "ok"
+          );
 
+          return true;
         }catch(e){
           console.error(e);
           setAccessState(false, "erreur");
           setFormDisabled(true);
           clearForm();
+          renderPublishState();
           setMsgProfile("❌ Erreur de chargement du profil.", "bad");
+          return false;
         }
       }
 
       async function saveProfile(isPublishedOverride = null){
         if (!ACCESS_OK){
           setMsgProfile("⚠️ Accès non valide pour enregistrer le profil.", "bad");
-          return;
+          return false;
         }
 
         if (!slug){
           setMsgProfile("❌ Slug manquant.", "bad");
-          return;
+          return false;
         }
 
         const displayName = $("displayName").value.trim();
         const city = $("city").value.trim();
         const zones = $("zonesText").value.trim();
-        const whatsapp = $("whatsapp").value.trim();
+        const whatsapp = normPhone($("whatsapp").value.trim() || phone);
         const vehicleType = $("vehicleType").value.trim();
         const vehicleLabel = buildVehicleLabel();
         const bio = $("bio").value.trim();
         const bridgeMeta = buildBridgeMeta();
+
+        setActionButtonsDisabled(true);
+        setMsgProfile("⏳ Enregistrement profil…", "warn");
 
         try{
           const { data, error } = await sb.rpc("digiy_driver_save_profile", {
@@ -654,15 +722,20 @@
           if (error) throw error;
           if (!data?.ok) throw new Error(data?.reason || "save_profile_error");
 
-          if (typeof isPublishedOverride === "boolean"){
-            CURRENT_IS_PUBLISHED = isPublishedOverride;
+          const reloaded = await loadProfile();
+          if (!reloaded){
+            setMsgProfile("⚠️ Profil peut-être enregistré, mais relecture KO.", "warn");
+            return false;
           }
 
-          await loadProfile();
           setMsgProfile("✅ Profil enregistré en base.", "ok");
+          return true;
         }catch(e){
           console.error(e);
           setMsgProfile("❌ Erreur enregistrement profil.", "bad");
+          return false;
+        }finally{
+          setActionButtonsDisabled(false);
         }
       }
 
@@ -672,11 +745,25 @@
           return;
         }
 
+        setActionButtonsDisabled(true);
         setMsgPublish("⏳ Mise à jour publication…", "warn");
-        await saveProfile(isPublished);
-        CURRENT_IS_PUBLISHED = !!isPublished;
-        renderPublishState();
-        setMsgPublish(isPublished ? "✅ Chauffeur publié." : "✅ Chauffeur masqué.", "ok");
+
+        try{
+          const ok = await saveProfile(isPublished);
+          if (!ok){
+            setMsgPublish("❌ Publication non mise à jour.", "bad");
+            return;
+          }
+
+          CURRENT_IS_PUBLISHED = !!isPublished;
+          renderPublishState();
+          setMsgPublish(isPublished ? "✅ Chauffeur publié." : "✅ Chauffeur masqué.", "ok");
+        }catch(e){
+          console.error(e);
+          setMsgPublish("❌ Erreur modification publication.", "bad");
+        }finally{
+          setActionButtonsDisabled(false);
+        }
       }
 
       function renderRates(rows){
@@ -714,6 +801,9 @@
             const id = btn.getAttribute("data-disable");
             if (!id) return;
 
+            setActionButtonsDisabled(true);
+            setMsgRates("⏳ Désactivation tarif…", "warn");
+
             try{
               const { data, error } = await sb.rpc("driver_disable_rate_by_slug", {
                 p_slug: slug,
@@ -737,6 +827,8 @@
             }catch(e){
               console.error(e);
               setMsgRates("❌ Erreur désactivation tarif.", "bad");
+            }finally{
+              setActionButtonsDisabled(false);
             }
           });
         });
@@ -794,6 +886,9 @@
           return;
         }
 
+        setActionButtonsDisabled(true);
+        setMsgRates("⏳ Enregistrement tarif…", "warn");
+
         try{
           const { data, error } = await sb.rpc("driver_upsert_rate_by_slug", {
             p_slug: slug,
@@ -813,13 +908,15 @@
 
           if (data && data.ok === false) throw new Error(data.error || "save_rate_error");
 
-          setMsgRates("✅ Tarif enregistré en base.", "ok");
           $("routeLabel").value = "";
           $("priceFcfa").value = "";
+          setMsgRates("✅ Tarif enregistré en base.", "ok");
           await loadRates();
         }catch(e){
           console.error(e);
           setMsgRates("❌ Erreur enregistrement tarif.", "bad");
+        }finally{
+          setActionButtonsDisabled(false);
         }
       }
 
@@ -827,9 +924,10 @@
         await waitGuardIfAny();
 
         slug = resolveSlug();
+        bindNav();
+
         $("slugPill").textContent = "slug : " + (slug || "—");
         $("phonePill").textContent = "phone : —";
-        $("btnCockpit").href = withSlug("./cockpit.html");
 
         if (!slug){
           setAccessState(false, "slug manquant");
@@ -843,8 +941,10 @@
           return;
         }
 
-        await loadProfile();
-        await loadRates();
+        const okProfile = await loadProfile();
+        if (okProfile){
+          await loadRates();
+        }
       }
 
       $("btnSaveProfile").addEventListener("click", () => saveProfile(null));
