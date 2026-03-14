@@ -6,8 +6,15 @@
   <title>🦅 PORTE PIN — DIGIY DRIVER PRO</title>
   <meta name="theme-color" content="#061b14"/>
 
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "DRIVER";
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-pin-clean-20260306"></script>
+  <script src="./guard.js?v=driver-pin-20260314-recousu"></script>
 
   <style>
     :root{
@@ -128,6 +135,10 @@
       color:var(--text);
       box-shadow:none;
     }
+    .btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
     .msg{
       margin-top:12px;
       padding:12px;
@@ -179,7 +190,7 @@
       </div>
 
       <div class="row">
-        <input id="pin" inputmode="numeric" autocomplete="one-time-code" placeholder="••••" maxlength="8"/>
+        <input id="pin" type="password" inputmode="numeric" autocomplete="one-time-code" placeholder="••••" maxlength="8"/>
         <button class="iconbtn" id="toggle" type="button" aria-label="Afficher/masquer PIN">👁️</button>
       </div>
 
@@ -218,6 +229,9 @@
 
       function normPhone(p){
         const d = String(p || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
         return d.length >= 9 ? d : "";
       }
 
@@ -236,46 +250,8 @@
         else location.href = url;
       }
 
-      async function checkAccessByPhone(p){
-        if (!window.DIGIY_GUARD?.rpc || !p) return false;
-
-        const res = await window.DIGIY_GUARD.rpc("digiy_has_access", {
-          p_phone: p,
-          p_module: "DRIVER"
-        });
-
-        const data = res?.data;
-        if (data === true) return true;
-        if (data === false) return false;
-        if (Array.isArray(data) && data[0] === true) return true;
-        if (data && typeof data === "object") {
-          if (data.has_access === true) return true;
-          if (data.active === true) return true;
-          if (String(data.status || "").toLowerCase() === "active") return true;
-        }
-        return false;
-      }
-
-      async function resolvePhoneBySlug(s){
-        if (!window.DIGIY_GUARD?.rpc || !s) return "";
-
-        const url =
-          "https://wesqmwjjtsefyjnluosj.supabase.co/rest/v1/digiy_subscriptions_public" +
-          `?select=phone,module,slug&module=eq.DRIVER&slug=eq.${encodeURIComponent(s)}&limit=1`;
-
-        const r = await fetch(url, {
-          headers: {
-            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA",
-            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA"
-          }
-        });
-
-        if (!r.ok) return "";
-
-        const rows = await r.json().catch(() => []);
-        if (!Array.isArray(rows) || !rows.length) return "";
-
-        return normPhone(rows[0]?.phone || "");
+      function cockpitUrl(s){
+        return COCKPIT_PAGE + (s ? ("?slug=" + encodeURIComponent(s)) : "");
       }
 
       async function loginWithPin(s, pin){
@@ -296,7 +272,8 @@
 
             const data = res.data;
 
-            if (data === true) return { ok: true, data };
+            if (data === true) return { ok: true, data: {} };
+
             if (data && typeof data === "object") {
               if (data.ok === true) return { ok: true, data };
               if (data.success === true) return { ok: true, data };
@@ -308,16 +285,49 @@
         return { ok: false, error: "PIN invalide ou RPC absente" };
       }
 
+      function applyIdentityFromState(state){
+        slug = normSlug(state?.slug || slug);
+        phone = normPhone(state?.phone || phone);
+
+        slugText.textContent = slug || "—";
+
+        if (window.DIGIY_GUARD?.rememberIdentity && (slug || phone)) {
+          window.DIGIY_GUARD.rememberIdentity({ slug, phone });
+        }
+      }
+
+      function extractPhoneFromLoginData(data){
+        return normPhone(
+          data?.phone ||
+          data?.p_phone ||
+          data?.driver_phone ||
+          data?.owner_phone ||
+          ""
+        );
+      }
+
+      function extractSlugFromLoginData(data){
+        return normSlug(
+          data?.slug ||
+          data?.workspace_slug ||
+          data?.driver_slug ||
+          ""
+        );
+      }
+
       async function boot(){
         try{
-          if (window.DIGIY_GUARD?.ready) {
-            const state = await window.DIGIY_GUARD.ready;
-            slug = normSlug(state?.slug || "");
-            phone = normPhone(state?.phone || "");
+          if (!window.DIGIY_GUARD?.ready) {
+            guardState.textContent = "Guard: ❌ absent";
+            setMsg("❌ Guard indisponible sur cette page.", "bad");
+            btnEnter.disabled = true;
+            return;
           }
 
+          const state = await window.DIGIY_GUARD.ready;
+          applyIdentityFromState(state);
+
           guardState.textContent = "Guard: ✅ prêt";
-          slugText.textContent = slug || "—";
 
           if (!slug){
             setMsg("❌ Slug manquant. Ouvre cette page avec ?slug=driver-...", "bad");
@@ -325,14 +335,9 @@
             return;
           }
 
-          if (!phone) {
-            phone = await resolvePhoneBySlug(slug);
-          }
-
-          const accessOk = await checkAccessByPhone(phone);
-          if (accessOk){
-            setMsg("✅ Abonnement actif. Entrée directe vers le cockpit…", "ok");
-            go(COCKPIT_PAGE + "?slug=" + encodeURIComponent(slug), true);
+          if (state?.access_ok || state?.pin_session_ok) {
+            setMsg("✅ Accès déjà ouvert. Entrée directe vers le cockpit…", "ok");
+            go(cockpitUrl(slug), true);
             return;
           }
 
@@ -356,7 +361,7 @@
         const raw = pinEl.value;
         const clean = raw.replace(/[^\d]/g, "");
         if (clean !== raw) pinEl.value = clean;
-        hint.textContent = "••••";
+        hint.textContent = pinEl.getAttribute("type") === "text" ? (pinEl.value || "") : "••••";
       });
 
       pinEl.addEventListener("keydown", (e) => {
@@ -394,8 +399,35 @@
             return;
           }
 
+          const data = res.data || {};
+          const loginSlug = extractSlugFromLoginData(data) || slug;
+          const loginPhone = extractPhoneFromLoginData(data) || phone;
+
+          if (window.DIGIY_GUARD?.rememberPinAccess) {
+            window.DIGIY_GUARD.rememberPinAccess({
+              slug: loginSlug,
+              phone: loginPhone,
+              ttlHours: 6
+            });
+          }
+
+          if (window.DIGIY_GUARD?.rememberIdentity) {
+            window.DIGIY_GUARD.rememberIdentity({
+              slug: loginSlug,
+              phone: loginPhone
+            });
+          }
+
+          if (window.DIGIY_GUARD?.refresh) {
+            const refreshed = await window.DIGIY_GUARD.refresh();
+            applyIdentityFromState(refreshed);
+          } else {
+            slug = loginSlug;
+            phone = loginPhone;
+          }
+
           setMsg("✅ Accès autorisé. Ouverture cockpit…", "ok");
-          go(COCKPIT_PAGE + "?slug=" + encodeURIComponent(slug), true);
+          go(cockpitUrl(slug || loginSlug), true);
         }catch(e){
           console.error(e);
           setMsg("❌ Erreur pendant la vérification du PIN.", "bad");
@@ -403,7 +435,6 @@
         }
       }
 
-      pinEl.setAttribute("type", "password");
       boot();
     })();
   </script>
