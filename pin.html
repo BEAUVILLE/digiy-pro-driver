@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-pin-20260314-final"></script>
+  <script src="./guard.js?v=driver-pin-20260314-nav-final"></script>
 
   <style>
     :root{
@@ -43,7 +43,7 @@
       color:var(--text);
       padding:18px;
     }
-    .wrap{width:100%;max-width:580px}
+    .wrap{width:100%;max-width:720px}
     .card{
       background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--line);
@@ -102,6 +102,50 @@
     .chipline{
       width:100%;
       justify-content:space-between;
+    }
+    .navbox{
+      margin-top:14px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(0,0,0,.14);
+    }
+    .navtitle{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+      letter-spacing:.03em;
+      margin-bottom:10px;
+      text-transform:uppercase;
+    }
+    .navgrid{
+      display:grid;
+      gap:8px;
+      grid-template-columns:repeat(2,1fr);
+    }
+    @media(min-width:640px){
+      .navgrid{grid-template-columns:repeat(3,1fr)}
+    }
+    .navbtn{
+      min-height:44px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      font-size:13px;
+      font-weight:900;
+      gap:8px;
+    }
+    .navbtn.active{
+      background:rgba(250,204,21,.12);
+      border-color:rgba(250,204,21,.25);
+      color:var(--gold);
     }
     .hr{
       height:1px;
@@ -261,6 +305,18 @@
         </div>
       </div>
 
+      <div class="navbox">
+        <div class="navtitle">Navigation DRIVER</div>
+        <div class="navgrid">
+          <a class="navbtn" id="navDashboard" href="./dashboard-pro.html">📊 Dashboard</a>
+          <a class="navbtn" id="navCockpit" href="./cockpit.html">🚖 Cockpit</a>
+          <a class="navbtn" id="navProfil" href="./profil-chauffeur.html">👤 Profil</a>
+          <a class="navbtn" id="navTarifs" href="./tarifs.html">💰 Tarifs</a>
+          <a class="navbtn active" id="navPin" href="./pin.html">🔐 PIN</a>
+          <a class="navbtn" id="navHome" href="./index.html">🏠 Accueil</a>
+        </div>
+      </div>
+
       <div class="hr"></div>
 
       <div class="label">
@@ -305,7 +361,11 @@
       "use strict";
 
       const MODULE = "DRIVER";
+      const DASHBOARD_PAGE = "./dashboard-pro.html";
       const COCKPIT_PAGE = "./cockpit.html";
+      const PROFILE_PAGE = "./profil-chauffeur.html";
+      const RATES_PAGE = "./tarifs.html";
+      const PIN_PAGE = "./pin.html";
       const HOME_PAGE = "./index.html";
       const PAY_HOME = "https://commencer-a-payer.digiylyfe.com/";
 
@@ -360,14 +420,17 @@
         else location.href = url;
       }
 
-      function cockpitUrl(s){
+      function pageUrl(base, s){
         const clean = normSlug(s);
-        return COCKPIT_PAGE + (clean ? ("?slug=" + encodeURIComponent(clean)) : "");
+        return base + (clean ? ("?slug=" + encodeURIComponent(clean)) : "");
+      }
+
+      function cockpitUrl(s){
+        return pageUrl(COCKPIT_PAGE, s);
       }
 
       function homeUrl(s){
-        const clean = normSlug(s);
-        return HOME_PAGE + (clean ? ("?slug=" + encodeURIComponent(clean)) : "");
+        return pageUrl(HOME_PAGE, s);
       }
 
       function buildPayUrl(){
@@ -385,6 +448,15 @@
         }
       }
 
+      function updateNavLinks(){
+        $("navDashboard").href = pageUrl(DASHBOARD_PAGE, slug);
+        $("navCockpit").href = pageUrl(COCKPIT_PAGE, slug);
+        $("navProfil").href = pageUrl(PROFILE_PAGE, slug);
+        $("navTarifs").href = pageUrl(RATES_PAGE, slug);
+        $("navPin").href = pageUrl(PIN_PAGE, slug);
+        $("navHome").href = pageUrl(HOME_PAGE, slug);
+      }
+
       function applyIdentity(nextSlug, nextPhone){
         const cleanSlug = normSlug(nextSlug || slug);
         const cleanPhone = normPhone(nextPhone || phone || phoneFromDriverSlug(cleanSlug));
@@ -394,6 +466,7 @@
 
         slugText.textContent = slug || "—";
         phoneText.textContent = phone || "—";
+        updateNavLinks();
 
         if (window.DIGIY_GUARD?.rememberIdentity && (slug || phone)) {
           window.DIGIY_GUARD.rememberIdentity({ slug, phone });
@@ -479,6 +552,8 @@
 
       async function boot(){
         try{
+          updateNavLinks();
+
           if (!window.DIGIY_GUARD?.ready) {
             guardState.textContent = "Guard: ❌ absent";
             setMsg("❌ Guard indisponible sur cette page.", "bad");
