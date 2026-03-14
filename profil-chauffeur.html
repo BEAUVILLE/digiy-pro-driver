@@ -231,10 +231,8 @@
         <div class="muted" id="subMain">Profil réel, publication et tarifs liés à ton slug actif. Aucune démo partagée.</div>
 
         <div class="nav">
-          <a class="btn" id="btnCockpit" href="#">⬅️ Cockpit</a>
-          <a class="btn" id="btnDashboard" href="#">📊 Dashboard</a>
+          <a class="btn primary" id="btnCockpit" href="#">⬅️ Retour cockpit</a>
           <a class="btn" id="btnPin" href="#">🔑 PIN</a>
-          <a class="btn" id="btnFiche" href="#">👁️ Fiche publique</a>
         </div>
       </div>
 
@@ -389,6 +387,7 @@
 
       const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
       const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
+
       const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
       });
@@ -620,9 +619,7 @@
 
       function bindNav(){
         $("btnCockpit").href = withSlug("./cockpit.html");
-        $("btnDashboard").href = withSlug("./dashboard-pro.html");
         $("btnPin").href = withSlug("./pin.html");
-        $("btnFiche").href = withSlug("./fiche.html");
       }
 
       async function loadProfile(){
