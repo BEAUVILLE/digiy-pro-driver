@@ -1,0 +1,988 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY PRO DRIVER — Tarifs</title>
+  <meta name="theme-color" content="#061b14"/>
+
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "DRIVER";
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=driver-tarifs-20260314-final"></script>
+
+  <style>
+    :root{
+      --bg:#061b14;
+      --card:#0b2a1f;
+      --line:rgba(255,255,255,.12);
+      --text:#eafff1;
+      --muted:rgba(234,255,241,.72);
+      --primary:#22c55e;
+      --gold:#facc15;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --shadow:0 18px 55px rgba(0,0,0,.42);
+      --r:18px;
+      --max:1100px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      padding:16px;
+      background:var(--bg);
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
+
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:var(--max);margin:auto}
+
+    .top,.card{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:rgba(255,255,255,.05);
+      box-shadow:var(--shadow);
+    }
+
+    .top{
+      padding:14px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .card{
+      padding:14px;
+      margin-top:14px;
+    }
+
+    h1,h2,h3{margin:0 0 10px}
+    .muted{color:var(--muted);font-size:13px;font-weight:800}
+    .small{font-size:12px}
+
+    .pill{
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .pill.ok{border-color:rgba(34,197,94,.35);color:#bbf7d0}
+    .pill.warn{border-color:rgba(245,158,11,.35);color:#fde68a}
+    .pill.bad{border-color:rgba(239,68,68,.35);color:#fecaca}
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .row>*{flex:1}
+
+    .grid2{
+      display:grid;
+      gap:14px;
+    }
+
+    @media(min-width:900px){
+      .grid2{grid-template-columns:.95fr 1.05fr}
+    }
+
+    .in, textarea{
+      width:100%;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.12);
+      color:var(--text);
+      font-size:15px;
+      font-weight:900;
+      outline:none;
+    }
+
+    .in:disabled, textarea:disabled{
+      opacity:.72;
+      cursor:not-allowed;
+    }
+
+    textarea{
+      min-height:92px;
+      resize:vertical;
+      font-family:inherit;
+    }
+
+    .btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:900;
+      cursor:pointer;
+      min-height:44px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      transition:.15s ease;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn:disabled{
+      opacity:.58;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .btn.primary{
+      background:var(--primary);
+      color:#042012;
+      border-color:transparent;
+    }
+
+    .btn.gold{
+      background:rgba(250,204,21,.12);
+      color:var(--gold);
+    }
+
+    .btn.warn{
+      background:rgba(245,158,11,.15);
+      color:#fde68a;
+    }
+
+    .btn.danger{
+      background:rgba(239,68,68,.14);
+      color:#fecaca;
+    }
+
+    .nav{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .nav .btn{flex:0 0 auto}
+
+    .msg{
+      margin-top:10px;
+      font-weight:900;
+    }
+
+    .msg.ok{color:#86efac}
+    .msg.bad{color:#fca5a5}
+    .msg.warn{color:#fde68a}
+
+    .helper{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+      margin-top:6px;
+    }
+
+    .list{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .item{
+      display:grid;
+      gap:10px;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+    }
+
+    .itemTop{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+
+    .itemTitle{
+      font-size:15px;
+      font-weight:1000;
+      line-height:1.35;
+    }
+
+    .badge{
+      padding:8px 10px;
+      border-radius:999px;
+      font-weight:1000;
+      font-size:11px;
+      border:1px solid var(--line);
+      white-space:nowrap;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .badge.ok{
+      color:#bbf7d0;
+      border-color:rgba(34,197,94,.35);
+      background:rgba(34,197,94,.12);
+    }
+
+    .badge.off{
+      color:#fecaca;
+      border-color:rgba(239,68,68,.35);
+      background:rgba(239,68,68,.12);
+    }
+
+    .meta{
+      display:grid;
+      gap:6px;
+    }
+
+    .metaLine{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .empty{
+      padding:14px;
+      border-radius:16px;
+      border:1px dashed rgba(255,255,255,.16);
+      color:var(--muted);
+      font-weight:800;
+      background:rgba(255,255,255,.03);
+    }
+
+    .sep{
+      height:1px;
+      background:var(--line);
+      margin:12px 0;
+    }
+
+    .quick{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .quickBox{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(0,0,0,.16);
+    }
+
+    .kpis{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    @media(min-width:760px){
+      .kpis{grid-template-columns:repeat(3,1fr)}
+    }
+
+    .kpi{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(0,0,0,.16);
+    }
+
+    .kpi .label{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .kpi .value{
+      font-size:22px;
+      font-weight:1000;
+    }
+
+    @media(max-width:720px){
+      body{padding:12px}
+      .top,.card{padding:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="top">
+      <div>
+        <h1 id="titleMain">💰 DIGIY PRO DRIVER — Tarifs</h1>
+        <div class="muted" id="subMain">Grille terrain du chauffeur, liée au slug actif. Zéro démo, zéro brouette.</div>
+
+        <div class="nav">
+          <a class="btn primary" id="btnCockpit" href="#">⬅️ Cockpit</a>
+          <a class="btn" id="btnProfil" href="#">👤 Profil</a>
+          <a class="btn" id="btnPin" href="#">🔑 PIN</a>
+          <a class="btn gold" id="btnPay" href="#">💳 Abonnement</a>
+          <a class="btn" id="btnHome" href="#">🏠 Vitrine</a>
+          <button class="btn warn" id="btnReloadSession" type="button">🔄 Session</button>
+        </div>
+      </div>
+
+      <div class="row" style="flex:0 0 auto">
+        <div class="pill" id="slugPill">slug : —</div>
+        <div class="pill" id="phonePill">phone : —</div>
+        <div class="pill warn" id="accessPill">accès : contrôle…</div>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="label">Tarifs actifs</div>
+        <div class="value" id="kpiActive">0</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Prix mini</div>
+        <div class="value" id="kpiMin">—</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Prix maxi</div>
+        <div class="value" id="kpiMax">—</div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>Créer / mettre à jour un tarif</h2>
+        <div class="muted">Un rail simple et propre : trajet + prix. Un même nom de trajet peut être remis à jour.</div>
+
+        <div class="row" style="margin-top:12px">
+          <div>
+            <div class="muted">Nom du trajet</div>
+            <input class="in" id="routeLabel" placeholder="Ex: Saly → Dakar"/>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div>
+            <div class="muted">Prix (FCFA)</div>
+            <input class="in" id="priceFcfa" inputmode="numeric" placeholder="Ex: 7000"/>
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="muted">Repère / note interne</div>
+          <textarea id="noteText" placeholder="Ex: jour, nuit, bagages, terrain, référence interne..."></textarea>
+        </div>
+
+        <div class="helper">
+          La note reste locale à la page pour t’aider à saisir proprement. Le rail backend actuel enregistre surtout le trajet et le prix.
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <button class="btn gold" id="btnSaveRate" type="button">💰 Enregistrer tarif</button>
+          <button class="btn" id="btnClearForm" type="button">🧹 Vider</button>
+          <button class="btn" id="btnReloadRates" type="button">↻ Rafraîchir</button>
+        </div>
+
+        <div class="msg" id="msgRates">Prêt.</div>
+
+        <div class="sep"></div>
+
+        <div class="quick">
+          <div class="quickBox">
+            <h3>Repères DRIVER</h3>
+            <div class="helper">
+              Exemples terrain :<br/>
+              • Saly → Ngaparou<br/>
+              • Saly → Somone<br/>
+              • Saly → AIBD<br/>
+              • Saly → Dakar
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>État de la grille</h2>
+        <div class="muted">Lecture réelle par slug. Si le rail tarifs n’est pas encore branché, la page reste propre.</div>
+
+        <div class="list" style="margin-top:12px">
+          <div class="item">
+            <div>
+              <div class="itemTitle">État du rail tarifs</div>
+              <div class="metaLine" id="ratesRailState">Chargement…</div>
+            </div>
+            <div class="badge ok" id="ratesRailBadge">ACTIF</div>
+          </div>
+
+          <div class="item">
+            <div>
+              <div class="itemTitle">Lecture slug active</div>
+              <div class="metaLine" id="ratesSlugState">—</div>
+            </div>
+          </div>
+
+          <div class="item">
+            <div>
+              <div class="itemTitle">Téléphone chauffeur</div>
+              <div class="metaLine" id="ratesPhoneState">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Mes tarifs actifs</h2>
+      <div class="muted">Tu pilotes ici ta vraie grille chauffeur liée au slug actif.</div>
+
+      <div class="list" id="ratesList">
+        <div class="empty">Chargement…</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+      const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
+
+      const sb = window.supabase?.createClient
+        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
+          })
+        : null;
+
+      const $ = (id) => document.getElementById(id);
+
+      let slug = "";
+      let phone = "";
+      let ACCESS_OK = false;
+      let RATES_RPC_READY = true;
+      let LAST_GUARD_STATE = null;
+      let CURRENT_RATES = [];
+
+      function normSlug(v){
+        return String(v || "").trim().toLowerCase();
+      }
+
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d.length >= 9 ? d : "";
+      }
+
+      function displayPhone(v){
+        const d = normPhone(v);
+        return d ? "+" + d : "—";
+      }
+
+      function isDriverSlug(v){
+        return /^driver-\d{12}$/.test(normSlug(v));
+      }
+
+      function phoneFromDriverSlug(v){
+        const s = normSlug(v);
+        if (!isDriverSlug(s)) return "";
+        return normPhone(s.slice("driver-".length));
+      }
+
+      function escapeHtml(v){
+        return String(v ?? "").replace(/[&<>"']/g, function(ch){
+          return ({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            "\"":"&quot;",
+            "'":"&#39;"
+          })[ch];
+        });
+      }
+
+      function formatMoney(v){
+        const n = Number(v || 0);
+        return Number.isFinite(n) && n > 0 ? n.toLocaleString("fr-FR") + " FCFA" : "—";
+      }
+
+      function withSlug(base){
+        const u = new URL(base, location.href);
+        if (slug) u.searchParams.set("slug", slug);
+        return u.pathname + u.search;
+      }
+
+      function buildPayUrl(){
+        if (LAST_GUARD_STATE?.pay_url) return LAST_GUARD_STATE.pay_url;
+        const u = new URL("https://commencer-a-payer.digiylyfe.com/");
+        u.searchParams.set("module", "DRIVER");
+        if (phone) u.searchParams.set("phone", phone);
+        if (slug) u.searchParams.set("slug", slug);
+        u.searchParams.set("return", location.href);
+        return u.toString();
+      }
+
+      function setMsgRates(txt, type){
+        const el = $("msgRates");
+        el.textContent = txt;
+        el.className = "msg " + (type || "");
+      }
+
+      function setAccessState(ok, txt){
+        ACCESS_OK = !!ok;
+        const el = $("accessPill");
+        el.className = "pill " + (ok ? "ok" : "bad");
+        el.textContent = "accès : " + txt;
+      }
+
+      function setButtonsDisabled(disabled){
+        [
+          "btnSaveRate",
+          "btnClearForm",
+          "btnReloadRates",
+          "btnReloadSession"
+        ].forEach(id => {
+          const el = $(id);
+          if (el) el.disabled = !!disabled;
+        });
+      }
+
+      function setFormDisabled(disabled){
+        ["routeLabel", "priceFcfa", "noteText"].forEach(id => {
+          const el = $(id);
+          if (el) el.disabled = !!disabled;
+        });
+        ["btnSaveRate"].forEach(id => {
+          const el = $(id);
+          if (el) el.disabled = !!disabled;
+        });
+      }
+
+      function resolveSlug(){
+        const qs = new URLSearchParams(location.search);
+        const fromUrl = normSlug(qs.get("slug") || "");
+        if (fromUrl) return fromUrl;
+
+        const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug || "");
+        if (fromGuard) return fromGuard;
+
+        return "";
+      }
+
+      async function waitGuardIfAny(){
+        try{
+          if (window.DIGIY_GUARD?.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
+            await window.DIGIY_GUARD.ready;
+          }
+        }catch(e){
+          console.warn("Guard ready warning:", e);
+        }
+      }
+
+      async function getGuardState(forceRefresh = false){
+        if (!window.DIGIY_GUARD) {
+          return {
+            ok:false,
+            preview:false,
+            access_ok:false,
+            pin_session_ok:false,
+            slug:"",
+            phone:"",
+            reason:"guard_missing",
+            pay_url:buildPayUrl()
+          };
+        }
+
+        if (forceRefresh && window.DIGIY_GUARD.refresh) {
+          const fresh = await window.DIGIY_GUARD.refresh();
+          LAST_GUARD_STATE = fresh || null;
+          return fresh;
+        }
+
+        if (window.DIGIY_GUARD.ready && typeof window.DIGIY_GUARD.ready.then === "function") {
+          await window.DIGIY_GUARD.ready;
+        }
+
+        LAST_GUARD_STATE = window.DIGIY_GUARD.state || null;
+
+        return window.DIGIY_GUARD.state || {
+          ok:false,
+          preview:false,
+          access_ok:false,
+          pin_session_ok:false,
+          slug:"",
+          phone:"",
+          reason:"guard_empty",
+          pay_url:buildPayUrl()
+        };
+      }
+
+      function isRpcMissing(error){
+        const txt = String(error?.message || error?.details || error?.hint || "");
+        return error?.code === "PGRST202" || txt.includes("Could not find the function");
+      }
+
+      function bindNav(){
+        $("btnCockpit").href = withSlug("./cockpit.html");
+        $("btnProfil").href = withSlug("./profil-chauffeur.html");
+        $("btnPin").href = withSlug("./pin.html");
+        $("btnHome").href = withSlug("./index.html");
+        $("btnPay").href = buildPayUrl();
+      }
+
+      function clearForm(){
+        $("routeLabel").value = "";
+        $("priceFcfa").value = "";
+        $("noteText").value = "";
+      }
+
+      function renderRailState(){
+        $("ratesSlugState").textContent = slug || "—";
+        $("ratesPhoneState").textContent = displayPhone(phone);
+
+        if (!ACCESS_OK){
+          $("ratesRailState").textContent = "Accès non ouvert pour ce slug.";
+          $("ratesRailBadge").textContent = "BLOQUÉ";
+          $("ratesRailBadge").className = "badge off";
+          return;
+        }
+
+        if (!RATES_RPC_READY){
+          $("ratesRailState").textContent = "Fonctions tarifs non branchées sur ce module pour le moment.";
+          $("ratesRailBadge").textContent = "EN ATTENTE";
+          $("ratesRailBadge").className = "badge off";
+          return;
+        }
+
+        $("ratesRailState").textContent = "Rail tarifs actif et lecture liée au slug.";
+        $("ratesRailBadge").textContent = "ACTIF";
+        $("ratesRailBadge").className = "badge ok";
+      }
+
+      function renderKpis(rows){
+        const data = Array.isArray(rows) ? rows : [];
+        const prices = data
+          .map(r => Number(r?.price_fcfa || 0))
+          .filter(v => Number.isFinite(v) && v > 0);
+
+        $("kpiActive").textContent = String(data.length);
+        $("kpiMin").textContent = prices.length ? formatMoney(Math.min(...prices)) : "—";
+        $("kpiMax").textContent = prices.length ? formatMoney(Math.max(...prices)) : "—";
+      }
+
+      function renderRates(rows){
+        CURRENT_RATES = Array.isArray(rows) ? rows : [];
+        renderKpis(CURRENT_RATES);
+        renderRailState();
+
+        if (!ACCESS_OK){
+          $("ratesList").innerHTML = `<div class="empty">Aucun tarif lisible tant que l’accès n’est pas validé.</div>`;
+          return;
+        }
+
+        if (!RATES_RPC_READY){
+          $("ratesList").innerHTML = `<div class="empty">Le rail tarifs n’est pas encore branché sur ce module. La page reste propre, sans fausse donnée.</div>`;
+          return;
+        }
+
+        if (!CURRENT_RATES.length){
+          $("ratesList").innerHTML = `<div class="empty">Aucun tarif actif pour l’instant.</div>`;
+          return;
+        }
+
+        $("ratesList").innerHTML = CURRENT_RATES.map(r => {
+          const id = r?.id || "";
+          const routeLabel = r?.route_label || "Trajet";
+          const price = Number(r?.price_fcfa || 0);
+          const createdAt = r?.created_at || null;
+          const updatedAt = r?.updated_at || null;
+
+          return `
+            <div class="item">
+              <div class="itemTop">
+                <div>
+                  <div class="itemTitle">${escapeHtml(routeLabel)}</div>
+                  <div class="metaLine">Prix : ${escapeHtml(formatMoney(price))}</div>
+                </div>
+                <div class="badge ok">ACTIF</div>
+              </div>
+
+              <div class="meta">
+                <div class="metaLine">Créé : ${escapeHtml(createdAt ? new Date(createdAt).toLocaleString("fr-FR") : "—")}</div>
+                <div class="metaLine">Mis à jour : ${escapeHtml(updatedAt ? new Date(updatedAt).toLocaleString("fr-FR") : "—")}</div>
+              </div>
+
+              <div class="actions">
+                <button class="btn" type="button" data-fill="${escapeHtml(id)}">✏️ Recharger dans le formulaire</button>
+                <button class="btn danger" type="button" data-disable="${escapeHtml(id)}">🗑️ Désactiver</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        document.querySelectorAll("[data-fill]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-fill");
+            const row = CURRENT_RATES.find(r => String(r?.id || "") === String(id || ""));
+            if (!row) return;
+            $("routeLabel").value = row.route_label || "";
+            $("priceFcfa").value = String(row.price_fcfa || "");
+            $("noteText").value = "";
+            setMsgRates("✅ Tarif rechargé dans le formulaire. Tu peux l’ajuster puis réenregistrer.", "ok");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          });
+        });
+
+        document.querySelectorAll("[data-disable]").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const id = btn.getAttribute("data-disable");
+            if (!id) return;
+
+            setButtonsDisabled(true);
+            setMsgRates("⏳ Désactivation tarif…", "warn");
+
+            try{
+              const { data, error } = await sb.rpc("driver_disable_rate_by_slug", {
+                p_slug: slug,
+                p_rate_id: id
+              });
+
+              if (error){
+                if (isRpcMissing(error)){
+                  RATES_RPC_READY = false;
+                  renderRates([]);
+                  setMsgRates("⚠️ Fonction tarifs non branchée pour la désactivation.", "warn");
+                  return;
+                }
+                throw error;
+              }
+
+              if (data && data.ok === false) throw new Error(data.error || "disable_rate_error");
+
+              setMsgRates("✅ Tarif désactivé.", "ok");
+              await loadRates();
+            }catch(e){
+              console.error(e);
+              setMsgRates("❌ Erreur désactivation tarif.", "bad");
+            }finally{
+              setButtonsDisabled(false);
+            }
+          });
+        });
+      }
+
+      async function loadRates(forceGuardRefresh = false){
+        setMsgRates("⏳ Chargement tarifs…", "warn");
+
+        try{
+          const st = await getGuardState(forceGuardRefresh);
+
+          slug = normSlug(st?.slug || resolveSlug());
+          phone = normPhone(st?.phone || phone || phoneFromDriverSlug(slug));
+          bindNav();
+
+          $("slugPill").textContent = "slug : " + (slug || "—");
+          $("phonePill").textContent = "phone : " + displayPhone(phone);
+
+          if (!slug){
+            setAccessState(false, "slug manquant");
+            setFormDisabled(true);
+            RATES_RPC_READY = true;
+            renderRates([]);
+            setMsgRates("⚠️ Slug manquant. Passe par la porte PIN ou un lien valide.", "bad");
+            return;
+          }
+
+          if (!isDriverSlug(slug)){
+            setAccessState(false, "slug invalide");
+            setFormDisabled(true);
+            RATES_RPC_READY = true;
+            renderRates([]);
+            setMsgRates("❌ Slug DRIVER invalide. Format attendu : driver-221XXXXXXXXX.", "bad");
+            return;
+          }
+
+          if (!st?.access_ok){
+            setAccessState(false, st?.reason || "accès KO");
+            setFormDisabled(true);
+            RATES_RPC_READY = true;
+            renderRates([]);
+            setMsgRates("⚠️ Accès non ouvert pour ce slug. Passe par la porte PIN ou l’abonnement.", "bad");
+            return;
+          }
+
+          setAccessState(true, st?.pin_session_ok ? "session PIN OK" : "abonnement OK");
+          setFormDisabled(false);
+
+          const { data, error } = await sb.rpc("driver_list_rates_by_slug", { p_slug: slug });
+
+          if (error){
+            if (isRpcMissing(error)){
+              RATES_RPC_READY = false;
+              renderRates([]);
+              setMsgRates("⚠️ Rail tarifs pas encore branché. Aucune démo affichée.", "warn");
+              return;
+            }
+            throw error;
+          }
+
+          RATES_RPC_READY = true;
+          renderRates(data || []);
+          setMsgRates("✅ Tarifs synchronisés.", "ok");
+        }catch(e){
+          console.error(e);
+          setMsgRates("❌ Erreur chargement tarifs.", "bad");
+          $("ratesList").innerHTML = `<div class="empty">Erreur de chargement des tarifs.</div>`;
+          renderKpis([]);
+        }
+      }
+
+      async function saveRate(){
+        const routeLabel = $("routeLabel").value.trim();
+        const priceFcfa = parseInt($("priceFcfa").value || "0", 10);
+
+        if (!ACCESS_OK){
+          setMsgRates("⚠️ Accès non valide pour enregistrer un tarif.", "bad");
+          return;
+        }
+
+        if (!slug){
+          setMsgRates("❌ Slug manquant.", "bad");
+          return;
+        }
+
+        if (!routeLabel){
+          setMsgRates("❌ Nom du trajet manquant.", "bad");
+          return;
+        }
+
+        if (!priceFcfa || priceFcfa <= 0){
+          setMsgRates("❌ Prix invalide.", "bad");
+          return;
+        }
+
+        setButtonsDisabled(true);
+        setMsgRates("⏳ Enregistrement tarif…", "warn");
+
+        try{
+          const { data, error } = await sb.rpc("driver_upsert_rate_by_slug", {
+            p_slug: slug,
+            p_route_label: routeLabel,
+            p_price_fcfa: priceFcfa
+          });
+
+          if (error){
+            if (isRpcMissing(error)){
+              RATES_RPC_READY = false;
+              renderRates([]);
+              setMsgRates("⚠️ Fonction tarifs non branchée pour l’enregistrement.", "warn");
+              return;
+            }
+            throw error;
+          }
+
+          if (data && data.ok === false) throw new Error(data.error || "save_rate_error");
+
+          clearForm();
+          setMsgRates("✅ Tarif enregistré en base.", "ok");
+          await loadRates(true);
+        }catch(e){
+          console.error(e);
+          setMsgRates("❌ Erreur enregistrement tarif.", "bad");
+        }finally{
+          setButtonsDisabled(false);
+        }
+      }
+
+      async function reloadSession(){
+        const st = await getGuardState(true);
+        LAST_GUARD_STATE = st || null;
+        slug = normSlug(st?.slug || resolveSlug());
+        phone = normPhone(st?.phone || phoneFromDriverSlug(slug));
+        bindNav();
+        $("slugPill").textContent = "slug : " + (slug || "—");
+        $("phonePill").textContent = "phone : " + displayPhone(phone);
+        renderRailState();
+        setMsgRates("✅ Session rechargée depuis le guard.", "ok");
+      }
+
+      async function boot(){
+        await waitGuardIfAny();
+
+        if (!sb){
+          setAccessState(false, "supabase absent");
+          setFormDisabled(true);
+          $("ratesList").innerHTML = `<div class="empty">Client Supabase indisponible.</div>`;
+          setMsgRates("❌ Supabase indisponible sur cette page.", "bad");
+          renderKpis([]);
+          return;
+        }
+
+        const st = await getGuardState(false);
+        LAST_GUARD_STATE = st || null;
+
+        slug = normSlug(st?.slug || resolveSlug());
+        phone = normPhone(st?.phone || phoneFromDriverSlug(slug));
+
+        bindNav();
+
+        $("slugPill").textContent = "slug : " + (slug || "—");
+        $("phonePill").textContent = "phone : " + displayPhone(phone);
+        $("ratesSlugState").textContent = slug || "—";
+        $("ratesPhoneState").textContent = displayPhone(phone);
+
+        if (!slug){
+          setAccessState(false, "slug manquant");
+          setFormDisabled(true);
+          $("ratesList").innerHTML = `<div class="empty">Aucun slug détecté. Passe par la porte PIN ou un lien valide.</div>`;
+          setMsgRates("⚠️ Slug manquant.", "bad");
+          renderKpis([]);
+          renderRailState();
+          return;
+        }
+
+        if (!isDriverSlug(slug)){
+          setAccessState(false, "slug invalide");
+          setFormDisabled(true);
+          $("ratesList").innerHTML = `<div class="empty">Slug DRIVER invalide.</div>`;
+          setMsgRates("❌ Slug DRIVER invalide.", "bad");
+          renderKpis([]);
+          renderRailState();
+          return;
+        }
+
+        await loadRates(false);
+      }
+
+      $("btnSaveRate")?.addEventListener("click", saveRate);
+      $("btnClearForm")?.addEventListener("click", () => {
+        clearForm();
+        setMsgRates("✅ Formulaire vidé.", "ok");
+      });
+      $("btnReloadRates")?.addEventListener("click", () => loadRates(true));
+      $("btnReloadSession")?.addEventListener("click", reloadSession);
+
+      boot();
+    })();
+  </script>
+</body>
+</html>
