@@ -3,502 +3,759 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Rejoindre DIGIY DRIVER — Ambassadeur de mobilité</title>
+  <title>DIGIY PRO DRIVER — Portail chauffeur</title>
   <meta name="theme-color" content="#040f09"/>
-  <meta name="description" content="DIGIY DRIVER recrute des ambassadeurs de mobilité. Pas des chauffeurs — des professionnels d'exception. 0% commission. Liberté totale."/>
+  <meta name="description" content="Portail DIGIY PRO DRIVER : dashboard, cockpit, porte PIN, profil chauffeur, tarifs et recrutement WhatsApp. 0% commission. Liberté totale."/>
 
-  <link rel="canonical" href="https://driver.digiylyfe.com/"/>
+  <link rel="canonical" href="https://pro-driver.digiylyfe.com/"/>
   <meta property="og:type" content="website"/>
-  <meta property="og:url" content="https://driver.digiylyfe.com/"/>
-  <meta property="og:title" content="Rejoindre DIGIY DRIVER — Ambassadeur de mobilité"/>
-  <meta property="og:description" content="0% commission. Liberté totale. Prestige du service. Rejoins le réseau DIGIY DRIVER."/>
-  <meta property="og:image" content="https://driver.digiylyfe.com/og-driver.jpg"/>
+  <meta property="og:url" content="https://pro-driver.digiylyfe.com/"/>
+  <meta property="og:title" content="DIGIY PRO DRIVER — Portail chauffeur"/>
+  <meta property="og:description" content="Entre dans ton univers DIGIY PRO DRIVER : dashboard, cockpit, PIN, profil, tarifs et recrutement."/>
+  <meta property="og:image" content="https://pro-driver.digiylyfe.com/og-driver.jpg"/>
   <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="Rejoindre DIGIY DRIVER — Ambassadeur de mobilité"/>
-  <meta name="twitter:description" content="0% commission. Liberté totale. Prestige du service."/>
-  <meta name="twitter:image" content="https://driver.digiylyfe.com/og-driver.jpg"/>
+  <meta name="twitter:title" content="DIGIY PRO DRIVER — Portail chauffeur"/>
+  <meta name="twitter:description" content="Dashboard, cockpit, porte PIN, profil, tarifs et recrutement WhatsApp."/>
+  <meta name="twitter:image" content="https://pro-driver.digiylyfe.com/og-driver.jpg"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 
   <style>
-    :root {
-      --bg: #040f09;
-      --bg2: #071810;
-      --card: #0a2016;
-      --line: rgba(255,255,255,.10);
-      --line2: rgba(250,204,21,.18);
-      --text: #eafff1;
-      --muted: rgba(234,255,241,.58);
-      --soft: rgba(234,255,241,.36);
-      --primary: #22c55e;
-      --gold: #facc15;
-      --gold2: #fde68a;
-      --shadow: 0 24px 80px rgba(0,0,0,.55);
-      --max: 860px;
+    :root{
+      --bg:#040f09;
+      --bg2:#071810;
+      --card:#0a2016;
+      --card2:#0d2419;
+      --line:rgba(255,255,255,.10);
+      --line2:rgba(250,204,21,.18);
+      --text:#eafff1;
+      --muted:rgba(234,255,241,.58);
+      --soft:rgba(234,255,241,.36);
+      --primary:#22c55e;
+      --gold:#facc15;
+      --gold2:#fde68a;
+      --danger:#ef4444;
+      --shadow:0 24px 80px rgba(0,0,0,.55);
+      --max:1080px;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; overflow-x: hidden; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', system-ui, sans-serif;
-      font-size: 15px;
-      line-height: 1.65;
-      overflow-x: hidden;
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;overflow-x:hidden}
+    body{
+      background:var(--bg);
+      color:var(--text);
+      font-family:'DM Sans',system-ui,sans-serif;
+      font-size:15px;
+      line-height:1.65;
+      overflow-x:hidden;
     }
 
     .skip{
-      position:absolute; left:-999px; top:10px;
-      background:#fff; color:#000; padding:10px 12px; border-radius:10px;
+      position:absolute;
+      left:-999px;
+      top:10px;
+      background:#fff;
+      color:#000;
+      padding:10px 12px;
+      border-radius:10px;
       z-index:9999;
     }
-    .skip:focus{ left:10px; }
+    .skip:focus{left:10px}
 
-    body::after {
-      content: '';
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      opacity: .5;
+    body::after{
+      content:'';
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity:.45;
     }
 
     @media (max-width: 600px){
-      body::after{ opacity: 0.18; }
+      body::after{opacity:.18}
     }
+
     @media (prefers-reduced-motion: reduce){
-      body::after{ display:none; }
-      *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+      body::after{display:none}
+      *{animation:none !important;transition:none !important;scroll-behavior:auto !important}
     }
 
-    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+    .wrap{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:0 20px;
+      position:relative;
+      z-index:1;
+    }
 
-    .topbar {
-      position: sticky; top: 0; z-index: 100;
-      padding: 14px 20px;
-      display: flex; align-items: center; justify-content: space-between; gap: 14px;
-      background: rgba(4,15,9,.88);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid var(--line);
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:100;
+      padding:14px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      background:rgba(4,15,9,.88);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--line);
     }
-    .topbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo {
-      width: 38px; height: 38px; border-radius: 12px;
-      display: grid; place-items: center;
-      border: 1px solid var(--line2);
-      background: rgba(0,0,0,.25);
-      font-size: 18px; color: var(--gold);
+
+    .topbar-brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
     }
-    .brand-name { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 14px; color: var(--text); }
-    .brand-sub { font-size: 11px; color: var(--muted); }
+
+    .logo{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      border:1px solid var(--line2);
+      background:rgba(0,0,0,.25);
+      font-size:18px;
+      color:var(--gold);
+    }
+
+    .brand-name{
+      font-family:'DM Sans',sans-serif;
+      font-weight:700;
+      font-size:14px;
+      color:var(--text);
+    }
+
+    .brand-sub{
+      font-size:11px;
+      color:var(--muted);
+    }
 
     .top-actions{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
 
-    .btn-cta-top {
-      padding: 10px 18px; border-radius: 999px;
-      background: linear-gradient(135deg, var(--primary), #16a34a);
-      color: #041a0a; font-weight: 700; font-size: 13px;
-      border: none; cursor: pointer; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 6px;
-      transition: transform .15s, box-shadow .15s;
-      white-space: nowrap;
+    .btn-cta-top{
+      padding:10px 18px;
+      border-radius:999px;
+      background:linear-gradient(135deg,var(--primary),#16a34a);
+      color:#041a0a;
+      font-weight:700;
+      font-size:13px;
+      border:none;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      transition:transform .15s, box-shadow .15s;
+      white-space:nowrap;
     }
-    .btn-cta-top:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(34,197,94,.35); }
+
+    .btn-cta-top:hover{
+      transform:translateY(-1px);
+      box-shadow:0 8px 28px rgba(34,197,94,.35);
+    }
 
     .btn-cta-top.ghost{
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.14);
-      color: var(--text);
-    }
-    .btn-cta-top.gold{
-      background: rgba(250,204,21,.12);
-      border: 1px solid rgba(250,204,21,.28);
-      color: var(--gold);
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--text);
     }
 
-    .hero {
-      min-height: 92vh;
-      display: flex; flex-direction: column; justify-content: center;
-      padding: 80px 20px 60px;
-      position: relative; overflow: hidden;
+    .btn-cta-top.gold{
+      background:rgba(250,204,21,.12);
+      border:1px solid rgba(250,204,21,.28);
+      color:var(--gold);
     }
-    .hero-bg {
-      position: absolute; inset: 0; z-index: 0;
+
+    .hero{
+      min-height:92vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      padding:80px 20px 60px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero-bg{
+      position:absolute;
+      inset:0;
+      z-index:0;
       background:
         radial-gradient(ellipse 700px 500px at 15% 30%, rgba(34,197,94,.16), transparent 65%),
         radial-gradient(ellipse 500px 400px at 85% 70%, rgba(250,204,21,.09), transparent 60%),
         var(--bg);
     }
-    .hero-content { position: relative; z-index: 1; max-width: var(--max); margin: 0 auto; width: 100%; }
 
-    .hero-label {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 7px 14px; border-radius: 999px;
-      border: 1px solid var(--line2);
-      background: rgba(250,204,21,.06);
-      color: var(--gold); font-size: 12px; font-weight: 700;
-      letter-spacing: 1.4px; text-transform: uppercase;
-      margin-bottom: 28px;
-      opacity: 0; animation: fadeUp .7s .1s forwards;
-    }
-    .hero-label::before {
-      content: ''; width: 6px; height: 6px; border-radius: 50%;
-      background: var(--gold);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .4; transform: scale(.7); }
-    }
-
-    .hero h1 {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(42px, 8vw, 82px);
-      font-weight: 600; line-height: 1.06;
-      letter-spacing: -.5px;
-      margin-bottom: 10px;
-      opacity: 0; animation: fadeUp .8s .25s forwards;
-    }
-    .hero h1 em { font-style: italic; color: var(--gold); }
-    .hero h1 .strike {
-      position: relative; color: var(--muted);
-      text-decoration: line-through;
-      text-decoration-color: rgba(239,68,68,.6);
-      text-decoration-thickness: 3px;
-    }
-
-    .hero-sub {
-      font-size: 17px; color: var(--muted); font-weight: 300;
-      max-width: 560px; margin-top: 20px; line-height: 1.7;
-      opacity: 0; animation: fadeUp .8s .45s forwards;
-    }
-    .hero-sub strong { color: var(--text); font-weight: 500; }
-
-    .hero-ctas {
-      display: flex; flex-wrap: wrap; gap: 12px;
-      margin-top: 38px;
-      opacity: 0; animation: fadeUp .8s .65s forwards;
-    }
-    .btn-main {
-      padding: 16px 32px; border-radius: 999px;
-      background: linear-gradient(135deg, var(--primary), #16a34a);
-      color: #041a0a; font-weight: 700; font-size: 15px;
-      border: none; cursor: pointer; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 8px;
-      transition: transform .15s, box-shadow .15s;
-    }
-    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(34,197,94,.4); }
-    .btn-ghost {
-      padding: 16px 28px; border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      color: var(--text); font-weight: 500; font-size: 15px;
-      cursor: pointer; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 8px;
-      transition: border-color .2s, background .2s;
-    }
-    .btn-ghost:hover { border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.08); }
-
-    .hero-stat-row {
-      display: flex; flex-wrap: wrap; gap: 32px;
-      margin-top: 52px; padding-top: 36px;
-      border-top: 1px solid var(--line);
-      opacity: 0; animation: fadeUp .8s .85s forwards;
-    }
-    .stat-item .num {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 38px; font-weight: 700; color: var(--gold);
-      line-height: 1;
-    }
-    .stat-item .lab { font-size: 12px; color: var(--muted); margin-top: 5px; font-weight: 500; }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(22px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    section { padding: 80px 20px; position: relative; z-index: 1; }
-    .section-label {
-      font-size: 11px; font-weight: 700; letter-spacing: 2px;
-      text-transform: uppercase; color: var(--gold);
-      margin-bottom: 14px;
-    }
-    .section-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(32px, 5vw, 52px);
-      font-weight: 600; line-height: 1.1;
-      margin-bottom: 18px;
-    }
-    .section-title em { font-style: italic; color: var(--gold); }
-    .section-body { font-size: 16px; color: var(--muted); max-width: 560px; line-height: 1.75; }
-
-    .divider { border: none; border-top: 1px solid var(--line); margin: 0; }
-
-    .philo-grid { display: grid; gap: 2px; margin-top: 48px; }
-    .philo-item {
-      display: grid; grid-template-columns: 64px 1fr;
-      gap: 20px; align-items: start;
-      padding: 28px 24px;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
-      margin-bottom: 10px;
-      transition: border-color .2s, background .2s;
-    }
-    .philo-item:hover {
-      border-color: rgba(250,204,21,.22);
-      background: linear-gradient(135deg, rgba(250,204,21,.04), rgba(255,255,255,.02));
-    }
-    .philo-icon {
-      width: 56px; height: 56px; border-radius: 16px;
-      display: grid; place-items: center;
-      background: rgba(250,204,21,.08);
-      border: 1px solid var(--line2);
-      font-size: 26px; flex-shrink: 0;
-    }
-    .philo-item h3 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px; font-weight: 600; margin-bottom: 8px;
-    }
-    .philo-item p { font-size: 14px; color: var(--muted); line-height: 1.7; }
-
-    .standards-section { background: linear-gradient(180deg, var(--bg2), var(--bg)); }
-    .standards-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px; margin-top: 44px;
-    }
-    .std-card {
-      padding: 28px 22px;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
-      transition: transform .2s, border-color .2s;
-    }
-    .std-card:hover { transform: translateY(-4px); border-color: rgba(34,197,94,.28); }
-    .std-num {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 44px; font-weight: 700;
-      color: rgba(250,204,21,.18); line-height: 1;
-      margin-bottom: 12px;
-    }
-    .std-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--gold2); }
-    .std-card p { font-size: 13px; color: var(--muted); line-height: 1.65; }
-
-    .model-section { position: relative; overflow: hidden; }
-    .model-section::before {
-      content: '0%';
-      position: absolute; right: -2%; top: 50%; transform: translateY(-50%);
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(160px, 28vw, 320px);
-      font-weight: 700;
-      color: rgba(34,197,94,.04);
-      line-height: 1; pointer-events: none; user-select: none;
-      white-space: nowrap;
-    }
-    .model-grid { display: grid; gap: 14px; margin-top: 44px; }
-    @media (min-width: 640px) { .model-grid { grid-template-columns: 1fr 1fr; } }
-    .model-card {
-      padding: 28px 24px;
-      border-radius: 20px;
-      border: 1px solid var(--line);
-      background: linear-gradient(145deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
-    }
-    .model-card.highlight {
-      border-color: rgba(34,197,94,.35);
-      background: linear-gradient(145deg, rgba(34,197,94,.08), rgba(34,197,94,.02));
-    }
-    .model-card .icon { font-size: 28px; margin-bottom: 14px; }
-    .model-card h4 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px; font-weight: 600; margin-bottom: 10px;
-    }
-    .model-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
-    .model-card .tag {
-      display: inline-block; margin-top: 14px;
-      padding: 5px 12px; border-radius: 999px;
-      font-size: 12px; font-weight: 700;
-      background: rgba(34,197,94,.12);
-      border: 1px solid rgba(34,197,94,.28);
-      color: var(--primary);
-    }
-
-    .profil-section { background: linear-gradient(180deg, var(--bg), var(--bg2)); }
-    .profil-inner {
-      margin-top: 44px;
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      overflow: hidden;
-    }
-    .profil-oui { padding: 32px 28px; border-bottom: 1px solid var(--line); }
-    .profil-non { padding: 32px 28px; }
-    .profil-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
-    .profil-badge {
-      padding: 6px 14px; border-radius: 999px;
-      font-size: 12px; font-weight: 700; letter-spacing: .5px;
-    }
-    .badge-oui { background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.3); color: var(--primary); }
-    .badge-non { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25); color: #fca5a5; }
-    .check-list { display: grid; gap: 10px; }
-    .check-item { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--muted); line-height: 1.55; }
-    .check-item .ic { flex-shrink: 0; margin-top: 1px; font-size: 16px; }
-
-    .mini-form {
-      margin-top: 38px;
-      border: 1px solid rgba(250,204,21,.16);
-      background: linear-gradient(160deg, rgba(250,204,21,.04), rgba(34,197,94,.03));
-      border-radius: 24px;
-      padding: 18px;
-      max-width: 720px;
-    }
-    .mini-form .row { display:grid; gap:10px; }
-    @media(min-width:640px){ .mini-form .row{ grid-template-columns: 1fr 1fr; } }
-    .mini-form label{ display:block; font-size:12px; color:var(--soft); margin:0 0 6px 2px; font-weight:700; letter-spacing:.3px; }
-    .mini-form input, .mini-form select{
+    .hero-content{
+      position:relative;
+      z-index:1;
+      max-width:var(--max);
+      margin:0 auto;
       width:100%;
-      padding: 14px 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.20);
-      color: var(--text);
-      font-weight: 600;
-      outline: none;
-    }
-    .mini-form input::placeholder{ color: rgba(234,255,241,.40); font-weight:500; }
-    .mini-form .actions{ display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; }
-    .mini-form .note{ margin-top:10px; font-size:12px; color:var(--soft); line-height:1.55; }
-
-    .quote-section { padding: 60px 20px; }
-    .quote-block {
-      max-width: 700px; margin: 0 auto;
-      text-align: center; padding: 52px 32px;
-      border: 1px solid var(--line2);
-      border-radius: 28px;
-      background: linear-gradient(160deg, rgba(250,204,21,.04), rgba(34,197,94,.03));
-      position: relative;
-    }
-    .quote-mark {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 120px; line-height: .5;
-      color: rgba(250,204,21,.12);
-      display: block; margin-bottom: 10px;
-      user-select: none;
-    }
-    .quote-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(22px, 4vw, 34px);
-      font-style: italic; font-weight: 400;
-      line-height: 1.4; color: var(--text);
-      margin-bottom: 20px;
-    }
-    .quote-author { font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: .5px; }
-
-    .cta-section {
-      padding: 80px 20px 100px;
-      text-align: center;
-      position: relative; overflow: hidden;
-    }
-    .cta-section::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse 600px 400px at 50% 50%, rgba(34,197,94,.10), transparent 70%);
-      pointer-events: none;
-    }
-    .cta-inner { position: relative; z-index: 1; }
-    .cta-infinity {
-      font-size: 64px; display: block; margin-bottom: 16px;
-      filter: drop-shadow(0 0 20px rgba(250,204,21,.4));
-      animation: float 3s ease-in-out infinite;
-    }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-    .cta-section .section-title { margin-bottom: 14px; text-align: center; }
-    .cta-section .section-body { margin: 0 auto 36px; text-align: center; }
-
-    .cta-buttons { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
-
-    .btn-whatsapp {
-      padding: 18px 38px; border-radius: 999px;
-      background: linear-gradient(135deg, #25d366, #128c7e);
-      color: #fff; font-weight: 700; font-size: 16px;
-      border: none; cursor: pointer; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 10px;
-      transition: transform .15s, box-shadow .15s;
-      box-shadow: 0 12px 40px rgba(37,211,102,.3);
-    }
-    .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 18px 55px rgba(37,211,102,.45); }
-
-    .fine-print {
-      margin-top: 28px; font-size: 12px; color: var(--soft);
-      max-width: 520px; margin-left: auto; margin-right: auto;
-      line-height: 1.6;
     }
 
-    footer {
-      padding: 28px 20px;
-      border-top: 1px solid var(--line);
-      display: flex; flex-wrap: wrap; gap: 12px;
-      align-items: center; justify-content: space-between;
-      font-size: 12px; color: var(--soft);
-      position: relative; z-index: 1;
+    .hero-label{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 14px;
+      border-radius:999px;
+      border:1px solid var(--line2);
+      background:rgba(250,204,21,.06);
+      color:var(--gold);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:1.4px;
+      text-transform:uppercase;
+      margin-bottom:28px;
+      opacity:0;
+      animation:fadeUp .7s .1s forwards;
     }
-    footer a { color: var(--muted); text-decoration: none; }
-    footer a:hover { color: var(--text); }
 
-    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s, transform .7s; }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-    .reveal-delay-1 { transition-delay: .1s; }
-    .reveal-delay-2 { transition-delay: .2s; }
-    .reveal-delay-3 { transition-delay: .3s; }
-    .reveal-delay-4 { transition-delay: .4s; }
+    .hero-label::before{
+      content:'';
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--gold);
+      animation:pulse 2s infinite;
+    }
+
+    @keyframes pulse{
+      0%,100%{opacity:1;transform:scale(1)}
+      50%{opacity:.4;transform:scale(.7)}
+    }
+
+    .hero h1{
+      font-family:'Cormorant Garamond',Georgia,serif;
+      font-size:clamp(42px,8vw,82px);
+      font-weight:600;
+      line-height:1.06;
+      letter-spacing:-.5px;
+      margin-bottom:10px;
+      opacity:0;
+      animation:fadeUp .8s .25s forwards;
+    }
+
+    .hero h1 em{
+      font-style:italic;
+      color:var(--gold);
+    }
+
+    .hero-sub{
+      font-size:17px;
+      color:var(--muted);
+      font-weight:300;
+      max-width:640px;
+      margin-top:20px;
+      line-height:1.7;
+      opacity:0;
+      animation:fadeUp .8s .45s forwards;
+    }
+
+    .hero-sub strong{
+      color:var(--text);
+      font-weight:500;
+    }
+
+    .hero-ctas{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:38px;
+      opacity:0;
+      animation:fadeUp .8s .65s forwards;
+    }
+
+    .btn-main{
+      padding:16px 32px;
+      border-radius:999px;
+      background:linear-gradient(135deg,var(--primary),#16a34a);
+      color:#041a0a;
+      font-weight:700;
+      font-size:15px;
+      border:none;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      transition:transform .15s, box-shadow .15s;
+    }
+
+    .btn-main:hover{
+      transform:translateY(-2px);
+      box-shadow:0 12px 40px rgba(34,197,94,.4);
+    }
+
+    .btn-ghost{
+      padding:16px 28px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      font-weight:500;
+      font-size:15px;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      transition:border-color .2s, background .2s;
+    }
+
+    .btn-ghost:hover{
+      border-color:rgba(255,255,255,.28);
+      background:rgba(255,255,255,.08);
+    }
+
+    .hero-stat-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:32px;
+      margin-top:52px;
+      padding-top:36px;
+      border-top:1px solid var(--line);
+      opacity:0;
+      animation:fadeUp .8s .85s forwards;
+    }
+
+    .stat-item .num{
+      font-family:'Cormorant Garamond',serif;
+      font-size:38px;
+      font-weight:700;
+      color:var(--gold);
+      line-height:1;
+    }
+
+    .stat-item .lab{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:5px;
+      font-weight:500;
+    }
+
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(22px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    section{
+      padding:80px 20px;
+      position:relative;
+      z-index:1;
+    }
+
+    .section-label{
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      color:var(--gold);
+      margin-bottom:14px;
+    }
+
+    .section-title{
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(32px,5vw,52px);
+      font-weight:600;
+      line-height:1.1;
+      margin-bottom:18px;
+    }
+
+    .section-title em{
+      font-style:italic;
+      color:var(--gold);
+    }
+
+    .section-body{
+      font-size:16px;
+      color:var(--muted);
+      max-width:680px;
+      line-height:1.75;
+    }
+
+    .divider{
+      border:none;
+      border-top:1px solid var(--line);
+      margin:0;
+    }
+
+    .portal-grid{
+      display:grid;
+      gap:14px;
+      margin-top:44px;
+    }
+
+    @media(min-width:760px){
+      .portal-grid{grid-template-columns:repeat(2,1fr)}
+    }
+
+    .portal-card{
+      padding:28px 24px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:linear-gradient(145deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+      transition:transform .2s, border-color .2s;
+    }
+
+    .portal-card:hover{
+      transform:translateY(-4px);
+      border-color:rgba(34,197,94,.28);
+    }
+
+    .portal-card .icon{
+      font-size:28px;
+      margin-bottom:14px;
+    }
+
+    .portal-card h3{
+      font-family:'Cormorant Garamond',serif;
+      font-size:26px;
+      font-weight:600;
+      margin-bottom:10px;
+    }
+
+    .portal-card p{
+      font-size:14px;
+      color:var(--muted);
+      line-height:1.7;
+      margin-bottom:16px;
+    }
+
+    .portal-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .tag{
+      display:inline-block;
+      margin-top:14px;
+      padding:5px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      background:rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.28);
+      color:var(--primary);
+    }
+
+    .steps-grid{
+      display:grid;
+      gap:14px;
+      margin-top:44px;
+    }
+
+    @media(min-width:760px){
+      .steps-grid{grid-template-columns:repeat(3,1fr)}
+    }
+
+    .step-card{
+      padding:26px 22px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      background:linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+    }
+
+    .step-num{
+      font-family:'Cormorant Garamond',serif;
+      font-size:44px;
+      font-weight:700;
+      color:rgba(250,204,21,.18);
+      line-height:1;
+      margin-bottom:12px;
+    }
+
+    .step-card h4{
+      font-size:15px;
+      font-weight:700;
+      margin-bottom:8px;
+      color:var(--gold2);
+    }
+
+    .step-card p{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.65;
+    }
+
+    .mini-form{
+      margin-top:38px;
+      border:1px solid rgba(250,204,21,.16);
+      background:linear-gradient(160deg, rgba(250,204,21,.04), rgba(34,197,94,.03));
+      border-radius:24px;
+      padding:18px;
+      max-width:760px;
+    }
+
+    .mini-form .row{
+      display:grid;
+      gap:10px;
+    }
+
+    @media(min-width:640px){
+      .mini-form .row{grid-template-columns:1fr 1fr}
+    }
+
+    .mini-form label{
+      display:block;
+      font-size:12px;
+      color:var(--soft);
+      margin:0 0 6px 2px;
+      font-weight:700;
+      letter-spacing:.3px;
+    }
+
+    .mini-form input,.mini-form select{
+      width:100%;
+      padding:14px 14px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.20);
+      color:var(--text);
+      font-weight:600;
+      outline:none;
+    }
+
+    .mini-form input::placeholder{
+      color:rgba(234,255,241,.40);
+      font-weight:500;
+    }
+
+    .mini-form .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:12px;
+    }
+
+    .mini-form .note{
+      margin-top:10px;
+      font-size:12px;
+      color:var(--soft);
+      line-height:1.55;
+    }
+
+    .quote-section{
+      padding:60px 20px;
+    }
+
+    .quote-block{
+      max-width:760px;
+      margin:0 auto;
+      text-align:center;
+      padding:52px 32px;
+      border:1px solid var(--line2);
+      border-radius:28px;
+      background:linear-gradient(160deg, rgba(250,204,21,.04), rgba(34,197,94,.03));
+      position:relative;
+    }
+
+    .quote-mark{
+      font-family:'Cormorant Garamond',serif;
+      font-size:120px;
+      line-height:.5;
+      color:rgba(250,204,21,.12);
+      display:block;
+      margin-bottom:10px;
+      user-select:none;
+    }
+
+    .quote-text{
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(22px,4vw,34px);
+      font-style:italic;
+      font-weight:400;
+      line-height:1.4;
+      color:var(--text);
+      margin-bottom:20px;
+    }
+
+    .quote-author{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:600;
+      letter-spacing:.5px;
+    }
+
+    .cta-section{
+      padding:80px 20px 100px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .cta-section::before{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:radial-gradient(ellipse 600px 400px at 50% 50%, rgba(34,197,94,.10), transparent 70%);
+      pointer-events:none;
+    }
+
+    .cta-inner{
+      position:relative;
+      z-index:1;
+    }
+
+    .cta-infinity{
+      font-size:64px;
+      display:block;
+      margin-bottom:16px;
+      filter:drop-shadow(0 0 20px rgba(250,204,21,.4));
+      animation:float 3s ease-in-out infinite;
+    }
+
+    @keyframes float{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-8px)}
+    }
+
+    .cta-section .section-title{
+      margin-bottom:14px;
+      text-align:center;
+    }
+
+    .cta-section .section-body{
+      margin:0 auto 36px;
+      text-align:center;
+    }
+
+    .cta-buttons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      justify-content:center;
+    }
+
+    .btn-whatsapp{
+      padding:18px 38px;
+      border-radius:999px;
+      background:linear-gradient(135deg,#25d366,#128c7e);
+      color:#fff;
+      font-weight:700;
+      font-size:16px;
+      border:none;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      transition:transform .15s, box-shadow .15s;
+      box-shadow:0 12px 40px rgba(37,211,102,.3);
+    }
+
+    .btn-whatsapp:hover{
+      transform:translateY(-2px);
+      box-shadow:0 18px 55px rgba(37,211,102,.45);
+    }
+
+    .fine-print{
+      margin-top:28px;
+      font-size:12px;
+      color:var(--soft);
+      max-width:520px;
+      margin-left:auto;
+      margin-right:auto;
+      line-height:1.6;
+    }
+
+    footer{
+      padding:28px 20px;
+      border-top:1px solid var(--line);
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      font-size:12px;
+      color:var(--soft);
+      position:relative;
+      z-index:1;
+    }
+
+    footer a{
+      color:var(--muted);
+      text-decoration:none;
+    }
+
+    footer a:hover{color:var(--text)}
+
+    .reveal{
+      opacity:0;
+      transform:translateY(28px);
+      transition:opacity .7s, transform .7s;
+    }
+
+    .reveal.visible{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    .reveal-delay-1{transition-delay:.1s}
+    .reveal-delay-2{transition-delay:.2s}
+    .reveal-delay-3{transition-delay:.3s}
+    .reveal-delay-4{transition-delay:.4s}
 
     .floating-site-btn{
-      position: fixed;
-      right: 16px;
-      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-      z-index: 120;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 14px 16px;
-      border-radius: 999px;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--text);
-      background: rgba(4,15,9,.88);
-      border: 1px solid rgba(250,204,21,.22);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 16px 40px rgba(0,0,0,.35);
-      transition: transform .15s, box-shadow .15s, border-color .15s;
-    }
-    .floating-site-btn:hover{
-      transform: translateY(-2px);
-      border-color: rgba(250,204,21,.40);
-      box-shadow: 0 20px 50px rgba(0,0,0,.42);
+      position:fixed;
+      right:16px;
+      bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+      z-index:120;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:14px 16px;
+      border-radius:999px;
+      text-decoration:none;
+      font-size:14px;
+      font-weight:800;
+      color:var(--text);
+      background:rgba(4,15,9,.88);
+      border:1px solid rgba(250,204,21,.22);
+      backdrop-filter:blur(14px);
+      box-shadow:0 16px 40px rgba(0,0,0,.35);
+      transition:transform .15s, box-shadow .15s, border-color .15s;
     }
 
-    @media (max-width: 600px) {
-      .hero-stat-row { gap: 20px; }
-      .profil-oui, .profil-non { padding: 24px 18px; }
-      .quote-block { padding: 36px 20px; }
+    .floating-site-btn:hover{
+      transform:translateY(-2px);
+      border-color:rgba(250,204,21,.40);
+      box-shadow:0 20px 50px rgba(0,0,0,.42);
+    }
+
+    @media (max-width: 600px){
+      .hero-stat-row{gap:20px}
+      .quote-block{padding:36px 20px}
       .topbar{padding:12px 14px}
       .btn-cta-top{padding:10px 14px}
       .floating-site-btn{
-        right: 12px;
-        left: 12px;
-        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-        padding: 15px 16px;
-        font-size: 13px;
+        right:12px;
+        left:12px;
+        bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+        padding:15px 16px;
+        font-size:13px;
       }
     }
   </style>
 </head>
 
 <body>
-  <a href="#pourquoi" class="skip">Aller au contenu</a>
+  <a href="#portail" class="skip">Aller au contenu</a>
 
   <a
     class="floating-site-btn"
@@ -510,26 +767,26 @@
   </a>
 
   <nav class="topbar" aria-label="Navigation principale">
-    <a href="./index.html" class="topbar-brand" aria-label="Retour accueil DIGIY DRIVER">
+    <a href="./index.html" class="topbar-brand" aria-label="Accueil portail DIGIY PRO DRIVER">
       <div class="logo">♾</div>
       <div>
-        <div class="brand-name">DIGIY DRIVER</div>
-        <div class="brand-sub">L'Afrique enracinée, connectée au monde</div>
+        <div class="brand-name">DIGIY PRO DRIVER</div>
+        <div class="brand-sub">Portail chauffeur — cockpit, PIN, profil, tarifs</div>
       </div>
     </a>
 
     <div class="top-actions">
-      <a id="btnGalleryTop" href="./galerie.html" class="btn-cta-top ghost" aria-label="Ouvrir la galerie publique">
-        🚕 Galerie publique
+      <a id="btnDashboardTop" href="./dashboard-pro.html" class="btn-cta-top ghost" aria-label="Ouvrir le dashboard pro">
+        📊 Dashboard
       </a>
-      <a id="btnCockpitTop" href="./cockpit.html" class="btn-cta-top ghost" aria-label="Ouvrir le cockpit pro">
-        🚖 Cockpit DRIVER
+      <a id="btnCockpitTop" href="./cockpit.html" class="btn-cta-top ghost" aria-label="Ouvrir le cockpit">
+        🚖 Cockpit
       </a>
       <a id="btnPinTop" href="./pin.html" class="btn-cta-top gold" aria-label="Ouvrir la porte PIN">
         🔐 Porte PIN
       </a>
-      <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-cta-top" aria-label="Postuler via WhatsApp">
-        🚖 Postuler via WhatsApp
+      <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-cta-top" aria-label="Rejoindre via WhatsApp">
+        💬 Rejoindre DIGIY
       </a>
     </div>
   </nav>
@@ -538,28 +795,34 @@
     <div class="hero-bg"></div>
     <div class="hero-content">
 
-      <div class="hero-label">DIGIY DRIVER — Recrutement</div>
+      <div class="hero-label">DIGIY PRO DRIVER — Portail officiel</div>
 
       <h1>
-        Nous ne cherchons pas<br>
-        des <span class="strike">chauffeurs</span>.<br>
-        Nous cherchons des <em>ambassadeurs.</em>
+        Ton <em>univers chauffeur</em><br>
+        DIGIY,<br>
+        posé proprement.
       </h1>
 
       <p class="hero-sub">
-        DIGIY DRIVER est une plateforme africaine de mobilité premium.<br>
-        <strong>0% de commission. Liberté totale. Prestige du service.</strong><br>
-        Rejoindre DIGIY, c'est rejoindre un mouvement — pas une application.
+        Cet index est la <strong>porte d’entrée publique du repo PRO</strong>.<br>
+        Il guide les chauffeurs vers leur <strong>dashboard</strong>, leur <strong>cockpit</strong>,
+        leur <strong>porte PIN</strong>, leur <strong>profil</strong> et leurs <strong>tarifs</strong>.<br>
+        Et pour les nouveaux, il garde une porte humaine vers le recrutement WhatsApp.
       </p>
 
       <div class="hero-ctas">
-        <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-main" aria-label="Demander un entretien via WhatsApp">
-          🚖 Demander un entretien
+        <a id="btnDashboardHero" href="./dashboard-pro.html" class="btn-main" aria-label="Ouvrir le dashboard pro">
+          📊 Ouvrir le dashboard
         </a>
-        <a href="#pourquoi" class="btn-ghost">En savoir plus ↓</a>
-        <a id="btnGalleryHero" href="./galerie.html" class="btn-ghost" aria-label="Ouvrir la galerie publique">🚕 Galerie publique</a>
-        <a id="btnCockpitHero" href="./cockpit.html" class="btn-ghost" aria-label="Ouvrir le cockpit">🚖 Cockpit DRIVER</a>
-        <a id="btnPinHero" href="./pin.html" class="btn-ghost" aria-label="Ouvrir la porte PIN">🔐 Porte PIN</a>
+        <a id="btnCockpitHero" href="./cockpit.html" class="btn-ghost" aria-label="Ouvrir le cockpit">
+          🚖 Cockpit
+        </a>
+        <a id="btnPinHero" href="./pin.html" class="btn-ghost" aria-label="Ouvrir la porte PIN">
+          🔐 Porte PIN
+        </a>
+        <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-ghost" aria-label="Contacter via WhatsApp">
+          💬 WhatsApp
+        </a>
       </div>
 
       <div class="hero-stat-row">
@@ -568,19 +831,19 @@
           <div class="lab">Commission prélevée</div>
         </div>
         <div class="stat-item">
-          <div class="num">♾</div>
-          <div class="lab">Écosystème DIGIYLYFE</div>
+          <div class="num">5</div>
+          <div class="lab">Portes métier principales</div>
         </div>
         <div class="stat-item">
           <div class="num">♾</div>
-          <div class="lab">Afrique enracinée</div>
+          <div class="lab">Écosystème DIGIYLYFE</div>
         </div>
       </div>
 
       <div class="mini-form reveal" style="margin-top:44px">
-        <div class="section-label" style="margin-bottom:8px">Postuler en 15 secondes</div>
+        <div class="section-label" style="margin-bottom:8px">Rejoindre DIGIY PRO DRIVER</div>
         <div class="section-body" style="max-width:720px;margin-bottom:14px">
-          Donne-nous juste l’essentiel — et WhatsApp s’ouvre tout seul avec ton message prêt.
+          Nouveau chauffeur ? Laisse l’essentiel et WhatsApp prépare ton message automatiquement.
         </div>
 
         <div class="row">
@@ -604,7 +867,7 @@
         <div class="row" style="margin-top:10px">
           <div>
             <label for="fAvail">Disponibilité</label>
-            <input id="fAvail" placeholder="Ex: Soirs + Week-end / Tous les jours / Matin…"/>
+            <input id="fAvail" placeholder="Ex: Tous les jours / Soirs + week-end / Matin…"/>
           </div>
           <div>
             <label for="fName">Nom (optionnel)</label>
@@ -614,14 +877,13 @@
 
         <div class="actions">
           <a id="btnApplyNow" class="btn-main" href="#" target="_blank" rel="noopener">💬 Ouvrir WhatsApp</a>
-          <a href="#standards" class="btn-ghost">Voir les standards</a>
-          <a id="btnGalleryMini" class="btn-ghost" href="./galerie.html">🚕 Galerie publique</a>
-          <a id="btnCockpitMini" class="btn-ghost" href="./cockpit.html">🚖 Cockpit DRIVER</a>
-          <a id="btnPinMini" class="btn-ghost" href="./pin.html">🔐 Porte PIN</a>
+          <a id="btnProfilMini" href="./profil-chauffeur.html" class="btn-ghost">👤 Voir le profil</a>
+          <a id="btnTarifsMini" href="./tarifs.html" class="btn-ghost">💰 Voir les tarifs</a>
+          <a id="btnPinMini" href="./pin.html" class="btn-ghost">🔐 Porte PIN</a>
         </div>
 
         <div class="note">
-          On ne fait pas du volume. On fait du solide. Si ton profil est aligné, on te rappelle vite (selon affluence).
+          Ici on ne cherche pas du volume. On cherche du solide, du propre, du terrain.
         </div>
       </div>
 
@@ -630,39 +892,76 @@
 
   <hr class="divider"/>
 
-  <section id="pourquoi">
+  <section id="portail">
     <div class="wrap">
       <div class="reveal">
-        <div class="section-label">Notre philosophie</div>
-        <h2 class="section-title">Ce qui nous <em>distingue</em></h2>
+        <div class="section-label">Le portail</div>
+        <h2 class="section-title">Choisis ta <em>bonne porte</em></h2>
         <p class="section-body">
-          Uber prend. Booking prend. Tous les grands acteurs étrangers prennent.
-          DIGIY ne prend rien. L'argent reste entre toi et ton client.
-          C'est ça, la souveraineté numérique africaine.
+          Le repo `digiy-pro-driver` doit avoir un `index.html`. Le voici :
+          une entrée claire, publique, mais orientée chauffeur pro — sans mélange, sans vieux rails, sans porte cassée.
         </p>
       </div>
 
-      <div class="philo-grid" style="margin-top:44px">
-        <div class="philo-item reveal reveal-delay-1">
-          <div class="philo-icon">🦅</div>
-          <div>
-            <h3>La vision de l'aigle</h3>
-            <p>Tu ne regardes pas le sol — tu vois loin. Un ambassadeur DIGIY comprend qu'il construit quelque chose qui dépasse une course. Il construit la confiance, pierre par pierre, trajet par trajet.</p>
+      <div class="portal-grid">
+        <div class="portal-card reveal reveal-delay-1">
+          <div class="icon">📊</div>
+          <h3>Dashboard PRO</h3>
+          <p>Lecture légère, vue d’ensemble, aiguillage propre vers les autres pages métier.</p>
+          <div class="portal-actions">
+            <a id="btnDashboardCard" href="./dashboard-pro.html" class="btn-main">Ouvrir</a>
           </div>
+          <span class="tag">Lecture rapide</span>
         </div>
-        <div class="philo-item reveal reveal-delay-2">
-          <div class="philo-icon">🌍</div>
-          <div>
-            <h3>L'Afrique d'abord</h3>
-            <p>Chaque abonnement DIGIY garde la valeur en Afrique. Pas d'extraction vers l'étranger. Ce que tu gagnes, tu le réinvestes ici. C'est un choix économique et stratégique.</p>
+
+        <div class="portal-card reveal reveal-delay-2">
+          <div class="icon">🚖</div>
+          <h3>Cockpit chauffeur</h3>
+          <p>Le centre vivant du chauffeur : accès, courses, historique, navigation réelle du module.</p>
+          <div class="portal-actions">
+            <a id="btnCockpitCard" href="./cockpit.html" class="btn-main">Ouvrir</a>
           </div>
+          <span class="tag">Cœur métier</span>
         </div>
-        <div class="philo-item reveal reveal-delay-3">
-          <div class="philo-icon">🎩</div>
-          <div>
-            <h3>Le savoir-être avant tout</h3>
-            <p>Tenue soignée. Véhicule propre. Accueil chaleureux. Discrétion. Ponctualité. Ce ne sont pas des options — c'est la définition même d'un hôte de mobilité DIGIY.</p>
+
+        <div class="portal-card reveal reveal-delay-3">
+          <div class="icon">🔐</div>
+          <h3>Porte PIN</h3>
+          <p>Accès sécurisé, session chauffeur, entrée propre vers le cockpit avec le slug actif.</p>
+          <div class="portal-actions">
+            <a id="btnPinCard" href="./pin.html" class="btn-main">Ouvrir</a>
           </div>
+          <span class="tag">Sécurité</span>
+        </div>
+
+        <div class="portal-card reveal reveal-delay-4">
+          <div class="icon">👤</div>
+          <h3>Profil chauffeur</h3>
+          <p>Identité pro, publication, véhicule, zone de service, bio et contact WhatsApp.</p>
+          <div class="portal-actions">
+            <a id="btnProfilCard" href="./profil-chauffeur.html" class="btn-main">Ouvrir</a>
+          </div>
+          <span class="tag">Identité</span>
+        </div>
+
+        <div class="portal-card reveal reveal-delay-1">
+          <div class="icon">💰</div>
+          <h3>Tarifs</h3>
+          <p>Grille terrain du chauffeur, trajets actifs, mise à jour des prix, désactivation propre.</p>
+          <div class="portal-actions">
+            <a id="btnTarifsCard" href="./tarifs.html" class="btn-main">Ouvrir</a>
+          </div>
+          <span class="tag">Grille terrain</span>
+        </div>
+
+        <div class="portal-card reveal reveal-delay-2">
+          <div class="icon">💬</div>
+          <h3>Rejoindre DIGIY</h3>
+          <p>Nouveau chauffeur ? Entre par WhatsApp, sans formulaire indigeste, avec un message propre déjà préparé.</p>
+          <div class="portal-actions">
+            <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-main">Contacter</a>
+          </div>
+          <span class="tag">Recrutement humain</span>
         </div>
       </div>
     </div>
@@ -670,132 +969,32 @@
 
   <hr class="divider"/>
 
-  <section class="standards-section" id="standards">
+  <section id="rails">
     <div class="wrap">
       <div class="reveal">
-        <div class="section-label">Nos exigences</div>
-        <h2 class="section-title">Les standards <em>DIGIY</em></h2>
+        <div class="section-label">Ordre de circulation</div>
+        <h2 class="section-title">Le rail <em>propre</em> du chauffeur</h2>
         <p class="section-body">
-          Être ambassadeur DIGIY, c'est un engagement. Voici les piliers
-          qui définissent chaque professionnel de notre réseau.
+          DIGIY PRO DRIVER ne doit pas ressembler à un dépôt de fichiers jetés sur GitHub.
+          Il doit ressembler à un vrai module avec une logique simple, claire et humaine.
         </p>
       </div>
 
-      <div class="standards-grid">
-        <div class="std-card reveal reveal-delay-1">
-          <div class="std-num">01</div>
-          <h4>Présentation irréprochable</h4>
-          <p>Tenue propre, soignée, adaptée. Le premier regard que le client pose sur toi, c'est le premier regard qu'il pose sur DIGIY.</p>
+      <div class="steps-grid">
+        <div class="step-card reveal reveal-delay-1">
+          <div class="step-num">01</div>
+          <h4>Entrer</h4>
+          <p>Le chauffeur arrive sur le portail, puis choisit la bonne porte : dashboard, cockpit ou PIN.</p>
         </div>
-        <div class="std-card reveal reveal-delay-2">
-          <div class="std-num">02</div>
-          <h4>Véhicule de qualité</h4>
-          <p>Propre, entretenu, sans odeur. L'intérieur est un espace de confort. Tu en es l'hôte.</p>
+        <div class="step-card reveal reveal-delay-2">
+          <div class="step-num">02</div>
+          <h4>S’identifier</h4>
+          <p>Le slug actif suit le chauffeur. La porte PIN et le guard gardent la mémoire du rail ouvert.</p>
         </div>
-        <div class="std-card reveal reveal-delay-3">
-          <div class="std-num">03</div>
-          <h4>Maîtrise du territoire</h4>
-          <p>Dakar, Saly, Mbour — tu connais les repères, les raccourcis, les lieux de vie. Pas besoin de GPS pour chaque rue.</p>
-        </div>
-        <div class="std-card reveal reveal-delay-4">
-          <div class="std-num">04</div>
-          <h4>Communication posée</h4>
-          <p>Tu parles quand c'est utile. Tu écoutes toujours. Pas de politique, pas de problèmes personnels avec le client. Sérénité.</p>
-        </div>
-        <div class="std-card reveal reveal-delay-1">
-          <div class="std-num">05</div>
-          <h4>Ponctualité sans excuses</h4>
-          <p>Tu arrives avant l'heure. Les retards sans prévenir, c'est non. La fiabilité est ta réputation.</p>
-        </div>
-        <div class="std-card reveal reveal-delay-2">
-          <div class="std-num">06</div>
-          <h4>Respect total du client</h4>
-          <p>Homme, femme, local, diaspora, étranger — chaque client reçoit le même niveau de service d'exception. Zéro jugement.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider"/>
-
-  <section class="model-section" id="modele">
-    <div class="wrap">
-      <div class="reveal">
-        <div class="section-label">Le modèle économique</div>
-        <h2 class="section-title">Zéro commission.<br><em>Liberté totale.</em></h2>
-        <p class="section-body">
-          Chez DIGIY, tu paies un abonnement fixe mensuel.
-          Tout ce que tu gagnes sur tes courses, c'est <strong>100% pour toi</strong>.
-          Pas de surprise. Pas d'algorithme qui décide de ton tarif.
-        </p>
-      </div>
-
-      <div class="model-grid">
-        <div class="model-card highlight reveal reveal-delay-1">
-          <div class="icon">💚</div>
-          <h4>Abonnement DIGIY</h4>
-          <p>Un abonnement mensuel fixe et accessible. Tu sais exactement ce que tu paies. Ce que tu gagnes t'appartient entièrement — DIGIY ne touche jamais à tes courses.</p>
-          <span class="tag">✅ Transparent</span>
-        </div>
-        <div class="model-card reveal reveal-delay-2">
-          <div class="icon">🚗</div>
-          <h4>Tes courses, tes règles</h4>
-          <p>Tu fixes tes disponibilités. Tu travailles quand tu veux. Le cockpit DIGIY DRIVER PRO centralise tout : demandes, acceptations, historique.</p>
-          <span class="tag">✅ Liberté</span>
-        </div>
-        <div class="model-card reveal reveal-delay-3">
-          <div class="icon">📲</div>
-          <h4>Outil pro inclus</h4>
-          <p>Ton espace pro DIGIY DRIVER : stats en temps réel, demandes live, gestion de profil, paiements. Un cockpit digne d'un professionnel.</p>
-          <span class="tag">✅ Inclus</span>
-        </div>
-        <div class="model-card reveal reveal-delay-4">
-          <div class="icon">🌍</div>
-          <h4>Réseau DIGIYLYFE</h4>
-          <p>Rejoindre DIGIY DRIVER, c'est entrer dans l'écosystème DIGIYLYFE : plusieurs modules, des utilisateurs réels, une vision commune pour l'Afrique.</p>
-          <span class="tag">✅ Communauté</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider"/>
-
-  <section class="profil-section" id="profil">
-    <div class="wrap">
-      <div class="reveal">
-        <div class="section-label">Profil recherché</div>
-        <h2 class="section-title">Es-tu <em>l'ambassadeur</em><br>que nous cherchons ?</h2>
-        <p class="section-body">
-          Nous ne recrutons pas en masse. Chaque ambassadeur est sélectionné après entretien.
-          Voici ce qui nous anime — et ce qui ne correspond pas à notre vision.
-        </p>
-      </div>
-
-      <div class="profil-inner reveal" style="margin-top:44px">
-        <div class="profil-oui">
-          <div class="profil-head">
-            <span class="profil-badge badge-oui">✅ C'est toi si…</span>
-          </div>
-          <div class="check-list">
-            <div class="check-item"><span class="ic">🦅</span><span>Tu es fier de ton travail et tu vois le métier comme un acte de service, pas juste un revenu</span></div>
-            <div class="check-item"><span class="ic">🎩</span><span>Ta présentation est naturellement soignée — tu ne fais pas un effort, c'est qui tu es</span></div>
-            <div class="check-item"><span class="ic">📍</span><span>Tu connais ton territoire : les routes, les repères, les habitudes locales</span></div>
-            <div class="check-item"><span class="ic">💬</span><span>Tu communiques clairement, tu es à l'aise avec un smartphone et des outils numériques simples</span></div>
-            <div class="check-item"><span class="ic">🤝</span><span>Tu comprends que ta liberté économique passe par un modèle qui te respecte — sans intermédiaire qui prend ta part</span></div>
-            <div class="check-item"><span class="ic">♾</span><span>Tu crois à l'Afrique qui se connecte au monde sans perdre ses racines</span></div>
-          </div>
-        </div>
-        <div class="profil-non">
-          <div class="profil-head">
-            <span class="profil-badge badge-non">⛔ Ce n'est pas toi si…</span>
-          </div>
-          <div class="check-list">
-            <div class="check-item"><span class="ic">❌</span><span>Tu vois le client comme un problème à gérer plutôt qu'une personne à servir avec dignité</span></div>
-            <div class="check-item"><span class="ic">❌</span><span>La propreté du véhicule et la tenue ne sont pas une priorité</span></div>
-            <div class="check-item"><span class="ic">❌</span><span>Tu négocies les tarifs en cours de route ou tu cherches à contourner les règles du réseau</span></div>
-            <div class="check-item"><span class="ic">❌</span><span>Tu n'as pas envie d'appartenir à quelque chose — juste faire des courses et partir</span></div>
-          </div>
+        <div class="step-card reveal reveal-delay-3">
+          <div class="step-num">03</div>
+          <h4>Travailler</h4>
+          <p>Profil, tarifs, cockpit et dashboard restent cousus ensemble, sans boucle, sans démo sale, sans ancien rail caché.</p>
         </div>
       </div>
     </div>
@@ -806,75 +1005,73 @@
       <div class="quote-block reveal">
         <span class="quote-mark">"</span>
         <p class="quote-text">
-          Un chauffeur conduit d'un point A à un point B.
-          Un ambassadeur DIGIY crée une expérience que le client n'oublie pas
-          et à laquelle il revient.
+          Un bon module ne se contente pas d’exister.
+          Il sait où faire entrer l’homme, où le faire travailler,
+          et où le faire revenir sans se perdre.
         </p>
-        <div class="quote-author">— La philosophie DIGIY · L'Afrique enracinée, connectée au monde ♾</div>
+        <div class="quote-author">— Philosophie DIGIY · Rail propre · Afrique enracinée ♾</div>
       </div>
     </div>
   </section>
 
   <hr class="divider"/>
 
-  <section class="cta-section" id="postuler">
+  <section class="cta-section" id="contact">
     <div class="cta-inner">
       <span class="cta-infinity">♾</span>
 
-      <div class="section-label" style="text-align:center">Rejoindre le réseau</div>
-      <h2 class="section-title reveal">Tu es prêt ?<br><em>Parlons-nous.</em></h2>
+      <div class="section-label" style="text-align:center">Accéder ou rejoindre</div>
+      <h2 class="section-title reveal">Tout part d’une <em>bonne porte</em></h2>
       <p class="section-body reveal">
-        L'entretien est simple et humain. Pas de formulaire interminable.
-        Une conversation WhatsApp pour faire connaissance, vérifier le profil,
-        et t'accueillir dans le réseau DIGIY si c'est le bon moment.
+        Chauffeur déjà actif ou nouveau candidat : ce portail te met sur le bon rail sans t’envoyer dans le décor.
       </p>
 
       <div class="cta-buttons reveal">
-        <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-whatsapp" aria-label="Contacter via WhatsApp">
-          💬 Contacter via WhatsApp
-        </a>
-        <a id="btnGalleryBottom" href="./galerie.html" class="btn-ghost">🚕 Galerie publique</a>
-        <a id="btnCockpitBottom" href="./cockpit.html" class="btn-ghost">🚖 Cockpit DRIVER</a>
+        <a id="btnDashboardBottom" href="./dashboard-pro.html" class="btn-ghost">📊 Dashboard</a>
+        <a id="btnCockpitBottom" href="./cockpit.html" class="btn-ghost">🚖 Cockpit</a>
         <a id="btnPinBottom" href="./pin.html" class="btn-ghost">🔐 Porte PIN</a>
+        <a data-wa="join" href="#" target="_blank" rel="noopener" class="btn-whatsapp">💬 WhatsApp</a>
       </div>
 
       <p class="fine-print reveal">
-        Entretien mené par l'équipe DIGIY. Réponse rapide selon affluence.
-        Seuls les profils alignés avec nos valeurs sont retenus.
-        Nous préférons la qualité au volume.
+        Support DIGIY : WhatsApp direct. Accès pro : via slug + PIN. Recrutement : humain, simple, propre.
       </p>
     </div>
   </section>
 
   <footer>
-    <div><strong>DIGIY DRIVER PRO</strong> — Module DIGIYLYFE ♾</div>
+    <div><strong>DIGIY PRO DRIVER</strong> — Repo portail chauffeur ♾</div>
     <div style="display:flex; gap:16px; flex-wrap:wrap">
-      <a href="./galerie.html">Galerie publique</a>
-      <a href="./cockpit.html">Cockpit</a>
-      <a href="./pin.html">Porte PIN</a>
+      <a href="./dashboard-pro.html" id="fDashboard">Dashboard</a>
+      <a href="./cockpit.html" id="fCockpit">Cockpit</a>
+      <a href="./profil-chauffeur.html" id="fProfil">Profil</a>
+      <a href="./tarifs.html" id="fTarifs">Tarifs</a>
+      <a href="./pin.html" id="fPin">Porte PIN</a>
       <a href="https://wa.me/221771342889" target="_blank" rel="noopener">Support</a>
-      <span id="vtag">v20260306</span>
+      <span id="vtag">v20260314-pro-index</span>
     </div>
   </footer>
 
   <script>
-    (function(){
+    (() => {
       "use strict";
 
       const observer = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if(e.isIntersecting) e.target.classList.add('visible');
+        entries.forEach((e) => {
+          if (e.isIntersecting) e.target.classList.add("visible");
         });
-      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+      }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
 
-      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+      document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 
-      document.querySelectorAll('a[href^="#"]').forEach(a => {
-        a.addEventListener('click', e => {
-          const target = document.querySelector(a.getAttribute('href'));
-          if(target){
+      document.querySelectorAll('a[href^="#"]').forEach((a) => {
+        a.addEventListener("click", (e) => {
+          const href = a.getAttribute("href");
+          if (!href || href === "#") return;
+          const target = document.querySelector(href);
+          if (target) {
             e.preventDefault();
-            target.scrollIntoView({ behavior:'smooth', block:'start' });
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
           }
         });
       });
@@ -882,51 +1079,55 @@
       const qs = new URLSearchParams(location.search);
       const slug = (qs.get("slug") || "").trim();
 
-      const PUBLIC_GALLERY_URL = "./galerie.html";
-      const PRO_COCKPIT_URL = "./cockpit.html";
-      const PRO_PIN_URL = "./pin.html";
+      const ROUTES = {
+        dashboard: "./dashboard-pro.html",
+        cockpit: "./cockpit.html",
+        pin: "./pin.html",
+        profil: "./profil-chauffeur.html",
+        tarifs: "./tarifs.html"
+      };
 
       function withSlug(base){
-        if(!slug) return base;
+        if (!slug) return base;
         const u = new URL(base, location.href);
         u.searchParams.set("slug", slug);
         return u.pathname + u.search;
       }
 
-      [
-        "btnGalleryTop",
-        "btnGalleryHero",
-        "btnGalleryMini",
-        "btnGalleryBottom"
-      ].forEach(id=>{
-        const a = document.getElementById(id);
-        if(a) a.href = withSlug(PUBLIC_GALLERY_URL);
-      });
+      const routeBindings = [
+        ["btnDashboardTop", ROUTES.dashboard],
+        ["btnDashboardHero", ROUTES.dashboard],
+        ["btnDashboardCard", ROUTES.dashboard],
+        ["btnDashboardBottom", ROUTES.dashboard],
+        ["btnCockpitTop", ROUTES.cockpit],
+        ["btnCockpitHero", ROUTES.cockpit],
+        ["btnCockpitCard", ROUTES.cockpit],
+        ["btnCockpitBottom", ROUTES.cockpit],
+        ["btnPinTop", ROUTES.pin],
+        ["btnPinHero", ROUTES.pin],
+        ["btnPinMini", ROUTES.pin],
+        ["btnPinCard", ROUTES.pin],
+        ["btnPinBottom", ROUTES.pin],
+        ["btnProfilMini", ROUTES.profil],
+        ["btnProfilCard", ROUTES.profil],
+        ["btnTarifsMini", ROUTES.tarifs],
+        ["btnTarifsCard", ROUTES.tarifs],
+        ["fDashboard", ROUTES.dashboard],
+        ["fCockpit", ROUTES.cockpit],
+        ["fProfil", ROUTES.profil],
+        ["fTarifs", ROUTES.tarifs],
+        ["fPin", ROUTES.pin]
+      ];
 
-      [
-        "btnCockpitTop",
-        "btnCockpitBottom",
-        "btnCockpitHero",
-        "btnCockpitMini"
-      ].forEach(id=>{
+      routeBindings.forEach(([id, path]) => {
         const a = document.getElementById(id);
-        if(a) a.href = withSlug(PRO_COCKPIT_URL);
-      });
-
-      [
-        "btnPinTop",
-        "btnPinBottom",
-        "btnPinHero",
-        "btnPinMini"
-      ].forEach(id=>{
-        const a = document.getElementById(id);
-        if(a) a.href = withSlug(PRO_PIN_URL);
+        if (a) a.href = withSlug(path);
       });
 
       const WA_PHONE = "221771342889";
 
       function buildLeadId(){
-        return "DRV-" + Date.now().toString(36).toUpperCase();
+        return "DRVPRO-" + Date.now().toString(36).toUpperCase();
       }
 
       function waLink(msg){
@@ -939,17 +1140,19 @@
 
       function baseMsg(extraLines){
         const lines = [
-          "Bonjour, je souhaite rejoindre DIGIY DRIVER en tant qu'ambassadeur de mobilité.",
+          "Bonjour, je souhaite rejoindre DIGIY PRO DRIVER.",
           "Lead: " + lead,
-          "Source: recrutement-driver",
+          "Source: digiy-pro-driver-index",
           "Device: " + device
         ];
         if (slug) lines.push("Slug: " + slug);
-        if(Array.isArray(extraLines)) lines.push(...extraLines.filter(Boolean));
+        if (Array.isArray(extraLines)) {
+          lines.push(...extraLines.filter(Boolean));
+        }
         return lines.join("\n");
       }
 
-      document.querySelectorAll('a[data-wa="join"]').forEach(a=>{
+      document.querySelectorAll('a[data-wa="join"]').forEach((a) => {
         a.href = waLink(baseMsg([
           "Ville: (Dakar/Saly/Mbour/Autre)",
           "Véhicule: (type + année)",
@@ -957,32 +1160,32 @@
         ]));
       });
 
-      const $ = (id)=>document.getElementById(id);
-      const btn = $("btnApplyNow");
+      const $ = (id) => document.getElementById(id);
+      const btnApplyNow = $("btnApplyNow");
 
-      if(btn){
-        const update = ()=>{
+      if (btnApplyNow) {
+        const update = () => {
           const city = ($("fCity")?.value || "").trim();
           const veh  = ($("fVehicle")?.value || "").trim();
           const av   = ($("fAvail")?.value || "").trim();
           const name = ($("fName")?.value || "").trim();
 
           const extra = [];
-          if(name) extra.push("Nom: " + name);
-          if(city) extra.push("Ville: " + city);
-          if(veh)  extra.push("Véhicule: " + veh);
-          if(av)   extra.push("Disponibilité: " + av);
+          if (name) extra.push("Nom: " + name);
+          if (city) extra.push("Ville: " + city);
+          if (veh)  extra.push("Véhicule: " + veh);
+          if (av)   extra.push("Disponibilité: " + av);
 
-          btn.href = waLink(baseMsg(extra.length ? extra : [
+          btnApplyNow.href = waLink(baseMsg(extra.length ? extra : [
             "Ville: " + (city || "(à préciser)"),
             "Véhicule: " + (veh || "(à préciser)"),
             "Disponibilité: " + (av || "(à préciser)")
           ]));
         };
 
-        ["fCity","fVehicle","fAvail","fName"].forEach(id=>{
+        ["fCity","fVehicle","fAvail","fName"].forEach((id) => {
           const el = $(id);
-          if(el){
+          if (el) {
             el.addEventListener("input", update);
             el.addEventListener("change", update);
           }
@@ -992,9 +1195,9 @@
       }
 
       const v = qs.get("v");
-      if(v) {
+      if (v) {
         const t = document.getElementById("vtag");
-        if(t) t.textContent = "v" + v;
+        if (t) t.textContent = "v" + v;
       }
     })();
   </script>
