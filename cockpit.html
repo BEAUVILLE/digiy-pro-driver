@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-guard-20260314-recousu"></script>
+  <script src="./guard.js?v=driver-guard-20260314-cockpit-final"></script>
 
   <style>
     :root{
@@ -608,7 +608,7 @@
           <div class="row" style="margin-top:10px">
             <button class="btn primary" id="btnReload" type="button">↻ Charger / rafraîchir</button>
             <button class="btn" id="btnAuto" type="button">⏱️ Auto refresh : ON</button>
-            <button class="btn" id="btnResetSession" type="button">🧹 Reprendre ma session</button>
+            <button class="btn" id="btnResetSession" type="button">🔄 Recharger ma session</button>
           </div>
 
           <div class="msg" id="msgCreate">Prêt.</div>
@@ -686,7 +686,7 @@
   </div>
 
   <script>
-    (function(){
+    (() => {
       "use strict";
 
       const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
@@ -698,11 +698,13 @@
       const PROFIL_URL = "./profil-chauffeur.html";
       const TARIFS_URL = "./profil-chauffeur.html";
 
-      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
-      });
-
       const $ = (id) => document.getElementById(id);
+
+      const sb = window.supabase?.createClient
+        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
+          })
+        : null;
 
       let slug = "";
       let phone = "";
@@ -711,30 +713,42 @@
       let refreshTimer = null;
       let ALL_RIDES = [];
       let COCKPIT = null;
+      let LAST_GUARD_STATE = null;
+      let IS_LOADING = false;
 
-      function normSlug(s){
-        return String(s || "").trim().toLowerCase();
+      function normSlug(v){
+        return String(v || "").trim().toLowerCase();
       }
 
-      function phoneDigits(p){
-        return String(p || "").replace(/[^\d]/g, "");
+      function phoneDigits(v){
+        return String(v || "").replace(/[^\d]/g, "");
       }
 
-      function normPhone(p){
-        const digits = phoneDigits(p);
+      function normPhone(v){
+        const digits = phoneDigits(v);
         if (!digits) return "";
         if (digits.startsWith("221") && digits.length === 12) return digits;
         if (digits.length === 9) return "221" + digits;
         return digits;
       }
 
-      function displayPhone(p){
-        const digits = normPhone(p);
-        return digits ? "+" + digits : "—";
+      function displayPhone(v){
+        const p = normPhone(v);
+        return p ? "+" + p : "—";
       }
 
-      function phoneVariants(p){
-        const digits = normPhone(p);
+      function isDriverSlug(v){
+        return /^driver-\d{12}$/.test(normSlug(v));
+      }
+
+      function phoneFromDriverSlug(v){
+        const s = normSlug(v);
+        if (!isDriverSlug(s)) return "";
+        return normPhone(s.slice("driver-".length));
+      }
+
+      function phoneVariants(v){
+        const digits = normPhone(v);
         const out = new Set();
         if (!digits) return [];
         out.add(digits);
@@ -755,14 +769,23 @@
           .replaceAll("'", "&#039;");
       }
 
-      function valueOrEmpty(v, fallback = "À compléter"){
-        const s = String(v ?? "").trim();
-        return s ? s : fallback;
+      function humanValue(v, fallback = "À compléter"){
+        if (v === null || v === undefined) return fallback;
+        if (Array.isArray(v)) {
+          const clean = v.map(x => String(x || "").trim()).filter(Boolean).join(" • ");
+          return clean || fallback;
+        }
+        if (typeof v === "object") {
+          const clean = Object.values(v).map(x => String(x || "").trim()).filter(Boolean).join(" • ");
+          return clean || fallback;
+        }
+        const s = String(v).trim();
+        return s || fallback;
       }
 
-      function money(n){
-        const x = Number(n || 0);
-        return Number.isFinite(x) ? x.toLocaleString("fr-FR") + " FCFA" : "—";
+      function money(v){
+        const n = Number(v || 0);
+        return Number.isFinite(n) ? n.toLocaleString("fr-FR") + " FCFA" : "—";
       }
 
       function withSlug(base){
@@ -771,19 +794,19 @@
         return u.pathname + u.search;
       }
 
-      function setMsg(txt, type){
+      function setMsg(text, type){
         const el = $("msgCreate");
-        el.textContent = txt;
+        el.textContent = text;
         el.className = "msg " + (type || "");
       }
 
-      function setAccessState(ok, txt){
+      function setAccessState(ok, text){
         ACCESS_OK = !!ok;
         const pill = $("accessPill");
-        const s = $("sessionAccess");
+        const session = $("sessionAccess");
         pill.className = "pill " + (ok ? "ok" : "bad");
-        pill.textContent = "accès : " + txt;
-        s.textContent = txt;
+        pill.textContent = "accès : " + text;
+        session.textContent = text;
       }
 
       function updateSessionUi(){
@@ -801,15 +824,17 @@
         $("btnIndexPage").href = withSlug(HOME_URL);
       }
 
-      function goPay(){
+      function buildPayUrl(){
+        if (LAST_GUARD_STATE?.pay_url) return LAST_GUARD_STATE.pay_url;
         const u = new URL(PAY_URL);
         u.searchParams.set("module", MODULE);
         if (phone) u.searchParams.set("phone", normPhone(phone));
         if (slug) u.searchParams.set("slug", slug);
         u.searchParams.set("return", location.href);
-        location.href = u.toString();
+        return u.toString();
       }
 
+      function goPay(){ location.href = buildPayUrl(); }
       function goPin(){ location.href = withSlug(PIN_URL); }
       function goHome(){ location.href = withSlug(HOME_URL); }
 
@@ -884,18 +909,19 @@
 
       function renderProfile(data){
         const p = data?.profile || {};
-        const vehicle = [p.vehicle_type, p.vehicle_label, p.vehicle_plate]
-          .map(v => String(v || "").trim())
-          .filter(Boolean)
-          .join(" • ");
+        const vehicle = [
+          humanValue(p.vehicle_type, ""),
+          humanValue(p.vehicle_label, ""),
+          humanValue(p.vehicle_plate, "")
+        ].filter(Boolean).join(" • ");
 
-        $("pBusinessName").textContent = valueOrEmpty(p.business_name);
-        $("pDriverName").textContent = valueOrEmpty(p.driver_name);
-        $("pCity").textContent = valueOrEmpty(p.city);
-        $("pZones").textContent = valueOrEmpty(p.zones);
-        $("pVehicle").textContent = valueOrEmpty(vehicle);
-        $("pWhatsapp").textContent = valueOrEmpty(p.whatsapp, displayPhone(phone));
-        $("pDescription").textContent = valueOrEmpty(p.description);
+        $("pBusinessName").textContent = humanValue(p.business_name);
+        $("pDriverName").textContent = humanValue(p.driver_name);
+        $("pCity").textContent = humanValue(p.city);
+        $("pZones").textContent = humanValue(p.zones);
+        $("pVehicle").textContent = humanValue(vehicle, "À compléter");
+        $("pWhatsapp").textContent = humanValue(p.whatsapp, displayPhone(phone));
+        $("pDescription").textContent = humanValue(p.description);
 
         const state = $("profileState");
         if (data?.is_blank) {
@@ -950,11 +976,11 @@
         renderProfile(data);
       }
 
-      function setBlockedState(msg){
+      function setBlockedState(reasonText){
         COCKPIT = null;
         clearProfileUi();
         renderStats({ assigned:0, in_progress:0, completed:0, cancelled:0 });
-        setAccessState(false, msg || "accès KO");
+        setAccessState(false, reasonText || "accès KO");
         $("todayList").innerHTML = `<div class="empty">Accès non ouvert. Passe par la porte PIN ou l’abonnement.</div>`;
         $("recentTripsList").innerHTML = `<div class="empty">Aucun historique lisible sans accès valide.</div>`;
       }
@@ -989,18 +1015,22 @@
             pin_session_ok:false,
             slug:"",
             phone:"",
-            reason:"guard_missing"
+            reason:"guard_missing",
+            pay_url:buildPayUrl()
           };
         }
 
         if (forceRefresh && window.DIGIY_GUARD.refresh) {
-          return await window.DIGIY_GUARD.refresh();
+          const fresh = await window.DIGIY_GUARD.refresh();
+          LAST_GUARD_STATE = fresh || null;
+          return fresh;
         }
 
         if (window.DIGIY_GUARD.ready && typeof window.DIGIY_GUARD.ready.then === "function") {
           await window.DIGIY_GUARD.ready;
         }
 
+        LAST_GUARD_STATE = window.DIGIY_GUARD.state || null;
         return window.DIGIY_GUARD.state || {
           ok:false,
           preview:false,
@@ -1008,14 +1038,14 @@
           pin_session_ok:false,
           slug:"",
           phone:"",
-          reason:"guard_empty"
+          reason:"guard_empty",
+          pay_url:buildPayUrl()
         };
       }
 
       async function fetchCockpit(){
-        if (!slug){
-          return { ok:false, reason:"slug_manquant" };
-        }
+        if (!sb) throw new Error("supabase_absent");
+        if (!slug) return { ok:false, reason:"slug_manquant" };
 
         const { data, error } = await sb.rpc("digiy_driver_get_cockpit_by_slug", { p_slug: slug });
         if (error) throw error;
@@ -1023,6 +1053,7 @@
       }
 
       async function fetchDriverTrips(){
+        if (!sb) throw new Error("supabase_absent");
         if (!phone){
           ALL_RIDES = [];
           return [];
@@ -1057,7 +1088,6 @@
         box.innerHTML = data.map(t => {
           const id = pick(t, ["id"], "");
           const status = String(pick(t, ["status"], "—")).toLowerCase();
-
           const clientPhone = pick(t, ["customer_phone"], "—");
           const pickup = pick(t, ["pickup_label"], "Départ à préciser");
           const dropoff = pick(t, ["drop_label"], "Destination à préciser");
@@ -1133,7 +1163,16 @@
           return;
         }
 
-        const rows = await fetchDriverTrips();
+        let rows = [];
+        try{
+          rows = await fetchDriverTrips();
+        }catch(e){
+          console.error("Trips load error:", e);
+          $("todayList").innerHTML = `<div class="empty">Lecture des courses indisponible pour le moment.</div>`;
+          $("recentTripsList").innerHTML = `<div class="empty">Historique indisponible pour le moment.</div>`;
+          setMsg("⚠️ Cockpit ouvert, mais la lecture directe des courses ne remonte pas pour l’instant.", "warn");
+          return;
+        }
 
         const activeRows = rows
           .filter(r => {
@@ -1158,19 +1197,28 @@
       }
 
       async function reloadAllData(forceGuardRefresh = false){
+        if (IS_LOADING) return;
+        IS_LOADING = true;
         document.body.classList.add("loading");
         setMsg("⏳ Chargement du cockpit personnel…", "warn");
 
         try{
           const st = await getGuardState(forceGuardRefresh);
+          LAST_GUARD_STATE = st || null;
 
           slug = normSlug(st?.slug || resolveSlug());
-          phone = normPhone(st?.phone || phone);
+          phone = normPhone(st?.phone || phone || phoneFromDriverSlug(slug));
           updateSessionUi();
 
           if (!slug){
             setBlockedState("slug manquant");
             setMsg("⚠️ Aucun slug détecté. Passe par la porte PIN ou par un lien d’accès valide.", "bad");
+            return;
+          }
+
+          if (!isDriverSlug(slug)){
+            setBlockedState("slug invalide");
+            setMsg("❌ Slug DRIVER invalide. Format attendu : driver-221XXXXXXXXX.", "bad");
             return;
           }
 
@@ -1187,7 +1235,7 @@
           try{
             cockpitData = await fetchCockpit();
           }catch(e){
-            console.warn("cockpit rpc warning:", e);
+            console.warn("Cockpit RPC warning:", e);
           }
 
           if (cockpitData?.ok){
@@ -1204,7 +1252,6 @@
 
             if (st?.pin_session_ok){
               $("profileHint").textContent = "Session PIN ouverte. Le profil détaillé ne remonte pas encore via le RPC cockpit, mais ton cockpit reste vivant.";
-              setMsg("⚠️ Session PIN active. Le profil détaillé ne remonte pas encore complètement, mais le cockpit reste ouvert.", "warn");
             }
           }
 
@@ -1213,10 +1260,15 @@
           $("lastSync").value = new Date().toLocaleString("fr-FR");
 
           if (cockpitData?.ok) {
-            setMsg(cockpitData.is_blank
-              ? "✅ Cockpit vierge chargé. Tu peux maintenant compléter ton profil."
-              : "✅ Cockpit personnel synchronisé.", "ok");
-          } else if (!st?.pin_session_ok) {
+            setMsg(
+              cockpitData.is_blank
+                ? "✅ Cockpit vierge chargé. Tu peux maintenant compléter ton profil."
+                : "✅ Cockpit personnel synchronisé.",
+              "ok"
+            );
+          } else if (st?.pin_session_ok) {
+            setMsg("✅ Session PIN active. Le cockpit est ouvert, même si le RPC cockpit ne remonte pas encore tout.", "warn");
+          } else {
             setMsg("✅ Accès validé. Certaines données cockpit ne remontent pas encore via le RPC.", "warn");
           }
 
@@ -1226,10 +1278,13 @@
           setMsg("❌ Erreur de chargement du cockpit personnel.", "bad");
         }finally{
           document.body.classList.remove("loading");
+          IS_LOADING = false;
         }
       }
 
       async function rpcWithFallback(functionName, rideId, driverPhone){
+        if (!sb) throw new Error("supabase_absent");
+
         const attempts = [
           { p_ride_id: rideId, p_driver_phone: driverPhone },
           { ride_id: rideId, driver_phone: driverPhone },
@@ -1295,8 +1350,9 @@
 
       async function resetSession(){
         const st = await getGuardState(true);
+        LAST_GUARD_STATE = st || null;
         slug = normSlug(st?.slug || resolveSlug());
-        phone = normPhone(st?.phone || "");
+        phone = normPhone(st?.phone || phoneFromDriverSlug(slug));
         updateSessionUi();
         setMsg("✅ Session rechargée depuis le guard.", "ok");
       }
@@ -1312,19 +1368,24 @@
 
         if (AUTO_REFRESH){
           refreshTimer = setInterval(() => {
-            if (!document.hidden) reloadAllData();
+            if (!document.hidden) reloadAllData(false);
           }, 15000);
         }
       }
 
       async function boot(){
         await waitGuardIfAny();
+
         const st = await getGuardState(false);
+        LAST_GUARD_STATE = st || null;
+
         slug = normSlug(st?.slug || resolveSlug());
-        phone = normPhone(st?.phone || "");
+        phone = normPhone(st?.phone || phoneFromDriverSlug(slug));
+
         updateSessionUi();
         clearProfileUi();
         renderStats({ assigned:0, in_progress:0, completed:0, cancelled:0 });
+
         await reloadAllData(false);
 
         refreshTimer = setInterval(() => {
