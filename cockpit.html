@@ -8,11 +8,13 @@
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "DRIVER";
   </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-cockpit-guard-20260312-clean"></script>
+  <script src="./guard.js?v=driver-guard-20260314-recousu"></script>
 
   <style>
     :root{
@@ -99,6 +101,10 @@
       cursor:pointer;
       min-height:44px;
       transition:.15s ease;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
     }
 
     .btn:hover{transform:translateY(-1px)}
@@ -800,7 +806,7 @@
         u.searchParams.set("module", MODULE);
         if (phone) u.searchParams.set("phone", normPhone(phone));
         if (slug) u.searchParams.set("slug", slug);
-        u.searchParams.set("return", location.origin + location.pathname + (slug ? "?slug=" + encodeURIComponent(slug) : ""));
+        u.searchParams.set("return", location.href);
         location.href = u.toString();
       }
 
@@ -910,7 +916,22 @@
         $("kpiCancelled").textContent = String(Number(stats?.cancelled || 0));
       }
 
-      function renderCockpitMeta(data){
+      function renderGuardLiveMeta(st){
+        const viaPin = !!st?.pin_session_ok;
+        const label = viaPin ? "session PIN OK" : "abonnement OK";
+        setAccessState(true, label);
+
+        $("titleMain").textContent = "🦅 DIGIY PRO DRIVER";
+        $("subMain").textContent = viaPin
+          ? "Cockpit personnel ouvert par session PIN. Les données réelles se rechargent depuis ton slug actif."
+          : "Cockpit personnel chauffeur. Profil, courses, accès, navigation.";
+
+        $("boardLead").textContent = viaPin
+          ? "Session PIN reconnue. Le cockpit reste ouvert sur ton slug actif, même sans repasser par l’abonnement."
+          : "Le cœur de ton module chauffeur. Ici, aucune démo partagée : seulement ton accès et tes vraies données.";
+      }
+
+      function renderCockpitMeta(data, st){
         COCKPIT = data;
         phone = normPhone(data?.phone || phone);
 
@@ -918,11 +939,12 @@
         $("subMain").textContent = data?.is_blank
           ? "Cockpit personnel vierge. Complète ton profil pour lancer ton univers chauffeur."
           : "Cockpit personnel chauffeur. Tes vraies données sont rechargées par téléphone.";
+
         $("boardLead").textContent = data?.is_blank
           ? "Tu es bien dans ton cockpit personnel. Aucun faux chauffeur, aucune démo : commence par remplir ton profil."
           : "Tu pilotes depuis ici avec ton vrai profil et tes vraies données.";
 
-        setAccessState(true, data?.access || "abonnement OK");
+        setAccessState(true, st?.pin_session_ok ? "session PIN OK" : (data?.access || "abonnement OK"));
         updateSessionUi();
         renderStats(data?.stats || {});
         renderProfile(data);
@@ -930,8 +952,6 @@
 
       function setBlockedState(msg){
         COCKPIT = null;
-        phone = "";
-        updateSessionUi();
         clearProfileUi();
         renderStats({ assigned:0, in_progress:0, completed:0, cancelled:0 });
         setAccessState(false, msg || "accès KO");
@@ -958,6 +978,38 @@
         if (fromGuard) return fromGuard;
 
         return "";
+      }
+
+      async function getGuardState(forceRefresh = false){
+        if (!window.DIGIY_GUARD) {
+          return {
+            ok:false,
+            preview:false,
+            access_ok:false,
+            pin_session_ok:false,
+            slug:"",
+            phone:"",
+            reason:"guard_missing"
+          };
+        }
+
+        if (forceRefresh && window.DIGIY_GUARD.refresh) {
+          return await window.DIGIY_GUARD.refresh();
+        }
+
+        if (window.DIGIY_GUARD.ready && typeof window.DIGIY_GUARD.ready.then === "function") {
+          await window.DIGIY_GUARD.ready;
+        }
+
+        return window.DIGIY_GUARD.state || {
+          ok:false,
+          preview:false,
+          access_ok:false,
+          pin_session_ok:false,
+          slug:"",
+          phone:"",
+          reason:"guard_empty"
+        };
       }
 
       async function fetchCockpit(){
@@ -1105,12 +1157,15 @@
         renderRecentTrips(historyRows.slice(0, 20));
       }
 
-      async function reloadAllData(){
+      async function reloadAllData(forceGuardRefresh = false){
         document.body.classList.add("loading");
         setMsg("⏳ Chargement du cockpit personnel…", "warn");
 
         try{
-          slug = resolveSlug();
+          const st = await getGuardState(forceGuardRefresh);
+
+          slug = normSlug(st?.slug || resolveSlug());
+          phone = normPhone(st?.phone || phone);
           updateSessionUi();
 
           if (!slug){
@@ -1119,21 +1174,51 @@
             return;
           }
 
-          const data = await fetchCockpit();
-
-          if (!data?.ok){
-            setBlockedState(data?.reason || "accès KO");
+          if (!st?.access_ok){
+            setBlockedState(st?.reason || "accès KO");
             setMsg("⚠️ Accès non ouvert pour ce slug. Passe par la porte PIN ou l’abonnement.", "bad");
             return;
           }
 
-          renderCockpitMeta(data);
+          renderGuardLiveMeta(st);
+          updateSessionUi();
+
+          let cockpitData = null;
+          try{
+            cockpitData = await fetchCockpit();
+          }catch(e){
+            console.warn("cockpit rpc warning:", e);
+          }
+
+          if (cockpitData?.ok){
+            if (cockpitData.phone) phone = normPhone(cockpitData.phone);
+            if (window.DIGIY_GUARD?.rememberIdentity) {
+              window.DIGIY_GUARD.rememberIdentity({ slug, phone });
+            }
+            renderCockpitMeta(cockpitData, st);
+          } else {
+            clearProfileUi();
+            renderStats({ assigned:0, in_progress:0, completed:0, cancelled:0 });
+            setAccessState(true, st?.pin_session_ok ? "session PIN OK" : "abonnement OK");
+            updateSessionUi();
+
+            if (st?.pin_session_ok){
+              $("profileHint").textContent = "Session PIN ouverte. Le profil détaillé ne remonte pas encore via le RPC cockpit, mais ton cockpit reste vivant.";
+              setMsg("⚠️ Session PIN active. Le profil détaillé ne remonte pas encore complètement, mais le cockpit reste ouvert.", "warn");
+            }
+          }
+
           await loadTripsAndRender();
 
           $("lastSync").value = new Date().toLocaleString("fr-FR");
-          setMsg(data.is_blank
-            ? "✅ Cockpit vierge chargé. Tu peux maintenant compléter ton profil."
-            : "✅ Cockpit personnel synchronisé.", "ok");
+
+          if (cockpitData?.ok) {
+            setMsg(cockpitData.is_blank
+              ? "✅ Cockpit vierge chargé. Tu peux maintenant compléter ton profil."
+              : "✅ Cockpit personnel synchronisé.", "ok");
+          } else if (!st?.pin_session_ok) {
+            setMsg("✅ Accès validé. Certaines données cockpit ne remontent pas encore via le RPC.", "warn");
+          }
 
         }catch(e){
           console.error(e);
@@ -1195,7 +1280,7 @@
           }
 
           ALL_RIDES = [];
-          await reloadAllData();
+          await reloadAllData(true);
         }catch(e){
           console.error(e);
           setMsg("❌ Action impossible pour cette course.", "bad");
@@ -1205,20 +1290,15 @@
       }
 
       async function refreshAccessState(){
-        try{
-          if (window.DIGIY_GUARD?.refresh){
-            await window.DIGIY_GUARD.refresh();
-          }
-        }catch(e){
-          console.warn("Guard refresh warning:", e);
-        }
-        await reloadAllData();
+        await reloadAllData(true);
       }
 
-      function resetSession(){
-        slug = resolveSlug();
+      async function resetSession(){
+        const st = await getGuardState(true);
+        slug = normSlug(st?.slug || resolveSlug());
+        phone = normPhone(st?.phone || "");
         updateSessionUi();
-        setMsg("Session slug rechargée.", "ok");
+        setMsg("✅ Session rechargée depuis le guard.", "ok");
       }
 
       function toggleAutoRefresh(){
@@ -1239,18 +1319,20 @@
 
       async function boot(){
         await waitGuardIfAny();
-        slug = resolveSlug();
+        const st = await getGuardState(false);
+        slug = normSlug(st?.slug || resolveSlug());
+        phone = normPhone(st?.phone || "");
         updateSessionUi();
         clearProfileUi();
         renderStats({ assigned:0, in_progress:0, completed:0, cancelled:0 });
-        await reloadAllData();
+        await reloadAllData(false);
 
         refreshTimer = setInterval(() => {
-          if (AUTO_REFRESH && !document.hidden) reloadAllData();
+          if (AUTO_REFRESH && !document.hidden) reloadAllData(false);
         }, 15000);
       }
 
-      $("btnReload")?.addEventListener("click", reloadAllData);
+      $("btnReload")?.addEventListener("click", () => reloadAllData(true));
 
       $("btnReloadToday")?.addEventListener("click", async () => {
         try{
@@ -1280,7 +1362,7 @@
       $("btnPin")?.addEventListener("click", goPin);
       $("btnPay")?.addEventListener("click", goPay);
       $("btnHome")?.addEventListener("click", goHome);
-      $("btnReloadAll")?.addEventListener("click", () => location.reload());
+      $("btnReloadAll")?.addEventListener("click", () => reloadAllData(true));
       $("btnResetSession")?.addEventListener("click", resetSession);
       $("btnAuto")?.addEventListener("click", toggleAutoRefresh);
 
