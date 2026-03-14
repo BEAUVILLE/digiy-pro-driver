@@ -1,76 +1,330 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DIGIY DRIVER — Cockpit</title>
-  <meta name="theme-color" content="#0b1020" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY PRO DRIVER — Dashboard</title>
+  <meta name="theme-color" content="#0b1020"/>
+
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "DRIVER";
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=driver-dashboard-20260314-final"></script>
 
   <style>
     :root{
-      --bg:#0b1020; --card:#121a33; --muted:#a8b1d1; --text:#eef1ff;
-      --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444; --accent:#6366f1;
-      --line:rgba(255,255,255,.09); --shadow: 0 12px 30px rgba(0,0,0,.35);
-      --radius:18px; --pad:16px;
+      --bg:#0b1020;
+      --card:#121a33;
+      --muted:#a8b1d1;
+      --text:#eef1ff;
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --accent:#6366f1;
+      --line:rgba(255,255,255,.09);
+      --shadow:0 12px 30px rgba(0,0,0,.35);
+      --radius:18px;
+      --pad:16px;
+      --max:1080px;
     }
+
     *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+
     body{
       margin:0;
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      background: radial-gradient(1200px 700px at 20% -20%, rgba(99,102,241,.25), transparent 70%),
-                  radial-gradient(900px 600px at 100% 0%, rgba(34,197,94,.15), transparent 55%),
-                  var(--bg);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:
+        radial-gradient(1200px 700px at 20% -20%, rgba(99,102,241,.25), transparent 70%),
+        radial-gradient(900px 600px at 100% 0%, rgba(34,197,94,.15), transparent 55%),
+        var(--bg);
       color:var(--text);
     }
-    .wrap{max-width:980px;margin:0 auto;padding:18px 14px 34px}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 6px;margin-bottom:10px}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.2px}
+
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:var(--max);margin:0 auto;padding:18px 14px 34px}
+
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 6px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+
     .brand .badge{
-      display:inline-flex;align-items:center;justify-content:center;
-      width:34px;height:34px;border-radius:11px;background:rgba(99,102,241,.18);border:1px solid var(--line)
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      background:rgba(99,102,241,.18);
+      border:1px solid var(--line);
+      flex:0 0 auto;
     }
-    .right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+
+    .brandSub{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      margin-top:4px;
+    }
+
+    .right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
     .pill{
-      display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;
-      background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--muted);
-      font-weight:700;font-size:13px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-weight:700;
+      font-size:13px;
     }
-    .pill b{color:var(--text);font-weight:900}
+
+    .pill b{
+      color:var(--text);
+      font-weight:900;
+    }
+
+    .pill.ok{border-color:rgba(34,197,94,.35);color:#c9ffd9}
+    .pill.warn{border-color:rgba(245,158,11,.35);color:#ffe2b0}
+    .pill.bad{border-color:rgba(239,68,68,.35);color:#fecaca}
+
     .btn{
-      border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);
-      padding:10px 12px;border-radius:12px;font-weight:900;cursor:pointer;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:900;
+      cursor:pointer;
+      min-height:42px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      transition:.15s ease;
     }
-    .btn.primary{background:rgba(99,102,241,.22);border-color:rgba(99,102,241,.35)}
-    .btn:disabled{opacity:.55;cursor:not-allowed}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:8px}
-    @media(min-width:920px){ .grid{grid-template-columns:1.05fr .95fr} }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .btn.primary{
+      background:rgba(99,102,241,.22);
+      border-color:rgba(99,102,241,.35);
+    }
+
+    .btn.ok{
+      background:rgba(34,197,94,.16);
+      border-color:rgba(34,197,94,.35);
+      color:#d1fae5;
+    }
+
+    .btn.gold{
+      background:rgba(250,204,21,.12);
+      border-color:rgba(250,204,21,.24);
+      color:#fde68a;
+    }
+
+    .nav{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-top:8px;
+    }
+
+    @media(min-width:920px){
+      .grid{grid-template-columns:1.02fr .98fr}
+    }
+
     .card{
-      background:rgba(18,26,51,.92);border:1px solid var(--line);
-      border-radius:var(--radius);box-shadow:var(--shadow);padding:var(--pad);
+      background:rgba(18,26,51,.92);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:var(--pad);
     }
-    .card h3{margin:0 0 8px 0;font-size:15px;letter-spacing:.2px}
+
+    .card h3{
+      margin:0 0 8px 0;
+      font-size:15px;
+      letter-spacing:.2px;
+    }
+
     .muted{color:var(--muted)}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .statusDot{width:10px;height:10px;border-radius:999px;background:var(--warn)}
+    .hr{height:1px;background:var(--line);margin:12px 0}
+
+    .statusDot{
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background:var(--warn);
+    }
     .statusDot.ok{background:var(--ok)}
     .statusDot.bad{background:var(--danger)}
-    .bigMoney{font-size:34px;font-weight:950;letter-spacing:-.8px;margin:6px 0 2px 0}
-    .mini{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted);font-weight:750}
-    .hr{height:1px;background:var(--line);margin:12px 0}
-    .notifList{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+
+    .bigMoney{
+      font-size:34px;
+      font-weight:950;
+      letter-spacing:-.8px;
+      margin:6px 0 2px 0;
+    }
+
+    .mini{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      font-size:13px;
+      color:var(--muted);
+      font-weight:750;
+    }
+
+    .kpis{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    @media(min-width:760px){
+      .kpis{grid-template-columns:repeat(3,1fr)}
+    }
+
+    .kpi{
+      padding:12px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+    }
+
+    .kpi .label{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .kpi .value{
+      font-size:20px;
+      font-weight:950;
+    }
+
+    .notifList{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:8px;
+    }
+
     .notif{
-      padding:10px 12px;border-radius:14px;border:1px solid var(--line);
-      background:rgba(255,255,255,.03);display:flex;align-items:flex-start;justify-content:space-between;gap:10px
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
     }
+
     .tag{
-      font-size:12px;font-weight:950;padding:6px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)
+      font-size:12px;
+      font-weight:950;
+      padding:6px 9px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--muted);
+      white-space:nowrap;
     }
-    .tag.warn{color:#ffe2b0;border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.10)}
-    .tag.ok{color:#c9ffd9;border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.08)}
-    .tag.info{color:#cfd6ff;border-color:rgba(99,102,241,.35);background:rgba(99,102,241,.10)}
-    .footer{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .smallLink{color:var(--muted);text-decoration:none;font-weight:800}
+
+    .tag.warn{
+      color:#ffe2b0;
+      border-color:rgba(245,158,11,.35);
+      background:rgba(245,158,11,.10);
+    }
+
+    .tag.ok{
+      color:#c9ffd9;
+      border-color:rgba(34,197,94,.35);
+      background:rgba(34,197,94,.08);
+    }
+
+    .tag.info{
+      color:#cfd6ff;
+      border-color:rgba(99,102,241,.35);
+      background:rgba(99,102,241,.10);
+    }
+
+    .footer{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .smallLink{
+      color:var(--muted);
+      text-decoration:none;
+      font-weight:800;
+    }
+
     .smallLink:hover{color:var(--text)}
+
+    .empty{
+      padding:14px;
+      border-radius:16px;
+      border:1px dashed rgba(255,255,255,.16);
+      color:var(--muted);
+      font-weight:800;
+      background:rgba(255,255,255,.03);
+    }
+
+    .msg{
+      margin-top:10px;
+      font-weight:900;
+    }
+    .msg.ok{color:#86efac}
+    .msg.bad{color:#fca5a5}
+    .msg.warn{color:#fde68a}
   </style>
 </head>
 
@@ -78,19 +332,30 @@
   <div class="wrap">
 
     <div class="topbar">
-      <div class="brand">
-        <div class="badge">🦅</div>
-        <div>
-          <div id="brandTitle">DIGIY DRIVER</div>
-          <div class="muted" style="font-size:12px;font-weight:800;margin-top:2px" id="brandSub">
-            Cockpit — Statut & activité
+      <div>
+        <div class="brand">
+          <div class="badge">🦅</div>
+          <div>
+            <div id="brandTitle">DIGIY PRO DRIVER</div>
+            <div class="brandSub" id="brandSub">Dashboard léger — statut, activité, aiguillage</div>
           </div>
+        </div>
+
+        <div class="nav">
+          <a class="btn primary" id="btnCockpit" href="#">🏠 Cockpit</a>
+          <a class="btn" id="btnProfil" href="#">👤 Profil</a>
+          <a class="btn" id="btnTarifs" href="#">💰 Tarifs</a>
+          <a class="btn" id="btnPin" href="#">🔑 PIN</a>
+          <a class="btn gold" id="btnPay" href="#">💳 Abonnement</a>
+          <a class="btn" id="btnHome" href="#">↩️ Vitrine</a>
         </div>
       </div>
 
       <div class="right">
-        <div class="pill" id="pillStatus">Statut : <b>…</b></div>
-        <button class="btn" id="btnSettings" type="button">⚙️ Paramètres</button>
+        <div class="pill" id="pillSlug">slug : <b>—</b></div>
+        <div class="pill" id="pillPhone">phone : <b>—</b></div>
+        <div class="pill warn" id="pillStatus">statut : <b>…</b></div>
+        <button class="btn" id="btnRefresh" type="button">🔄 Vérifier</button>
       </div>
     </div>
 
@@ -110,8 +375,14 @@
         <div class="hr"></div>
 
         <div class="mini" id="metaLine">
-          <span>Plan : —</span><span>•</span><span>Paiement : —</span>
+          <span>Publication : —</span>
+          <span>•</span>
+          <span>Profil : —</span>
+          <span>•</span>
+          <span>Tarifs : —</span>
         </div>
+
+        <div class="msg" id="msgStatus">Prêt.</div>
 
         <div class="footer">
           <button class="btn" id="btnManageSub" type="button">Gérer mon abonnement</button>
@@ -123,20 +394,34 @@
 
         <div class="bigMoney" id="moneyMonth">— FCFA</div>
         <div class="mini">
-          <span id="txCount">— courses</span><span>•</span><span id="todayHint">Aujourd’hui</span>
+          <span id="txCount">— courses</span>
+          <span>•</span>
+          <span id="todayHint">30 derniers jours</span>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="label">Courses jour</div>
+            <div class="value" id="kpiTripsToday">—</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Courses 7j</div>
+            <div class="value" id="kpiTrips7d">—</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Courses 30j</div>
+            <div class="value" id="kpiTrips30d">—</div>
+          </div>
         </div>
 
         <div class="hr"></div>
 
         <div class="mini" style="gap:16px">
-          <span><b id="kpiTripsToday">—</b> courses (jour)</span>
-          <span><b id="kpiTrips7d">—</b> (7j)</span>
-          <span><b id="kpiTrips30d">—</b> (30j)</span>
-        </div>
-        <div class="mini" style="gap:16px;margin-top:8px">
-          <span>Zone: <b id="kpiZone">—</b></span>
-          <span>Statut: <b id="kpiDriverStatus">—</b></span>
-          <span>Dernière: <b id="kpiLastTripAt">—</b></span>
+          <span>Zone : <b id="kpiZone">—</b></span>
+          <span>Statut : <b id="kpiDriverStatus">—</b></span>
+          <span>Dernière : <b id="kpiLastTripAt">—</b></span>
         </div>
       </div>
 
@@ -154,7 +439,9 @@
         <div class="hr"></div>
 
         <h3>Notifications</h3>
-        <div class="notifList" id="notifList"></div>
+        <div class="notifList" id="notifList">
+          <div class="empty">Lecture en cours…</div>
+        </div>
 
         <div class="footer">
           <a class="smallLink" href="#" id="linkSupport">Support</a>
@@ -165,79 +452,491 @@
     </div>
   </div>
 
-  <script src="./guard.js?v=20260306-2"></script>
-  <script src="./cockpit-stats.js?v=20260306-2"></script>
-
   <script>
-  (function(){
-    "use strict";
+    (() => {
+      "use strict";
 
-    const PAY_URL = "https://beauville.github.io/commencer-a-payer/?module=DRIVER&offre=DRIVER";
-    const SUPPORT_WA = "https://wa.me/221771342889?text=" + encodeURIComponent("Salut DIGIY DRIVER, j'ai besoin d'aide sur mon cockpit chauffeur.");
-    const PAYMENTS_URL = "https://beauville.github.io/commencer-a-payer/?module=DRIVER&offre=DRIVER";
+      const SUPPORT_WA =
+        "https://wa.me/221771342889?text=" +
+        encodeURIComponent("Salut DIGIY DRIVER, j'ai besoin d'aide sur mon dashboard chauffeur.");
 
-    const $ = (id) => document.getElementById(id);
+      const $ = (id) => document.getElementById(id);
 
-    function getSlugFromUrl(){
-      return (new URLSearchParams(location.search).get("slug") || "").trim();
-    }
+      const sb = window.supabase?.createClient
+        ? window.supabase.createClient(
+            window.DIGIY_SUPABASE_URL,
+            window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON,
+            { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false } }
+          )
+        : null;
 
-    function withSlug(url, slug){
-      if(!slug) return url;
-      return url + (url.includes("?") ? "&" : "?") + "slug=" + encodeURIComponent(slug);
-    }
+      let slug = "";
+      let phone = "";
+      let accessOk = false;
+      let lastGuardState = null;
+      let cockpitData = null;
+      let ratesData = [];
+      let tripsData = [];
 
-    async function bootLinks(){
-      let slug = getSlugFromUrl();
+      function normSlug(v){
+        return String(v || "").trim().toLowerCase();
+      }
 
-      try{
-        if(window.DIGIY_GUARD?.ready){
-          const r = await window.DIGIY_GUARD.ready;
-          if(r?.slug) slug = String(r.slug).trim();
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d.length >= 9 ? d : "";
+      }
+
+      function displayPhone(v){
+        const p = normPhone(v);
+        return p ? "+" + p : "—";
+      }
+
+      function isDriverSlug(v){
+        return /^driver-\d{12}$/.test(normSlug(v));
+      }
+
+      function phoneFromDriverSlug(v){
+        const s = normSlug(v);
+        if (!isDriverSlug(s)) return "";
+        return normPhone(s.slice("driver-".length));
+      }
+
+      function withSlug(base){
+        const u = new URL(base, location.href);
+        if (slug) u.searchParams.set("slug", slug);
+        return u.pathname + u.search;
+      }
+
+      function buildPayUrl(){
+        if (lastGuardState?.pay_url) return lastGuardState.pay_url;
+        const u = new URL("https://commencer-a-payer.digiylyfe.com/");
+        u.searchParams.set("module", "DRIVER");
+        if (phone) u.searchParams.set("phone", phone);
+        if (slug) u.searchParams.set("slug", slug);
+        u.searchParams.set("return", location.href);
+        return u.toString();
+      }
+
+      function setMsgStatus(text, type){
+        const el = $("msgStatus");
+        el.textContent = text;
+        el.className = "msg " + (type || "");
+      }
+
+      function resolveSlug(){
+        const qs = new URLSearchParams(location.search);
+        const fromUrl = normSlug(qs.get("slug") || "");
+        if (fromUrl) return fromUrl;
+
+        const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug || "");
+        if (fromGuard) return fromGuard;
+
+        return "";
+      }
+
+      async function waitGuardIfAny(){
+        try{
+          if (window.DIGIY_GUARD?.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
+            await window.DIGIY_GUARD.ready;
+          }
+        }catch(e){
+          console.warn("Guard ready warning:", e);
         }
-      }catch(err){
-        console.warn("dashboard links guard fallback:", err);
       }
 
-      const btnPrimaryAction = $("btnPrimaryAction");
-      const btnSettings = $("btnSettings");
-      const btnManageSub = $("btnManageSub");
-      const linkSupport = $("linkSupport");
-      const linkPayments = $("linkPayments");
+      async function getGuardState(forceRefresh = false){
+        if (!window.DIGIY_GUARD){
+          return {
+            ok:false,
+            access_ok:false,
+            pin_session_ok:false,
+            slug:"",
+            phone:"",
+            reason:"guard_missing",
+            pay_url:buildPayUrl()
+          };
+        }
 
-      if(btnPrimaryAction){
-        btnPrimaryAction.onclick = () => {
-          location.href = withSlug("./courses.html", slug);
+        if (forceRefresh && window.DIGIY_GUARD.refresh){
+          const fresh = await window.DIGIY_GUARD.refresh();
+          lastGuardState = fresh || null;
+          return fresh;
+        }
+
+        if (window.DIGIY_GUARD.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
+          await window.DIGIY_GUARD.ready;
+        }
+
+        lastGuardState = window.DIGIY_GUARD.state || null;
+        return window.DIGIY_GUARD.state || {
+          ok:false,
+          access_ok:false,
+          pin_session_ok:false,
+          slug:"",
+          phone:"",
+          reason:"guard_empty",
+          pay_url:buildPayUrl()
         };
       }
 
-      if(btnSettings){
-        btnSettings.onclick = () => {
-          location.href = withSlug("./profil-chauffeur.html", slug);
-        };
+      function phoneVariants(v){
+        const digits = normPhone(v);
+        const out = new Set();
+        if (!digits) return [];
+        out.add(digits);
+        out.add("+" + digits);
+        if (digits.startsWith("221") && digits.length === 12){
+          out.add(digits.slice(3));
+          out.add("+221" + digits.slice(3));
+        }
+        return Array.from(out).filter(Boolean);
       }
 
-      if(btnManageSub){
-        btnManageSub.onclick = () => {
-          location.href = PAY_URL;
-        };
+      function isRpcMissing(error){
+        const txt = String(error?.message || error?.details || error?.hint || "");
+        return error?.code === "PGRST202" || txt.includes("Could not find the function");
       }
 
-      if(linkSupport){
-        linkSupport.href = SUPPORT_WA;
-        linkSupport.target = "_blank";
-        linkSupport.rel = "noopener";
+      async function fetchCockpit(){
+        if (!sb || !slug) return null;
+        try{
+          const { data, error } = await sb.rpc("digiy_driver_get_cockpit_by_slug", { p_slug: slug });
+          if (error) throw error;
+          return data || null;
+        }catch(e){
+          console.warn("dashboard cockpit warning:", e);
+          return null;
+        }
       }
 
-      if(linkPayments){
-        linkPayments.href = PAYMENTS_URL;
-        linkPayments.target = "_blank";
-        linkPayments.rel = "noopener";
+      async function fetchRates(){
+        if (!sb || !slug) return [];
+        try{
+          const { data, error } = await sb.rpc("driver_list_rates_by_slug", { p_slug: slug });
+          if (error){
+            if (isRpcMissing(error)) return [];
+            throw error;
+          }
+          return Array.isArray(data) ? data : [];
+        }catch(e){
+          console.warn("dashboard rates warning:", e);
+          return [];
+        }
       }
-    }
 
-    bootLinks();
-  })();
+      async function fetchTrips(){
+        if (!sb || !phone) return [];
+
+        try{
+          const variants = phoneVariants(phone);
+          if (!variants.length) return [];
+
+          const { data, error } = await sb
+            .from("digiy_driver_trips")
+            .select("*")
+            .in("driver_phone", variants)
+            .order("created_at", { ascending:false });
+
+          if (error) throw error;
+          return Array.isArray(data) ? data : [];
+        }catch(e){
+          console.warn("dashboard trips warning:", e);
+          return [];
+        }
+      }
+
+      function bindLinks(){
+        $("btnCockpit").href = withSlug("./cockpit.html");
+        $("btnProfil").href = withSlug("./profil-chauffeur.html");
+        $("btnTarifs").href = withSlug("./tarifs.html");
+        $("btnPin").href = withSlug("./pin.html");
+        $("btnHome").href = withSlug("./index.html");
+        $("btnPay").href = buildPayUrl();
+
+        $("btnManageSub").onclick = () => location.href = buildPayUrl();
+        $("linkSupport").href = SUPPORT_WA;
+        $("linkSupport").target = "_blank";
+        $("linkSupport").rel = "noopener";
+        $("linkPayments").href = buildPayUrl();
+      }
+
+      function fmtDate(v){
+        if (!v) return "—";
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return "—";
+        return d.toLocaleString("fr-FR", {
+          day:"2-digit",
+          month:"2-digit",
+          year:"2-digit",
+          hour:"2-digit",
+          minute:"2-digit"
+        });
+      }
+
+      function tripMoney(trip){
+        const v = Number(trip?.final_price_fcfa || trip?.price_fcfa || 0);
+        return Number.isFinite(v) ? v : 0;
+      }
+
+      function completedTripsOnly(rows){
+        return rows.filter(r => String(r?.status || "").toLowerCase() === "completed");
+      }
+
+      function inLastDays(dateValue, days){
+        if (!dateValue) return false;
+        const t = new Date(dateValue).getTime();
+        if (!t) return false;
+        const now = Date.now();
+        const diff = now - t;
+        return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
+      }
+
+      function renderStatus(state){
+        const pill = $("pillStatus");
+        const dot = $("dot");
+        const viaPin = !!state?.pin_session_ok;
+
+        if (!slug){
+          pill.className = "pill bad";
+          pill.innerHTML = "statut : <b>slug manquant</b>";
+          dot.className = "statusDot bad";
+          $("statusLine").textContent = "Aucun slug DRIVER détecté.";
+          $("expiryLine").textContent = "Passe par la porte PIN ou un lien valide.";
+          $("metaLine").innerHTML = "<span>Publication : —</span><span>•</span><span>Profil : —</span><span>•</span><span>Tarifs : —</span>";
+          setMsgStatus("❌ Slug manquant.", "bad");
+          return;
+        }
+
+        if (!isDriverSlug(slug)){
+          pill.className = "pill bad";
+          pill.innerHTML = "statut : <b>slug invalide</b>";
+          dot.className = "statusDot bad";
+          $("statusLine").textContent = "Slug DRIVER invalide.";
+          $("expiryLine").textContent = "Format attendu : driver-221XXXXXXXXX.";
+          $("metaLine").innerHTML = "<span>Publication : —</span><span>•</span><span>Profil : —</span><span>•</span><span>Tarifs : —</span>";
+          setMsgStatus("❌ Slug DRIVER invalide.", "bad");
+          return;
+        }
+
+        if (!accessOk){
+          pill.className = "pill bad";
+          pill.innerHTML = "statut : <b>accès fermé</b>";
+          dot.className = "statusDot bad";
+          $("statusLine").textContent = "Accès non ouvert pour ce chauffeur.";
+          $("expiryLine").textContent = "Passe par la porte PIN ou l’abonnement.";
+          $("metaLine").innerHTML = "<span>Publication : —</span><span>•</span><span>Profil : —</span><span>•</span><span>Tarifs : —</span>";
+          setMsgStatus("⚠️ Accès non valide.", "bad");
+          return;
+        }
+
+        pill.className = viaPin ? "pill warn" : "pill ok";
+        pill.innerHTML = `statut : <b>${viaPin ? "session PIN OK" : "abonnement OK"}</b>`;
+        dot.className = viaPin ? "statusDot" : "statusDot ok";
+        $("statusLine").textContent = viaPin
+          ? "Session PIN active. Dashboard ouvert."
+          : "Abonnement actif. Dashboard ouvert.";
+
+        const profile = cockpitData?.profile || {};
+        const published = profile?.is_published ? "Publié" : "Masqué";
+        const pstate = cockpitData?.is_blank ? "Vierge" : "Chargé";
+        const tarifs = ratesData.length ? `${ratesData.length} actif(s)` : "Aucun";
+
+        $("expiryLine").textContent = cockpitData?.is_blank
+          ? "Ton moule chauffeur est prêt à être complété."
+          : "Rail DRIVER chargé depuis ton slug actif.";
+
+        $("metaLine").innerHTML =
+          `<span>Publication : ${published}</span><span>•</span><span>Profil : ${pstate}</span><span>•</span><span>Tarifs : ${tarifs}</span>`;
+
+        setMsgStatus("✅ Dashboard synchronisé.", "ok");
+      }
+
+      function renderActivity(){
+        const completed = completedTripsOnly(tripsData);
+        const todayRows = completed.filter(t => inLastDays(t.completed_at || t.updated_at || t.created_at, 1));
+        const rows7d = completed.filter(t => inLastDays(t.completed_at || t.updated_at || t.created_at, 7));
+        const rows30d = completed.filter(t => inLastDays(t.completed_at || t.updated_at || t.created_at, 30));
+
+        const money30d = rows30d.reduce((sum, t) => sum + tripMoney(t), 0);
+        const lastTrip = completed
+          .map(t => t.completed_at || t.updated_at || t.created_at)
+          .filter(Boolean)
+          .sort((a,b) => new Date(b) - new Date(a))[0] || null;
+
+        const profile = cockpitData?.profile || {};
+        const zone = String(profile.city || profile.zones || "").trim() || "—";
+        const driverStatus = accessOk
+          ? (profile.is_published ? "Publié" : "Masqué")
+          : "Fermé";
+
+        $("moneyMonth").textContent = Number(money30d).toLocaleString("fr-FR") + " FCFA";
+        $("txCount").textContent = rows30d.length + " courses";
+        $("kpiTripsToday").textContent = String(todayRows.length);
+        $("kpiTrips7d").textContent = String(rows7d.length);
+        $("kpiTrips30d").textContent = String(rows30d.length);
+        $("kpiZone").textContent = zone;
+        $("kpiDriverStatus").textContent = driverStatus;
+        $("kpiLastTripAt").textContent = fmtDate(lastTrip);
+      }
+
+      function renderAction(){
+        const profileBlank = !!cockpitData?.is_blank;
+        const published = !!cockpitData?.profile?.is_published;
+        const hasRates = ratesData.length > 0;
+
+        let label = "Ouvrir le cockpit";
+        let hint = "Cockpit principal";
+        let desc = "Ton dashboard te renvoie vers la bonne porte métier.";
+        let target = withSlug("./cockpit.html");
+
+        if (!accessOk){
+          label = "Ouvrir la porte PIN";
+          hint = "Accès requis";
+          desc = "Le chauffeur doit d’abord ouvrir son accès avant de travailler.";
+          target = withSlug("./pin.html");
+        } else if (profileBlank){
+          label = "Compléter mon profil";
+          hint = "Profil prioritaire";
+          desc = "Commence par poser l’identité du chauffeur et du véhicule.";
+          target = withSlug("./profil-chauffeur.html");
+        } else if (!hasRates){
+          label = "Poser mes tarifs";
+          hint = "Tarifs prioritaires";
+          desc = "Le profil existe, mais la grille tarifaire n’est pas encore posée.";
+          target = withSlug("./tarifs.html");
+        } else if (!published){
+          label = "Vérifier le profil";
+          hint = "Publication à confirmer";
+          desc = "Ton rail est vivant, mais la publication chauffeur mérite un contrôle.";
+          target = withSlug("./profil-chauffeur.html");
+        }
+
+        $("actionDesc").textContent = desc;
+        $("actionHint").textContent = hint;
+        $("btnPrimaryAction").textContent = label;
+        $("btnPrimaryAction").onclick = () => { location.href = target; };
+      }
+
+      function pushNotif(text, tag){
+        return `
+          <div class="notif">
+            <div style="font-weight:850;line-height:1.45">${text}</div>
+            <div class="tag ${tag}">${tag.toUpperCase()}</div>
+          </div>
+        `;
+      }
+
+      function renderNotifs(){
+        const box = $("notifList");
+
+        if (!slug){
+          box.innerHTML = pushNotif("Aucun slug détecté. Ouvre le module avec un slug DRIVER valide.", "warn");
+          return;
+        }
+
+        const items = [];
+
+        if (!accessOk){
+          items.push(pushNotif("Accès non ouvert. Passe par la porte PIN ou l’abonnement.", "warn"));
+        } else {
+          items.push(pushNotif(
+            lastGuardState?.pin_session_ok
+              ? "Session PIN active. Le chauffeur peut entrer directement dans son univers."
+              : "Abonnement actif reconnu. Le chauffeur peut travailler sur son rail réel.",
+            "ok"
+          ));
+        }
+
+        if (cockpitData?.is_blank){
+          items.push(pushNotif("Le moule chauffeur est encore vierge. Il faut compléter le profil.", "warn"));
+        } else if (cockpitData?.profile?.is_published){
+          items.push(pushNotif("Le profil chauffeur est publié.", "ok"));
+        } else {
+          items.push(pushNotif("Le profil chauffeur est masqué. Vérifie la publication si besoin.", "info"));
+        }
+
+        if (!ratesData.length){
+          items.push(pushNotif("Aucun tarif actif détecté. Pose la grille terrain du chauffeur.", "warn"));
+        } else {
+          items.push(pushNotif(`${ratesData.length} tarif(s) actif(s) détecté(s) sur le rail DRIVER.`, "ok"));
+        }
+
+        const completed = completedTripsOnly(tripsData);
+        if (!completed.length){
+          items.push(pushNotif("Aucune course terminée récente détectée.", "info"));
+        } else {
+          items.push(pushNotif(`${completed.length} course(s) terminée(s) lues sur l’historique disponible.`, "ok"));
+        }
+
+        box.innerHTML = items.join("");
+      }
+
+      async function boot(forceRefresh = false){
+        slug = resolveSlug();
+
+        const state = await getGuardState(forceRefresh);
+        lastGuardState = state || null;
+
+        slug = normSlug(state?.slug || slug);
+        phone = normPhone(state?.phone || phone || phoneFromDriverSlug(slug));
+        accessOk = !!state?.access_ok;
+
+        $("pillSlug").innerHTML = `slug : <b>${slug || "—"}</b>`;
+        $("pillPhone").innerHTML = `phone : <b>${displayPhone(phone)}</b>`;
+
+        bindLinks();
+
+        if (!sb){
+          $("statusLine").textContent = "Supabase indisponible.";
+          $("expiryLine").textContent = "Le dashboard ne peut pas lire les données.";
+          $("notifList").innerHTML = `<div class="empty">Client Supabase absent.</div>`;
+          $("moneyMonth").textContent = "— FCFA";
+          $("txCount").textContent = "— courses";
+          setMsgStatus("❌ Supabase indisponible.", "bad");
+          return;
+        }
+
+        if (accessOk){
+          cockpitData = await fetchCockpit();
+          ratesData = await fetchRates();
+          tripsData = await fetchTrips();
+
+          if (cockpitData?.phone){
+            phone = normPhone(cockpitData.phone || phone);
+            $("pillPhone").innerHTML = `phone : <b>${displayPhone(phone)}</b>`;
+            if (window.DIGIY_GUARD?.rememberIdentity){
+              window.DIGIY_GUARD.rememberIdentity({ slug, phone });
+            }
+          }
+
+          if (cockpitData?.public_label){
+            $("brandTitle").textContent = cockpitData.public_label;
+          }
+          $("brandSub").textContent = cockpitData?.is_blank
+            ? "Dashboard léger — moule chauffeur à compléter"
+            : "Dashboard léger — statut, activité, aiguillage";
+        } else {
+          cockpitData = null;
+          ratesData = [];
+          tripsData = [];
+          $("brandTitle").textContent = "DIGIY PRO DRIVER";
+          $("brandSub").textContent = "Dashboard léger — accès requis";
+        }
+
+        renderStatus(state);
+        renderActivity();
+        renderAction();
+        renderNotifs();
+      }
+
+      $("btnRefresh")?.addEventListener("click", () => boot(true));
+
+      boot(false);
+    })();
   </script>
 </body>
 </html>
