@@ -1,24 +1,26 @@
-// guard.js — DIGIY DRIVER PRO access gate
-// rail recousu : publishable key, slug-first, mémoire identité, session PIN cockpit-compatible
+/* guard.js — DIGIY DRIVER / DRIVER GUARD
+   Rail attendu :
+   - slug-only : ?slug=driver-221...
+   - window.DIGIY_GUARD.ready()
+   - window.DIGIY_GUARD.state
+   - window.DIGIY_GUARD.loginWithPin(slug, pin)
+*/
 (() => {
   "use strict";
 
-  const MODULE_CODE = String(window.DIGIY_MODULE || "DRIVER").trim().toUpperCase();
-  const MODULE_KEY = MODULE_CODE.toLowerCase();
+  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
 
-  const SUPABASE_URL =
-    window.DIGIY_SUPABASE_URL ||
-    "https://wesqmwjjtsefyjnluosj.supabase.co";
-
-  const SUPABASE_ANON_KEY =
-    window.DIGIY_SUPABASE_ANON_KEY ||
-    window.DIGIY_SUPABASE_ANON ||
-    "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
-
+  const MODULE_CODE = "DRIVER";
+  const LOGIN_URL = window.DIGIY_LOGIN_URL || "./pin.html";
   const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
-  const ALLOW_PREVIEW_WITHOUT_IDENTITY = true;
-  const DEFAULT_PIN_SESSION_HOURS = 6;
 
+  const ALLOW_PREVIEW_WITHOUT_IDENTITY = false;
+
+  const SESSION_KEY = `DIGIY_${MODULE_CODE}_SESSION`;
+  const ACCESS_KEY = `DIGIY_${MODULE_CODE}_ACCESS`;
+  const MODULE_PREFIX = "digiy_driver";
+  
   const STORE = {
     sessionSlug: `digiy_${MODULE_KEY}_slug`,
     sessionPhone: `digiy_${MODULE_KEY}_phone`,
