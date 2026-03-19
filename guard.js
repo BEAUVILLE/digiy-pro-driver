@@ -1,6 +1,6 @@
-/* guard.js — MON ARGENT / PAY GUARD
+/* guard.js — DIGIY DRIVER / DRIVER GUARD
    Rail attendu :
-   - slug-only : ?slug=pay-221...
+   - slug-only : ?slug=driver-221...
    - window.DIGIY_GUARD.ready()
    - window.DIGIY_GUARD.state
    - window.DIGIY_GUARD.loginWithPin(slug, pin)
