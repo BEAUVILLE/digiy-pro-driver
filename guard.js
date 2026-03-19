@@ -19,9 +19,9 @@
 
   const ALLOW_PREVIEW_WITHOUT_IDENTITY = false;
 
-  const SESSION_KEY = `DIGIY_${MODULE_CODE}_SESSION`;
-  const ACCESS_KEY = `DIGIY_${MODULE_CODE}_ACCESS`;
-  const MODULE_PREFIX = "digiy_pay";
+  const SESSION_KEY = `DIGIY_${DIGIY_DRIVER}_SESSION`;
+  const ACCESS_KEY = `DIGIY_${DIGIY_DRIVER}_ACCESS`;
+  const MODULE_PREFIX = "digiy_driver";
 
   const state = {
     preview: false,
