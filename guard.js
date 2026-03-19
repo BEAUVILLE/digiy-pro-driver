@@ -1,6 +1,6 @@
-/* guard.js — DIGIY DRIVER / DRIVER GUARD
+/* guard.js — MON ARGENT / PAY GUARD
    Rail attendu :
-   - slug-only : ?slug=driver-221...
+   - slug-only : ?slug=pay-221...
    - window.DIGIY_GUARD.ready()
    - window.DIGIY_GUARD.state
    - window.DIGIY_GUARD.loginWithPin(slug, pin)
@@ -19,8 +19,8 @@
 
   const ALLOW_PREVIEW_WITHOUT_IDENTITY = false;
 
-  const SESSION_KEY = `DIGIY_${DRIVER_CODE}_SESSION`;
-  const ACCESS_KEY = `DIGIY_${DRIVER_CODE}_ACCESS`;
+  const SESSION_KEY = `DIGIY_${MODULE_CODE}_SESSION`;
+  const ACCESS_KEY = `DIGIY_${MODULE_CODE}_ACCESS`;
   const MODULE_PREFIX = "digiy_pay";
 
   const state = {
