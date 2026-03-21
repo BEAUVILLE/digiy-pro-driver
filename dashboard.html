@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-dashboard-20260314-final"></script>
+  <script src="./guard.js?v=driver-dashboard-20260321-qr-final"></script>
 
   <style>
     :root{
@@ -345,6 +345,7 @@
           <a class="btn primary" id="btnCockpit" href="#">🏠 Cockpit</a>
           <a class="btn" id="btnProfil" href="#">👤 Profil</a>
           <a class="btn" id="btnTarifs" href="#">💰 Tarifs</a>
+          <a class="btn" id="btnQr" href="#">📱 QR</a>
           <a class="btn" id="btnPin" href="#">🔑 PIN</a>
           <a class="btn gold" id="btnPay" href="#">💳 Abonnement</a>
           <a class="btn" id="btnHome" href="#">↩️ Vitrine</a>
@@ -653,6 +654,7 @@
         $("btnCockpit").href = withSlug("./cockpit.html");
         $("btnProfil").href = withSlug("./profil-chauffeur.html");
         $("btnTarifs").href = withSlug("./tarifs.html");
+        $("btnQr").href = withSlug("./generateur-digiy-driver.html");
         $("btnPin").href = withSlug("./pin.html");
         $("btnHome").href = withSlug("./index.html");
         $("btnPay").href = buildPayUrl();
@@ -870,6 +872,10 @@
           items.push(pushNotif("Aucune course terminée récente détectée.", "info"));
         } else {
           items.push(pushNotif(`${completed.length} course(s) terminée(s) lues sur l’historique disponible.`, "ok"));
+        }
+
+        if (accessOk){
+          items.push(pushNotif("Le QR chauffeur est disponible sur le rail slug-only pour partager la bonne porte terrain.", "info"));
         }
 
         box.innerHTML = items.join("");
