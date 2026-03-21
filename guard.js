@@ -11,16 +11,21 @@
   const SUPABASE_URL =
     String(window.DIGIY_SUPABASE_URL || "https://wesqmwjjtsefyjnluosj.supabase.co").trim();
   const SUPABASE_ANON_KEY =
-    String(window.DIGIY_SUPABASE_ANON || window.DIGIY_SUPABASE_ANON_KEY || "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3").trim();
+    String(
+      window.DIGIY_SUPABASE_ANON ||
+      window.DIGIY_SUPABASE_ANON_KEY ||
+      "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3"
+    ).trim();
 
-  const MODULE_CODE = "PAY";
+  const MODULE_CODE = "DRIVER";
+  const MODULE_SLUG_PREFIX = "driver";
   const LOGIN_URL = window.DIGIY_LOGIN_URL || "./pin.html";
   const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
 
   const ALLOW_PREVIEW_WITHOUT_IDENTITY = false;
 
-  const SESSION_KEY = `DIGIY_${DIGIY_DRIVER}_SESSION`;
-  const ACCESS_KEY = `DIGIY_${DIGIY_DRIVER}_ACCESS`;
+  const SESSION_KEY = `DIGIY_${MODULE_CODE}_SESSION`;
+  const ACCESS_KEY = `DIGIY_${MODULE_CODE}_ACCESS`;
   const MODULE_PREFIX = "digiy_driver";
 
   const state = {
@@ -89,7 +94,11 @@
 
     document.addEventListener("visibilitychange", () => {
       try {
-        if (!document.hidden && state.access_ok === true && document.documentElement.style.visibility === "hidden") {
+        if (
+          !document.hidden &&
+          state.access_ok === true &&
+          document.documentElement.style.visibility === "hidden"
+        ) {
           showPage();
         }
       } catch (_) {}
@@ -518,7 +527,7 @@
         const ok = await checkAccess(phone);
 
         if (ok) {
-          const finalSlug = normSlug(slug || `pay-${phone}`);
+          const finalSlug = normSlug(slug || `${MODULE_SLUG_PREFIX}-${phone}`);
           const finalPhone = normPhone(phone);
 
           enrichUrlIfMissingSlug(finalSlug, finalPhone);
