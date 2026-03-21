@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-tarifs-20260314-final"></script>
+  <script src="./guard.js?v=driver-tarifs-20260321-nav-qr-final"></script>
 
   <style>
     :root{
@@ -27,6 +27,7 @@
       --gold:#facc15;
       --warn:#f59e0b;
       --danger:#ef4444;
+      --blue:#60a5fa;
       --shadow:0 18px 55px rgba(0,0,0,.42);
       --r:18px;
       --max:1100px;
@@ -167,6 +168,12 @@
       color:#fecaca;
     }
 
+    .btn.blue{
+      background:rgba(96,165,250,.14);
+      color:#dbeafe;
+      border-color:rgba(96,165,250,.28);
+    }
+
     .nav{
       display:flex;
       gap:8px;
@@ -291,6 +298,52 @@
       background:rgba(0,0,0,.16);
     }
 
+    .quickNav{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    @media(min-width:760px){
+      .quickNav{grid-template-columns:repeat(5,1fr)}
+    }
+
+    .navbox{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(0,0,0,.16);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-height:118px;
+    }
+
+    .navbox .title{
+      font-size:15px;
+      font-weight:1000;
+    }
+
+    .navbox .desc{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .navbox .go{
+      margin-top:auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 12px;
+      min-height:42px;
+      border-radius:12px;
+      font-weight:900;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+    }
+
     .kpis{
       display:grid;
       gap:10px;
@@ -336,7 +389,9 @@
 
         <div class="nav">
           <a class="btn primary" id="btnCockpit" href="#">⬅️ Cockpit</a>
+          <a class="btn blue" id="btnDashboard" href="#">📊 Dashboard</a>
           <a class="btn" id="btnProfil" href="#">👤 Profil</a>
+          <a class="btn" id="btnQr" href="#">📱 QR</a>
           <a class="btn" id="btnPin" href="#">🔑 PIN</a>
           <a class="btn gold" id="btnPay" href="#">💳 Abonnement</a>
           <a class="btn" id="btnHome" href="#">🏠 Vitrine</a>
@@ -348,6 +403,43 @@
         <div class="pill" id="slugPill">slug : —</div>
         <div class="pill" id="phonePill">phone : —</div>
         <div class="pill warn" id="accessPill">accès : contrôle…</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Navigation chauffeur</h2>
+      <div class="muted">Toutes les portes métier sont recousues sur le même slug réel.</div>
+
+      <div class="quickNav">
+        <div class="navbox">
+          <div class="title">🏠 Cockpit</div>
+          <div class="desc">Retour au centre du module chauffeur avec accès, courses et état réel.</div>
+          <a class="go" id="navCockpit" href="#">Ouvrir</a>
+        </div>
+
+        <div class="navbox">
+          <div class="title">📊 Dashboard</div>
+          <div class="desc">Lecture rapide du statut, de l’activité et de l’aiguillage métier.</div>
+          <a class="go" id="navDashboard" href="#">Ouvrir</a>
+        </div>
+
+        <div class="navbox">
+          <div class="title">👤 Profil chauffeur</div>
+          <div class="desc">Compléter ou ajuster le moule personnel sans aucune démo.</div>
+          <a class="go" id="navProfil" href="#">Ouvrir</a>
+        </div>
+
+        <div class="navbox">
+          <div class="title">📱 QR chauffeur</div>
+          <div class="desc">Partager la bonne porte terrain avec le slug actif déjà transmis.</div>
+          <a class="go" id="navQr" href="#">Ouvrir</a>
+        </div>
+
+        <div class="navbox">
+          <div class="title">🔑 PIN</div>
+          <div class="desc">Repasser par la porte sécurisée sans casser le rail DRIVER.</div>
+          <a class="go" id="navPin" href="#">Ouvrir</a>
+        </div>
       </div>
     </div>
 
@@ -643,10 +735,18 @@
 
       function bindNav(){
         $("btnCockpit").href = withSlug("./cockpit.html");
+        $("btnDashboard").href = withSlug("./dashboard-pro.html");
         $("btnProfil").href = withSlug("./profil-chauffeur.html");
+        $("btnQr").href = withSlug("./generateur-digiy-driver.html");
         $("btnPin").href = withSlug("./pin.html");
         $("btnHome").href = withSlug("./index.html");
         $("btnPay").href = buildPayUrl();
+
+        $("navCockpit").href = withSlug("./cockpit.html");
+        $("navDashboard").href = withSlug("./dashboard-pro.html");
+        $("navProfil").href = withSlug("./profil-chauffeur.html");
+        $("navQr").href = withSlug("./generateur-digiy-driver.html");
+        $("navPin").href = withSlug("./pin.html");
       }
 
       function clearForm(){
