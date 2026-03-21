@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#061b14" />
+  <title>DIGIY DRIVER PRO — QR</title>
+
+  <script>
+    window.DIGIY_MODULE = "DRIVER";
+    window.DIGIY_LOGIN_URL = "./pin.html";
+    window.DIGIY_SUPABASE_URL =
+      window.DIGIY_SUPABASE_URL || "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY =
+      window.DIGIY_SUPABASE_ANON_KEY || "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON =
+      window.DIGIY_SUPABASE_ANON || window.DIGIY_SUPABASE_ANON_KEY;
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="./guard.js?v=driver-qr-20260321-final"></script>
+
+  <style>
+    :root{
+      --bg:#061b14;
+      --card:#0b2a1f;
+      --card2:rgba(255,255,255,.04);
+      --accent:#facc15;
+      --green:#22c55e;
+      --muted:rgba(234,255,241,.72);
+      --text:#eafff1;
+      --line:rgba(255,255,255,.14);
+      --danger:#fb7185;
+      --ok:#22c55e;
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --r:18px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      background:
+        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
+        linear-gradient(135deg,#04110d,#061b14);
+    }
+
+    .wrap{
+      max-width:860px;
+      margin:auto;
+      padding:18px;
+    }
+
+    .hero{
+      margin-bottom:14px;
+    }
+
+    h1{
+      font-size:1.5rem;
+      line-height:1.15;
+      margin-bottom:6px;
+      font-weight:950;
+      letter-spacing:.2px;
+      background:linear-gradient(135deg, var(--green), var(--accent));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
+    p{
+      color:var(--muted);
+      line-height:1.45;
+      margin-bottom:10px;
+      font-weight:700;
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      padding:16px;
+      margin-top:14px;
+      box-shadow:var(--shadow);
+    }
+
+    .pillRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    .pill{
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      color:#d1fae5;
+      font-weight:900;
+      font-size:.92rem;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:10px;
+    }
+
+    .btn{
+      flex:1 1 220px;
+      min-height:48px;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:950;
+      border:none;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      transition:transform .12s ease, filter .12s ease, opacity .12s ease;
+    }
+
+    .btn:hover:not(:disabled){
+      transform:translateY(-1px);
+      filter:brightness(1.05);
+    }
+
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg, rgba(250,204,21,.96), rgba(245,158,11,.88));
+      color:#241300;
+      box-shadow:0 8px 22px rgba(250,204,21,.22);
+    }
+
+    .btn.good{
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
+      color:#042012;
+      box-shadow:0 8px 22px rgba(34,197,94,.24);
+    }
+
+    .btn.ghost{
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      color:var(--text);
+    }
+
+    .qrbox{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:18px;
+      border-radius:16px;
+      border:1px dashed rgba(250,204,21,0.35);
+      background:rgba(0,0,0,0.14);
+      margin-top:14px;
+      min-height:240px;
+    }
+
+    .qrImg{
+      max-width:100%;
+      width:320px;
+      height:auto;
+      border-radius:14px;
+      background:#fff;
+      padding:10px;
+      display:block;
+      border:1px solid rgba(148,163,184,.22);
+    }
+
+    .label{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,0.14);
+      line-height:1.4;
+      word-break:break-all;
+      color:#d1fae5;
+    }
+
+    .label b{color:#fff}
+
+    .note{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      display:none;
+      white-space:pre-wrap;
+      line-height:1.45;
+      font-weight:850;
+    }
+
+    .note.ok{
+      display:block;
+      border-color:rgba(34,197,94,.35);
+      color:#bbf7d0;
+      background:rgba(34,197,94,.08);
+    }
+
+    .note.bad{
+      display:block;
+      border-color:rgba(251,113,133,.35);
+      color:#fecaca;
+      background:rgba(251,113,133,.08);
+    }
+
+    .note.warn{
+      display:block;
+      border-color:rgba(250,204,21,.35);
+      color:#fde68a;
+      background:rgba(250,204,21,.08);
+    }
+
+    .mini{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:.9rem;
+      font-weight:800;
+      line-height:1.4;
+    }
+
+    .mono{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .hr{
+      height:1px;
+      background:rgba(255,255,255,.12);
+      margin-top:14px;
+    }
+
+    @media (max-width:680px){
+      .wrap{padding:14px}
+      .qrImg{width:260px}
+      .btn{flex:1 1 100%}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>🚖 QR du chauffeur</h1>
+      <p>
+        Un seul QR = <b>QR-PRO</b>. Derrière, QR-PRO peut ouvrir le rail chauffeur,
+        la page publique ou l’accès sécurisé selon le contexte.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="pillRow">
+        <div class="pill" id="pillModule">module: DRIVER</div>
+        <div class="pill" id="pillSlug">slug: —</div>
+        <div class="pill" id="pillState">session: —</div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" id="btnBack" type="button">⬅️ Retour cockpit</button>
+        <button class="btn ghost" id="btnDashboard" type="button">📊 Dashboard</button>
+        <button class="btn primary" id="btnCopy" type="button">📋 Copier lien QR-PRO</button>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" id="btnPublic" type="button">🌍 Ouvrir page publique</button>
+        <button class="btn good" id="btnOpen" type="button">↗️ Ouvrir QR-PRO</button>
+      </div>
+
+      <div class="row">
+        <button class="btn primary" id="btnDownload" type="button">⬇️ Télécharger QR (PNG)</button>
+        <button class="btn ghost" id="btnSticker" type="button">🟩 Télécharger Sticker XL (PNG)</button>
+      </div>
+
+      <div class="qrbox">
+        <a id="qrAnchor" href="#" target="_blank" rel="noopener">
+          <img id="qrImg" class="qrImg" alt="QR DIGIY QR PRO DRIVER" />
+        </a>
+      </div>
+
+      <div class="label mono" id="urlBox">URL: —</div>
+      <div class="note warn" id="note"></div>
+
+      <div class="hr"></div>
+      <div class="mini mono" id="dbg"></div>
+    </div>
+  </div>
+
+  <script>
+    (async function(){
+      "use strict";
+
+      const MODULE = "DRIVER";
+      const QR_PRO_BASE = "https://beauville.github.io/digiy-qr-pro/";
+      const RETURN_PAGE = "./cockpit.html";
+      const DASHBOARD_PAGE = "./dashboard-pro.html";
+      const PUBLIC_PAGE = "./index.html";
+
+      const qrImg = document.getElementById("qrImg");
+      const qrAnchor = document.getElementById("qrAnchor");
+      const urlBox = document.getElementById("urlBox");
+      const noteEl = document.getElementById("note");
+      const dbgEl = document.getElementById("dbg");
+      const pillSlug = document.getElementById("pillSlug");
+      const pillState = document.getElementById("pillState");
+
+      const btnDownload = document.getElementById("btnDownload");
+      const btnSticker  = document.getElementById("btnSticker");
+      const btnBack     = document.getElementById("btnBack");
+      const btnDashboard= document.getElementById("btnDashboard");
+      const btnCopy     = document.getElementById("btnCopy");
+      const btnOpen     = document.getElementById("btnOpen");
+      const btnPublic   = document.getElementById("btnPublic");
+
+      let slug = "";
+      let phone = "";
+      let url = "";
+      let publicUrl = "";
+      let cockpitUrl = "";
+      let dashboardUrl = "";
+      let busy = false;
+      let qrNormalDataUrl = "";
+      let qrXLDataUrl = "";
+
+      function note(msg, type){
+        noteEl.className = "note " + (type || "warn");
+        noteEl.textContent = msg || "";
+        noteEl.style.display = msg ? "block" : "none";
+      }
+
+      function setBusy(on){
+        busy = !!on;
+        btnDownload.disabled = on;
+        btnSticker.disabled = on;
+        btnCopy.disabled = on;
+        btnOpen.disabled = on;
+        btnBack.disabled = on;
+        btnDashboard.disabled = on;
+        btnPublic.disabled = on;
+      }
+
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d.length >= 9 ? d : "";
+      }
+
+      function normSlug(v){
+        return String(v || "").trim().toLowerCase();
+      }
+
+      function phoneFromDriverSlug(v){
+        const s = normSlug(v);
+        const m = s.match(/^driver-(\d{12})$/);
+        return m ? normPhone(m[1]) : "";
+      }
+
+      function getGuardSession(){
+        const st = window.DIGIY_GUARD?.state || {};
+        const raw = window.DIGIY_GUARD?.getSession?.() || {};
+        return {
+          ok: !!(st.access_ok || st.pin_session_ok),
+          phone: normPhone(st.phone || raw.phone || ""),
+          slug: normSlug(st.slug || raw.slug || "")
+        };
+      }
+
+      async function bootGuardSafe(){
+        try{
+          const ready = window.DIGIY_GUARD?.ready;
+          if (!ready) return;
+          if (typeof ready === "function") {
+            await ready();
+            return;
+          }
+          await ready;
+        }catch(e){
+          console.warn("guard ready failed", e);
+        }
+      }
+
+      function getSlugSafe(){
+        const qs = new URLSearchParams(location.search);
+        const sess = getGuardSession();
+        return normSlug(
+          sess.slug ||
+          qs.get("slug") ||
+          ""
+        );
+      }
+
+      function getPhoneSafe(){
+        const qs = new URLSearchParams(location.search);
+        const sess = getGuardSession();
+        return normPhone(
+          sess.phone ||
+          qs.get("tel") ||
+          qs.get("phone") ||
+          phoneFromDriverSlug(getSlugSafe()) ||
+          ""
+        );
+      }
+
+      function pageUrl(path){
+        const u = new URL(path, location.href);
+        if (slug) u.searchParams.set("slug", slug);
+        if (phone) u.searchParams.set("tel", phone);
+        return u.toString();
+      }
+
+      function syncOwnUrl(){
+        const u = new URL(location.href);
+
+        if (slug) u.searchParams.set("slug", slug);
+        else u.searchParams.delete("slug");
+
+        if (phone) u.searchParams.set("tel", phone);
+        else u.searchParams.delete("tel");
+
+        history.replaceState({}, "", u.toString());
+      }
+
+      async function copyText(text){
+        if(navigator.clipboard?.writeText){
+          return navigator.clipboard.writeText(text);
+        }
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        let ok = false;
+        try{
+          ok = document.execCommand("copy");
+        }catch(_){}
+        ta.remove();
+        if(!ok) throw new Error("copy_failed");
+      }
+
+      function directDownload(dataUrl, filename){
+        const a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+
+      function loadScript(src){
+        return new Promise((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = src;
+          s.async = true;
+          s.onload = () => resolve(true);
+          s.onerror = () => reject(new Error("script_load_failed: " + src));
+          document.head.appendChild(s);
+        });
+      }
+
+      async function ensureQrLib(){
+        if(window.QRCode?.toDataURL) return true;
+
+        const fallbacks = [
+          "https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js",
+          "https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"
+        ];
+
+        for(const src of fallbacks){
+          try{
+            await loadScript(src);
+            if(window.QRCode?.toDataURL) return true;
+          }catch(e){
+            console.warn("QR fallback failed", src, e);
+          }
+        }
+        return !!window.QRCode?.toDataURL;
+      }
+
+      function qrOptions(size){
+        return {
+          width: size,
+          margin: 1,
+          errorCorrectionLevel: "M",
+          color: {
+            dark: "#111827",
+            light: "#FFFFFF"
+          }
+        };
+      }
+
+      function makeQrDataUrl(text, size){
+        return new Promise((resolve, reject) => {
+          if(!window.QRCode || typeof window.QRCode.toDataURL !== "function"){
+            reject(new Error("QRCode lib missing"));
+            return;
+          }
+          window.QRCode.toDataURL(text, qrOptions(size), (err, dataUrl) => {
+            if(err) reject(err);
+            else resolve(dataUrl);
+          });
+        });
+      }
+
+      await bootGuardSafe();
+
+      slug = getSlugSafe();
+      phone = getPhoneSafe();
+
+      if(!slug){
+        alert("❌ slug manquant. Ouvre cette page via le cockpit DRIVER avec ?slug=driver-221...");
+        return;
+      }
+
+      const sess = getGuardSession();
+      pillSlug.textContent = "slug: " + slug;
+      pillState.textContent = sess.ok
+        ? ("session: OK" + (phone ? " · " + phone : ""))
+        : "session: aperçu / slug";
+
+      syncOwnUrl();
+
+      cockpitUrl = pageUrl(RETURN_PAGE);
+      dashboardUrl = pageUrl(DASHBOARD_PAGE);
+      publicUrl = pageUrl(PUBLIC_PAGE);
+
+      const qrProUrl = new URL(QR_PRO_BASE);
+      qrProUrl.searchParams.set("slug", slug);
+      qrProUrl.searchParams.set("module", MODULE);
+      if (phone) qrProUrl.searchParams.set("tel", phone);
+      qrProUrl.searchParams.set("return", cockpitUrl);
+      qrProUrl.searchParams.set("public", publicUrl);
+
+      url = qrProUrl.toString();
+
+      urlBox.textContent = "URL: " + url;
+      dbgEl.textContent =
+        "slug: " + slug +
+        " | module: DRIVER" +
+        " | qr-base: " + QR_PRO_BASE +
+        (phone ? " | tel: " + phone : "") +
+        " | return: cockpit.html" +
+        " | public: index.html";
+
+      qrAnchor.href = url;
+
+      note("⏳ Préparation du QR local…", "warn");
+      setBusy(true);
+
+      try{
+        const ok = await ensureQrLib();
+        if(!ok){
+          throw new Error("Librairie QR introuvable");
+        }
+
+        qrNormalDataUrl = await makeQrDataUrl(url, 520);
+        qrXLDataUrl = await makeQrDataUrl(url, 900);
+
+        qrImg.onload = () => {
+          note("✅ QR-PRO DRIVER prêt. Teste au téléphone avant impression.", "ok");
+        };
+
+        qrImg.onerror = () => {
+          note("❌ Impossible d’afficher l’image QR locale.", "bad");
+        };
+
+        qrImg.src = qrNormalDataUrl;
+      }catch(e){
+        console.error(e);
+        note("❌ Génération QR locale impossible : " + (e?.message || e), "bad");
+      }finally{
+        setBusy(false);
+      }
+
+      btnBack.onclick = () => {
+        location.href = cockpitUrl;
+      };
+
+      btnDashboard.onclick = () => {
+        location.href = dashboardUrl;
+      };
+
+      btnPublic.onclick = () => {
+        window.open(publicUrl, "_blank", "noopener");
+      };
+
+      btnCopy.onclick = async () => {
+        try{
+          await copyText(url);
+          note("✅ Lien QR-PRO DRIVER copié.", "ok");
+        }catch(e){
+          console.error(e);
+          note("⚠️ Clipboard bloqué. Copie manuelle dans l’URL affichée.", "warn");
+        }
+      };
+
+      btnOpen.onclick = () => {
+        window.open(url, "_blank", "noopener");
+      };
+
+      btnDownload.onclick = async () => {
+        if(busy) return;
+        if(!qrNormalDataUrl){
+          note("❌ QR normal non prêt.", "bad");
+          return;
+        }
+        setBusy(true);
+        try{
+          note("⏳ Préparation du PNG…", "warn");
+          directDownload(qrNormalDataUrl, `DIGIY_QR_PRO_DRIVER_${slug}.png`);
+          note("⬇️ Téléchargement lancé (QR normal).", "ok");
+        }catch(e){
+          console.error(e);
+          note("❌ Download KO: " + (e?.message || e), "bad");
+        }finally{
+          setBusy(false);
+        }
+      };
+
+      btnSticker.onclick = async () => {
+        if(busy) return;
+        if(!qrXLDataUrl){
+          note("❌ Sticker XL non prêt.", "bad");
+          return;
+        }
+        setBusy(true);
+        try{
+          note("🟩 Préparation Sticker XL…", "warn");
+          directDownload(qrXLDataUrl, `DIGIY_STICKER_XL_DRIVER_${slug}.png`);
+          note("⬇️ Sticker XL téléchargé.", "ok");
+        }catch(e){
+          console.error(e);
+          note("❌ Sticker XL KO: " + (e?.message || e), "bad");
+        }finally{
+          setBusy(false);
+        }
+      };
+    })();
+  </script>
+</body>
+</html>
