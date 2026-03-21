@@ -134,14 +134,16 @@
 
     .stack{display:grid;gap:14px;margin-top:14px}
     .grid2{display:grid;gap:14px}
-    .grid4{display:grid;gap:10px}
+    .gridNav{display:grid;gap:10px}
+    .quickGrid{display:grid;gap:10px;margin-top:12px}
 
     @media(min-width:900px){
       .grid2{grid-template-columns:1.15fr .85fr}
     }
 
     @media(min-width:760px){
-      .grid4{grid-template-columns:repeat(4,1fr)}
+      .quickGrid{grid-template-columns:repeat(4,1fr)}
+      .gridNav{grid-template-columns:repeat(5,1fr)}
     }
 
     .card{
@@ -176,16 +178,6 @@
     .kpi .value{
       font-size:20px;
       font-weight:1000;
-    }
-
-    .quickGrid{
-      display:grid;
-      gap:10px;
-      margin-top:12px;
-    }
-
-    @media(min-width:760px){
-      .quickGrid{grid-template-columns:repeat(3,1fr)}
     }
 
     .quick{
@@ -507,6 +499,12 @@
             <div class="muted">Compléter ou ajuster ton moule personnel DIGIY PRO DRIVER.</div>
             <a class="go" id="btnProfilQuick" href="#">Ouvrir</a>
           </div>
+
+          <div class="quick">
+            <h3>📱 Mon QR</h3>
+            <div class="muted">Ouvrir la page QR du chauffeur avec le slug actif pour partager ton accès terrain.</div>
+            <a class="go" id="btnQrQuick" href="#">Ouvrir</a>
+          </div>
         </div>
       </div>
 
@@ -562,7 +560,7 @@
           </div>
         </div>
 
-        <div class="grid4">
+        <div class="gridNav">
           <div class="navbox">
             <div class="title">💰 Mes tarifs</div>
             <div class="desc">Ouvrir ta page métier liée aux tarifs / réglages terrain.</div>
@@ -573,6 +571,12 @@
             <div class="title">👤 Profil chauffeur</div>
             <div class="desc">Compléter ton moule personnel sans toucher à une démo partagée.</div>
             <a class="go" id="btnProfilPage" href="#">Ouvrir</a>
+          </div>
+
+          <div class="navbox">
+            <div class="title">📱 QR chauffeur</div>
+            <div class="desc">Ouvrir ton générateur QR avec le slug actif, sans casser le rail DRIVER.</div>
+            <a class="go" id="btnQrPage" href="#">Ouvrir</a>
           </div>
 
           <div class="navbox">
@@ -696,7 +700,8 @@
       const PIN_URL = "./pin.html";
       const HOME_URL = "./index.html";
       const PROFIL_URL = "./profil-chauffeur.html";
-      const TARIFS_URL = "./profil-chauffeur.html";
+      const TARIFS_URL = "./tarifs.html";
+      const QR_URL = "./generateur-digiy-driver.html";
 
       const $ = (id) => document.getElementById(id);
 
@@ -820,6 +825,8 @@
         $("btnProfil").href = withSlug(PROFIL_URL);
         $("btnProfilQuick").href = withSlug(PROFIL_URL);
         $("btnProfilPage").href = withSlug(PROFIL_URL);
+        $("btnQrQuick").href = withSlug(QR_URL);
+        $("btnQrPage").href = withSlug(QR_URL);
         $("btnPinPage").href = withSlug(PIN_URL);
         $("btnIndexPage").href = withSlug(HOME_URL);
       }
@@ -1085,45 +1092,42 @@
           return;
         }
 
-        box.innerHTML = data.map(t => {
-          const id = pick(t, ["id"], "");
-          const status = String(pick(t, ["status"], "—")).toLowerCase();
-          const clientPhone = pick(t, ["customer_phone"], "—");
-          const pickup = pick(t, ["pickup_label"], "Départ à préciser");
-          const dropoff = pick(t, ["drop_label"], "Destination à préciser");
-          const vehicle = pick(t, ["vehicle_type"], "service chauffeur");
-          const price = pick(t, ["final_price_fcfa","price_fcfa"], null);
-
-          const canStart = ["accepted","assigned"].includes(status);
+        box.innerHTML = data.map((ride) => {
+          const status = String(ride?.status || "").toLowerCase();
+          const rideId = String(ride?.id || "");
+          const client = pick(ride, ["client_name","customer_name","passenger_name"], "Client");
+          const pickup = pick(ride, ["pickup_label","pickup_address","pickup_text","depart_label","origin_label"], "Départ à préciser");
+          const dropoff = pick(ride, ["dropoff_label","dropoff_address","dropoff_text","arrival_label","destination_label"], "Arrivée à préciser");
+          const when = pick(ride, ["pickup_at","ride_at","booking_time","created_at"], "");
+          const amount = money(pick(ride, ["final_price_fcfa","price_fcfa"], 0));
+          const canStart = status === "accepted" || status === "assigned";
           const canFinish = status === "in_progress";
 
           return `
             <div class="itemCol">
               <div class="rideHead">
                 <div>
-                  <div class="rideTitle">${escapeHtml(clientPhone)} — ${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</div>
-                  <div class="metaLine">ID : ${escapeHtml(id)}</div>
+                  <div class="rideTitle">${escapeHtml(client)}</div>
+                  <div class="metaLine">${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</div>
                 </div>
-                <div class="badge ${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</div>
+                <span class="badge ${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</span>
               </div>
 
               <div class="rideMeta">
-                <div class="metaLine">📞 Client : ${escapeHtml(clientPhone)}</div>
-                <div class="metaLine">🚘 Véhicule : ${escapeHtml(vehicle)}</div>
-                <div class="metaLine">💰 Prix : ${price === null ? "—" : escapeHtml(money(price))}</div>
-                <div class="metaLine">🕘 Créée : ${escapeHtml(fmtDate(pick(t, ["created_at"], null)))}</div>
-                <div class="metaLine">✅ Terminée : ${escapeHtml(fmtDate(pick(t, ["completed_at"], null)))}</div>
+                <div class="metaLine">📅 ${escapeHtml(fmtDate(when))}</div>
+                <div class="metaLine">💰 ${escapeHtml(amount)}</div>
+                <div class="metaLine">🧾 ID : ${escapeHtml(rideId || "—")}</div>
               </div>
 
               <div class="rideActions">
-                <button class="btn primary jsRideAction" data-action="start" data-id="${escapeHtml(id)}" ${canStart ? "" : "disabled"}>DÉMARRER</button>
-                <button class="btn danger jsRideAction" data-action="finish" data-id="${escapeHtml(id)}" ${canFinish ? "" : "disabled"}>TERMINER</button>
+                <button class="btn primary" data-action="start" data-id="${escapeHtml(rideId)}" ${canStart ? "" : "disabled"}>▶️ Démarrer</button>
+                <button class="btn warn" data-action="finish" data-id="${escapeHtml(rideId)}" ${canFinish ? "" : "disabled"}>✅ Terminer</button>
               </div>
             </div>
           `;
         }).join("");
 
-        box.querySelectorAll(".jsRideAction").forEach(btn => {
+        box.querySelectorAll("[data-action]").forEach((btn) => {
           btn.addEventListener("click", onRideAction);
         });
       }
@@ -1132,25 +1136,29 @@
         const box = $("recentTripsList");
 
         if (!data || data.length === 0){
-          box.innerHTML = `<div class="empty">Aucune course récente</div>`;
+          box.innerHTML = `<div class="empty">Aucun historique récent pour ce chauffeur.</div>`;
           return;
         }
 
-        box.innerHTML = data.map(t => {
-          const status = String(pick(t, ["status"], "—")).toLowerCase();
-          const clientPhone = pick(t, ["customer_phone"], "—");
-          const pickup = pick(t, ["pickup_label"], "Départ à préciser");
-          const dropoff = pick(t, ["drop_label"], "Destination à préciser");
-          const price = pick(t, ["final_price_fcfa","price_fcfa"], null);
-          const at = pick(t, ["completed_at","updated_at","created_at"], null);
+        box.innerHTML = data.map((ride) => {
+          const status = String(ride?.status || "").toLowerCase();
+          const client = pick(ride, ["client_name","customer_name","passenger_name"], "Client");
+          const pickup = pick(ride, ["pickup_label","pickup_address","pickup_text","depart_label","origin_label"], "Départ à préciser");
+          const dropoff = pick(ride, ["dropoff_label","dropoff_address","dropoff_text","arrival_label","destination_label"], "Arrivée à préciser");
+          const endedAt = pick(ride, ["completed_at","updated_at","created_at"], "");
+          const amount = money(pick(ride, ["final_price_fcfa","price_fcfa"], 0));
 
           return `
             <div class="item">
               <div>
-                <b>${escapeHtml(clientPhone)} — ${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</b>
-                <div class="muted">${escapeHtml(statusLabel(status))} • ${escapeHtml(fmtDate(at))}</div>
+                <div style="font-weight:1000">${escapeHtml(client)}</div>
+                <div class="metaLine">${escapeHtml(pickup)} → ${escapeHtml(dropoff)}</div>
+                <div class="metaLine">📅 ${escapeHtml(fmtDate(endedAt))}</div>
               </div>
-              <div>${price === null ? "—" : escapeHtml(money(price))}</div>
+              <div style="display:grid;gap:8px;justify-items:end">
+                <span class="badge ${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</span>
+                <div style="font-weight:1000">${escapeHtml(amount)}</div>
+              </div>
             </div>
           `;
         }).join("");
