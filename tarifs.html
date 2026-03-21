@@ -1,0 +1,1475 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY DRIVER PRO — Tarifs</title>
+  <meta name="theme-color" content="#061b14"/>
+
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "DRIVER";
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=driver-tarifs-20260321-v1"></script>
+
+  <style>
+    :root{
+      --bg:#061b14;
+      --card:#0b2a1f;
+      --line:rgba(255,255,255,.12);
+      --text:#eafff1;
+      --muted:rgba(234,255,241,.72);
+      --green:#22c55e;
+      --gold:#facc15;
+      --warn:#f59e0b;
+      --red:#fb7185;
+      --shadow:0 18px 55px rgba(0,0,0,.42);
+      --r:18px;
+      --max:1180px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
+        var(--bg);
+      padding:16px;
+    }
+
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:var(--max);margin:auto}
+
+    .top{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:14px;
+      background:rgba(255,255,255,.04);
+      box-shadow:var(--shadow);
+    }
+
+    h1{margin:0;font-size:24px;line-height:1.1}
+    h2{margin:0 0 12px 0;font-size:18px}
+    h3{margin:0;font-size:15px}
+    p{margin:0}
+
+    .muted{color:var(--muted);font-weight:800;font-size:13px;line-height:1.45}
+    .small{font-size:12px}
+
+    .pillRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+      justify-content:flex-end;
+      flex:0 0 auto;
+    }
+
+    .pill{
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      font-weight:900;
+      white-space:nowrap;
+      font-size:12px;
+    }
+
+    .pill.ok{border-color:rgba(34,197,94,.35);color:#bbf7d0}
+    .pill.warn{border-color:rgba(245,158,11,.35);color:#fde68a}
+    .pill.bad{border-color:rgba(251,113,133,.35);color:#fecaca}
+
+    .stack{display:grid;gap:14px;margin-top:14px}
+    .grid{
+      display:grid;
+      gap:14px;
+      grid-template-columns:1.1fr .9fr;
+    }
+
+    @media(max-width:980px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:rgba(255,255,255,.05);
+      padding:14px;
+      box-shadow:var(--shadow);
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:stretch;
+    }
+
+    .row > *{flex:1}
+
+    .navbox{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(0,0,0,.14);
+    }
+
+    .navtitle{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+      letter-spacing:.03em;
+      margin-bottom:10px;
+      text-transform:uppercase;
+    }
+
+    .navgrid{
+      display:grid;
+      gap:8px;
+      grid-template-columns:repeat(2,1fr);
+    }
+
+    @media(min-width:760px){
+      .navgrid{grid-template-columns:repeat(4,1fr)}
+    }
+
+    .navbtn,
+    .btn{
+      min-height:44px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      font-weight:900;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      cursor:pointer;
+      text-align:center;
+      transition:.15s ease;
+      text-decoration:none;
+    }
+
+    .navbtn:hover,
+    .btn:hover{transform:translateY(-1px)}
+
+    .navbtn.active{
+      background:rgba(250,204,21,.12);
+      border-color:rgba(250,204,21,.25);
+      color:var(--gold);
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
+      color:#042012;
+      border-color:transparent;
+    }
+
+    .btn.gold{
+      background:linear-gradient(135deg, rgba(250,204,21,.96), rgba(245,158,11,.88));
+      color:#241300;
+      border-color:transparent;
+    }
+
+    .btn.warn{
+      background:rgba(245,158,11,.14);
+      color:#fde68a;
+      border-color:rgba(245,158,11,.24);
+    }
+
+    .btn.danger{
+      background:rgba(251,113,133,.12);
+      color:#fecaca;
+      border-color:rgba(251,113,133,.22);
+    }
+
+    .btn.ghost{background:transparent}
+
+    label{
+      display:block;
+      font-size:12px;
+      font-weight:950;
+      color:rgba(234,255,241,.9);
+      margin:10px 0 6px;
+    }
+
+    input, textarea{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.22);
+      color:var(--text);
+      outline:none;
+      font-weight:850;
+      font-size:14px;
+    }
+
+    input[type="number"]{appearance:textfield}
+    input:disabled, textarea:disabled{
+      opacity:.75;
+      cursor:not-allowed;
+    }
+
+    textarea{
+      min-height:90px;
+      resize:vertical;
+      line-height:1.5;
+    }
+
+    .hint{
+      font-size:12px;
+      color:rgba(234,255,241,.68);
+      line-height:1.45;
+      margin-top:6px;
+      font-weight:800;
+    }
+
+    .hr{
+      height:1px;
+      background:rgba(255,255,255,.12);
+      margin:14px 0;
+    }
+
+    .kpis{
+      display:grid;
+      gap:10px;
+      grid-template-columns:repeat(4,1fr);
+      margin-top:12px;
+    }
+
+    @media(max-width:760px){
+      .kpis{grid-template-columns:repeat(2,1fr)}
+    }
+
+    @media(max-width:520px){
+      .kpis{grid-template-columns:1fr}
+    }
+
+    .kpi{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(0,0,0,.16);
+    }
+
+    .kpi .label{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .kpi .value{
+      font-size:20px;
+      font-weight:1000;
+    }
+
+    .fareGrid{
+      display:grid;
+      gap:10px;
+      grid-template-columns:repeat(2,1fr);
+    }
+
+    @media(max-width:760px){
+      .fareGrid{grid-template-columns:1fr}
+    }
+
+    .fareBox{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(0,0,0,.16);
+    }
+
+    .fareTop{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      margin-bottom:8px;
+    }
+
+    .fareTitle{
+      font-weight:1000;
+      font-size:14px;
+    }
+
+    .prefix{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .prefix span{
+      white-space:nowrap;
+      font-weight:900;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .extras{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .extraItem{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(0,0,0,.16);
+    }
+
+    .extraHead{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      margin-bottom:8px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:rgba(234,255,241,.92);
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .list{
+      display:grid;
+      gap:10px;
+    }
+
+    .previewCard{
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.22);
+      border-radius:18px;
+      padding:14px;
+    }
+
+    .pTop{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .pAvatar{
+      width:48px;
+      height:48px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      background:rgba(250,204,21,.14);
+      border:1px solid rgba(250,204,21,.25);
+      font-weight:1000;
+      overflow:hidden;
+      flex:0 0 auto;
+    }
+
+    .pAvatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .pName{
+      margin:0;
+      font-weight:1000;
+      font-size:16px;
+    }
+
+    .pMeta{
+      margin:2px 0 0;
+      color:rgba(234,255,241,.75);
+      font-weight:850;
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .pBadges{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .pBadge{
+      font-size:12px;
+      font-weight:950;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:rgba(234,255,241,.86);
+    }
+
+    .tarifList{
+      display:grid;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .tarifLine{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      font-weight:900;
+    }
+
+    .tarifLine .name{
+      color:rgba(234,255,241,.92);
+    }
+
+    .tarifLine .amount{
+      white-space:nowrap;
+      color:#fde68a;
+    }
+
+    .summaryBox{
+      margin-top:12px;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
+    }
+
+    .summaryBox pre{
+      margin:0;
+      white-space:pre-wrap;
+      word-break:break-word;
+      font:inherit;
+      line-height:1.55;
+      color:rgba(234,255,241,.92);
+      font-weight:850;
+    }
+
+    .toast{
+      margin-top:12px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.22);
+      color:rgba(234,255,241,.92);
+      font-weight:900;
+      font-size:13px;
+      display:none;
+    }
+
+    .toast.ok{border-color:rgba(34,197,94,.30);background:rgba(34,197,94,.12)}
+    .toast.bad{border-color:rgba(251,113,133,.30);background:rgba(251,113,133,.12)}
+    .toast.warn{border-color:rgba(250,204,21,.30);background:rgba(250,204,21,.12)}
+
+    .disabledNote{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(250,204,21,.22);
+      background:rgba(250,204,21,.08);
+      color:rgba(234,255,241,.92);
+      font-weight:900;
+      font-size:13px;
+      display:none;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="top">
+      <div>
+        <h1>💰 DIGIY DRIVER PRO — Tarifs</h1>
+        <div class="muted" id="topSub">
+          Lecture simple des prix terrain. Cette version garde les tarifs en brouillon local par slug.
+        </div>
+      </div>
+
+      <div class="pillRow">
+        <div class="pill" id="slugPill">slug : —</div>
+        <div class="pill" id="phonePill">phone : —</div>
+        <div class="pill warn" id="accessPill">accès : contrôle…</div>
+      </div>
+    </div>
+
+    <div class="stack">
+
+      <div class="navbox">
+        <div class="navtitle">Navigation DRIVER</div>
+        <div class="navgrid">
+          <a class="navbtn" id="navDashboard" href="./dashboard-pro.html">📊 Dashboard</a>
+          <a class="navbtn" id="navCockpit" href="./cockpit.html">🚖 Cockpit</a>
+          <a class="navbtn" id="navProfil" href="./profil-chauffeur.html">👤 Profil</a>
+          <a class="navbtn active" id="navTarifs" href="./tarifs.html">💰 Tarifs</a>
+          <a class="navbtn" id="navPin" href="./pin.html">🔐 PIN</a>
+          <a class="navbtn" id="navHome" href="./index.html">🏠 Accueil</a>
+          <a class="navbtn" id="navQr" href="./generateur-digiy-driver.html">📱 QR</a>
+          <button class="navbtn" id="btnPay" type="button">💳 Abonnement</button>
+        </div>
+      </div>
+
+      <div class="grid">
+
+        <div class="card">
+          <div class="row">
+            <div>
+              <h2>Base tarifs chauffeur</h2>
+              <div class="muted">
+                Tu poses ici tes prix visibles, sans bricoler un faux rail SQL. Le brouillon suit ton slug.
+              </div>
+            </div>
+            <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <button class="btn" id="btnLoadProfile" type="button">↻ Charger mon profil</button>
+              <button class="btn primary" id="btnSaveDraft" type="button">💾 Enregistrer brouillon</button>
+              <button class="btn danger" id="btnResetDraft" type="button">🧹 Effacer brouillon</button>
+            </div>
+          </div>
+
+          <div class="kpis">
+            <div class="kpi">
+              <div class="label">Tarifs actifs</div>
+              <div class="value" id="kpiCount">0</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Prix mini</div>
+              <div class="value" id="kpiMin">—</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Prix maxi</div>
+              <div class="value" id="kpiMax">—</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Slug brouillon</div>
+              <div class="value" id="kpiSlug" style="font-size:14px;line-height:1.35">—</div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="row">
+            <div>
+              <label>Nom affiché</label>
+              <input id="f_display_name" placeholder="Ex: Lamine"/>
+            </div>
+            <div>
+              <label>Ville</label>
+              <input id="f_city" placeholder="Ex: Saly / Dakar"/>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>WhatsApp</label>
+              <input id="f_whatsapp" placeholder="22177xxxxxxx"/>
+              <div class="hint">Le numéro sert pour le bouton WhatsApp du résumé.</div>
+            </div>
+            <div>
+              <label>Zones</label>
+              <input id="f_zones" placeholder="Saly, Petite Côte, Dakar, AIBD"/>
+            </div>
+          </div>
+
+          <label>Note terrain</label>
+          <textarea id="f_note" placeholder="Ex: Prix de jour, bagages légers inclus, nuit et attente selon contexte…"></textarea>
+
+          <div class="hr"></div>
+
+          <h3>Tarifs principaux</h3>
+
+          <div class="fareGrid">
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Saly → Dakar</div>
+                <div class="chip">trajet</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_saly_dakar" type="number" min="0" placeholder="Ex: 35000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Saly → AIBD</div>
+                <div class="chip">trajet</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_saly_aibd" type="number" min="0" placeholder="Ex: 25000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Saly → Ngaparou</div>
+                <div class="chip">trajet</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_saly_ngaparou" type="number" min="0" placeholder="Ex: 5000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Saly → Somone</div>
+                <div class="chip">trajet</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_saly_somone" type="number" min="0" placeholder="Ex: 7000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Saly → Mbour</div>
+                <div class="chip">trajet</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_saly_mbour" type="number" min="0" placeholder="Ex: 5000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Mise à dispo 4h</div>
+                <div class="chip">service</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_dispo_4h" type="number" min="0" placeholder="Ex: 30000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Mise à dispo journée</div>
+                <div class="chip">service</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_dispo_day" type="number" min="0" placeholder="Ex: 60000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Attente / heure</div>
+                <div class="chip">option</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_wait_hour" type="number" min="0" placeholder="Ex: 5000"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="row">
+            <div>
+              <h3>Tarifs libres</h3>
+              <div class="muted">Ajoute tes autres courses : AIBD retour, Popenguine, Dakar nuit, etc.</div>
+            </div>
+            <div style="flex:0 0 auto">
+              <button class="btn gold" id="btnAddExtra" type="button">➕ Ajouter une ligne</button>
+            </div>
+          </div>
+
+          <div class="extras" id="extrasList"></div>
+
+          <div id="toast" class="toast"></div>
+          <div id="disabledNote" class="disabledNote">
+            ℹ️ Ici on garde un brouillon local par slug. Pas de fausse écriture SQL inventée sur un rail tarifaire non prouvé.
+          </div>
+        </div>
+
+        <div class="list">
+
+          <div class="card">
+            <div class="row">
+              <div>
+                <h2>Aperçu public</h2>
+                <div class="muted">Lecture terrain directe pour le client.</div>
+              </div>
+              <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn" id="btnCopyPublic" type="button">📋 Copier résumé</button>
+                <button class="btn gold" id="btnCopyWhatsApp" type="button">💬 Copier WhatsApp</button>
+              </div>
+            </div>
+
+            <div class="previewCard">
+              <div class="pTop">
+                <div class="pAvatar" id="pAvatar">DR</div>
+                <div>
+                  <p class="pName" id="pName">Chauffeur</p>
+                  <p class="pMeta" id="pMeta">Ville • Zones</p>
+                </div>
+              </div>
+
+              <div class="pBadges" id="pBadges"></div>
+
+              <div class="tarifList" id="previewTarifs">
+                <div class="tarifLine">
+                  <div class="name">Aucun tarif posé</div>
+                  <div class="amount">—</div>
+                </div>
+              </div>
+
+              <div class="summaryBox">
+                <pre id="publicSummary">Aucun résumé pour l’instant.</pre>
+              </div>
+
+              <div class="row" style="margin-top:12px">
+                <a class="btn ghost" id="btnBackCockpit" href="./cockpit.html">⬅️ Retour cockpit</a>
+                <a class="btn" id="btnGoProfile" href="./profil-chauffeur.html">👤 Aller au profil</a>
+                <a class="btn ghost" id="btnGoQr" href="./generateur-digiy-driver.html">📱 Aller au QR</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Envoi rapide</h2>
+            <div class="muted">Tu peux copier le texte ou ouvrir WhatsApp si le numéro est prêt.</div>
+
+            <div class="row" style="margin-top:12px">
+              <button class="btn primary" id="btnOpenWhatsApp" type="button">🟢 Ouvrir WhatsApp</button>
+              <button class="btn warn" id="btnShareText" type="button">📨 Copier texte client</button>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="muted small">
+              Astuce terrain : pose ici la vérité simple. 6 à 10 lignes propres valent mieux qu’un catalogue flou.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const TABLE = "digiy_driver_public_profiles";
+      const MODULE = "DRIVER";
+      const PAY_HOME = "https://commencer-a-payer.digiylyfe.com/";
+      const DASHBOARD_PAGE = "./dashboard-pro.html";
+      const COCKPIT_PAGE = "./cockpit.html";
+      const PROFILE_PAGE = "./profil-chauffeur.html";
+      const RATES_PAGE = "./tarifs.html";
+      const PIN_PAGE = "./pin.html";
+      const HOME_PAGE = "./index.html";
+      const QR_PAGE = "./generateur-digiy-driver.html";
+
+      const $ = (id) => document.getElementById(id);
+
+      const sb = window.supabase?.createClient
+        ? window.supabase.createClient(
+            window.DIGIY_SUPABASE_URL,
+            window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON,
+            { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false } }
+          )
+        : null;
+
+      const ACCESS = {
+        slug:"",
+        phone:"",
+        preview:true,
+        access_ok:false,
+        reason:"preview",
+        pay_url:"",
+        profile:null
+      };
+
+      let extras = [];
+
+      function normSlug(v){
+        return String(v || "").trim().toLowerCase();
+      }
+
+      function phoneDigits(v){
+        return String(v || "").replace(/[^\d]/g, "");
+      }
+
+      function normPhone(v){
+        const digits = phoneDigits(v);
+        if (!digits) return "";
+        if (digits.startsWith("221") && digits.length === 12) return digits;
+        if (digits.length === 9) return "221" + digits;
+        return digits;
+      }
+
+      function displayPhone(v){
+        const p = normPhone(v);
+        return p ? "+" + p : "—";
+      }
+
+      function isDriverSlug(v){
+        return /^driver-\d{12}$/.test(normSlug(v));
+      }
+
+      function phoneFromDriverSlug(v){
+        const s = normSlug(v);
+        return isDriverSlug(s) ? normPhone(s.slice("driver-".length)) : "";
+      }
+
+      function pageUrl(base, slug, phone){
+        const u = new URL(base, location.href);
+        const s = normSlug(slug);
+        const p = normPhone(phone);
+        if (s) u.searchParams.set("slug", s);
+        else u.searchParams.delete("slug");
+        if (p) u.searchParams.set("tel", p);
+        else u.searchParams.delete("tel");
+        return u.pathname + u.search;
+      }
+
+      function buildPayUrl(){
+        try{
+          if (ACCESS.pay_url) return ACCESS.pay_url;
+          const u = new URL(PAY_HOME);
+          u.searchParams.set("module", MODULE);
+          if (ACCESS.phone) u.searchParams.set("phone", ACCESS.phone);
+          if (ACCESS.slug) u.searchParams.set("slug", ACCESS.slug);
+          u.searchParams.set("return", location.href);
+          return u.toString();
+        }catch(_){
+          return PAY_HOME;
+        }
+      }
+
+      function storageKey(){
+        return "digiy_driver_tarifs_" + (ACCESS.slug || "preview");
+      }
+
+      function setToast(text, kind){
+        const el = $("toast");
+        el.className = "toast " + (kind || "");
+        el.textContent = text;
+        el.style.display = text ? "block" : "none";
+      }
+
+      function setAccessPill(mode, text){
+        const pill = $("accessPill");
+        pill.className = "pill " + mode;
+        pill.textContent = "accès : " + text;
+      }
+
+      function setTopSub(text){
+        $("topSub").textContent = text;
+      }
+
+      function money(v){
+        const n = Number(v || 0);
+        if (!Number.isFinite(n) || n <= 0) return "—";
+        return n.toLocaleString("fr-FR") + " F CFA";
+      }
+
+      function initialsFromName(v){
+        const words = String(v || "").trim().split(/\s+/).filter(Boolean).slice(0,2);
+        if (!words.length) return "DR";
+        return words.map(w => w[0]?.toUpperCase() || "").join("");
+      }
+
+      function csvToArray(v){
+        return String(v || "")
+          .split(",")
+          .map(x => x.trim())
+          .filter(Boolean);
+      }
+
+      function arrayToCsv(v){
+        return Array.isArray(v) ? v.join(", ") : "";
+      }
+
+      function copyText(text){
+        if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        let ok = false;
+        try{ ok = document.execCommand("copy"); }catch(_){}
+        ta.remove();
+        if (!ok) throw new Error("copy_failed");
+        return Promise.resolve();
+      }
+
+      function currentData(){
+        return {
+          display_name: $("f_display_name").value.trim(),
+          city: $("f_city").value.trim(),
+          whatsapp: normPhone($("f_whatsapp").value.trim()),
+          zones: csvToArray($("f_zones").value),
+          note: $("f_note").value.trim(),
+          fares: {
+            saly_dakar: Number($("fare_saly_dakar").value || 0),
+            saly_aibd: Number($("fare_saly_aibd").value || 0),
+            saly_ngaparou: Number($("fare_saly_ngaparou").value || 0),
+            saly_somone: Number($("fare_saly_somone").value || 0),
+            saly_mbour: Number($("fare_saly_mbour").value || 0),
+            dispo_4h: Number($("fare_dispo_4h").value || 0),
+            dispo_day: Number($("fare_dispo_day").value || 0),
+            wait_hour: Number($("fare_wait_hour").value || 0)
+          },
+          extras: extras.map(x => ({
+            label: String(x.label || "").trim(),
+            amount: Number(x.amount || 0),
+            note: String(x.note || "").trim()
+          })).filter(x => x.label && x.amount > 0)
+        };
+      }
+
+      function loadIntoForm(data){
+        $("f_display_name").value = data?.display_name || "";
+        $("f_city").value = data?.city || "";
+        $("f_whatsapp").value = data?.whatsapp || ACCESS.phone || "";
+        $("f_zones").value = arrayToCsv(data?.zones);
+        $("f_note").value = data?.note || "";
+
+        const fares = data?.fares || {};
+        $("fare_saly_dakar").value = fares.saly_dakar || "";
+        $("fare_saly_aibd").value = fares.saly_aibd || "";
+        $("fare_saly_ngaparou").value = fares.saly_ngaparou || "";
+        $("fare_saly_somone").value = fares.saly_somone || "";
+        $("fare_saly_mbour").value = fares.saly_mbour || "";
+        $("fare_dispo_4h").value = fares.dispo_4h || "";
+        $("fare_dispo_day").value = fares.dispo_day || "";
+        $("fare_wait_hour").value = fares.wait_hour || "";
+
+        extras = Array.isArray(data?.extras) ? data.extras.map(x => ({
+          label: String(x.label || ""),
+          amount: Number(x.amount || 0),
+          note: String(x.note || "")
+        })) : [];
+
+        renderExtras();
+        refreshPreview();
+      }
+
+      function saveDraft(){
+        const data = currentData();
+        try{
+          localStorage.setItem(storageKey(), JSON.stringify(data));
+          setToast("💾 Brouillon tarifs enregistré sur ce slug.", "ok");
+          refreshPreview();
+        }catch(e){
+          console.error(e);
+          setToast("❌ Impossible d’enregistrer le brouillon local.", "bad");
+        }
+      }
+
+      function resetDraft(){
+        try{
+          localStorage.removeItem(storageKey());
+        }catch(_){}
+        loadIntoForm({
+          display_name: ACCESS.profile?.display_name || deriveNameFromSlug(ACCESS.slug),
+          city: ACCESS.profile?.city || "",
+          whatsapp: ACCESS.profile?.whatsapp || ACCESS.phone || "",
+          zones: ACCESS.profile?.zones || [],
+          note: "",
+          fares: {},
+          extras: []
+        });
+        setToast("🧹 Brouillon effacé pour ce slug.", "warn");
+      }
+
+      function readDraft(){
+        try{
+          const raw = localStorage.getItem(storageKey());
+          return raw ? JSON.parse(raw) : null;
+        }catch(_){
+          return null;
+        }
+      }
+
+      function deriveNameFromSlug(slug){
+        const s = normSlug(slug);
+        if (!s) return "Chauffeur";
+        const tail = s.replace(/^driver-/, "");
+        if (/^\d+$/.test(tail)) return "Chauffeur " + tail.slice(-4);
+        return tail.replace(/-/g, " ").replace(/\b\w/g, m => m.toUpperCase());
+      }
+
+      function fareEntries(data){
+        const f = data?.fares || {};
+        const rows = [
+          ["Saly → Dakar", f.saly_dakar],
+          ["Saly → AIBD", f.saly_aibd],
+          ["Saly → Ngaparou", f.saly_ngaparou],
+          ["Saly → Somone", f.saly_somone],
+          ["Saly → Mbour", f.saly_mbour],
+          ["Mise à dispo 4h", f.dispo_4h],
+          ["Mise à dispo journée", f.dispo_day],
+          ["Attente / heure", f.wait_hour]
+        ];
+
+        const extraRows = (data?.extras || []).map(x => [x.label, x.amount, x.note]);
+        return rows
+          .filter(([, amount]) => Number(amount || 0) > 0)
+          .map(([label, amount]) => ({ label, amount:Number(amount || 0), note:"" }))
+          .concat(
+            extraRows
+              .filter(([, amount]) => Number(amount || 0) > 0)
+              .map(([label, amount, note]) => ({ label, amount:Number(amount || 0), note:note || "" }))
+          );
+      }
+
+      function buildSummary(data){
+        const displayName = data.display_name || deriveNameFromSlug(ACCESS.slug);
+        const city = data.city || "Sénégal";
+        const zones = (data.zones || []).length ? data.zones.join(", ") : "Zones à confirmer";
+        const wa = data.whatsapp || ACCESS.phone || "";
+        const fares = fareEntries(data);
+
+        let txt = `🚖 ${displayName}\n`;
+        txt += `📍 ${city} — ${zones}\n`;
+
+        if (fares.length){
+          txt += `\n💰 Tarifs :\n`;
+          fares.forEach(item => {
+            txt += `• ${item.label} : ${money(item.amount)}\n`;
+          });
+        } else {
+          txt += `\n💰 Tarifs sur demande.\n`;
+        }
+
+        if (data.note){
+          txt += `\n📝 ${data.note}\n`;
+        }
+
+        if (wa){
+          txt += `\nWhatsApp : +${wa}`;
+        }
+
+        return txt.trim();
+      }
+
+      function refreshPreview(){
+        const data = currentData();
+        const entries = fareEntries(data);
+
+        $("pName").textContent = data.display_name || deriveNameFromSlug(ACCESS.slug);
+        $("pMeta").textContent =
+          [data.city || "Ville à compléter", (data.zones || []).length ? data.zones.join(" • ") : "Zones à compléter"].join(" • ");
+
+        const initials = initialsFromName(data.display_name || deriveNameFromSlug(ACCESS.slug));
+        $("pAvatar").textContent = initials;
+
+        const badges = [];
+        if (data.city) badges.push(data.city);
+        if ((data.zones || []).length) badges.push((data.zones || []).length + " zone(s)");
+        if (data.whatsapp) badges.push("WhatsApp OK");
+        if (entries.length) badges.push(entries.length + " tarif(s)");
+
+        $("pBadges").innerHTML = badges.length
+          ? badges.map(x => `<span class="pBadge">${escapeHtml(x)}</span>`).join("")
+          : `<span class="pBadge">Profil en préparation</span>`;
+
+        const box = $("previewTarifs");
+        if (!entries.length){
+          box.innerHTML = `
+            <div class="tarifLine">
+              <div class="name">Aucun tarif posé</div>
+              <div class="amount">—</div>
+            </div>
+          `;
+        } else {
+          box.innerHTML = entries.map(item => `
+            <div class="tarifLine">
+              <div class="name">${escapeHtml(item.label)}${item.note ? ` <span class="small" style="color:var(--muted)">— ${escapeHtml(item.note)}</span>` : ""}</div>
+              <div class="amount">${escapeHtml(money(item.amount))}</div>
+            </div>
+          `).join("");
+        }
+
+        $("publicSummary").textContent = buildSummary(data);
+        updateKpis(entries);
+        updateActionLinks(data);
+      }
+
+      function updateKpis(entries){
+        const amounts = entries.map(x => Number(x.amount || 0)).filter(n => n > 0);
+        $("kpiCount").textContent = String(entries.length);
+        $("kpiMin").textContent = amounts.length ? money(Math.min(...amounts)) : "—";
+        $("kpiMax").textContent = amounts.length ? money(Math.max(...amounts)) : "—";
+        $("kpiSlug").textContent = ACCESS.slug || "—";
+      }
+
+      function updateNav(){
+        $("slugPill").textContent = "slug : " + (ACCESS.slug || "—");
+        $("phonePill").textContent = "phone : " + displayPhone(ACCESS.phone);
+
+        $("navDashboard").href = pageUrl(DASHBOARD_PAGE, ACCESS.slug, ACCESS.phone);
+        $("navCockpit").href = pageUrl(COCKPIT_PAGE, ACCESS.slug, ACCESS.phone);
+        $("navProfil").href = pageUrl(PROFILE_PAGE, ACCESS.slug, ACCESS.phone);
+        $("navTarifs").href = pageUrl(RATES_PAGE, ACCESS.slug, ACCESS.phone);
+        $("navPin").href = pageUrl(PIN_PAGE, ACCESS.slug, ACCESS.phone);
+        $("navHome").href = pageUrl(HOME_PAGE, ACCESS.slug, ACCESS.phone);
+        $("navQr").href = pageUrl(QR_PAGE, ACCESS.slug, ACCESS.phone);
+
+        $("btnBackCockpit").href = pageUrl(COCKPIT_PAGE, ACCESS.slug, ACCESS.phone);
+        $("btnGoProfile").href = pageUrl(PROFILE_PAGE, ACCESS.slug, ACCESS.phone);
+        $("btnGoQr").href = pageUrl(QR_PAGE, ACCESS.slug, ACCESS.phone);
+
+        try{
+          const u = new URL(location.href);
+          if (ACCESS.slug) u.searchParams.set("slug", ACCESS.slug);
+          if (ACCESS.phone) u.searchParams.set("tel", ACCESS.phone);
+          history.replaceState({}, "", u.toString());
+        }catch(_){}
+      }
+
+      function updateActionLinks(data){
+        const wa = normPhone(data.whatsapp || ACCESS.phone || "");
+        const txt = buildSummary(data);
+        $("btnOpenWhatsApp").disabled = !wa;
+        $("btnOpenWhatsApp").dataset.href = wa
+          ? `https://wa.me/${wa}?text=${encodeURIComponent(txt)}`
+          : "";
+      }
+
+      function renderExtras(){
+        const box = $("extrasList");
+
+        if (!extras.length){
+          box.innerHTML = `
+            <div class="extraItem">
+              <div class="muted">Aucune ligne libre pour l’instant. Ajoute une course spéciale ou un service premium.</div>
+            </div>
+          `;
+          return;
+        }
+
+        box.innerHTML = extras.map((item, i) => `
+          <div class="extraItem">
+            <div class="extraHead">
+              <div class="fareTitle">Ligne libre ${i + 1}</div>
+              <button class="btn danger" type="button" data-remove="${i}" style="flex:0 0 auto;min-height:38px;padding:8px 10px">🗑️ Retirer</button>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Nom</label>
+                <input data-extra-label="${i}" value="${escapeAttr(item.label)}" placeholder="Ex: Dakar nuit / Popenguine / Joal"/>
+              </div>
+              <div>
+                <label>Montant</label>
+                <input data-extra-amount="${i}" type="number" min="0" value="${item.amount || ""}" placeholder="Ex: 45000"/>
+              </div>
+            </div>
+
+            <label>Note</label>
+            <input data-extra-note="${i}" value="${escapeAttr(item.note)}" placeholder="Ex: nuit / bagages / aller simple"/>
+          </div>
+        `).join("");
+
+        box.querySelectorAll("[data-remove]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const i = Number(btn.getAttribute("data-remove"));
+            extras.splice(i, 1);
+            renderExtras();
+            refreshPreview();
+          });
+        });
+
+        box.querySelectorAll("[data-extra-label]").forEach(input => {
+          input.addEventListener("input", () => {
+            const i = Number(input.getAttribute("data-extra-label"));
+            extras[i].label = input.value;
+            refreshPreview();
+          });
+        });
+
+        box.querySelectorAll("[data-extra-amount]").forEach(input => {
+          input.addEventListener("input", () => {
+            const i = Number(input.getAttribute("data-extra-amount"));
+            extras[i].amount = Number(input.value || 0);
+            refreshPreview();
+          });
+        });
+
+        box.querySelectorAll("[data-extra-note]").forEach(input => {
+          input.addEventListener("input", () => {
+            const i = Number(input.getAttribute("data-extra-note"));
+            extras[i].note = input.value;
+            refreshPreview();
+          });
+        });
+      }
+
+      function escapeHtml(str){
+        return String(str || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function escapeAttr(str){
+        return escapeHtml(str).replaceAll("`", "&#096;");
+      }
+
+      async function loadProfile(){
+        if (!sb){
+          setToast("⚠️ Supabase indisponible dans cette page.", "warn");
+          return;
+        }
+
+        const slug = ACCESS.slug;
+        if (!slug){
+          setToast("⚠️ Slug manquant pour charger le profil.", "warn");
+          return;
+        }
+
+        try{
+          const { data, error } = await sb
+            .from(TABLE)
+            .select("slug, display_name, city, whatsapp, photo_url, profile_url, bio, zones, tags, is_published, is_active, priority")
+            .eq("slug", slug)
+            .limit(1)
+            .maybeSingle();
+
+          if (error){
+            console.error(error);
+            setToast("⚠️ Profil non chargé : " + (error.message || "erreur inconnue"), "warn");
+            return;
+          }
+
+          ACCESS.profile = data || null;
+
+          if (data){
+            const draft = readDraft();
+            const merged = {
+              display_name: draft?.display_name || data.display_name || deriveNameFromSlug(ACCESS.slug),
+              city: draft?.city || data.city || "",
+              whatsapp: draft?.whatsapp || data.whatsapp || ACCESS.phone || "",
+              zones: draft?.zones?.length ? draft.zones : (Array.isArray(data.zones) ? data.zones : []),
+              note: draft?.note || "",
+              fares: draft?.fares || {},
+              extras: draft?.extras || []
+            };
+            loadIntoForm(merged);
+            setToast("↻ Profil chargé. Tarifs repris depuis le brouillon du slug si présent.", "ok");
+          } else {
+            const draft = readDraft();
+            if (draft){
+              loadIntoForm(draft);
+              setToast("↻ Aucun profil SQL trouvé, mais le brouillon local du slug a été repris.", "warn");
+            } else {
+              loadIntoForm({
+                display_name: deriveNameFromSlug(ACCESS.slug),
+                city: "",
+                whatsapp: ACCESS.phone || "",
+                zones: [],
+                note: "",
+                fares: {},
+                extras: []
+              });
+              setToast("ℹ️ Aucun profil trouvé. Tu peux quand même préparer les tarifs.", "warn");
+            }
+          }
+        }catch(e){
+          console.error(e);
+          setToast("❌ Erreur de lecture profil.", "bad");
+        }
+      }
+
+      async function guardBoot(){
+        try{
+          if (window.DIGIY_GUARD?.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
+            await window.DIGIY_GUARD.ready;
+          }
+        }catch(e){
+          console.warn("guard ready error", e);
+        }
+
+        const qs = new URLSearchParams(location.search);
+        const st = window.DIGIY_GUARD?.state || null;
+
+        ACCESS.slug = normSlug(
+          st?.slug ||
+          qs.get("slug") ||
+          ""
+        );
+
+        ACCESS.phone = normPhone(
+          st?.phone ||
+          qs.get("tel") ||
+          qs.get("phone") ||
+          phoneFromDriverSlug(ACCESS.slug) ||
+          ""
+        );
+
+        ACCESS.access_ok = !!st?.access_ok;
+        ACCESS.preview = !ACCESS.access_ok;
+        ACCESS.reason = st?.reason || (ACCESS.access_ok ? "access_ok" : "preview");
+        ACCESS.pay_url = st?.pay_url || "";
+
+        if (!ACCESS.slug){
+          ACCESS.slug = normSlug(qs.get("slug") || "");
+        }
+
+        if (window.DIGIY_GUARD?.rememberIdentity && (ACCESS.slug || ACCESS.phone)){
+          try{
+            window.DIGIY_GUARD.rememberIdentity({ slug: ACCESS.slug, phone: ACCESS.phone });
+          }catch(_){}
+        }
+
+        if (!ACCESS.slug){
+          setAccessPill("bad", "slug manquant");
+          setTopSub("Aucun slug DRIVER détecté. Ouvre cette page depuis le cockpit ou la porte PIN.");
+          $("disabledNote").style.display = "block";
+          return;
+        }
+
+        if (!isDriverSlug(ACCESS.slug)){
+          setAccessPill("bad", "slug invalide");
+          setTopSub("Slug DRIVER invalide. Format attendu : driver-221XXXXXXXXX.");
+          $("disabledNote").style.display = "block";
+          return;
+        }
+
+        if (ACCESS.access_ok){
+          setAccessPill("ok", st?.pin_session_ok ? "session PIN OK" : "accès OK");
+          setTopSub("Accès vivant détecté. Les tarifs restent gérés en brouillon local par slug.");
+        } else {
+          setAccessPill("warn", "aperçu / brouillon");
+          setTopSub("Mode aperçu : tu peux préparer les tarifs localement par slug, même sans rail SQL tarifaire.");
+        }
+
+        $("disabledNote").style.display = "block";
+      }
+
+      function bindPreview(){
+        [
+          "f_display_name","f_city","f_whatsapp","f_zones","f_note",
+          "fare_saly_dakar","fare_saly_aibd","fare_saly_ngaparou","fare_saly_somone",
+          "fare_saly_mbour","fare_dispo_4h","fare_dispo_day","fare_wait_hour"
+        ].forEach(id => {
+          $(id).addEventListener("input", refreshPreview);
+        });
+      }
+
+      function bindButtons(){
+        $("btnLoadProfile").addEventListener("click", loadProfile);
+        $("btnSaveDraft").addEventListener("click", saveDraft);
+        $("btnResetDraft").addEventListener("click", resetDraft);
+
+        $("btnAddExtra").addEventListener("click", () => {
+          extras.push({ label:"", amount:0, note:"" });
+          renderExtras();
+          refreshPreview();
+        });
+
+        $("btnCopyPublic").addEventListener("click", async () => {
+          try{
+            await copyText(buildSummary(currentData()));
+            setToast("📋 Résumé public copié.", "ok");
+          }catch(e){
+            console.error(e);
+            setToast("❌ Copie impossible.", "bad");
+          }
+        });
+
+        $("btnCopyWhatsApp").addEventListener("click", async () => {
+          try{
+            await copyText(buildSummary(currentData()));
+            setToast("💬 Texte WhatsApp copié.", "ok");
+          }catch(e){
+            console.error(e);
+            setToast("❌ Copie WhatsApp impossible.", "bad");
+          }
+        });
+
+        $("btnShareText").addEventListener("click", async () => {
+          try{
+            await copyText(buildSummary(currentData()));
+            setToast("📨 Texte client copié.", "ok");
+          }catch(e){
+            console.error(e);
+            setToast("❌ Copie texte impossible.", "bad");
+          }
+        });
+
+        $("btnOpenWhatsApp").addEventListener("click", () => {
+          const href = $("btnOpenWhatsApp").dataset.href || "";
+          if (!href){
+            setToast("⚠️ WhatsApp absent. Mets un numéro d’abord.", "warn");
+            return;
+          }
+          window.open(href, "_blank", "noopener");
+        });
+
+        $("btnPay").addEventListener("click", () => {
+          location.href = buildPayUrl();
+        });
+      }
+
+      async function boot(){
+        bindPreview();
+        bindButtons();
+        await guardBoot();
+        updateNav();
+
+        const draft = readDraft();
+        if (draft){
+          loadIntoForm(draft);
+        } else {
+          loadIntoForm({
+            display_name: deriveNameFromSlug(ACCESS.slug),
+            city: "",
+            whatsapp: ACCESS.phone || "",
+            zones: [],
+            note: "",
+            fares: {},
+            extras: []
+          });
+        }
+
+        await loadProfile();
+        refreshPreview();
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>
