@@ -48,10 +48,39 @@
         linear-gradient(135deg,#04110d,#061b14);
     }
 
+    .back-dashboard{
+      position:fixed;
+      left:14px;
+      top:14px;
+      z-index:999;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:12px 14px;
+      border-radius:14px;
+      text-decoration:none;
+      font-weight:950;
+      font-size:14px;
+      color:#eafff1;
+      background:rgba(7,24,16,.88);
+      border:1px solid rgba(250,204,21,.22);
+      box-shadow:0 14px 40px rgba(0,0,0,.32);
+      backdrop-filter:blur(8px);
+      transition:transform .12s ease, filter .12s ease, border-color .12s ease;
+    }
+
+    .back-dashboard:hover{
+      transform:translateY(-1px);
+      filter:brightness(1.03);
+      border-color:rgba(250,204,21,.42);
+    }
+
     .wrap{
       max-width:860px;
       margin:auto;
       padding:18px;
+      padding-top:76px;
     }
 
     .hero{
@@ -241,14 +270,30 @@
     }
 
     @media (max-width:680px){
-      .wrap{padding:14px}
+      .wrap{
+        padding:14px;
+        padding-top:76px;
+        padding-bottom:84px;
+      }
+
       .qrImg{width:260px}
       .btn{flex:1 1 100%}
+
+      .back-dashboard{
+        left:12px;
+        right:12px;
+        top:auto;
+        bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+      }
     }
   </style>
 </head>
 
 <body>
+  <a id="btnBackDashboardFixed" href="./dashboard-pro.html" class="back-dashboard">
+    ← Retour dashboard
+  </a>
+
   <div class="wrap">
     <div class="hero">
       <h1>🚖 QR du chauffeur</h1>
@@ -320,6 +365,7 @@
       const btnCopy     = document.getElementById("btnCopy");
       const btnOpen     = document.getElementById("btnOpen");
       const btnPublic   = document.getElementById("btnPublic");
+      const btnBackDashboardFixed = document.getElementById("btnBackDashboardFixed");
 
       let slug = "";
       let phone = "";
@@ -536,6 +582,10 @@
       dashboardUrl = pageUrl(DASHBOARD_PAGE);
       publicUrl = pageUrl(PUBLIC_PAGE);
 
+      if (btnBackDashboardFixed) {
+        btnBackDashboardFixed.href = dashboardUrl;
+      }
+
       const qrProUrl = new URL(QR_PRO_BASE);
       qrProUrl.searchParams.set("slug", slug);
       qrProUrl.searchParams.set("module", MODULE);
@@ -552,7 +602,8 @@
         " | qr-base: " + QR_PRO_BASE +
         (phone ? " | tel: " + phone : "") +
         " | return: cockpit.html" +
-        " | public: index.html";
+        " | public: index.html" +
+        " | dashboard: dashboard-pro.html";
 
       qrAnchor.href = url;
 
