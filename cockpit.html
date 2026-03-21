@@ -125,6 +125,12 @@
       color:#fde68a;
     }
 
+    .btn.gold{
+      background:rgba(250,204,21,.18);
+      color:#fde68a;
+      border-color:rgba(250,204,21,.28);
+    }
+
     .btn.danger{
       background:rgba(239,68,68,.14);
       color:#fecaca;
@@ -456,6 +462,7 @@
             <div class="muted" id="boardLead">Le cœur de ton module chauffeur. Ici, aucune démo partagée : seulement ton accès et tes vraies données.</div>
           </div>
           <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <button class="btn gold" id="btnQrTop" type="button">📱 Mon QR</button>
             <button class="btn" id="btnCheckAccess" type="button">🔄 Vérifier mon accès</button>
             <button class="btn warn" id="btnPin" type="button">🔐 Refaire PIN</button>
             <button class="btn ghost" id="btnPay" type="button">💳 Abonnement</button>
@@ -648,6 +655,7 @@
 
           <div class="list">
             <button class="btn" id="btnScrollToday" type="button">📋 Aller aux courses actives</button>
+            <button class="btn gold" id="btnQrSession" type="button">📱 Ouvrir mon QR</button>
             <button class="btn" id="btnHome" type="button">🏠 Retour accueil module</button>
             <button class="btn" id="btnReloadAll" type="button">♻️ Recharger cockpit</button>
           </div>
@@ -793,9 +801,10 @@
         return Number.isFinite(n) ? n.toLocaleString("fr-FR") + " FCFA" : "—";
       }
 
-      function withSlug(base){
+      function withContext(base){
         const u = new URL(base, location.href);
         if (slug) u.searchParams.set("slug", slug);
+        if (phone) u.searchParams.set("tel", phone);
         return u.pathname + u.search;
       }
 
@@ -821,14 +830,14 @@
         $("sessionPhone").textContent = displayPhone(phone);
         $("driverPhone").value = displayPhone(phone) === "—" ? "" : displayPhone(phone);
 
-        $("btnTarifs").href = withSlug(TARIFS_URL);
-        $("btnProfil").href = withSlug(PROFIL_URL);
-        $("btnProfilQuick").href = withSlug(PROFIL_URL);
-        $("btnProfilPage").href = withSlug(PROFIL_URL);
-        $("btnQrQuick").href = withSlug(QR_URL);
-        $("btnQrPage").href = withSlug(QR_URL);
-        $("btnPinPage").href = withSlug(PIN_URL);
-        $("btnIndexPage").href = withSlug(HOME_URL);
+        $("btnTarifs").href = withContext(TARIFS_URL);
+        $("btnProfil").href = withContext(PROFIL_URL);
+        $("btnProfilQuick").href = withContext(PROFIL_URL);
+        $("btnProfilPage").href = withContext(PROFIL_URL);
+        $("btnQrQuick").href = withContext(QR_URL);
+        $("btnQrPage").href = withContext(QR_URL);
+        $("btnPinPage").href = withContext(PIN_URL);
+        $("btnIndexPage").href = withContext(HOME_URL);
       }
 
       function buildPayUrl(){
@@ -842,8 +851,9 @@
       }
 
       function goPay(){ location.href = buildPayUrl(); }
-      function goPin(){ location.href = withSlug(PIN_URL); }
-      function goHome(){ location.href = withSlug(HOME_URL); }
+      function goPin(){ location.href = withContext(PIN_URL); }
+      function goHome(){ location.href = withContext(HOME_URL); }
+      function goQr(){ location.href = withContext(QR_URL); }
 
       function statusLabel(s){
         const v = String(s || "").toLowerCase();
@@ -1431,6 +1441,8 @@
       $("btnPin")?.addEventListener("click", goPin);
       $("btnPay")?.addEventListener("click", goPay);
       $("btnHome")?.addEventListener("click", goHome);
+      $("btnQrTop")?.addEventListener("click", goQr);
+      $("btnQrSession")?.addEventListener("click", goQr);
       $("btnReloadAll")?.addEventListener("click", () => reloadAllData(true));
       $("btnResetSession")?.addEventListener("click", resetSession);
       $("btnAuto")?.addEventListener("click", toggleAutoRefresh);
