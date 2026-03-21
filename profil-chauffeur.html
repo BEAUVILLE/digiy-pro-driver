@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-profile-guard-20260314-final"></script>
+  <script src="./guard.js?v=driver-profile-guard-20260321-nav-qr-final"></script>
 
   <style>
     :root{
@@ -27,6 +27,7 @@
       --gold:#facc15;
       --warn:#f59e0b;
       --danger:#ef4444;
+      --blue:#60a5fa;
       --shadow:0 18px 55px rgba(0,0,0,.42);
       --r:18px;
       --max:1100px;
@@ -66,7 +67,7 @@
       margin-top:14px;
     }
 
-    h1,h2{margin:0 0 10px}
+    h1,h2,h3{margin:0 0 10px}
     .muted{color:var(--muted);font-size:13px;font-weight:800}
     .small{font-size:12px}
 
@@ -90,6 +91,15 @@
     }
 
     .row>*{flex:1}
+
+    .grid2{
+      display:grid;
+      gap:14px;
+    }
+
+    @media(min-width:920px){
+      .grid2{grid-template-columns:1.04fr .96fr}
+    }
 
     .in, textarea{
       width:100%;
@@ -127,7 +137,10 @@
       align-items:center;
       justify-content:center;
       gap:8px;
+      transition:.15s ease;
     }
+
+    .btn:hover{transform:translateY(-1px)}
 
     .btn.primary{
       background:var(--primary);
@@ -145,9 +158,16 @@
       color:#fde68a;
     }
 
+    .btn.blue{
+      background:rgba(96,165,250,.14);
+      color:#dbeafe;
+      border-color:rgba(96,165,250,.28);
+    }
+
     .btn:disabled{
       opacity:.58;
       cursor:not-allowed;
+      transform:none;
     }
 
     .msg{
@@ -216,6 +236,83 @@
       flex:0 0 auto;
     }
 
+    .quickNav{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    @media(min-width:760px){
+      .quickNav{grid-template-columns:repeat(5,1fr)}
+    }
+
+    .navbox{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      background:rgba(0,0,0,.16);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-height:118px;
+    }
+
+    .navbox .title{
+      font-size:15px;
+      font-weight:1000;
+    }
+
+    .navbox .desc{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .navbox .go{
+      margin-top:auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 12px;
+      min-height:42px;
+      border-radius:12px;
+      font-weight:900;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.07);
+    }
+
+    .stateGrid{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    @media(min-width:760px){
+      .stateGrid{grid-template-columns:repeat(3,1fr)}
+    }
+
+    .stateBox{
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+    }
+
+    .stateBox .k{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .stateBox .v{
+      font-size:14px;
+      font-weight:1000;
+      line-height:1.45;
+      word-break:break-word;
+    }
+
     @media (max-width:720px){
       body{padding:12px}
       .top,.card{padding:12px}
@@ -231,7 +328,10 @@
         <div class="muted" id="subMain">Profil réel, publication et tarifs liés à ton slug actif. Aucune démo partagée.</div>
 
         <div class="nav">
-          <a class="btn primary" id="btnCockpit" href="#">⬅️ Retour cockpit</a>
+          <a class="btn primary" id="btnCockpit" href="#">⬅️ Cockpit</a>
+          <a class="btn blue" id="btnDashboard" href="#">📊 Dashboard</a>
+          <a class="btn" id="btnTarifsPage" href="#">💰 Tarifs</a>
+          <a class="btn" id="btnQr" href="#">📱 QR</a>
           <a class="btn" id="btnPin" href="#">🔑 PIN</a>
           <a class="btn gold" id="btnPay" href="#">💳 Abonnement</a>
           <a class="btn" id="btnHome" href="#">🏠 Vitrine</a>
@@ -247,138 +347,201 @@
     </div>
 
     <div class="card">
-      <h2>Identité & véhicule</h2>
+      <h2>Navigation chauffeur</h2>
+      <div class="muted">Toutes les portes métier sont recousues sur le même slug réel.</div>
 
-      <div class="row">
-        <div>
-          <div class="muted">Nom affiché</div>
-          <input class="in" id="displayName" placeholder="Ex: Chauffeur Royal Saly"/>
+      <div class="quickNav">
+        <div class="navbox">
+          <div class="title">🏠 Cockpit</div>
+          <div class="desc">Retour au centre du module chauffeur avec accès, courses et état réel.</div>
+          <a class="go" id="navCockpit" href="#">Ouvrir</a>
         </div>
-        <div>
-          <div class="muted">Type véhicule</div>
-          <input class="in" id="vehicleType" placeholder="Ex: Berline / SUV / Van"/>
-        </div>
-      </div>
 
-      <div class="row" style="margin-top:10px">
-        <div>
-          <div class="muted">Marque</div>
-          <input class="in" id="vehicleBrand" placeholder="Ex: Toyota"/>
+        <div class="navbox">
+          <div class="title">📊 Dashboard</div>
+          <div class="desc">Lecture rapide du statut, de l’activité et de l’aiguillage métier.</div>
+          <a class="go" id="navDashboard" href="#">Ouvrir</a>
         </div>
-        <div>
-          <div class="muted">Modèle</div>
-          <input class="in" id="vehicleModel" placeholder="Ex: Corolla"/>
-        </div>
-      </div>
 
-      <div class="row" style="margin-top:10px">
-        <div>
-          <div class="muted">Année</div>
-          <input class="in" id="vehicleYear" placeholder="Ex: 2018"/>
+        <div class="navbox">
+          <div class="title">💰 Tarifs</div>
+          <div class="desc">Grille terrain du chauffeur, liée au slug actif, sans fausse donnée.</div>
+          <a class="go" id="navTarifs" href="#">Ouvrir</a>
         </div>
-        <div>
-          <div class="muted">Couleur</div>
-          <input class="in" id="vehicleColor" placeholder="Ex: Blanc"/>
-        </div>
-      </div>
 
-      <div class="checks">
-        <label class="ck"><input type="checkbox" id="hasAc"/> Climatisation</label>
+        <div class="navbox">
+          <div class="title">📱 QR chauffeur</div>
+          <div class="desc">Partager la bonne porte terrain avec le slug actif déjà transmis.</div>
+          <a class="go" id="navQr" href="#">Ouvrir</a>
+        </div>
+
+        <div class="navbox">
+          <div class="title">🔑 PIN</div>
+          <div class="desc">Repasser par la porte sécurisée sans casser le rail DRIVER.</div>
+          <a class="go" id="navPin" href="#">Ouvrir</a>
+        </div>
       </div>
     </div>
 
     <div class="card">
-      <h2>Zone de service</h2>
+      <h2>État du rail profil</h2>
+      <div class="muted">Lecture simple du contexte actif avant de modifier le profil.</div>
 
-      <div class="row">
-        <div>
-          <div class="muted">Ville principale</div>
-          <input class="in" id="city" placeholder="Ex: Saly"/>
+      <div class="stateGrid">
+        <div class="stateBox">
+          <div class="k">Slug actif</div>
+          <div class="v" id="stateSlug">—</div>
         </div>
-      </div>
-
-      <div style="margin-top:10px">
-        <div class="muted">Zones couvertes</div>
-        <textarea id="zonesText" placeholder="Ex: Saly, Ngaparou, Somone, Dakar, AIBD"></textarea>
-      </div>
-
-      <div class="checks">
-        <label class="ck"><input type="checkbox" id="airportOk"/> Transferts aéroport</label>
-        <label class="ck"><input type="checkbox" id="longDistanceOk"/> Longues distances</label>
+        <div class="stateBox">
+          <div class="k">Téléphone chauffeur</div>
+          <div class="v" id="statePhone">—</div>
+        </div>
+        <div class="stateBox">
+          <div class="k">Publication</div>
+          <div class="v" id="statePublish">Chargement…</div>
+        </div>
       </div>
     </div>
 
-    <div class="card">
-      <h2>Contact pro</h2>
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <h2>Identité & véhicule</h2>
 
-      <div class="row">
-        <div>
-          <div class="muted">WhatsApp</div>
-          <input class="in" id="whatsapp" placeholder="Ex: 221771342889"/>
-        </div>
-      </div>
-
-      <div style="margin-top:10px">
-        <div class="muted">Note contact</div>
-        <textarea id="contactNote" placeholder="Ex: Disponible sur réservation"></textarea>
-      </div>
-
-      <div style="margin-top:10px">
-        <div class="muted">Bio</div>
-        <textarea id="bio" placeholder="Ex: Chauffeur propre, ponctuel, terrain."></textarea>
-      </div>
-
-      <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="btnSaveProfile" type="button">💾 Enregistrer le profil</button>
-        <button class="btn" id="btnReloadProfile" type="button">↻ Recharger profil</button>
-      </div>
-
-      <div class="msg" id="msgProfile">Prêt.</div>
-    </div>
-
-    <div class="card">
-      <h2>Publication chauffeur</h2>
-      <div class="muted">Contrôle simple de visibilité du profil chauffeur.</div>
-
-      <div class="list" style="margin-top:12px">
-        <div class="item">
-          <div>
-            <b>État de publication</b>
-            <div class="muted small" id="publishState">Chargement…</div>
+          <div class="row">
+            <div>
+              <div class="muted">Nom affiché</div>
+              <input class="in" id="displayName" placeholder="Ex: Chauffeur Royal Saly"/>
+            </div>
+            <div>
+              <div class="muted">Type véhicule</div>
+              <input class="in" id="vehicleType" placeholder="Ex: Berline / SUV / Van"/>
+            </div>
           </div>
-          <div class="actions">
-            <button class="btn primary" id="btnPublish" type="button">✅ Publier</button>
-            <button class="btn warn" id="btnUnpublish" type="button">🙈 Masquer</button>
+
+          <div class="row" style="margin-top:10px">
+            <div>
+              <div class="muted">Marque</div>
+              <input class="in" id="vehicleBrand" placeholder="Ex: Toyota"/>
+            </div>
+            <div>
+              <div class="muted">Modèle</div>
+              <input class="in" id="vehicleModel" placeholder="Ex: Corolla"/>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <div>
+              <div class="muted">Année</div>
+              <input class="in" id="vehicleYear" placeholder="Ex: 2018"/>
+            </div>
+            <div>
+              <div class="muted">Couleur</div>
+              <input class="in" id="vehicleColor" placeholder="Ex: Blanc"/>
+            </div>
+          </div>
+
+          <div class="checks">
+            <label class="ck"><input type="checkbox" id="hasAc"/> Climatisation</label>
           </div>
         </div>
-      </div>
 
-      <div class="msg" id="msgPublish">Prêt.</div>
-    </div>
+        <div class="card">
+          <h2>Zone de service</h2>
 
-    <div class="card">
-      <h2>Mes tarifs actifs</h2>
+          <div class="row">
+            <div>
+              <div class="muted">Ville principale</div>
+              <input class="in" id="city" placeholder="Ex: Saly"/>
+            </div>
+          </div>
 
-      <div class="row">
-        <div>
-          <div class="muted">Nom du trajet</div>
-          <input class="in" id="routeLabel" placeholder="Ex: Saly → Dakar"/>
+          <div style="margin-top:10px">
+            <div class="muted">Zones couvertes</div>
+            <textarea id="zonesText" placeholder="Ex: Saly, Ngaparou, Somone, Dakar, AIBD"></textarea>
+          </div>
+
+          <div class="checks">
+            <label class="ck"><input type="checkbox" id="airportOk"/> Transferts aéroport</label>
+            <label class="ck"><input type="checkbox" id="longDistanceOk"/> Longues distances</label>
+          </div>
         </div>
-        <div>
-          <div class="muted">Prix (FCFA)</div>
-          <input class="in" id="priceFcfa" inputmode="numeric" placeholder="Ex: 7000"/>
+
+        <div class="card">
+          <h2>Contact pro</h2>
+
+          <div class="row">
+            <div>
+              <div class="muted">WhatsApp</div>
+              <input class="in" id="whatsapp" placeholder="Ex: 221771342889"/>
+            </div>
+          </div>
+
+          <div style="margin-top:10px">
+            <div class="muted">Note contact</div>
+            <textarea id="contactNote" placeholder="Ex: Disponible sur réservation"></textarea>
+          </div>
+
+          <div style="margin-top:10px">
+            <div class="muted">Bio</div>
+            <textarea id="bio" placeholder="Ex: Chauffeur propre, ponctuel, terrain."></textarea>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <button class="btn primary" id="btnSaveProfile" type="button">💾 Enregistrer le profil</button>
+            <button class="btn" id="btnReloadProfile" type="button">↻ Recharger profil</button>
+          </div>
+
+          <div class="msg" id="msgProfile">Prêt.</div>
         </div>
       </div>
 
-      <div class="row" style="margin-top:10px">
-        <button class="btn gold" id="btnSaveRate" type="button">💰 Enregistrer tarif</button>
-        <button class="btn" id="btnReloadRates" type="button">↻ Rafraîchir tarifs</button>
-      </div>
+      <div>
+        <div class="card">
+          <h2>Publication chauffeur</h2>
+          <div class="muted">Contrôle simple de visibilité du profil chauffeur.</div>
 
-      <div class="msg" id="msgRates">Prêt.</div>
+          <div class="list" style="margin-top:12px">
+            <div class="item">
+              <div>
+                <b>État de publication</b>
+                <div class="muted small" id="publishState">Chargement…</div>
+              </div>
+              <div class="actions">
+                <button class="btn primary" id="btnPublish" type="button">✅ Publier</button>
+                <button class="btn warn" id="btnUnpublish" type="button">🙈 Masquer</button>
+              </div>
+            </div>
+          </div>
 
-      <div class="list" id="ratesList">
-        <div class="empty">Chargement…</div>
+          <div class="msg" id="msgPublish">Prêt.</div>
+        </div>
+
+        <div class="card">
+          <h2>Mes tarifs actifs</h2>
+
+          <div class="row">
+            <div>
+              <div class="muted">Nom du trajet</div>
+              <input class="in" id="routeLabel" placeholder="Ex: Saly → Dakar"/>
+            </div>
+            <div>
+              <div class="muted">Prix (FCFA)</div>
+              <input class="in" id="priceFcfa" inputmode="numeric" placeholder="Ex: 7000"/>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <button class="btn gold" id="btnSaveRate" type="button">💰 Enregistrer tarif</button>
+            <button class="btn" id="btnReloadRates" type="button">↻ Rafraîchir tarifs</button>
+          </div>
+
+          <div class="msg" id="msgRates">Prêt.</div>
+
+          <div class="list" id="ratesList">
+            <div class="empty">Chargement…</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -672,6 +835,9 @@
         const active = CURRENT_COCKPIT?.profile?.is_active ? "active" : "inactive";
         const access = ACCESS_OK ? "accès OK" : "accès KO";
         $("publishState").textContent = `${published} • profil: ${active} • ${access}`;
+        $("statePublish").textContent = published;
+        $("stateSlug").textContent = slug || "—";
+        $("statePhone").textContent = displayPhone(phone);
       }
 
       async function fetchCockpit(){
@@ -692,9 +858,18 @@
 
       function bindNav(){
         $("btnCockpit").href = withSlug("./cockpit.html");
+        $("btnDashboard").href = withSlug("./dashboard-pro.html");
+        $("btnTarifsPage").href = withSlug("./tarifs.html");
+        $("btnQr").href = withSlug("./generateur-digiy-driver.html");
         $("btnPin").href = withSlug("./pin.html");
         $("btnHome").href = withSlug("./index.html");
         $("btnPay").href = buildPayUrl();
+
+        $("navCockpit").href = withSlug("./cockpit.html");
+        $("navDashboard").href = withSlug("./dashboard-pro.html");
+        $("navTarifs").href = withSlug("./tarifs.html");
+        $("navQr").href = withSlug("./generateur-digiy-driver.html");
+        $("navPin").href = withSlug("./pin.html");
       }
 
       async function loadProfile(forceGuardRefresh = false){
@@ -709,6 +884,8 @@
 
           $("slugPill").textContent = "slug : " + (slug || "—");
           $("phonePill").textContent = "phone : " + displayPhone(phone);
+          $("stateSlug").textContent = slug || "—";
+          $("statePhone").textContent = displayPhone(phone);
 
           if (!slug){
             CURRENT_COCKPIT = null;
@@ -1058,6 +1235,8 @@
         bindNav();
         $("slugPill").textContent = "slug : " + (slug || "—");
         $("phonePill").textContent = "phone : " + displayPhone(phone);
+        $("stateSlug").textContent = slug || "—";
+        $("statePhone").textContent = displayPhone(phone);
         setMsgProfile("✅ Session rechargée depuis le guard.", "ok");
       }
 
@@ -1075,6 +1254,8 @@
 
         $("slugPill").textContent = "slug : " + (slug || "—");
         $("phonePill").textContent = "phone : " + displayPhone(phone);
+        $("stateSlug").textContent = slug || "—";
+        $("statePhone").textContent = displayPhone(phone);
 
         if (!sb){
           setAccessState(false, "supabase absent");
