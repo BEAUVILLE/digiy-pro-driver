@@ -1,710 +1,659 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>🦅 PORTE PIN — DIGIY DRIVER PRO</title>
-  <meta name="theme-color" content="#061b14"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>DIGIY DRIVER PRO — Accès PIN</title>
+  <meta name="description" content="Accès sécurisé DIGIY DRIVER PRO par slug, téléphone et PIN." />
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
     window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
     window.DIGIY_MODULE = "DRIVER";
+    window.DIGIY_LOGIN_URL = "./pin.html";
+    window.DIGIY_PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
   </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-pin-20260314-nav-final"></script>
 
   <style>
     :root{
-      --bg:#061b14;
-      --card:#0b2a1f;
-      --line:rgba(255,255,255,.14);
-      --text:#eafff1;
-      --muted:rgba(234,255,241,.72);
-      --gold:#facc15;
+      --bg:#08111b;
+      --bg2:#020617;
+      --card:rgba(255,255,255,.05);
+      --line:rgba(255,255,255,.10);
+      --text:#f8fafc;
+      --muted:#cbd5e1;
+      --amber:#f59e0b;
+      --amber2:#fbbf24;
       --green:#22c55e;
-      --red:#fb7185;
-      --shadow:0 18px 55px rgba(0,0,0,.45);
-      --r:18px;
+      --red:#ef4444;
+      --radius:24px;
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --max:560px;
     }
     *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
     body{
-      margin:0;
-      min-height:100vh;
-      display:grid;
-      place-items:center;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      min-height:100dvh;
+      color:var(--text);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:
-        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
-        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.14), transparent 55%),
-        var(--bg);
-      color:var(--text);
-      padding:18px;
+        radial-gradient(circle at top, rgba(245,158,11,.10), transparent 30%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
     }
-    .wrap{width:100%;max-width:720px}
+    .wrap{width:100%;max-width:var(--max)}
     .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));
       border:1px solid var(--line);
-      border-radius:var(--r);
-      padding:22px;
+      border-radius:var(--radius);
       box-shadow:var(--shadow);
+      overflow:hidden;
+      backdrop-filter:blur(12px);
     }
-    .top{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:14px;
+    .hero{
+      padding:22px 22px 10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      background:radial-gradient(circle at top right, rgba(245,158,11,.16), transparent 36%);
     }
-    .brand{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      min-width:0;
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:50px;height:50px;border-radius:16px;display:grid;place-items:center;
+      background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(251,191,36,.12));
+      border:1px solid rgba(245,158,11,.24);
+      font-size:24px;
     }
-    h1{
-      margin:0;
-      font-size:22px;
-      line-height:1.15;
-      letter-spacing:.2px;
-      font-weight:950;
-      background:linear-gradient(135deg, var(--green), var(--gold));
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-    }
-    .sub{
-      margin:0;
-      color:var(--muted);
-      font-weight:750;
-      line-height:1.45;
-      font-size:13px;
-    }
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.18);
-      color:rgba(234,255,241,.92);
-      font-size:12px;
-      font-weight:900;
-      white-space:nowrap;
-    }
-    .chip b{color:var(--gold)}
-    .stack{
-      display:grid;
-      gap:10px;
-    }
-    .chipline{
-      width:100%;
-      justify-content:space-between;
-    }
-    .navbox{
-      margin-top:14px;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:16px;
-      padding:12px;
-      background:rgba(0,0,0,.14);
-    }
-    .navtitle{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:900;
-      letter-spacing:.03em;
-      margin-bottom:10px;
-      text-transform:uppercase;
-    }
-    .navgrid{
-      display:grid;
-      gap:8px;
-      grid-template-columns:repeat(2,1fr);
-    }
-    @media(min-width:640px){
-      .navgrid{grid-template-columns:repeat(3,1fr)}
-    }
-    .navbtn{
-      min-height:44px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.07);
-      color:var(--text);
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      font-size:13px;
-      font-weight:900;
-      gap:8px;
-    }
-    .navbtn.active{
-      background:rgba(250,204,21,.12);
-      border-color:rgba(250,204,21,.25);
-      color:var(--gold);
-    }
-    .hr{
-      height:1px;
-      background:rgba(255,255,255,.12);
-      margin:14px 0;
-    }
-    .label{
-      font-size:13px;
-      font-weight:900;
-      color:rgba(234,255,241,.92);
-      margin:0 0 8px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .label small{
-      color:rgba(234,255,241,.70);
-      font-weight:800;
-    }
-    .row{
-      display:flex;
-      gap:10px;
-      align-items:stretch;
-    }
+    h1{margin:0;font-size:1.1rem}
+    .sub{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+    .body{padding:20px}
+    .intro{margin:0 0 16px;color:var(--muted);line-height:1.5}
+    .field{margin-bottom:12px}
+    label{display:block;margin-bottom:7px;font-weight:700;font-size:.92rem}
     input{
-      flex:1;
-      width:100%;
-      padding:14px 14px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.22);
-      color:var(--text);
-      font-size:20px;
-      font-weight:950;
-      letter-spacing:.30em;
-      outline:none;
-      text-align:center;
+      width:100%;min-height:52px;border-radius:16px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);color:var(--text);padding:0 14px;font-size:1rem;outline:none;
     }
-    input:focus{border-color:rgba(250,204,21,.55)}
-    .iconbtn{
-      width:56px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.08);
-      color:var(--text);
-      font-weight:950;
-      cursor:pointer;
+    input:focus{border-color:rgba(245,158,11,.55);box-shadow:0 0 0 4px rgba(245,158,11,.12)}
+    .pin-row{display:flex;gap:10px}
+    .pin-row input{flex:1;text-align:center;letter-spacing:.25em;font-weight:800}
+    .mini{
+      min-width:56px;min-height:52px;border:none;border-radius:16px;cursor:pointer;
+      background:rgba(255,255,255,.06);color:var(--text);font-size:1rem;font-weight:800;
     }
-    .btns{
-      display:grid;
-      gap:10px;
-      margin-top:12px;
-    }
+    .actions{display:grid;gap:10px;margin-top:16px}
     .btn{
-      width:100%;
-      border:0;
-      border-radius:14px;
-      padding:14px 16px;
-      font-size:16px;
-      font-weight:950;
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
-      text-decoration:none;
+      appearance:none;border:none;min-height:54px;border-radius:18px;padding:0 16px;
+      text-decoration:none;display:flex;align-items:center;justify-content:center;cursor:pointer;
+      font-weight:800;font-size:1rem;
     }
-    .btn:active{transform:scale(.99)}
-    .btn:disabled{
-      opacity:.6;
-      cursor:not-allowed;
+    .btn.primary{background:linear-gradient(135deg,var(--amber),var(--amber2));color:#3b2400}
+    .btn.secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid rgba(255,255,255,.08)}
+    .btn.ghost{background:transparent;color:#fde68a;border:1px solid rgba(253,230,138,.25)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .status{
+      margin-top:16px;border-radius:16px;padding:12px 14px;min-height:48px;line-height:1.5;
+      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);color:var(--muted);
+      white-space:pre-line;
     }
-    .primary{
-      background:linear-gradient(135deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
-      color:#042012;
-      box-shadow:0 8px 22px rgba(34,197,94,.25);
+    .status.ok{background:rgba(34,197,94,.10);border-color:rgba(34,197,94,.28);color:#dcfce7}
+    .status.err{background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.28);color:#fee2e2}
+    .meta{
+      display:grid;gap:8px;margin-top:16px;padding:14px;border-radius:18px;
+      background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06)
     }
-    .gold{
-      background:linear-gradient(135deg, rgba(250,204,21,.96), rgba(245,158,11,.88));
-      color:#241300;
-      box-shadow:0 8px 22px rgba(250,204,21,.22);
-    }
-    .ghost{
-      background:rgba(255,255,255,.08);
-      border:1px solid var(--line);
-      color:var(--text);
-      box-shadow:none;
-    }
-    .msg{
-      margin-top:12px;
-      padding:12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.22);
-      color:var(--muted);
-      font-weight:800;
-      line-height:1.55;
-      font-size:13px;
-    }
-    .msg.ok{
-      border-color:rgba(34,197,94,.35);
-      color:rgba(187,247,208,.95);
-    }
-    .msg.bad{
-      border-color:rgba(251,113,133,.35);
-      color:rgba(254,202,202,.95);
-    }
-    .tiny{
-      margin-top:10px;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      color:rgba(234,255,241,.70);
-      font-weight:800;
-      font-size:12px;
-    }
-    .a{
-      color:var(--gold);
-      text-decoration:none;
-      font-weight:950;
-    }
-    .a:hover{text-decoration:underline}
-    .helper{
-      margin-top:8px;
-      color:rgba(234,255,241,.68);
-      font-size:12px;
-      font-weight:800;
-      line-height:1.45;
-    }
+    .row{display:flex;justify-content:space-between;gap:12px}
+    .k{color:var(--muted)}
+    .v{font-weight:700;text-align:right;word-break:break-word}
+    .hidden{display:none!important}
+    .foot{padding:0 20px 20px;text-align:center;color:#94a3b8;font-size:.84rem}
+    @media (max-width:560px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
-
 <body>
   <div class="wrap">
-    <div class="card">
-      <div class="top">
+    <section class="card">
+      <div class="hero">
         <div class="brand">
-          <h1>🦅 PORTE PIN — DIGIY DRIVER PRO</h1>
-          <p class="sub">Accès sécurisé au cockpit chauffeur</p>
-        </div>
-        <div class="chip">
-          <span>MODULE</span> <b>DRIVER</b>
-        </div>
-      </div>
-
-      <div class="stack">
-        <div class="chip chipline">
-          <span>SLUG :</span>
-          <b id="slugText">—</b>
-        </div>
-        <div class="chip chipline">
-          <span>TÉLÉPHONE :</span>
-          <b id="phoneText">—</b>
+          <div class="logo">🚗</div>
+          <div>
+            <h1>DIGIY DRIVER PRO</h1>
+            <p class="sub">PIN d’accès — session interne directe</p>
+          </div>
         </div>
       </div>
 
-      <div class="navbox">
-        <div class="navtitle">Navigation DRIVER</div>
-        <div class="navgrid">
-          <a class="navbtn" id="navDashboard" href="./dashboard-pro.html">📊 Dashboard</a>
-          <a class="navbtn" id="navCockpit" href="./cockpit.html">🚖 Cockpit</a>
-          <a class="navbtn" id="navProfil" href="./profil-chauffeur.html">👤 Profil</a>
-          <a class="navbtn" id="navTarifs" href="./tarifs.html">💰 Tarifs</a>
-          <a class="navbtn active" id="navPin" href="./pin.html">🔐 PIN</a>
-          <a class="navbtn" id="navHome" href="./index.html">🏠 Accueil</a>
+      <div class="body">
+        <p class="intro">
+          Entre avec ton <strong>slug</strong> ou ton <strong>téléphone</strong>, puis ton <strong>PIN</strong>.
+          Une fois validé, la session est posée pour le guard et tu circules normalement dans le module.
+        </p>
+
+        <div class="field">
+          <label for="slug">Slug</label>
+          <input id="slug" type="text" placeholder="driver-221771342889" autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label for="phone">Téléphone</label>
+          <input id="phone" type="tel" inputmode="numeric" placeholder="221771342889" autocomplete="tel" />
+        </div>
+
+        <div class="field">
+          <label for="pin">PIN</label>
+          <div class="pin-row">
+            <input id="pin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" autocomplete="one-time-code" />
+            <button id="togglePin" class="mini" type="button" aria-label="Afficher le PIN">👁️</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="btnOpen" class="btn primary" type="button">🔓 Ouvrir mon espace DRIVER</button>
+          <a id="btnReturn" class="btn secondary hidden" href="./cockpit.html">↩️ Retour cible</a>
+          <a id="btnPay" class="btn ghost" href="https://commencer-a-payer.digiylyfe.com/" target="_blank" rel="noopener">💳 Gérer mon abonnement</a>
+        </div>
+
+        <div class="grid">
+          <a id="btnCockpit" class="btn secondary hidden" href="./cockpit.html">🧭 Cockpit</a>
+          <a id="btnProfil" class="btn secondary hidden" href="./profil-chauffeur.html">👤 Profil</a>
+          <a id="btnTarifs" class="btn secondary hidden" href="./tarifs.html">💰 Tarifs</a>
+          <a id="btnQr" class="btn secondary hidden" href="./qr.html">🔳 QR</a>
+        </div>
+
+        <div id="status" class="status">Prêt.</div>
+
+        <div class="meta">
+          <div class="row"><div class="k">Module</div><div class="v">DRIVER</div></div>
+          <div class="row"><div class="k">Retour cible</div><div id="returnInfo" class="v">cockpit.html</div></div>
+          <div class="row"><div class="k">Session</div><div id="sessionInfo" class="v">Aucune</div></div>
         </div>
       </div>
 
-      <div class="hr"></div>
-
-      <div class="label">
-        <span>Entre ton PIN</span>
-        <small id="hint">••••</small>
-      </div>
-
-      <div class="row">
-        <input
-          id="pin"
-          type="password"
-          inputmode="numeric"
-          autocomplete="one-time-code"
-          placeholder="••••"
-          maxlength="4"
-          aria-label="PIN DIGIY DRIVER"
-        />
-        <button class="iconbtn" id="toggle" type="button" aria-label="Afficher ou masquer le PIN">👁️</button>
-      </div>
-
-      <div class="helper">
-        PIN attendu : <strong>4 chiffres</strong>. Le module doit être actif et relié à ton accès DRIVER.
-      </div>
-
-      <div class="btns">
-        <button class="btn primary" id="btnEnter" type="button">🚀 ENTRER</button>
-        <button class="btn gold" id="btnPay" type="button">💳 Activer mon module</button>
-        <button class="btn ghost" id="btnBack" type="button">⬅️ Retour accueil</button>
-      </div>
-
-      <div class="msg" id="msg">🔒 Vérification de la porte PIN…</div>
-
-      <div class="tiny">
-        <span>Support : <a class="a" href="https://wa.me/221771342889" target="_blank" rel="noopener noreferrer">WhatsApp</a></span>
-        <span id="guardState">Guard: …</span>
-      </div>
-    </div>
+      <div class="foot">DIGIYLYFE • DRIVER • PIN MASTER compatible guard</div>
+    </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     (() => {
       "use strict";
 
-      const MODULE = "DRIVER";
-      const DASHBOARD_PAGE = "./dashboard-pro.html";
-      const COCKPIT_PAGE = "./cockpit.html";
-      const PROFILE_PAGE = "./profil-chauffeur.html";
-      const RATES_PAGE = "./tarifs.html";
-      const PIN_PAGE = "./pin.html";
-      const HOME_PAGE = "./index.html";
-      const PAY_HOME = "https://commencer-a-payer.digiylyfe.com/";
+      const CFG = {
+        MODULE: "DRIVER",
+        MODULE_LOWER: "driver",
+        DEFAULT_NEXT: "./cockpit.html",
+        LOGIN_URL: "./pin.html",
+        PAY_URL: window.DIGIY_PAY_URL || "https://commencer-a-payer.digiylyfe.com/",
+        KEEP_PHONE_IN_URL: true,
+        SESSION_MAX_AGE_MS: 8 * 60 * 60 * 1000,
+        STORAGE_KEYS: [
+          "DIGIY_DRIVER_PIN_SESSION",
+          "DIGIY_DRIVER_SESSION",
+          "DIGIY_PIN_SESSION",
+          "DIGIY_ACCESS",
+          "DIGIY_SESSION_DRIVER",
+          "digiy_driver_session"
+        ],
+        SLUG_KEY: "digiy_driver_slug",
+        PHONE_KEY: "digiy_driver_phone",
+        LAST_SLUG_KEY: "digiy_driver_last_slug",
+        RPC_VERIFY_PIN: "digiy_verify_pin",
+        TABLE_SUBS: "digiy_subscriptions_public"
+      };
 
-      const $ = (id) => document.getElementById(id);
+      const SUPABASE_URL = String(window.DIGIY_SUPABASE_URL || "").trim();
+      const SUPABASE_KEY = String(window.DIGIY_SUPABASE_ANON || window.DIGIY_SUPABASE_ANON_KEY || "").trim();
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      const pinEl = $("pin");
-      const slugText = $("slugText");
-      const phoneText = $("phoneText");
-      const msg = $("msg");
-      const btnEnter = $("btnEnter");
-      const btnPay = $("btnPay");
-      const btnBack = $("btnBack");
-      const toggle = $("toggle");
-      const guardState = $("guardState");
-      const hint = $("hint");
+      const el = {
+        slug: document.getElementById("slug"),
+        phone: document.getElementById("phone"),
+        pin: document.getElementById("pin"),
+        togglePin: document.getElementById("togglePin"),
+        btnOpen: document.getElementById("btnOpen"),
+        btnReturn: document.getElementById("btnReturn"),
+        btnCockpit: document.getElementById("btnCockpit"),
+        btnProfil: document.getElementById("btnProfil"),
+        btnTarifs: document.getElementById("btnTarifs"),
+        btnQr: document.getElementById("btnQr"),
+        status: document.getElementById("status"),
+        returnInfo: document.getElementById("returnInfo"),
+        sessionInfo: document.getElementById("sessionInfo")
+      };
 
-      let slug = "";
-      let phone = "";
-      let guardSnapshot = null;
-
-      function normPhone(v){
-        const d = String(v || "").replace(/[^\d]/g, "");
-        if (!d) return "";
-        if (d.startsWith("221") && d.length === 12) return d;
-        if (d.length === 9) return "221" + d;
-        return d.length >= 9 ? d : "";
+      function qs(name) {
+        return new URLSearchParams(window.location.search).get(name);
       }
 
-      function normSlug(v){
-        return String(v || "").trim().toLowerCase();
+      function normSlug(value) {
+        return String(value || "")
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
       }
 
-      function isDriverSlug(v){
-        const s = normSlug(v);
-        return /^driver-\d{12}$/.test(s);
+      function normPhone(value) {
+        const raw = String(value || "").trim();
+        const cleaned = raw.replace(/[^\d+]/g, "");
+        const digits = cleaned.replace(/[^\d]/g, "");
+        if (!digits) return "";
+        return cleaned.startsWith("+") ? `+${digits}` : digits;
       }
 
-      function phoneFromDriverSlug(v){
-        const s = normSlug(v);
-        if (!isDriverSlug(s)) return "";
-        return normPhone(s.slice("driver-".length));
+      function normPin(value) {
+        return String(value || "").trim().replace(/\s+/g, "");
       }
 
-      function setMsg(text, kind){
-        msg.classList.remove("ok", "bad");
-        if (kind) msg.classList.add(kind);
-        msg.textContent = text;
+      function safeJsonParse(raw) {
+        try { return JSON.parse(raw); } catch { return null; }
       }
 
-      function go(url, replace = false){
-        if (replace) location.replace(url);
-        else location.href = url;
+      function setStatus(message, type = "") {
+        el.status.className = `status${type ? " " + type : ""}`;
+        el.status.textContent = message;
       }
 
-      function pageUrl(base, s){
-        const clean = normSlug(s);
-        return base + (clean ? ("?slug=" + encodeURIComponent(clean)) : "");
+      function nowMs() {
+        return Date.now();
       }
 
-      function cockpitUrl(s){
-        return pageUrl(COCKPIT_PAGE, s);
+      function isRecent(ts) {
+        const n = Number(ts || 0);
+        if (!n) return false;
+        return (Date.now() - n) <= CFG.SESSION_MAX_AGE_MS;
       }
 
-      function homeUrl(s){
-        return pageUrl(HOME_PAGE, s);
-      }
-
-      function buildPayUrl(){
-        try{
-          if (guardSnapshot?.pay_url) return guardSnapshot.pay_url;
-
-          const u = new URL(PAY_HOME);
-          u.searchParams.set("module", MODULE);
-          if (phone) u.searchParams.set("phone", phone);
-          if (slug) u.searchParams.set("slug", slug);
-          u.searchParams.set("return", location.href);
-          return u.toString();
-        }catch(_){
-          return PAY_HOME;
-        }
-      }
-
-      function updateNavLinks(){
-        $("navDashboard").href = pageUrl(DASHBOARD_PAGE, slug);
-        $("navCockpit").href = pageUrl(COCKPIT_PAGE, slug);
-        $("navProfil").href = pageUrl(PROFILE_PAGE, slug);
-        $("navTarifs").href = pageUrl(RATES_PAGE, slug);
-        $("navPin").href = pageUrl(PIN_PAGE, slug);
-        $("navHome").href = pageUrl(HOME_PAGE, slug);
-      }
-
-      function applyIdentity(nextSlug, nextPhone){
-        const cleanSlug = normSlug(nextSlug || slug);
-        const cleanPhone = normPhone(nextPhone || phone || phoneFromDriverSlug(cleanSlug));
-
-        slug = cleanSlug;
-        phone = cleanPhone;
-
-        slugText.textContent = slug || "—";
-        phoneText.textContent = phone || "—";
-        updateNavLinks();
-
-        if (window.DIGIY_GUARD?.rememberIdentity && (slug || phone)) {
-          window.DIGIY_GUARD.rememberIdentity({ slug, phone });
-        }
-      }
-
-      function pinResultOk(data){
-        if (data === true) return true;
-        if (!data) return false;
-
-        if (Array.isArray(data)) {
-          return data.length ? pinResultOk(data[0]) : false;
-        }
-
-        if (typeof data === "object") {
-          if (data.ok === true) return true;
-          if (data.valid === true) return true;
-          if (data.success === true) return true;
-          if (data.access === true) return true;
-          if (data.allowed === true) return true;
-          if (String(data.status || "").toLowerCase() === "ok") return true;
-        }
-
-        return false;
-      }
-
-      function extractSlugFromPinData(data){
-        if (!data || typeof data !== "object") return "";
-        return normSlug(
-          data.slug ||
-          data.workspace_slug ||
-          data.driver_slug ||
-          ""
-        );
-      }
-
-      function extractPhoneFromPinData(data){
-        if (!data || typeof data !== "object") return "";
-        return normPhone(
-          data.phone ||
-          data.p_phone ||
-          data.driver_phone ||
-          data.owner_phone ||
-          ""
-        );
-      }
-
-      async function verifyPin(pin){
-        if (!window.DIGIY_GUARD?.rpc) {
-          return { ok: false, error: "guard indisponible" };
-        }
-
-        const p = normPhone(phone || phoneFromDriverSlug(slug));
-        if (!p) {
-          return { ok: false, error: "téléphone introuvable pour ce slug" };
-        }
-
-        const res = await window.DIGIY_GUARD.rpc("digiy_verify_pin", {
-          p_phone: p,
-          p_module: MODULE,
-          p_pin: pin
-        });
-
-        if (!res?.ok) {
-          return {
-            ok: false,
-            error: "PIN invalide ou module non actif"
-          };
-        }
-
-        if (!pinResultOk(res.data)) {
-          return {
-            ok: false,
-            error: "PIN invalide"
-          };
-        }
-
+      function buildNormalizedSession({ slug, phone, owner_id = null }) {
+        const t = nowMs();
         return {
+          slug: normSlug(slug),
+          phone: normPhone(phone),
+          owner_id: owner_id || null,
+          module: CFG.MODULE,
+
+          access: true,
+          access_ok: true,
           ok: true,
-          data: res.data || null
+          verified: true,
+
+          verified_at: t,
+          validated_at: new Date(t).toISOString(),
+          ts: t,
+
+          reason: "pin_ok"
         };
       }
 
-      async function boot(){
-        try{
-          updateNavLinks();
+      function saveSession(payload) {
+        const session = buildNormalizedSession(payload);
 
-          if (!window.DIGIY_GUARD?.ready) {
-            guardState.textContent = "Guard: ❌ absent";
-            setMsg("❌ Guard indisponible sur cette page.", "bad");
-            btnEnter.disabled = true;
-            btnPay.disabled = false;
+        for (const key of CFG.STORAGE_KEYS) {
+          try { localStorage.setItem(key, JSON.stringify(session)); } catch (_) {}
+          try { sessionStorage.setItem(key, JSON.stringify(session)); } catch (_) {}
+        }
+
+        try { localStorage.setItem(CFG.SLUG_KEY, session.slug); } catch (_) {}
+        try { sessionStorage.setItem(CFG.SLUG_KEY, session.slug); } catch (_) {}
+        try { localStorage.setItem(CFG.PHONE_KEY, session.phone); } catch (_) {}
+        try { sessionStorage.setItem(CFG.PHONE_KEY, session.phone); } catch (_) {}
+        try { localStorage.setItem(CFG.LAST_SLUG_KEY, session.slug); } catch (_) {}
+        try { sessionStorage.setItem(CFG.LAST_SLUG_KEY, session.slug); } catch (_) {}
+
+        try {
+          window.DIGIY_ACCESS = Object.assign({}, window.DIGIY_ACCESS || {}, session);
+        } catch (_) {}
+
+        return session;
+      }
+
+      function readSession() {
+        for (const key of CFG.STORAGE_KEYS) {
+          let parsed = null;
+          try {
+            parsed = safeJsonParse(localStorage.getItem(key));
+            if (!parsed) parsed = safeJsonParse(sessionStorage.getItem(key));
+          } catch (_) {}
+
+          if (!parsed || typeof parsed !== "object") continue;
+
+          const moduleName = String(parsed.module || parsed.module_code || "").trim().toUpperCase();
+          if (moduleName && moduleName !== CFG.MODULE) continue;
+
+          const access = !!parsed.access || !!parsed.access_ok || !!parsed.ok || !!parsed.has_access;
+          const verifiedAt = Number(parsed.verified_at || parsed.validated_at_ms || parsed.ts || 0) || 0;
+          const validatedAt = parsed.validated_at || null;
+
+          let recent = false;
+          if (verifiedAt && isRecent(verifiedAt)) recent = true;
+          if (!recent && validatedAt) {
+            const dt = new Date(validatedAt).getTime();
+            if (dt && isRecent(dt)) recent = true;
+          }
+
+          if (!access || !recent) continue;
+
+          return {
+            slug: normSlug(parsed.slug || ""),
+            phone: normPhone(parsed.phone || ""),
+            owner_id: parsed.owner_id || null,
+            verified_at: verifiedAt,
+            validated_at: validatedAt
+          };
+        }
+        return null;
+      }
+
+      async function resolveSubBySlug(slug) {
+        const s = normSlug(slug);
+        if (!s) return null;
+
+        const tries = [
+          { slug: s, module: CFG.MODULE },
+          { slug: s, module: CFG.MODULE_LOWER },
+          { slug: s }
+        ];
+
+        for (const q of tries) {
+          const { data, error } = await supabase
+            .from(CFG.TABLE_SUBS)
+            .select("phone,slug,module")
+            .match(q)
+            .limit(1);
+
+          if (!error && Array.isArray(data) && data[0]) {
+            return {
+              slug: normSlug(data[0].slug),
+              phone: normPhone(data[0].phone),
+              module: String(data[0].module || CFG.MODULE).toUpperCase()
+            };
+          }
+        }
+        return null;
+      }
+
+      async function resolveSubByPhone(phone) {
+        const p = normPhone(phone);
+        if (!p) return null;
+
+        const tries = [
+          { phone: p, module: CFG.MODULE },
+          { phone: p, module: CFG.MODULE_LOWER },
+          { phone: p }
+        ];
+
+        for (const q of tries) {
+          const { data, error } = await supabase
+            .from(CFG.TABLE_SUBS)
+            .select("phone,slug,module")
+            .match(q)
+            .limit(1);
+
+          if (!error && Array.isArray(data) && data[0]) {
+            return {
+              slug: normSlug(data[0].slug),
+              phone: normPhone(data[0].phone),
+              module: String(data[0].module || CFG.MODULE).toUpperCase()
+            };
+          }
+        }
+        return null;
+      }
+
+      function parseVerifyPinPayload(raw, fallbackPhone = "") {
+        const data = Array.isArray(raw) ? raw[0] : raw;
+        if (!data) return null;
+
+        if (typeof data === "object" && !Array.isArray(data)) {
+          if (data.ok === true) {
+            return {
+              ok: true,
+              phone: normPhone(data.phone || data.p_phone || fallbackPhone || ""),
+              module: String(data.module || data.p_module || CFG.MODULE).toUpperCase(),
+              owner_id: data.owner_id || null
+            };
+          }
+          const vals = Object.values(data);
+          if (vals.length >= 3) {
+            const okLike = vals[0] === true || vals[0] === "t" || vals[0] === "true" || vals[0] === 1;
+            if (okLike) {
+              return {
+                ok: true,
+                module: String(vals[1] || CFG.MODULE).toUpperCase(),
+                phone: normPhone(vals[2] || fallbackPhone || ""),
+                owner_id: vals[4] || null
+              };
+            }
+          }
+        }
+
+        if (typeof data === "string") {
+          const txt = data.trim();
+          if (txt.startsWith("(") && txt.endsWith(")")) {
+            const m = txt.match(/^\(([^,]+),([^,]+),([^,]+),?(.*)\)$/);
+            if (m) {
+              const okToken = String(m[1] || "").trim().replace(/^"|"$/g, "");
+              const moduleToken = String(m[2] || "").trim().replace(/^"|"$/g, "");
+              const phoneToken = String(m[3] || "").trim().replace(/^"|"$/g, "");
+              const okLike = okToken === "t" || okToken === "true" || okToken === "1";
+              if (okLike) {
+                return {
+                  ok: true,
+                  module: String(moduleToken || CFG.MODULE).toUpperCase(),
+                  phone: normPhone(phoneToken || fallbackPhone || ""),
+                  owner_id: null
+                };
+              }
+            }
+          }
+        }
+
+        return null;
+      }
+
+      async function verifyPin(phone, pin) {
+        const p = normPhone(phone);
+        const code = normPin(pin);
+
+        const tries = [
+          { p_phone: p, p_module: CFG.MODULE, p_pin: code },
+          { p_phone: p, p_module: CFG.MODULE_LOWER, p_pin: code }
+        ];
+
+        for (const body of tries) {
+          const { data, error } = await supabase.rpc(CFG.RPC_VERIFY_PIN, body);
+          if (error) continue;
+          const parsed = parseVerifyPinPayload(data, p);
+          if (parsed?.ok) return parsed;
+        }
+
+        return null;
+      }
+
+      function isAllowedReturnPath(pathname) {
+        const allowed = [
+          "/cockpit.html",
+          "/profil-chauffeur.html",
+          "/tarifs.html",
+          "/qr.html",
+          "/index.html",
+          "/"
+        ];
+        return allowed.includes(pathname);
+      }
+
+      function buildReturnUrl(session) {
+        const ret = qs("return");
+        if (ret) {
+          try {
+            const u = new URL(ret, location.href);
+            if (u.origin === location.origin && isAllowedReturnPath(u.pathname)) {
+              u.searchParams.set("slug", session.slug);
+              if (CFG.KEEP_PHONE_IN_URL && session.phone) u.searchParams.set("phone", session.phone);
+              u.searchParams.set("module", CFG.MODULE);
+              u.searchParams.set("from", "pin");
+              return u.toString();
+            }
+          } catch (_) {}
+        }
+
+        const target = (qs("target") || "").trim().toLowerCase();
+        let next = CFG.DEFAULT_NEXT;
+        if (target === "profil") next = "./profil-chauffeur.html";
+        if (target === "tarifs") next = "./tarifs.html";
+        if (target === "qr") next = "./qr.html";
+        if (target === "cockpit") next = "./cockpit.html";
+
+        const u = new URL(next, location.href);
+        u.searchParams.set("slug", session.slug);
+        if (CFG.KEEP_PHONE_IN_URL && session.phone) u.searchParams.set("phone", session.phone);
+        u.searchParams.set("module", CFG.MODULE);
+        u.searchParams.set("from", "pin");
+        return u.toString();
+      }
+
+      function refreshLinks(slug, phone) {
+        const s = normSlug(slug);
+        const p = normPhone(phone);
+        const add = (base) => {
+          const u = new URL(base, location.href);
+          if (s) u.searchParams.set("slug", s);
+          if (CFG.KEEP_PHONE_IN_URL && p) u.searchParams.set("phone", p);
+          return u.toString();
+        };
+
+        el.btnCockpit.href = add("./cockpit.html");
+        el.btnProfil.href = add("./profil-chauffeur.html");
+        el.btnTarifs.href = add("./tarifs.html");
+        el.btnQr.href = add("./qr.html");
+
+        if (s) {
+          el.btnCockpit.classList.remove("hidden");
+          el.btnProfil.classList.remove("hidden");
+          el.btnTarifs.classList.remove("hidden");
+          el.btnQr.classList.remove("hidden");
+        }
+
+        const dummy = { slug: s, phone: p };
+        el.btnReturn.href = buildReturnUrl(dummy);
+        el.btnReturn.classList.remove("hidden");
+        el.returnInfo.textContent = new URL(el.btnReturn.href).pathname.split("/").pop() || "cockpit.html";
+      }
+
+      function hydrate() {
+        const qSlug = normSlug(qs("slug"));
+        const qPhone = normPhone(qs("phone"));
+        const saved = readSession();
+
+        el.slug.value =
+          qSlug ||
+          saved?.slug ||
+          normSlug(sessionStorage.getItem(CFG.SLUG_KEY) || localStorage.getItem(CFG.SLUG_KEY) || localStorage.getItem(CFG.LAST_SLUG_KEY) || "");
+
+        el.phone.value =
+          qPhone ||
+          saved?.phone ||
+          normPhone(sessionStorage.getItem(CFG.PHONE_KEY) || localStorage.getItem(CFG.PHONE_KEY) || "");
+
+        if (saved?.slug || saved?.phone) {
+          refreshLinks(saved.slug || el.slug.value, saved.phone || el.phone.value);
+        } else if (el.slug.value || el.phone.value) {
+          refreshLinks(el.slug.value, el.phone.value);
+        }
+
+        if (saved?.verified_at || saved?.validated_at) {
+          el.sessionInfo.textContent = "Active";
+          setStatus("Session locale déjà fraîche. Tu peux reprendre le cockpit.", "ok");
+        }
+      }
+
+      async function login() {
+        try {
+          let slug = normSlug(el.slug.value);
+          let phone = normPhone(el.phone.value);
+          const pin = normPin(el.pin.value);
+
+          if (!slug && !phone) {
+            setStatus("Renseigne au moins le slug ou le téléphone.", "err");
             return;
           }
 
-          const state = await window.DIGIY_GUARD.ready;
-          guardSnapshot = state || null;
+          if (!pin) {
+            setStatus("Entre ton PIN.", "err");
+            return;
+          }
 
-          applyIdentity(
-            state?.slug || "",
-            state?.phone || ""
-          );
+          el.btnOpen.disabled = true;
+          setStatus("Vérification du PIN...");
 
-          guardState.textContent = "Guard: ✅ prêt";
+          if (slug && !phone) {
+            const sub = await resolveSubBySlug(slug);
+            if (sub?.phone) phone = sub.phone;
+          }
+
+          if (phone && !slug) {
+            const sub = await resolveSubByPhone(phone);
+            if (sub?.slug) slug = sub.slug;
+          }
 
           if (!slug) {
-            setMsg("❌ Slug manquant. Ouvre cette page avec ?slug=driver-221...", "bad");
-            btnEnter.disabled = true;
-            return;
-          }
-
-          if (!isDriverSlug(slug)) {
-            setMsg("❌ Slug non conforme pour DRIVER. Format attendu : driver-221XXXXXXXXX.", "bad");
-            btnEnter.disabled = true;
+            setStatus("Slug inconnu.", "err");
             return;
           }
 
           if (!phone) {
-            phone = phoneFromDriverSlug(slug);
-            applyIdentity(slug, phone);
-          }
-
-          if (state?.pin_session_ok) {
-            setMsg("✅ Session PIN déjà ouverte. Redirection vers le cockpit…", "ok");
-            go(cockpitUrl(slug), true);
+            setStatus("Téléphone introuvable pour ce slug.", "err");
             return;
           }
 
-          if (state?.access_ok) {
-            setMsg("🔐 Module actif détecté. Entre ton PIN 4 chiffres pour ouvrir le cockpit.", null);
-          } else {
-            setMsg("🔒 Entre ton PIN. Si le module n’est pas encore actif, passe par l’activation.", null);
-          }
-
-          pinEl.focus();
-        }catch(e){
-          console.error(e);
-          guardState.textContent = "Guard: ❌ erreur";
-          setMsg("❌ Erreur de chargement de la porte PIN.", "bad");
-        }
-      }
-
-      toggle.addEventListener("click", () => {
-        const reveal = pinEl.getAttribute("type") !== "text";
-        pinEl.setAttribute("type", reveal ? "text" : "password");
-        toggle.textContent = reveal ? "🙈" : "👁️";
-        hint.textContent = reveal ? (pinEl.value || "") : "••••";
-      });
-
-      pinEl.addEventListener("input", () => {
-        const raw = pinEl.value;
-        const clean = raw.replace(/[^\d]/g, "").slice(0, 4);
-        if (clean !== raw) pinEl.value = clean;
-        hint.textContent = pinEl.getAttribute("type") === "text" ? (pinEl.value || "") : "••••";
-      });
-
-      pinEl.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") doLogin();
-      });
-
-      btnBack.addEventListener("click", () => {
-        go(homeUrl(slug), true);
-      });
-
-      btnPay.addEventListener("click", () => {
-        go(buildPayUrl(), true);
-      });
-
-      btnEnter.addEventListener("click", doLogin);
-
-      async function doLogin(){
-        const pin = String(pinEl.value || "").trim();
-
-        if (!slug) {
-          setMsg("❌ Slug manquant.", "bad");
-          return;
-        }
-
-        if (!isDriverSlug(slug)) {
-          setMsg("❌ Slug DRIVER invalide.", "bad");
-          return;
-        }
-
-        if (!/^\d{4}$/.test(pin)) {
-          setMsg("❌ Entre un PIN de 4 chiffres.", "bad");
-          return;
-        }
-
-        btnEnter.disabled = true;
-        btnPay.disabled = true;
-        setMsg("⏳ Vérification du PIN…", null);
-
-        try{
-          const res = await verifyPin(pin);
-
-          if (!res.ok) {
-            setMsg("❌ " + (res.error || "PIN invalide"), "bad");
-            btnEnter.disabled = false;
-            btnPay.disabled = false;
+          const auth = await verifyPin(phone, pin);
+          if (!auth?.ok) {
+            setStatus("PIN invalide.", "err");
             return;
           }
 
-          const data = res.data || {};
-          const loginSlug = extractSlugFromPinData(data) || slug;
-          const loginPhone = extractPhoneFromPinData(data) || phone || phoneFromDriverSlug(slug);
+          const session = saveSession({
+            slug,
+            phone: auth.phone || phone,
+            owner_id: auth.owner_id || null
+          });
 
-          if (window.DIGIY_GUARD?.rememberPinAccess) {
-            window.DIGIY_GUARD.rememberPinAccess({
-              slug: loginSlug,
-              phone: loginPhone,
-              ttlHours: 6
-            });
-          }
+          el.sessionInfo.textContent = "Active";
+          refreshLinks(session.slug, session.phone);
+          setStatus("PIN validé. Ouverture de ton espace DRIVER...", "ok");
 
-          if (window.DIGIY_GUARD?.rememberIdentity) {
-            window.DIGIY_GUARD.rememberIdentity({
-              slug: loginSlug,
-              phone: loginPhone
-            });
-          }
-
-          if (window.DIGIY_GUARD?.refresh) {
-            guardSnapshot = await window.DIGIY_GUARD.refresh();
-          }
-
-          applyIdentity(loginSlug, loginPhone);
-
-          setMsg("✅ Accès autorisé. Ouverture du cockpit…", "ok");
-          go(cockpitUrl(loginSlug || slug), true);
-        }catch(e){
-          console.error(e);
-          setMsg("❌ Erreur pendant la vérification du PIN.", "bad");
-          btnEnter.disabled = false;
-          btnPay.disabled = false;
+          setTimeout(() => {
+            window.location.href = buildReturnUrl(session);
+          }, 220);
+        } catch (err) {
+          console.error(err);
+          setStatus(err?.message || "Erreur de vérification.", "err");
+        } finally {
+          el.btnOpen.disabled = false;
         }
       }
 
-      boot();
+      el.togglePin.addEventListener("click", () => {
+        const visible = el.pin.type === "text";
+        el.pin.type = visible ? "password" : "text";
+        el.togglePin.textContent = visible ? "👁️" : "🙈";
+      });
+
+      el.btnOpen.addEventListener("click", login);
+      [el.slug, el.phone, el.pin].forEach(node => {
+        node.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") login();
+        });
+      });
+      el.slug.addEventListener("input", () => refreshLinks(el.slug.value, el.phone.value));
+      el.phone.addEventListener("input", () => refreshLinks(el.slug.value, el.phone.value));
+
+      hydrate();
     })();
   </script>
 </body>
