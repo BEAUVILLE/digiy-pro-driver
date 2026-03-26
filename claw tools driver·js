@@ -1,0 +1,425 @@
+// claw-tools-driver.js — DIGIY PRO DRIVER bridge v1
+// Doctrine : terrain extrait de cockpit.html DRIVER + guard.js DRIVER.
+// API canonique : window.DIGIY_CLAW_DRIVER
+// Alias confort  : window.CLAW_DRIVER = window.DIGIY_CLAW_DRIVER
+// ─────────────────────────────────────────────────────────────────────────────
+
+(() => {
+  "use strict";
+
+  const CFG = {
+    MODULE:       "DRIVER",
+    MODULE_LOWER: "driver",
+
+    // Slug format réel — miroir de isDriverSlug() dans cockpit.html
+    SLUG_PATTERN: /^driver-\d{12}$/,
+
+    PATHS: {
+      pin:     "./pin.html",
+      home:    "./index.html",
+      profil:  "./profil-chauffeur.html",
+      tarifs:  "./tarifs.html",
+      qr:      "./generateur-digiy-driver.html"
+    },
+
+    TABLES: {
+      TRIPS:                "digiy_driver_trips",
+      SUBSCRIPTIONS_PUBLIC: "digiy_subscriptions_public"
+    },
+
+    // RPCs réels déclarés dans cockpit.html DRIVER
+    RPCS: {
+      GET_COCKPIT:    "digiy_driver_get_cockpit_by_slug",
+      START_RIDE:     "digiy_driver_start_ride",
+      COMPLETE_RIDE:  "digiy_driver_complete_ride"
+    },
+
+    // Colonnes SELECT de la table digiy_driver_trips (miroir de fetchDriverTrips)
+    SELECT_TRIPS: "*",
+
+    // Statuts actifs / historique — miroir du cockpit
+    ACTIVE_STATUSES:  ["accepted", "assigned", "in_progress"],
+    HISTORY_STATUSES: ["completed", "cancelled", "canceled"],
+
+    STORAGE: {
+      SESSION_LIST: [
+        "DIGIY_DRIVER_PIN_SESSION",
+        "DIGIY_PIN_SESSION",
+        "DIGIY_ACCESS",
+        "DIGIY_SESSION_DRIVER",
+        "digiy_driver_session"
+      ],
+      SLUG:      "digiy_driver_slug",
+      PHONE:     "digiy_driver_phone",
+      LAST_SLUG: "digiy_driver_last_slug"
+    },
+
+    SUPABASE_URL:
+      window.DIGIY_SUPABASE_URL ||
+      "https://wesqmwjjtsefyjnluosj.supabase.co",
+
+    SUPABASE_ANON_KEY:
+      window.DIGIY_SUPABASE_ANON ||
+      window.DIGIY_SUPABASE_ANON_KEY ||
+      "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3",
+
+    PAY_URL: "https://commencer-a-payer.digiylyfe.com/"
+  };
+
+  const CACHE = { sb: null };
+
+  // ── NORMALISEURS ───────────────────────────────────────────────────────────
+  function normSlug(v) {
+    return String(v || "").trim().toLowerCase()
+      .replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-").replace(/^-|-$/g, "");
+  }
+
+  function normPhone(v) {
+    const raw     = String(v || "").trim();
+    const cleaned = raw.replace(/[^\d+]/g, "");
+    const digits  = cleaned.replace(/[^\d]/g, "");
+    if (!digits) return "";
+    return cleaned.startsWith("+") ? `+${digits}` : digits;
+  }
+
+  // Miroir exact de normPhone() + phoneVariants() dans cockpit.html DRIVER
+  function phoneFromDriverSlug(slug) {
+    const s = normSlug(slug);
+    if (!CFG.SLUG_PATTERN.test(s)) return "";
+    return normPhone(s.slice("driver-".length));
+  }
+
+  function phoneVariants(v) {
+    const digits = normPhone(v).replace(/[^\d]/g, "");
+    if (!digits) return [];
+    const out = new Set();
+    const full = digits.length === 9 ? "221" + digits : digits;
+    out.add(full);
+    out.add("+" + full);
+    if (full.startsWith("221") && full.length === 12) {
+      out.add(full.slice(3));
+      out.add("+221" + full.slice(3));
+    }
+    return Array.from(out).filter(Boolean);
+  }
+
+  function isDriverSlug(v) {
+    return CFG.SLUG_PATTERN.test(normSlug(v));
+  }
+
+  function asError(message, extra = {}) {
+    return { ok: false, error: String(message || "Erreur."), ...extra };
+  }
+
+  function withContext(pathname, ctx = {}) {
+    const url   = new URL(pathname, location.href);
+    const slug  = normSlug(ctx.slug  || "");
+    const phone = normPhone(ctx.phone || "");
+    if (slug)  url.searchParams.set("slug", slug);
+    if (phone) url.searchParams.set("tel",  phone);
+    return url.toString();
+  }
+
+  function sortByDate(rows) {
+    return [...rows].sort((a, b) => {
+      const ta = Math.max(
+        ...[a?.updated_at, a?.completed_at, a?.created_at]
+          .map(v => v ? new Date(v).getTime() : 0)
+      );
+      const tb = Math.max(
+        ...[b?.updated_at, b?.completed_at, b?.created_at]
+          .map(v => v ? new Date(v).getTime() : 0)
+      );
+      return tb - ta;
+    });
+  }
+
+  // ── CLIENT SUPABASE ────────────────────────────────────────────────────────
+  function getSupabaseClient() {
+    if (CACHE.sb) return CACHE.sb;
+
+    if (window.sb && typeof window.sb.from === "function") {
+      CACHE.sb = window.sb;
+      return CACHE.sb;
+    }
+
+    if (!window.supabase?.createClient) return null;
+
+    CACHE.sb = window.supabase.createClient(
+      CFG.SUPABASE_URL,
+      CFG.SUPABASE_ANON_KEY,
+      { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
+    );
+    return CACHE.sb;
+  }
+
+  // ── CONTEXTE GUARD ────────────────────────────────────────────────────────
+  async function getContext() {
+    const g = window.DIGIY_GUARD;
+
+    let state = null;
+    if (g) {
+      if (typeof g.getSession === "function") state = g.getSession();
+      if (!state?.ready_flag && typeof g.ready === "function") state = await g.ready();
+    }
+    state = state || {};
+
+    const qs    = new URLSearchParams(location.search);
+    const slug  = normSlug(state.slug  || qs.get("slug")  || "");
+    const phone = normPhone(state.phone || qs.get("phone") || phoneFromDriverSlug(slug));
+
+    return {
+      ok:        true,
+      module:    String(state.module || CFG.MODULE).toUpperCase(),
+      slug,
+      phone,
+      owner_id:  state.owner_id || null,
+      access_ok: !!(state.access_ok || state.access),
+      preview:   !!state.preview,
+      source:    state.source || (g ? "guard" : "guard_missing"),
+      pin_url:   state.pin_url || null,
+      pay_url:   state.pay_url || null,
+      is_driver_slug: isDriverSlug(slug)
+    };
+  }
+
+  async function requireContext() {
+    const ctx = await getContext();
+    if (!ctx.ok) return ctx;
+    if (!ctx.slug) return asError("Slug DRIVER manquant.", { context: ctx });
+    if (!ctx.is_driver_slug) return asError(`Slug invalide. Format attendu : driver-221XXXXXXXXX. Reçu : "${ctx.slug}"`, { context: ctx });
+    return ctx;
+  }
+
+  async function requireAccess() {
+    const ctx = await requireContext();
+    if (!ctx.ok) return ctx;
+    if (!ctx.access_ok || ctx.preview) {
+      return asError("Accès DRIVER non actif.", { context: ctx, code: "access_required" });
+    }
+    return ctx;
+  }
+
+  // ── RPC avec fallback — miroir de rpcWithFallback() dans cockpit.html ─────
+  async function rpcWithFallback(functionName, rideId, driverPhone) {
+    const sb = getSupabaseClient();
+    if (!sb) throw new Error("supabase_absent");
+
+    const attempts = [
+      { p_ride_id: rideId, p_driver_phone: driverPhone },
+      { ride_id:   rideId, driver_phone:   driverPhone },
+      { p_id:      rideId, p_phone:        driverPhone },
+      { id:        rideId, phone:          driverPhone }
+    ];
+
+    let lastErr = null;
+    for (const args of attempts) {
+      const { data, error } = await sb.rpc(functionName, args);
+      if (!error) return data;
+      lastErr = error;
+    }
+    throw lastErr || new Error(`RPC ${functionName} échouée`);
+  }
+
+  // ── TOOLS MÉTIER ───────────────────────────────────────────────────────────
+
+  // Cockpit complet — miroir de fetchCockpit() dans cockpit.html
+  async function getCockpit(payload = {}) {
+    const ctx = await requireAccess();
+    if (!ctx.ok) return ctx;
+
+    const sb = getSupabaseClient();
+    if (!sb) return asError("Supabase indisponible.", { context: ctx });
+
+    const { data, error } = await sb.rpc(CFG.RPCS.GET_COCKPIT, { p_slug: ctx.slug });
+    if (error) return asError(`get_cockpit: ${error.message}`, { context: ctx });
+
+    return { ok: true, tool: "get_cockpit", context: ctx, data };
+  }
+
+  // Courses — miroir de fetchDriverTrips() dans cockpit.html
+  async function loadTrips(payload = {}) {
+    const ctx = await requireAccess();
+    if (!ctx.ok) return ctx;
+
+    if (!ctx.phone) return asError("Téléphone chauffeur manquant.", { context: ctx });
+
+    const sb = getSupabaseClient();
+    if (!sb) return asError("Supabase indisponible.", { context: ctx });
+
+    const variants = phoneVariants(ctx.phone);
+    if (!variants.length) return asError("Variants téléphone vides.", { context: ctx });
+
+    const { data, error } = await sb
+      .from(CFG.TABLES.TRIPS)
+      .select(CFG.SELECT_TRIPS)
+      .in("driver_phone", variants)
+      .order("created_at", { ascending: false });
+
+    if (error) return asError(`load_trips: ${error.message}`, { context: ctx });
+
+    const rows    = sortByDate(Array.isArray(data) ? data : []);
+    const active  = rows.filter(r => CFG.ACTIVE_STATUSES.includes(String(r.status || "").toLowerCase()));
+    const history = rows.filter(r => CFG.HISTORY_STATUSES.includes(String(r.status || "").toLowerCase()));
+
+    return {
+      ok:      true,
+      tool:    "load_trips",
+      context: ctx,
+      count:   rows.length,
+      rows,
+      active,
+      history
+    };
+  }
+
+  // Démarrer une course — miroir de onRideAction "start" dans cockpit.html
+  // payload: { id } — l'id de la course
+  async function startRide(payload = {}) {
+    const ctx = await requireAccess();
+    if (!ctx.ok) return ctx;
+
+    const rideId = String(payload.id || "").trim();
+    if (!rideId) return asError("ID de course manquant.", { context: ctx });
+    if (!ctx.phone) return asError("Téléphone chauffeur manquant.", { context: ctx });
+
+    try {
+      const data = await rpcWithFallback(CFG.RPCS.START_RIDE, rideId, ctx.phone);
+      return { ok: true, tool: "start_ride", context: ctx, id: rideId, data };
+    } catch (err) {
+      return asError(`start_ride: ${err?.message || err}`, { context: ctx });
+    }
+  }
+
+  // Terminer une course — miroir de onRideAction "finish" dans cockpit.html
+  // payload: { id }
+  async function completeRide(payload = {}) {
+    const ctx = await requireAccess();
+    if (!ctx.ok) return ctx;
+
+    const rideId = String(payload.id || "").trim();
+    if (!rideId) return asError("ID de course manquant.", { context: ctx });
+    if (!ctx.phone) return asError("Téléphone chauffeur manquant.", { context: ctx });
+
+    try {
+      const data = await rpcWithFallback(CFG.RPCS.COMPLETE_RIDE, rideId, ctx.phone);
+      return { ok: true, tool: "complete_ride", context: ctx, id: rideId, data };
+    } catch (err) {
+      return asError(`complete_ride: ${err?.message || err}`, { context: ctx });
+    }
+  }
+
+  // Navigation
+  async function openProfil() { const ctx = await requireContext(); if (!ctx.ok) return ctx; return { ok: true, url: withContext(CFG.PATHS.profil,  ctx) }; }
+  async function openTarifs() { const ctx = await requireContext(); if (!ctx.ok) return ctx; return { ok: true, url: withContext(CFG.PATHS.tarifs,  ctx) }; }
+  async function openQr()     { const ctx = await requireContext(); if (!ctx.ok) return ctx; return { ok: true, url: withContext(CFG.PATHS.qr,      ctx) }; }
+  async function openHome()   { const ctx = await requireContext(); if (!ctx.ok) return ctx; return { ok: true, url: withContext(CFG.PATHS.home,    ctx) }; }
+  async function openPin() {
+    const ctx = await getContext();
+    const g   = window.DIGIY_GUARD;
+    if (g?.goPin) { g.goPin({ slug: ctx.slug, phone: ctx.phone }); return { ok: true, tool: "open_pin" }; }
+    location.replace(withContext(CFG.PATHS.pin, ctx));
+    return { ok: true, tool: "open_pin" };
+  }
+
+  async function refreshContext() {
+    const g = window.DIGIY_GUARD;
+    if (!g?.refresh) return asError("refresh guard indisponible.");
+    const state = await g.refresh();
+    return { ok: true, tool: "refresh_context", context: {
+      module:         String(state?.module || CFG.MODULE).toUpperCase(),
+      slug:           normSlug(state?.slug   || ""),
+      phone:          normPhone(state?.phone || ""),
+      access_ok:      !!(state?.access_ok || state?.access),
+      preview:        !!state?.preview,
+      is_driver_slug: isDriverSlug(state?.slug || "")
+    }};
+  }
+
+  // ── SNAPSHOT ───────────────────────────────────────────────────────────────
+  async function snapshot() {
+    const ctx = await getContext();
+    return {
+      guard_loaded:   !!window.DIGIY_GUARD,
+      authenticated:  ctx.ok && ctx.access_ok,
+      slug:           ctx.slug    || "(aucun)",
+      phone:          ctx.phone   || "(aucun)",
+      is_driver_slug: ctx.is_driver_slug ?? false,
+      preview:        ctx.preview ?? true,
+      source:         ctx.source  || "none",
+      module:         CFG.MODULE,
+      tools:          listTools().map(t => t.name)
+    };
+  }
+
+  // Console goTo
+  async function goTo(page) {
+    const map = {
+      profil: "open_profil", tarifs: "open_tarifs",
+      qr:     "open_qr",     home:   "open_home",
+      pin:    "open_pin"
+    };
+    const action = map[String(page || "").toLowerCase()];
+    if (!action) return asError(`Navigation inconnue : "${page}"`);
+    const res = await runAction(action);
+    if (res?.url) location.href = res.url;
+    return res;
+  }
+
+  // ── REGISTRE TOOLS ─────────────────────────────────────────────────────────
+  const tools = {
+    get_context:      { description: "Retourne le contexte réel DRIVER (slug, phone, access_ok, is_driver_slug).",  run: getContext },
+    get_cockpit:      { description: "Charge le cockpit complet via digiy_driver_get_cockpit_by_slug.",             run: getCockpit },
+    load_trips:       { description: "Charge les courses actives et l'historique depuis digiy_driver_trips.",        run: loadTrips },
+    start_ride:       { description: "Démarre une course (payload: {id}).",                                         run: startRide },
+    complete_ride:    { description: "Termine une course (payload: {id}).",                                         run: completeRide },
+    open_profil:      { description: "Retourne l'URL profil-chauffeur.html avec le slug actif.",                    run: openProfil },
+    open_tarifs:      { description: "Retourne l'URL tarifs.html avec le slug actif.",                              run: openTarifs },
+    open_qr:          { description: "Retourne l'URL generateur-digiy-driver.html avec le slug actif.",             run: openQr },
+    open_home:        { description: "Retourne l'URL index.html avec le slug actif.",                               run: openHome },
+    open_pin:         { description: "Renvoie vers pin.html si la session est cassée.",                             run: openPin },
+    refresh_context:  { description: "Redemande l'état réel au guard.",                                             run: refreshContext }
+  };
+
+  function listTools() {
+    return Object.entries(tools).map(([name, spec]) => ({ name, description: spec.description }));
+  }
+
+  async function runAction(name, payload = {}) {
+    const key  = String(name || "").trim().toLowerCase();
+    const tool = tools[key];
+    if (!tool?.run) return asError(`Tool inconnu : "${name}". Disponibles : ${Object.keys(tools).join(", ")}`);
+    try { return await tool.run(payload); }
+    catch (err) { return asError(err?.message || `Erreur pendant "${name}"`); }
+  }
+
+  async function ready() {
+    const ctx = await getContext();
+    return { ok: true, module: CFG.MODULE, context: ctx.ok ? ctx : null, tools: listTools() };
+  }
+
+  // ── EXPOSITION ─────────────────────────────────────────────────────────────
+  const API = {
+    ready, getContext, snapshot,
+    listTools, runAction, tools,
+    goTo,
+    normSlug, normPhone,
+    isDriverSlug, phoneFromDriverSlug, phoneVariants,
+    PATHS:  CFG.PATHS,
+    TABLES: CFG.TABLES,
+    RPCS:   CFG.RPCS,
+    MODULE: CFG.MODULE,
+    ACTIVE_STATUSES:  CFG.ACTIVE_STATUSES,
+    HISTORY_STATUSES: CFG.HISTORY_STATUSES
+  };
+
+  window.DIGIY_CLAW_DRIVER = API;
+  window.CLAW_DRIVER        = API;
+
+  console.info(
+    "[CLAW_DRIVER v1] chargé —",
+    window.DIGIY_GUARD ? "guard présent ✓" : "guard absent ✗",
+    "— tape CLAW_DRIVER.snapshot() pour l'état complet"
+  );
+})();
