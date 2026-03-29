@@ -1,4 +1,4 @@
-// claw-tools-driver.js — DIGIY PRO DRIVER bridge v2 allégé
+// claw-tools-driver.js — DIGIY PRO DRIVER bridge v3 allégé
 // Doctrine : terrain extrait de cockpit.html DRIVER + guard.js DRIVER.
 // API canonique : window.DIGIY_CLAW_DRIVER
 // Alias confort  : window.CLAW_DRIVER = window.DIGIY_CLAW_DRIVER
@@ -92,19 +92,63 @@
     return Array.from(out).filter(Boolean);
   }
 
+  function storageGet(key) {
+    try {
+      const s = sessionStorage.getItem(key);
+      if (s) return s;
+    } catch {}
+    try {
+      const l = localStorage.getItem(key);
+      if (l) return l;
+    } catch {}
+    return "";
+  }
+
+  function getSearchParam(name) {
+    try {
+      return new URLSearchParams(location.search).get(name) || "";
+    } catch {
+      return "";
+    }
+  }
+
   function asError(message, extra = {}) {
     return { ok: false, error: String(message || "Erreur."), ...extra };
   }
 
+  function buildSafeUrl(base, params = {}) {
+    try {
+      const u = new URL(String(base || "").trim(), location.href);
+
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== null && v !== undefined && String(v).trim() !== "") {
+          u.searchParams.set(k, String(v).trim());
+        }
+      });
+
+      return u.toString();
+    } catch {
+      const qp = new URLSearchParams();
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== null && v !== undefined && String(v).trim() !== "") {
+          qp.set(k, String(v).trim());
+        }
+      });
+
+      const tail = qp.toString();
+      const raw = String(base || "");
+      if (!tail) return raw;
+      return raw + (raw.includes("?") ? "&" : "?") + tail;
+    }
+  }
+
   function withContext(pathname, ctx = {}) {
-    const url = new URL(pathname, location.href);
     const slug = normSlug(ctx.slug || "");
     const phone = normPhone(ctx.phone || "");
-
-    if (slug) url.searchParams.set("slug", slug);
-    if (phone) url.searchParams.set("phone", phone);
-
-    return url.toString();
+    const params = {};
+    if (slug) params.slug = slug;
+    if (phone) params.phone = phone;
+    return buildSafeUrl(pathname, params);
   }
 
   function sortByDate(rows) {
@@ -148,25 +192,69 @@
     return CACHE.sb;
   }
 
-  async function getContext() {
+  async function readGuardState() {
     const g = window.DIGIY_GUARD;
-    let state = null;
+    if (!g) return {};
 
-    if (g) {
-      if (typeof g.getSession === "function") state = g.getSession();
-      if (!state?.ready_flag && typeof g.ready === "function") state = await g.ready();
-    }
+    try {
+      if (typeof g.getSession === "function") {
+        const session = g.getSession();
+        if (session && typeof session === "object") return session;
+      }
+    } catch {}
 
-    state = state || {};
+    try {
+      if (g.state && typeof g.state === "object") {
+        return g.state;
+      }
+    } catch {}
 
-    const qs = new URLSearchParams(location.search);
-    const slug = normSlug(state.slug || qs.get("slug") || "");
-    const phone = normPhone(
+    try {
+      if (typeof g.ready === "function") {
+        let out;
+        try {
+          out = g.ready(8000);
+        } catch {
+          out = g.ready();
+        }
+        if (out && typeof out.then === "function") {
+          const resolved = await out;
+          if (resolved && typeof resolved === "object") return resolved;
+        } else if (out && typeof out === "object") {
+          return out;
+        }
+      }
+    } catch {}
+
+    try {
+      if (g.state && typeof g.state === "object") return g.state;
+    } catch {}
+
+    return {};
+  }
+
+  async function getContext() {
+    const state = await readGuardState();
+
+    const rawSlug =
+      state.slug ||
+      getSearchParam("slug") ||
+      storageGet("digiy_driver_slug") ||
+      storageGet("digiy_last_slug") ||
+      storageGet("DIGIY_SLUG") ||
+      "";
+
+    const slug = normSlug(rawSlug);
+
+    const rawPhone =
       state.phone ||
-      qs.get("phone") ||
-      qs.get("tel") ||
-      phoneFromDriverSlug(slug)
-    );
+      getSearchParam("phone") ||
+      getSearchParam("tel") ||
+      storageGet("DIGIY_DRIVER_PHONE") ||
+      storageGet("DIGIY_PHONE") ||
+      phoneFromDriverSlug(slug);
+
+    const phone = normPhone(rawPhone);
 
     return {
       ok: true,
@@ -176,7 +264,7 @@
       owner_id: state.owner_id || null,
       access_ok: !!(state.access_ok || state.access),
       preview: !!state.preview,
-      source: state.source || (g ? "guard" : "guard_missing"),
+      source: state.source || (window.DIGIY_GUARD ? "guard" : "guard_missing"),
       pin_url: state.pin_url || null,
       pay_url: state.pay_url || null,
       is_driver_slug: isDriverSlug(slug)
@@ -186,12 +274,20 @@
   async function requireContext() {
     const ctx = await getContext();
     if (!ctx.ok) return ctx;
-    if (!ctx.slug) return asError("Slug DRIVER manquant.", { context: ctx });
+    if (!ctx.slug) {
+      return asError("Identifiant DRIVER manquant.", {
+        code: "slug_required",
+        context: ctx
+      });
+    }
 
     if (!ctx.is_driver_slug) {
       return asError(
-        `Slug invalide. Format attendu : driver-221XXXXXXXXX. Reçu : "${ctx.slug}"`,
-        { context: ctx }
+        `Identifiant invalide. Format attendu : driver-221XXXXXXXXX. Reçu : "${ctx.slug}"`,
+        {
+          code: "slug_invalid",
+          context: ctx
+        }
       );
     }
 
@@ -256,7 +352,12 @@
     if (!sb) return asError("Supabase indisponible.", { context: ctx });
 
     const variants = phoneVariants(ctx.phone);
-    if (!variants.length) return asError("Variants téléphone vides.", { context: ctx });
+    if (!variants.length) {
+      return asError("Variants téléphone vides.", {
+        code: "phone_variants_empty",
+        context: ctx
+      });
+    }
 
     const { data, error } = await sb
       .from(CFG.TABLES.TRIPS)
@@ -346,8 +447,10 @@
     const g = window.DIGIY_GUARD;
 
     if (g?.goPin) {
-      g.goPin({ slug: ctx.slug, phone: ctx.phone });
-      return { ok: true, tool: "open_pin" };
+      try {
+        g.goPin({ slug: ctx.slug, phone: ctx.phone });
+        return { ok: true, tool: "open_pin" };
+      } catch {}
     }
 
     location.replace(withContext(CFG.PATHS.pin, ctx));
@@ -514,7 +617,7 @@
   window.CLAW_DRIVER = API;
 
   console.info(
-    "[CLAW_DRIVER v2] chargé —",
+    "[CLAW_DRIVER v3] chargé —",
     window.DIGIY_GUARD ? "guard présent ✓" : "guard absent ✗",
     "— tape CLAW_DRIVER.snapshot() pour l'état complet"
   );
