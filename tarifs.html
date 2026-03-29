@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER PRO — Tarifs</title>
+  <title>DIGIY DRIVER — Mes tarifs</title>
   <meta name="theme-color" content="#061b14"/>
 
   <script>
@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-tarifs-20260321-v1"></script>
+  <script src="./guard.js?v=driver-tarifs-20260329-v2"></script>
 
   <style>
     :root{
@@ -38,7 +38,7 @@
     body{
       margin:0;
       color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
       background:
         radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
         radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
@@ -218,6 +218,7 @@
       outline:none;
       font-weight:850;
       font-size:14px;
+      font-family:inherit;
     }
 
     input[type="number"]{appearance:textfield}
@@ -505,32 +506,32 @@
 
     <div class="top">
       <div>
-        <h1>💰 DIGIY DRIVER PRO — Tarifs</h1>
+        <h1>💰 DIGIY DRIVER — Mes tarifs</h1>
         <div class="muted" id="topSub">
-          Lecture simple des prix terrain. Cette version garde les tarifs en brouillon local par slug.
+          Lecture simple des prix terrain. Cette page garde tes tarifs en brouillon local selon ton identifiant.
         </div>
       </div>
 
       <div class="pillRow">
-        <div class="pill" id="slugPill">slug : —</div>
-        <div class="pill" id="phonePill">phone : —</div>
-        <div class="pill warn" id="accessPill">accès : contrôle…</div>
+        <div class="pill" id="slugPill">identifiant : —</div>
+        <div class="pill" id="phonePill">téléphone : —</div>
+        <div class="pill warn" id="accessPill">session : contrôle…</div>
       </div>
     </div>
 
     <div class="stack">
 
       <div class="navbox">
-        <div class="navtitle">Navigation DRIVER</div>
+        <div class="navtitle">Navigation chauffeur</div>
         <div class="navgrid">
-          <a class="navbtn" id="navDashboard" href="./dashboard-pro.html">📊 Dashboard</a>
-          <a class="navbtn" id="navCockpit" href="./cockpit.html">🚖 Cockpit</a>
-          <a class="navbtn" id="navProfil" href="./profil-chauffeur.html">👤 Profil</a>
-          <a class="navbtn active" id="navTarifs" href="./tarifs.html">💰 Tarifs</a>
-          <a class="navbtn" id="navPin" href="./pin.html">🔐 PIN</a>
-          <a class="navbtn" id="navHome" href="./index.html">🏠 Accueil</a>
-          <a class="navbtn" id="navQr" href="./generateur-digiy-driver.html">📱 QR</a>
-          <button class="navbtn" id="btnPay" type="button">💳 Abonnement</button>
+          <a class="navbtn" id="navDashboard" href="./dashboard-pro.html">📊 Mon activité</a>
+          <a class="navbtn" id="navCockpit" href="./cockpit.html">🧭 Ma gestion</a>
+          <a class="navbtn" id="navProfil" href="./profil-chauffeur.html">👤 Mon profil</a>
+          <a class="navbtn active" id="navTarifs" href="./tarifs.html">💰 Mes tarifs</a>
+          <a class="navbtn" id="navPin" href="./pin.html">🔐 Mon accès</a>
+          <a class="navbtn" id="navHome" href="./index.html">🏠 Ma vitrine</a>
+          <a class="navbtn" id="navQr" href="./generateur-digiy-driver.html">📱 Mon QR</a>
+          <button class="navbtn" id="btnPay" type="button">💳 Mon abonnement</button>
         </div>
       </div>
 
@@ -541,7 +542,7 @@
             <div>
               <h2>Base tarifs chauffeur</h2>
               <div class="muted">
-                Tu poses ici tes prix visibles, sans bricoler un faux rail SQL. Le brouillon suit ton slug.
+                Tu poses ici tes prix visibles, sans inventer un faux rail SQL. Le brouillon suit ton identifiant.
               </div>
             </div>
             <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
@@ -565,7 +566,7 @@
               <div class="value" id="kpiMax">—</div>
             </div>
             <div class="kpi">
-              <div class="label">Slug brouillon</div>
+              <div class="label">Brouillon lié à</div>
               <div class="value" id="kpiSlug" style="font-size:14px;line-height:1.35">—</div>
             </div>
           </div>
@@ -575,11 +576,11 @@
           <div class="row">
             <div>
               <label>Nom affiché</label>
-              <input id="f_display_name" placeholder="Ex: Lamine"/>
+              <input id="f_display_name" placeholder="Ex : Lamine"/>
             </div>
             <div>
               <label>Ville</label>
-              <input id="f_city" placeholder="Ex: Saly / Dakar"/>
+              <input id="f_city" placeholder="Ex : Saly / Dakar"/>
             </div>
           </div>
 
@@ -587,7 +588,7 @@
             <div>
               <label>WhatsApp</label>
               <input id="f_whatsapp" placeholder="22177xxxxxxx"/>
-              <div class="hint">Le numéro sert pour le bouton WhatsApp du résumé.</div>
+              <div class="hint">Ce numéro sert pour le bouton WhatsApp du résumé.</div>
             </div>
             <div>
               <label>Zones</label>
@@ -596,7 +597,7 @@
           </div>
 
           <label>Note terrain</label>
-          <textarea id="f_note" placeholder="Ex: Prix de jour, bagages légers inclus, nuit et attente selon contexte…"></textarea>
+          <textarea id="f_note" placeholder="Ex : Prix de jour, bagages légers inclus, nuit et attente selon contexte…"></textarea>
 
           <div class="hr"></div>
 
@@ -610,7 +611,7 @@
               </div>
               <div class="prefix">
                 <span>FCFA</span>
-                <input id="fare_saly_dakar" type="number" min="0" placeholder="Ex: 35000"/>
+                <input id="fare_saly_dakar" type="number" min="0" placeholder="Ex : 35000"/>
               </div>
             </div>
 
@@ -621,7 +622,7 @@
               </div>
               <div class="prefix">
                 <span>FCFA</span>
-                <input id="fare_saly_aibd" type="number" min="0" placeholder="Ex: 25000"/>
+                <input id="fare_saly_aibd" type="number" min="0" placeholder="Ex : 25000"/>
               </div>
             </div>
 
@@ -632,7 +633,7 @@
               </div>
               <div class="prefix">
                 <span>FCFA</span>
-                <input id="fare_saly_ngaparou" type="number" min="0" placeholder="Ex: 5000"/>
+                <input id="fare_saly_ngaparou" type="number" min="0" placeholder="Ex : 5000"/>
               </div>
             </div>
 
@@ -643,7 +644,7 @@
               </div>
               <div class="prefix">
                 <span>FCFA</span>
-                <input id="fare_saly_somone" type="number" min="0" placeholder="Ex: 7000"/>
+                <input id="fare_saly_somone" type="number" min="0" placeholder="Ex : 7000"/>
               </div>
             </div>
 
@@ -654,7 +655,7 @@
               </div>
               <div class="prefix">
                 <span>FCFA</span>
-                <input id="fare_saly_mbour" type="number" min="0" placeholder="Ex: 5000"/>
+                <input id="fare_saly_mbour" type="number" min="0" placeholder="Ex : 5000"/>
               </div>
             </div>
 
@@ -665,7 +666,7 @@
               </div>
               <div class="prefix">
                 <span>FCFA</span>
-                <input id="fare_dispo_4h" type="number" min="0" placeholder="Ex: 30000"/>
+                <input id="fare_dispo_4h" type="number" min="0" placeholder="Ex : 30000"/>
               </div>
             </div>
 
@@ -676,7 +677,7 @@
               </div>
               <div class="prefix">
                 <span>FCFA</span>
-                <input id="fare_dispo_day" type="number" min="0" placeholder="Ex: 60000"/>
+                <input id="fare_dispo_day" type="number" min="0" placeholder="Ex : 60000"/>
               </div>
             </div>
 
@@ -687,7 +688,7 @@
               </div>
               <div class="prefix">
                 <span>FCFA</span>
-                <input id="fare_wait_hour" type="number" min="0" placeholder="Ex: 5000"/>
+                <input id="fare_wait_hour" type="number" min="0" placeholder="Ex : 5000"/>
               </div>
             </div>
           </div>
@@ -708,7 +709,7 @@
 
           <div id="toast" class="toast"></div>
           <div id="disabledNote" class="disabledNote">
-            ℹ️ Ici on garde un brouillon local par slug. Pas de fausse écriture SQL inventée sur un rail tarifaire non prouvé.
+            ℹ️ Ici on garde un brouillon local par identifiant. Pas de fausse écriture SQL inventée sur un rail tarifaire non prouvé.
           </div>
         </div>
 
@@ -749,9 +750,9 @@
               </div>
 
               <div class="row" style="margin-top:12px">
-                <a class="btn ghost" id="btnBackCockpit" href="./cockpit.html">⬅️ Retour cockpit</a>
-                <a class="btn" id="btnGoProfile" href="./profil-chauffeur.html">👤 Aller au profil</a>
-                <a class="btn ghost" id="btnGoQr" href="./generateur-digiy-driver.html">📱 Aller au QR</a>
+                <a class="btn ghost" id="btnBackCockpit" href="./cockpit.html">⬅️ Revenir</a>
+                <a class="btn" id="btnGoProfile" href="./profil-chauffeur.html">👤 Mon profil</a>
+                <a class="btn ghost" id="btnGoQr" href="./generateur-digiy-driver.html">📱 Mon QR</a>
               </div>
             </div>
           </div>
@@ -845,15 +846,26 @@
         return isDriverSlug(s) ? normPhone(s.slice("driver-".length)) : "";
       }
 
+      function buildSafeUrl(base, params){
+        try{
+          const u = new URL(base, location.href);
+          Object.entries(params || {}).forEach(([key, value]) => {
+            const clean = String(value == null ? "" : value).trim();
+            if (clean) u.searchParams.set(key, clean);
+            else u.searchParams.delete(key);
+          });
+          return u.pathname + u.search;
+        }catch(e){
+          console.error("[DIGIY DRIVER TARIFS] buildSafeUrl", e);
+          return base;
+        }
+      }
+
       function pageUrl(base, slug, phone){
-        const u = new URL(base, location.href);
-        const s = normSlug(slug);
-        const p = normPhone(phone);
-        if (s) u.searchParams.set("slug", s);
-        else u.searchParams.delete("slug");
-        if (p) u.searchParams.set("tel", p);
-        else u.searchParams.delete("tel");
-        return u.pathname + u.search;
+        return buildSafeUrl(base, {
+          slug: normSlug(slug),
+          phone: normPhone(phone)
+        });
       }
 
       function buildPayUrl(){
@@ -884,7 +896,7 @@
       function setAccessPill(mode, text){
         const pill = $("accessPill");
         pill.className = "pill " + mode;
-        pill.textContent = "accès : " + text;
+        pill.textContent = "session : " + text;
       }
 
       function setTopSub(text){
@@ -986,7 +998,7 @@
         const data = currentData();
         try{
           localStorage.setItem(storageKey(), JSON.stringify(data));
-          setToast("💾 Brouillon tarifs enregistré sur ce slug.", "ok");
+          setToast("💾 Brouillon tarifs enregistré sur cet identifiant.", "ok");
           refreshPreview();
         }catch(e){
           console.error(e);
@@ -1007,7 +1019,7 @@
           fares: {},
           extras: []
         });
-        setToast("🧹 Brouillon effacé pour ce slug.", "warn");
+        setToast("🧹 Brouillon effacé pour cet identifiant.", "warn");
       }
 
       function readDraft(){
@@ -1081,6 +1093,19 @@
         return txt.trim();
       }
 
+      function setAvatar(profile){
+        const avatar = $("pAvatar");
+        const photo = String(profile?.photo_url || "").trim();
+
+        if (photo){
+          avatar.innerHTML = `<img src="${escapeAttr(photo)}" alt="Photo chauffeur"/>`;
+        } else {
+          avatar.textContent = initialsFromName(
+            currentData().display_name || deriveNameFromSlug(ACCESS.slug)
+          );
+        }
+      }
+
       function refreshPreview(){
         const data = currentData();
         const entries = fareEntries(data);
@@ -1089,8 +1114,7 @@
         $("pMeta").textContent =
           [data.city || "Ville à compléter", (data.zones || []).length ? data.zones.join(" • ") : "Zones à compléter"].join(" • ");
 
-        const initials = initialsFromName(data.display_name || deriveNameFromSlug(ACCESS.slug));
-        $("pAvatar").textContent = initials;
+        setAvatar(ACCESS.profile);
 
         const badges = [];
         if (data.city) badges.push(data.city);
@@ -1133,8 +1157,8 @@
       }
 
       function updateNav(){
-        $("slugPill").textContent = "slug : " + (ACCESS.slug || "—");
-        $("phonePill").textContent = "phone : " + displayPhone(ACCESS.phone);
+        $("slugPill").textContent = "identifiant : " + (ACCESS.slug || "—");
+        $("phonePill").textContent = "téléphone : " + displayPhone(ACCESS.phone);
 
         $("navDashboard").href = pageUrl(DASHBOARD_PAGE, ACCESS.slug, ACCESS.phone);
         $("navCockpit").href = pageUrl(COCKPIT_PAGE, ACCESS.slug, ACCESS.phone);
@@ -1151,7 +1175,12 @@
         try{
           const u = new URL(location.href);
           if (ACCESS.slug) u.searchParams.set("slug", ACCESS.slug);
-          if (ACCESS.phone) u.searchParams.set("tel", ACCESS.phone);
+          else u.searchParams.delete("slug");
+
+          if (ACCESS.phone) u.searchParams.set("phone", ACCESS.phone);
+          else u.searchParams.delete("phone");
+
+          u.searchParams.delete("tel");
           history.replaceState({}, "", u.toString());
         }catch(_){}
       }
@@ -1187,16 +1216,16 @@
             <div class="row">
               <div>
                 <label>Nom</label>
-                <input data-extra-label="${i}" value="${escapeAttr(item.label)}" placeholder="Ex: Dakar nuit / Popenguine / Joal"/>
+                <input data-extra-label="${i}" value="${escapeAttr(item.label)}" placeholder="Ex : Dakar nuit / Popenguine / Joal"/>
               </div>
               <div>
                 <label>Montant</label>
-                <input data-extra-amount="${i}" type="number" min="0" value="${item.amount || ""}" placeholder="Ex: 45000"/>
+                <input data-extra-amount="${i}" type="number" min="0" value="${item.amount || ""}" placeholder="Ex : 45000"/>
               </div>
             </div>
 
             <label>Note</label>
-            <input data-extra-note="${i}" value="${escapeAttr(item.note)}" placeholder="Ex: nuit / bagages / aller simple"/>
+            <input data-extra-note="${i}" value="${escapeAttr(item.note)}" placeholder="Ex : nuit / bagages / aller simple"/>
           </div>
         `).join("");
 
@@ -1255,7 +1284,7 @@
 
         const slug = ACCESS.slug;
         if (!slug){
-          setToast("⚠️ Slug manquant pour charger le profil.", "warn");
+          setToast("⚠️ Identifiant absent pour charger le profil.", "warn");
           return;
         }
 
@@ -1287,12 +1316,12 @@
               extras: draft?.extras || []
             };
             loadIntoForm(merged);
-            setToast("↻ Profil chargé. Tarifs repris depuis le brouillon du slug si présent.", "ok");
+            setToast("↻ Profil chargé. Tarifs repris depuis le brouillon local si présent.", "ok");
           } else {
             const draft = readDraft();
             if (draft){
               loadIntoForm(draft);
-              setToast("↻ Aucun profil SQL trouvé, mais le brouillon local du slug a été repris.", "warn");
+              setToast("↻ Aucun profil SQL trouvé, mais le brouillon local a été repris.", "warn");
             } else {
               loadIntoForm({
                 display_name: deriveNameFromSlug(ACCESS.slug),
@@ -1318,7 +1347,7 @@
             await window.DIGIY_GUARD.ready;
           }
         }catch(e){
-          console.warn("guard ready error", e);
+          console.warn("[DIGIY DRIVER TARIFS] guard ready error", e);
         }
 
         const qs = new URLSearchParams(location.search);
@@ -1332,8 +1361,8 @@
 
         ACCESS.phone = normPhone(
           st?.phone ||
-          qs.get("tel") ||
           qs.get("phone") ||
+          qs.get("tel") ||
           phoneFromDriverSlug(ACCESS.slug) ||
           ""
         );
@@ -1343,10 +1372,6 @@
         ACCESS.reason = st?.reason || (ACCESS.access_ok ? "access_ok" : "preview");
         ACCESS.pay_url = st?.pay_url || "";
 
-        if (!ACCESS.slug){
-          ACCESS.slug = normSlug(qs.get("slug") || "");
-        }
-
         if (window.DIGIY_GUARD?.rememberIdentity && (ACCESS.slug || ACCESS.phone)){
           try{
             window.DIGIY_GUARD.rememberIdentity({ slug: ACCESS.slug, phone: ACCESS.phone });
@@ -1354,25 +1379,25 @@
         }
 
         if (!ACCESS.slug){
-          setAccessPill("bad", "slug manquant");
-          setTopSub("Aucun slug DRIVER détecté. Ouvre cette page depuis le cockpit ou la porte PIN.");
+          setAccessPill("bad", "identifiant absent");
+          setTopSub("Aucun identifiant chauffeur détecté. Ouvre cette page depuis ton accès ou depuis ta gestion.");
           $("disabledNote").style.display = "block";
           return;
         }
 
         if (!isDriverSlug(ACCESS.slug)){
-          setAccessPill("bad", "slug invalide");
-          setTopSub("Slug DRIVER invalide. Format attendu : driver-221XXXXXXXXX.");
+          setAccessPill("bad", "identifiant invalide");
+          setTopSub("Identifiant chauffeur invalide. Format attendu : driver-221XXXXXXXXX.");
           $("disabledNote").style.display = "block";
           return;
         }
 
         if (ACCESS.access_ok){
-          setAccessPill("ok", st?.pin_session_ok ? "session PIN OK" : "accès OK");
-          setTopSub("Accès vivant détecté. Les tarifs restent gérés en brouillon local par slug.");
+          setAccessPill("ok", st?.pin_session_ok ? "session ouverte" : "accès ouvert");
+          setTopSub("Accès vivant détecté. Les tarifs restent gérés en brouillon local par identifiant.");
         } else {
-          setAccessPill("warn", "aperçu / brouillon");
-          setTopSub("Mode aperçu : tu peux préparer les tarifs localement par slug, même sans rail SQL tarifaire.");
+          setAccessPill("warn", "aperçu");
+          setTopSub("Mode aperçu : tu peux préparer les tarifs localement par identifiant, même sans rail SQL tarifaire.");
         }
 
         $("disabledNote").style.display = "block";
@@ -1468,7 +1493,10 @@
         refreshPreview();
       }
 
-      boot();
+      boot().catch((e) => {
+        console.error("[DIGIY DRIVER TARIFS] boot error", e);
+        setToast("❌ Erreur au démarrage de la page.", "bad");
+      });
     })();
   </script>
 </body>
