@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY PRO DRIVER — Accès PIN</title>
+  <title>DIGIY DRIVER — Mon accès</title>
   <meta name="theme-color" content="#061b14"/>
-  <meta name="description" content="Accès sécurisé DIGIY PRO DRIVER par téléphone et code PIN."/>
+  <meta name="description" content="Accès sécurisé DIGIY DRIVER par téléphone et code PIN."/>
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -40,7 +40,7 @@
         radial-gradient(circle at top, rgba(25,180,107,.10), transparent 34%),
         linear-gradient(180deg, #071711 0%, #061b14 100%);
       color:var(--text);
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-family:Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       min-height:100%;
     }
 
@@ -100,7 +100,7 @@
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       overflow:hidden;
-      backdrop-filter: blur(8px);
+      backdrop-filter:blur(8px);
     }
 
     .hero{
@@ -196,6 +196,7 @@
       padding:0 15px;
       font-size:1rem;
       outline:none;
+      font-family:inherit;
     }
 
     input::placeholder{
@@ -224,6 +225,7 @@
       font-weight:900;
       font-size:1rem;
       transition:.18s ease;
+      font-family:inherit;
     }
 
     .mainBtn{
@@ -334,23 +336,23 @@
   <div class="wrap">
     <div class="shell">
       <div class="topbar">
-        <a class="back" href="./index.html">← Retour vitrine</a>
-        <div class="badge">Driver • PIN</div>
+        <a class="back" id="backLink" href="./index.html">← Retour vitrine</a>
+        <div class="badge">Driver • Accès</div>
       </div>
 
       <section class="card">
         <div class="hero">
-          <div class="kicker">DIGIY PRO DRIVER</div>
+          <div class="kicker">DIGIY DRIVER</div>
           <h1>Entre avec ton téléphone et ton code PIN</h1>
           <p class="sub">
-            Porte d’entrée simple pour le chauffeur. Une fois validé, tu pars direct vers ton cockpit.
+            Porte d’entrée simple pour le chauffeur. Une fois validé, tu pars direct vers ton espace.
           </p>
         </div>
 
         <div class="body">
           <div id="statusBox" class="status warn">
             <div>🔐</div>
-            <div id="statusText">Préparation de l’accès sécurisé DRIVER…</div>
+            <div id="statusText">Préparation de l’accès sécurisé chauffeur…</div>
           </div>
 
           <form id="pinForm" novalidate>
@@ -383,29 +385,29 @@
             </div>
 
             <div class="actions">
-              <button id="btnSubmit" type="submit" class="mainBtn">Ouvrir mon cockpit</button>
+              <button id="btnSubmit" type="submit" class="mainBtn">Ouvrir mon espace</button>
               <button id="btnReuse" type="button" class="softBtn">Réutiliser ma session</button>
             </div>
           </form>
 
           <div class="mini">
             <div class="miniBox">
-              <div class="miniTitle">Rail DRIVER</div>
+              <div class="miniTitle">Passage chauffeur</div>
               <div class="miniText">
                 Le PIN est une porte d’entrée. Après validation, la session suit la navigation interne normale du module.
               </div>
             </div>
 
             <div class="links">
-              <a class="linkBtn" href="./cockpit.html">Cockpit</a>
-              <a class="linkBtn" href="./profil-chauffeur.html">Profil chauffeur</a>
-              <a class="linkBtn" href="./tarifs.html">Tarifs</a>
-              <a class="linkBtn" href="./qr.html">QR chauffeur</a>
+              <a class="linkBtn" id="linkCockpit" href="./cockpit.html">Ma gestion</a>
+              <a class="linkBtn" id="linkProfil" href="./profil-chauffeur.html">Mon profil</a>
+              <a class="linkBtn" id="linkTarifs" href="./tarifs.html">Mes tarifs</a>
+              <a class="linkBtn" id="linkQr" href="./qr.html">Mon QR</a>
             </div>
           </div>
 
           <div class="foot">
-            DIGIY PRO DRIVER • accès protégé • session locale 8h
+            DIGIY DRIVER • accès protégé • session locale 8h
           </div>
         </div>
       </section>
@@ -422,6 +424,14 @@
       const SESSION_KEY_GLOBAL = "digiy_guard_session";
       const MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
+      const PAGES = {
+        home: "./index.html",
+        cockpit: "./cockpit.html",
+        profil: "./profil-chauffeur.html",
+        tarifs: "./tarifs.html",
+        qr: "./qr.html"
+      };
+
       const $ = (id) => document.getElementById(id);
 
       const statusBox = $("statusBox");
@@ -433,16 +443,32 @@
       const btnReuse = $("btnReuse");
       const btnTogglePin = $("togglePin");
 
+      const backLink = $("backLink");
+      const linkCockpit = $("linkCockpit");
+      const linkProfil = $("linkProfil");
+      const linkTarifs = $("linkTarifs");
+      const linkQr = $("linkQr");
+
       const query = new URLSearchParams(window.location.search);
 
       const SUPABASE_URL = window.DIGIY_SUPABASE_URL || "";
       const SUPABASE_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON || "";
       const supabase = window.supabase && SUPABASE_URL && SUPABASE_KEY
-        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth:{
+              persistSession:false,
+              autoRefreshToken:false,
+              detectSessionInUrl:false
+            }
+          })
         : null;
 
       function normalizePhone(v){
-        return String(v || "").replace(/[^\d]/g, "");
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
       }
 
       function normalizeSlug(v){
@@ -460,7 +486,40 @@
 
       function setBusy(isBusy){
         btnSubmit.disabled = !!isBusy;
-        btnSubmit.textContent = isBusy ? "Connexion en cours..." : "Ouvrir mon cockpit";
+        btnSubmit.textContent = isBusy ? "Connexion en cours..." : "Ouvrir mon espace";
+      }
+
+      function buildSafeUrl(path, params){
+        try{
+          const url = new URL(path, window.location.href);
+          Object.entries(params || {}).forEach(([key, value]) => {
+            const clean = String(value == null ? "" : value).trim();
+            if (clean) url.searchParams.set(key, clean);
+            else url.searchParams.delete(key);
+          });
+          return url.toString();
+        }catch(e){
+          console.error("[DRIVER PIN] buildSafeUrl", e);
+          return path;
+        }
+      }
+
+      function buildPageUrl(path, slug, phone){
+        return buildSafeUrl(path, {
+          slug: normalizeSlug(slug),
+          phone: normalizePhone(phone)
+        });
+      }
+
+      function refreshLinks(slug, phone){
+        const cleanSlug = normalizeSlug(slug);
+        const cleanPhone = normalizePhone(phone);
+
+        backLink.href = buildPageUrl(PAGES.home, cleanSlug, cleanPhone);
+        linkCockpit.href = buildPageUrl(PAGES.cockpit, cleanSlug, cleanPhone);
+        linkProfil.href = buildPageUrl(PAGES.profil, cleanSlug, cleanPhone);
+        linkTarifs.href = buildPageUrl(PAGES.tarifs, cleanSlug, cleanPhone);
+        linkQr.href = buildPageUrl(PAGES.qr, cleanSlug, cleanPhone);
       }
 
       function readStoredSession(){
@@ -502,6 +561,8 @@
 
         if(!cleanSlug) return null;
 
+        const now = Date.now();
+
         const payload = Object.assign({
           slug: cleanSlug,
           phone: cleanPhone,
@@ -509,14 +570,15 @@
           access_ok: true,
           preview: false,
           reason: "access_ok",
-          validated_at: Date.now(),
-          ts: Date.now()
+          validated_at: now,
+          ts: now
         }, extra || {});
 
         try{ localStorage.setItem(SESSION_KEY, JSON.stringify(payload)); }catch(_){}
         try{ localStorage.setItem(SESSION_KEY_ALT, JSON.stringify(payload)); }catch(_){}
         try{ localStorage.setItem(SESSION_KEY_GLOBAL, JSON.stringify(payload)); }catch(_){}
 
+        refreshLinks(cleanSlug, cleanPhone);
         return payload;
       }
 
@@ -612,15 +674,12 @@
       }
 
       function buildCockpitUrl(slug, phone){
-        const url = new URL("./cockpit.html", window.location.href);
-        if(slug) url.searchParams.set("slug", normalizeSlug(slug));
-        if(phone) url.searchParams.set("phone", normalizePhone(phone));
-        return url.toString();
+        return buildPageUrl(PAGES.cockpit, slug, phone);
       }
 
       async function goWithSession(session){
         if(!session || !session.slug){
-          setStatus("bad", "Aucune session DRIVER valide trouvée.");
+          setStatus("bad", "Aucune session chauffeur valide trouvée.");
           return;
         }
 
@@ -628,20 +687,22 @@
         const phone = normalizePhone(session.phone);
 
         saveSession(slug, phone, session);
-        setStatus("ok", "Session DRIVER retrouvée. Redirection vers le cockpit...");
+        setStatus("ok", "Session chauffeur retrouvée. Redirection vers ton espace...");
         window.location.href = buildCockpitUrl(slug, phone);
       }
 
       async function tryReuseSession(){
         const stored = readStoredSession();
         if(!stored){
-          setStatus("warn", "Pas de session DRIVER active. Entre ton téléphone et ton PIN.");
+          setStatus("warn", "Pas de session active. Entre ton téléphone et ton PIN.");
           return;
         }
         await goWithSession(stored);
       }
 
       async function bootstrap(){
+        refreshLinks("", "");
+
         if(!supabase){
           setStatus("bad", "Supabase n’est pas disponible sur cette page.");
           return;
@@ -651,19 +712,37 @@
         const phoneFromUrl = normalizePhone(query.get("phone"));
         const stored = readStoredSession();
 
+        let activeSlug = "";
+        let activePhone = "";
+
         if(phoneFromUrl){
+          activePhone = phoneFromUrl;
           phoneInput.value = phoneFromUrl;
         }else if(stored && stored.phone){
+          activePhone = stored.phone;
           phoneInput.value = stored.phone;
-        }else if(slugFromUrl){
-          const resolvedPhone = await resolvePhoneBySlug(slugFromUrl);
-          if(resolvedPhone) phoneInput.value = resolvedPhone;
         }
 
+        if(slugFromUrl){
+          activeSlug = slugFromUrl;
+        }else if(stored && stored.slug){
+          activeSlug = stored.slug;
+        }
+
+        if(!activePhone && activeSlug){
+          const resolvedPhone = await resolvePhoneBySlug(activeSlug);
+          if(resolvedPhone){
+            activePhone = resolvedPhone;
+            phoneInput.value = resolvedPhone;
+          }
+        }
+
+        refreshLinks(activeSlug, activePhone);
+
         if(stored && stored.slug){
-          setStatus("ok", "Session DRIVER encore active. Tu peux la réutiliser directement.");
+          setStatus("ok", "Session chauffeur encore active. Tu peux la réutiliser directement.");
         }else{
-          setStatus("warn", "Entre ton téléphone puis ton PIN pour ouvrir le cockpit DRIVER.");
+          setStatus("warn", "Entre ton téléphone puis ton PIN pour ouvrir ton espace chauffeur.");
         }
       }
 
@@ -696,14 +775,15 @@
         }
 
         setBusy(true);
-        setStatus("warn", "Vérification réelle du PIN DRIVER en cours...");
+        setStatus("warn", "Vérification réelle du PIN chauffeur en cours...");
 
         try{
           const verify = await verifyPin(phone, pin);
 
           if(!verify || verify.ok !== true){
             clearSession();
-            setStatus("bad", "PIN refusé ou accès DRIVER inactif.");
+            refreshLinks("", phone);
+            setStatus("bad", "PIN refusé ou accès chauffeur inactif.");
             return;
           }
 
@@ -718,7 +798,8 @@
 
           if(!slug){
             clearSession();
-            setStatus("bad", "PIN validé mais slug DRIVER introuvable.");
+            refreshLinks("", phone);
+            setStatus("bad", "PIN validé mais identifiant chauffeur introuvable.");
             return;
           }
 
@@ -728,18 +809,22 @@
             raw_verify: verify
           });
 
-          setStatus("ok", "PIN accepté. Ouverture du cockpit DRIVER...");
+          setStatus("ok", "PIN accepté. Ouverture de ton espace chauffeur...");
           window.location.href = buildCockpitUrl(session.slug, session.phone);
         }catch(err){
           console.error("[DRIVER PIN] submit error", err);
           clearSession();
-          setStatus("bad", "Erreur pendant la vérification du PIN DRIVER.");
+          refreshLinks("", phone);
+          setStatus("bad", "Erreur pendant la vérification du PIN chauffeur.");
         }finally{
           setBusy(false);
         }
       });
 
-      bootstrap();
+      bootstrap().catch((err) => {
+        console.error("[DRIVER PIN] bootstrap error", err);
+        setStatus("bad", "Erreur au démarrage de la page.");
+      });
     })();
   </script>
 </body>
