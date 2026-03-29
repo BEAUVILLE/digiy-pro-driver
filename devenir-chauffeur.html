@@ -118,12 +118,19 @@
       gap:8px;
       white-space:nowrap;
       font-family:"Outfit",system-ui,-apple-system,sans-serif;
-      transition:transform .15s ease, filter .15s ease, border-color .15s ease;
+      transition:transform .15s ease, filter .15s ease, border-color .15s ease, opacity .15s ease;
     }
 
     .btn:hover{
       filter:brightness(1.05);
       transform:translateY(-1px);
+    }
+
+    .btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+      transform:none;
+      filter:none;
     }
 
     .btn.primary{
@@ -279,28 +286,51 @@
       max-width:min(92vw,680px);
     }
 
-    .okbox{
-      border:1px solid rgba(34,197,94,.35);
-      background:rgba(34,197,94,.10);
+    .okbox,
+    .infobox{
       border-radius:16px;
       padding:12px;
       display:none;
+      margin-top:12px;
     }
 
-    .okbox.show{
+    .okbox{
+      border:1px solid rgba(34,197,94,.35);
+      background:rgba(34,197,94,.10);
+    }
+
+    .infobox{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+    }
+
+    .okbox.show,
+    .infobox.show{
       display:block;
     }
 
-    .okbox .t{
+    .okbox .t,
+    .infobox .t{
       font-weight:1050;
     }
 
-    .okbox .d{
+    .okbox .d,
+    .infobox .d{
       margin-top:6px;
       color:rgba(234,255,241,.85);
       font-weight:850;
       font-size:12px;
       line-height:1.45;
+    }
+
+    .infobox.warn{
+      border-color:rgba(250,204,21,.28);
+      background:rgba(250,204,21,.10);
+    }
+
+    .infobox.bad{
+      border-color:rgba(239,68,68,.28);
+      background:rgba(239,68,68,.10);
     }
 
     .mono{
@@ -340,7 +370,7 @@
           </div>
           <div>
             <label>Téléphone WhatsApp</label>
-            <input class="in" id="phone" placeholder="Ex : +221771234567"/>
+            <input class="in" id="phone" placeholder="Ex : +221771234567" inputmode="tel" autocomplete="tel"/>
             <div class="mini">Format conseillé : <span class="mono">+22177...</span></div>
           </div>
         </div>
@@ -398,6 +428,11 @@
             <textarea class="in" id="about" placeholder="Ex : Ponctuel, tenue propre, discret. Je connais Dakar et la Petite Côte."></textarea>
             <div class="mini">On cherche la prestance : calme, propreté, sécurité, respect du client.</div>
           </div>
+        </div>
+
+        <div class="infobox" id="feedbackBox">
+          <div class="t" id="feedbackTitle">Information</div>
+          <div class="d" id="feedbackText">—</div>
         </div>
 
         <div class="okbox" id="okbox">
@@ -470,38 +505,72 @@
       ""
     ).trim();
 
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth:{
-        persistSession:false,
-        autoRefreshToken:false,
-        detectSessionInUrl:false
-      }
-    });
-
     const TABLE = "digiy_driver_applications";
     const SUPPORT_WA = "221771342889";
+    const DUPLICATE_WINDOW_MS = 10 * 60 * 1000;
 
     const $ = (id) => document.getElementById(id);
 
+    const toastEl = $("toast");
+    const btnSend = $("btnSend");
+    const okbox = $("okbox");
+    const feedbackBox = $("feedbackBox");
+    const feedbackTitle = $("feedbackTitle");
+    const feedbackText = $("feedbackText");
+
+    let sb = null;
+    let canSendToSupabase = false;
+
     function toast(msg){
-      const t = $("toast");
-      if(!t) return;
-      t.textContent = msg;
-      t.style.display = "block";
+      if(!toastEl) return;
+      toastEl.textContent = msg;
+      toastEl.style.display = "block";
       clearTimeout(window.__digiy_toast_t);
-      window.__digiy_toast_t = setTimeout(() => t.style.display = "none", 1600);
+      window.__digiy_toast_t = setTimeout(() => {
+        toastEl.style.display = "none";
+      }, 1800);
+    }
+
+    function showFeedback(type, title, text){
+      if(!feedbackBox || !feedbackTitle || !feedbackText) return;
+      feedbackBox.className = "infobox show" + (type ? " " + type : "");
+      feedbackTitle.textContent = title || "Information";
+      feedbackText.textContent = text || "";
+    }
+
+    function hideFeedback(){
+      if(!feedbackBox) return;
+      feedbackBox.className = "infobox";
+    }
+
+    function showOk(show){
+      if(!okbox) return;
+      okbox.classList.toggle("show", !!show);
     }
 
     function normPhone(p){
-      let v = String(p || "").trim().replace(/\s+/g, "").replace(/[^\d+]/g, "");
+      let v = String(p || "").trim();
+      v = v.replace(/\s+/g, "").replace(/[^\d+]/g, "");
+
       if(v.startsWith("00221")) v = "+221" + v.slice(5);
       if(!v.startsWith("+") && v.startsWith("221")) v = "+" + v;
       if(!v.startsWith("+221") && /^\d{9}$/.test(v)) v = "+221" + v;
+
       return v || "";
+    }
+
+    function isValidSnPhone(p){
+      return /^\+221\d{9}$/.test(String(p || "").trim());
     }
 
     function v(id){
       return ($(`${id}`)?.value || "").trim();
+    }
+
+    function setBusy(isBusy){
+      if(!btnSend) return;
+      btnSend.disabled = !!isBusy || !canSendToSupabase;
+      btnSend.textContent = isBusy ? "Envoi..." : "🚀 Envoyer ma candidature";
     }
 
     function buildSupportWaLink(phone, name){
@@ -517,7 +586,118 @@
       return `https://wa.me/${SUPPORT_WA}?text=${encodeURIComponent(msg)}`;
     }
 
+    function getDuplicateKey(phone){
+      return "digiy_driver_apply_last_submit:" + String(phone || "").trim().toLowerCase();
+    }
+
+    function recentlySubmitted(phone){
+      try{
+        const raw = localStorage.getItem(getDuplicateKey(phone));
+        if(!raw) return false;
+
+        const ts = Number(raw || 0);
+        if(!ts) return false;
+
+        return (Date.now() - ts) < DUPLICATE_WINDOW_MS;
+      }catch(err){
+        console.warn("[DIGIY DRIVER APPLY] recentlySubmitted", err);
+        return false;
+      }
+    }
+
+    function rememberSubmitted(phone){
+      try{
+        localStorage.setItem(getDuplicateKey(phone), String(Date.now()));
+      }catch(err){
+        console.warn("[DIGIY DRIVER APPLY] rememberSubmitted", err);
+      }
+    }
+
+    function clearSubmitted(phone){
+      try{
+        localStorage.removeItem(getDuplicateKey(phone));
+      }catch(err){
+        console.warn("[DIGIY DRIVER APPLY] clearSubmitted", err);
+      }
+    }
+
+    function initSupabase(){
+      if(!window.supabase || typeof window.supabase.createClient !== "function"){
+        canSendToSupabase = false;
+        setBusy(false);
+        showFeedback(
+          "warn",
+          "Connexion indisponible",
+          "La page n’a pas réussi à charger le service d’envoi. Recharge la page ou contacte DIGIY sur WhatsApp."
+        );
+        return;
+      }
+
+      if(!SUPABASE_URL || !SUPABASE_ANON_KEY){
+        canSendToSupabase = false;
+        setBusy(false);
+        showFeedback(
+          "warn",
+          "Envoi indisponible",
+          "Le service d’envoi n’est pas prêt sur cette page pour le moment. Passe par WhatsApp."
+        );
+        return;
+      }
+
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth:{
+          persistSession:false,
+          autoRefreshToken:false,
+          detectSessionInUrl:false
+        }
+      });
+
+      canSendToSupabase = true;
+      setBusy(false);
+    }
+
+    async function tryInsert(payload){
+      const { error } = await sb.from(TABLE).insert(payload);
+
+      if(!error){
+        return true;
+      }
+
+      console.error("[DIGIY DRIVER APPLY] insert error:", error);
+
+      const msg = String(error.message || "").toLowerCase();
+      const hasStatusColumnIssue = msg.includes("column") && msg.includes("status");
+
+      if(hasStatusColumnIssue){
+        const payload2 = { ...payload };
+        delete payload2.status;
+
+        const { error: e2 } = await sb.from(TABLE).insert(payload2);
+        if(e2){
+          console.error("[DIGIY DRIVER APPLY] fallback insert error:", e2);
+          throw e2;
+        }
+
+        return true;
+      }
+
+      throw error;
+    }
+
     async function send(){
+      hideFeedback();
+      showOk(false);
+
+      if(!canSendToSupabase || !sb){
+        toast("Envoi indisponible");
+        showFeedback(
+          "warn",
+          "Envoi indisponible",
+          "La page n’arrive pas à joindre le service d’envoi. Recharge la page ou passe par WhatsApp."
+        );
+        return;
+      }
+
       const full_name = v("full_name");
       const phone = normPhone(v("phone"));
       const city = v("city");
@@ -528,16 +708,33 @@
 
       if(!full_name){
         toast("Nom requis");
+        showFeedback("warn", "Nom manquant", "Ajoute ton nom complet avant d’envoyer.");
         return;
       }
 
       if(!phone){
-        toast("Téléphone WhatsApp requis");
+        toast("Téléphone requis");
+        showFeedback("warn", "Téléphone manquant", "Ajoute ton numéro WhatsApp avant d’envoyer.");
         return;
       }
 
-      if(!phone.startsWith("+")){
-        toast("Ajoute le +");
+      if(!isValidSnPhone(phone)){
+        toast("Téléphone invalide");
+        showFeedback(
+          "warn",
+          "Numéro à corriger",
+          "Entre un numéro WhatsApp valide au format +221 suivi de 9 chiffres."
+        );
+        return;
+      }
+
+      if(recentlySubmitted(phone)){
+        toast("Déjà envoyé");
+        showFeedback(
+          "warn",
+          "Candidature déjà envoyée récemment",
+          "Ta demande a déjà été transmise il y a peu. Attends un moment ou contacte DIGIY sur WhatsApp si besoin."
+        );
         return;
       }
 
@@ -552,50 +749,35 @@
         status:"new"
       };
 
-      $("btnSend").disabled = true;
-      $("btnSend").textContent = "Envoi...";
+      setBusy(true);
 
       try{
-        const { error } = await sb.from(TABLE).insert(payload);
+        await tryInsert(payload);
 
-        if(error){
-          console.error(error);
-
-          if(
-            String(error.message || "").toLowerCase().includes("column") &&
-            String(error.message || "").toLowerCase().includes("status")
-          ){
-            const payload2 = { ...payload };
-            delete payload2.status;
-
-            const { error: e2 } = await sb.from(TABLE).insert(payload2);
-            if(e2) throw e2;
-          }else{
-            throw error;
-          }
-        }
-
+        rememberSubmitted(phone);
         toast("Candidature envoyée ✅");
-        $("okbox")?.classList.add("show");
+        showOk(true);
+        showFeedback(
+          "",
+          "Demande bien reçue",
+          "Merci. Ton profil a été transmis. L’équipe DIGIY te recontacte sur WhatsApp."
+        );
 
         const wa = buildSupportWaLink(phone, full_name);
         const btn = $("btnWhatsApp");
         if(btn) btn.href = wa;
 
       }catch(e){
-        console.error(e);
-        toast("Erreur envoi");
-        alert(
-          "Erreur envoi.\n\n" +
-          "À vérifier côté Supabase :\n" +
-          "1) Table " + TABLE + "\n" +
-          "2) RLS policy INSERT (anon)\n" +
-          "3) Colonnes attendues\n\n" +
-          "Détail : " + (e?.message || e)
+        console.error("[DIGIY DRIVER APPLY] send fatal error:", e);
+        clearSubmitted(phone);
+        toast("Envoi impossible");
+        showFeedback(
+          "bad",
+          "Envoi impossible pour le moment",
+          "Ta candidature n’a pas pu partir cette fois. Recharge la page ou contacte directement DIGIY sur WhatsApp."
         );
       }finally{
-        $("btnSend").disabled = false;
-        $("btnSend").textContent = "🚀 Envoyer ma candidature";
+        setBusy(false);
       }
     }
 
@@ -610,12 +792,15 @@
         if(el) el.selectedIndex = 0;
       });
 
-      $("okbox")?.classList.remove("show");
+      hideFeedback();
+      showOk(false);
       toast("Réinitialisé");
     }
 
     $("btnSend")?.addEventListener("click", send);
     $("btnReset")?.addEventListener("click", reset);
+
+    initSupabase();
   })();
   </script>
 </body>
