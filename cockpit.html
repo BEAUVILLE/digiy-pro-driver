@@ -3,8 +3,13 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY PRO DRIVER — Cockpit</title>
+  <title>Je conduis — Ma gestion</title>
   <meta name="theme-color" content="#061b14"/>
+  <meta name="description" content="Espace chauffeur DIGIY. Profil, trajets, QR et activité."/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&display=swap" rel="stylesheet"/>
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -38,7 +43,7 @@
     body{
       margin:0;
       color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:var(--bg);
       padding:16px;
     }
@@ -105,6 +110,7 @@
       align-items:center;
       justify-content:center;
       gap:8px;
+      font-family:inherit;
     }
 
     .btn:hover{transform:translateY(-1px)}
@@ -149,7 +155,7 @@
 
     @media(min-width:760px){
       .quickGrid{grid-template-columns:repeat(4,1fr)}
-      .gridNav{grid-template-columns:repeat(5,1fr)}
+      .gridNav{grid-template-columns:repeat(4,1fr)}
     }
 
     .card{
@@ -258,6 +264,7 @@
       font-size:15px;
       font-weight:900;
       outline:none;
+      font-family:inherit;
     }
 
     .list{display:grid;gap:10px;margin-top:10px}
@@ -442,13 +449,13 @@
 
     <div class="top">
       <div>
-        <h1 id="titleMain">🦅 DIGIY PRO DRIVER</h1>
-        <div class="muted" id="subMain">Cockpit personnel chauffeur. Profil, courses, accès, navigation.</div>
+        <h1 id="titleMain">🦅 Je conduis</h1>
+        <div class="muted" id="subMain">Ton espace chauffeur. Profil, trajets, QR et activité.</div>
       </div>
 
       <div class="rightMini">
-        <div class="pill" id="slugPill">slug : —</div>
-        <div class="pill" id="phonePill">phone : —</div>
+        <div class="pill" id="idPill">identifiant : —</div>
+        <div class="pill" id="phonePill">numéro : —</div>
         <div class="pill warn" id="accessPill">accès : contrôle…</div>
       </div>
     </div>
@@ -458,13 +465,13 @@
       <div class="card">
         <div class="row">
           <div>
-            <h2>Tableau de bord</h2>
-            <div class="muted" id="boardLead">Le cœur de ton module chauffeur. Ici, aucune démo partagée : seulement ton accès et tes vraies données.</div>
+            <h2>Ma gestion</h2>
+            <div class="muted" id="boardLead">Ton espace chauffeur réel. Ici, on lit ton activité et ton profil sur le bon rail.</div>
           </div>
           <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
             <button class="btn gold" id="btnQrTop" type="button">📱 Mon QR</button>
             <button class="btn" id="btnCheckAccess" type="button">🔄 Vérifier mon accès</button>
-            <button class="btn warn" id="btnPin" type="button">🔐 Refaire PIN</button>
+            <button class="btn" id="btnReloadTop" type="button">↻ Actualiser</button>
             <button class="btn ghost" id="btnPay" type="button">💳 Abonnement</button>
           </div>
         </div>
@@ -490,26 +497,26 @@
 
         <div class="quickGrid">
           <div class="quick">
-            <h3>🚕 Courses actives</h3>
-            <div class="muted">Voir les courses assignées à ton téléphone chauffeur et agir dessus.</div>
+            <h3>🚕 Mes trajets</h3>
+            <div class="muted">Voir les courses liées à ton numéro chauffeur et agir dessus.</div>
             <a class="go" href="#todayBlock">Ouvrir</a>
           </div>
 
           <div class="quick">
-            <h3>🕘 Historique</h3>
+            <h3>🕘 Mon historique</h3>
             <div class="muted">Voir tes dernières courses terminées ou annulées.</div>
             <a class="go" href="#recentBlock">Voir</a>
           </div>
 
           <div class="quick">
-            <h3>👤 Profil pro</h3>
-            <div class="muted">Compléter ou ajuster ton moule personnel DIGIY PRO DRIVER.</div>
+            <h3>👤 Mon profil</h3>
+            <div class="muted">Compléter ou ajuster ton espace chauffeur DIGIY.</div>
             <a class="go" id="btnProfilQuick" href="#">Ouvrir</a>
           </div>
 
           <div class="quick">
             <h3>📱 Mon QR</h3>
-            <div class="muted">Ouvrir la page QR du chauffeur avec le slug actif pour partager ton accès terrain.</div>
+            <div class="muted">Ouvrir ta page QR avec ton identifiant actif.</div>
             <a class="go" id="btnQrQuick" href="#">Ouvrir</a>
           </div>
         </div>
@@ -518,12 +525,12 @@
       <div class="card">
         <div class="row">
           <div>
-            <h2>Mon profil DIGIY PRO DRIVER</h2>
-            <div class="muted" id="profileHint">Ton profil réel est chargé par téléphone. S’il n’existe pas encore, la coque reste vierge.</div>
+            <h2>Mon profil chauffeur</h2>
+            <div class="muted" id="profileHint">Ton profil réel se recharge depuis ton numéro. S’il est encore vide, la page reste propre et prête à remplir.</div>
           </div>
           <div style="flex:0 0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <span class="profileState blank" id="profileState">Profil à compléter</span>
-            <a class="btn primary" id="btnProfil" href="#">👤 Ouvrir le profil</a>
+            <a class="btn primary" id="btnProfil" href="#">👤 Ouvrir mon profil</a>
           </div>
         </div>
 
@@ -562,39 +569,33 @@
       <div class="card">
         <div class="row">
           <div>
-            <h2>Navigation chauffeur</h2>
-            <div class="muted">Tes portes métier secondaires, toutes branchées avec le slug actif.</div>
+            <h2>Mes raccourcis</h2>
+            <div class="muted">Les portes métier utiles, toutes branchées avec ton identifiant actif.</div>
           </div>
         </div>
 
         <div class="gridNav">
           <div class="navbox">
             <div class="title">💰 Mes tarifs</div>
-            <div class="desc">Ouvrir ta page métier liée aux tarifs / réglages terrain.</div>
+            <div class="desc">Ouvrir ta page métier liée aux tarifs et réglages terrain.</div>
             <a class="go" id="btnTarifs" href="#">Ouvrir</a>
           </div>
 
           <div class="navbox">
-            <div class="title">👤 Profil chauffeur</div>
-            <div class="desc">Compléter ton moule personnel sans toucher à une démo partagée.</div>
+            <div class="title">👤 Mon profil</div>
+            <div class="desc">Compléter ton espace personnel sans toucher à une démo.</div>
             <a class="go" id="btnProfilPage" href="#">Ouvrir</a>
           </div>
 
           <div class="navbox">
-            <div class="title">📱 QR chauffeur</div>
-            <div class="desc">Ouvrir ton générateur QR avec le slug actif, sans casser le rail DRIVER.</div>
+            <div class="title">📱 Mon QR</div>
+            <div class="desc">Ouvrir ton générateur QR avec le bon identifiant.</div>
             <a class="go" id="btnQrPage" href="#">Ouvrir</a>
           </div>
 
           <div class="navbox">
-            <div class="title">🔐 Porte PIN</div>
-            <div class="desc">Repasser par la porte sécurisée avec ton slug déjà transmis.</div>
-            <a class="go" id="btnPinPage" href="#">Ouvrir</a>
-          </div>
-
-          <div class="navbox">
-            <div class="title">🏠 Vitrine DRIVER</div>
-            <div class="desc">Revenir à la vitrine du module sans perdre ton slug actif.</div>
+            <div class="title">🏠 Accueil public</div>
+            <div class="desc">Revenir à la vitrine du module sans casser ta session.</div>
             <a class="go" id="btnIndexPage" href="#">Ouvrir</a>
           </div>
         </div>
@@ -606,7 +607,7 @@
 
           <div class="row">
             <div>
-              <div class="muted">Téléphone chauffeur reconnu</div>
+              <div class="muted">Numéro chauffeur reconnu</div>
               <input class="in" id="driverPhone" readonly/>
             </div>
 
@@ -618,7 +619,7 @@
 
           <div class="row" style="margin-top:10px">
             <button class="btn primary" id="btnReload" type="button">↻ Charger / rafraîchir</button>
-            <button class="btn" id="btnAuto" type="button">⏱️ Auto refresh : ON</button>
+            <button class="btn" id="btnAuto" type="button">⏱️ Actualisation auto : ON</button>
             <button class="btn" id="btnResetSession" type="button">🔄 Recharger ma session</button>
           </div>
 
@@ -626,19 +627,19 @@
         </div>
 
         <div class="card">
-          <h2>Session DRIVER</h2>
+          <h2>Ma session</h2>
 
           <div class="list" style="margin-top:10px">
             <div class="item">
               <div>
-                <b>Slug</b>
+                <b>Identifiant</b>
                 <div class="muted small" id="sessionSlug">—</div>
               </div>
             </div>
 
             <div class="item">
               <div>
-                <b>Téléphone</b>
+                <b>Numéro</b>
                 <div class="muted small" id="sessionPhone">—</div>
               </div>
             </div>
@@ -654,10 +655,11 @@
           <div class="sep"></div>
 
           <div class="list">
-            <button class="btn" id="btnScrollToday" type="button">📋 Aller aux courses actives</button>
+            <button class="btn" id="btnScrollToday" type="button">📋 Aller aux trajets actifs</button>
             <button class="btn gold" id="btnQrSession" type="button">📱 Ouvrir mon QR</button>
             <button class="btn" id="btnHome" type="button">🏠 Retour accueil module</button>
-            <button class="btn" id="btnReloadAll" type="button">♻️ Recharger cockpit</button>
+            <button class="btn" id="btnReloadAll" type="button">♻️ Recharger ma gestion</button>
+            <button class="btn warn" id="btnRecoverAccess" type="button">🔐 Retrouver mon accès</button>
           </div>
         </div>
       </div>
@@ -665,8 +667,8 @@
       <div class="card" id="todayBlock">
         <div class="row">
           <div>
-            <h2>Mes courses actives</h2>
-            <div class="muted">Courses liées à ton `driver_phone`, pas à une démo.</div>
+            <h2>Mes trajets actifs</h2>
+            <div class="muted">Trajets liés à ton numéro chauffeur, pas à une démo.</div>
           </div>
           <div style="flex:0 0 auto">
             <button class="btn" id="btnReloadToday" type="button">↻ Rafraîchir la liste</button>
@@ -674,7 +676,7 @@
         </div>
 
         <div class="list" id="todayList" style="margin-top:12px">
-          <div class="empty">Aucune course active chargée.</div>
+          <div class="empty">Aucun trajet actif chargé.</div>
         </div>
       </div>
 
@@ -682,10 +684,10 @@
         <div class="row">
           <div>
             <h2>Historique récent</h2>
-            <div class="muted">Dernières courses terminées ou annulées.</div>
+            <div class="muted">Derniers trajets terminés ou annulés.</div>
           </div>
           <div style="flex:0 0 auto">
-            <button class="btn" id="btnReloadRecent" type="button">↻ Rafraîchir historique</button>
+            <button class="btn" id="btnReloadRecent" type="button">↻ Rafraîchir l’historique</button>
           </div>
         </div>
 
@@ -704,6 +706,7 @@
       const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
       const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
       const MODULE = "DRIVER";
+
       const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
       const PIN_URL = "./pin.html";
       const HOME_URL = "./index.html";
@@ -801,10 +804,20 @@
         return Number.isFinite(n) ? n.toLocaleString("fr-FR") + " FCFA" : "—";
       }
 
-      function withContext(base){
+      function buildSafeUrl(base, extra = {}){
         const u = new URL(base, location.href);
+
         if (slug) u.searchParams.set("slug", slug);
-        if (phone) u.searchParams.set("tel", phone);
+        if (phone) {
+          u.searchParams.set("phone", phone);
+          u.searchParams.set("tel", phone);
+        }
+
+        Object.entries(extra).forEach(([key, value]) => {
+          if (value === null || value === undefined || value === "") return;
+          u.searchParams.set(key, value);
+        });
+
         return u.pathname + u.search;
       }
 
@@ -824,24 +837,24 @@
       }
 
       function updateSessionUi(){
-        $("slugPill").textContent = "slug : " + (slug || "—");
-        $("phonePill").textContent = "phone : " + displayPhone(phone);
+        $("idPill").textContent = "identifiant : " + (slug || "—");
+        $("phonePill").textContent = "numéro : " + displayPhone(phone);
         $("sessionSlug").textContent = slug || "—";
         $("sessionPhone").textContent = displayPhone(phone);
         $("driverPhone").value = displayPhone(phone) === "—" ? "" : displayPhone(phone);
 
-        $("btnTarifs").href = withContext(TARIFS_URL);
-        $("btnProfil").href = withContext(PROFIL_URL);
-        $("btnProfilQuick").href = withContext(PROFIL_URL);
-        $("btnProfilPage").href = withContext(PROFIL_URL);
-        $("btnQrQuick").href = withContext(QR_URL);
-        $("btnQrPage").href = withContext(QR_URL);
-        $("btnPinPage").href = withContext(PIN_URL);
-        $("btnIndexPage").href = withContext(HOME_URL);
+        $("btnTarifs").href = buildSafeUrl(TARIFS_URL);
+        $("btnProfil").href = buildSafeUrl(PROFIL_URL);
+        $("btnProfilQuick").href = buildSafeUrl(PROFIL_URL);
+        $("btnProfilPage").href = buildSafeUrl(PROFIL_URL);
+        $("btnQrQuick").href = buildSafeUrl(QR_URL);
+        $("btnQrPage").href = buildSafeUrl(QR_URL);
+        $("btnIndexPage").href = buildSafeUrl(HOME_URL);
       }
 
       function buildPayUrl(){
         if (LAST_GUARD_STATE?.pay_url) return LAST_GUARD_STATE.pay_url;
+
         const u = new URL(PAY_URL);
         u.searchParams.set("module", MODULE);
         if (phone) u.searchParams.set("phone", normPhone(phone));
@@ -851,9 +864,9 @@
       }
 
       function goPay(){ location.href = buildPayUrl(); }
-      function goPin(){ location.href = withContext(PIN_URL); }
-      function goHome(){ location.href = withContext(HOME_URL); }
-      function goQr(){ location.href = withContext(QR_URL); }
+      function goPin(){ location.href = buildSafeUrl(PIN_URL); }
+      function goHome(){ location.href = buildSafeUrl(HOME_URL); }
+      function goQr(){ location.href = buildSafeUrl(QR_URL); }
 
       function statusLabel(s){
         const v = String(s || "").toLowerCase();
@@ -880,11 +893,11 @@
         const d = new Date(v);
         if (Number.isNaN(d.getTime())) return String(v);
         return d.toLocaleString("fr-FR", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit"
+          year:"numeric",
+          month:"2-digit",
+          day:"2-digit",
+          hour:"2-digit",
+          minute:"2-digit"
         });
       }
 
@@ -921,7 +934,7 @@
         $("pDescription").textContent = "À compléter";
         $("profileState").className = "profileState blank";
         $("profileState").textContent = "Profil à compléter";
-        $("profileHint").textContent = "Ton profil réel est chargé par téléphone. S’il n’existe pas encore, la coque reste vierge.";
+        $("profileHint").textContent = "Ton profil réel se recharge depuis ton numéro. S’il est encore vide, la page reste propre et prête à remplir.";
       }
 
       function renderProfile(data){
@@ -944,11 +957,11 @@
         if (data?.is_blank) {
           state.className = "profileState blank";
           state.textContent = "Profil à compléter";
-          $("profileHint").textContent = "Bienvenue. Ton moule DIGIY PRO DRIVER est prêt : complète ton profil pour personnaliser ton cockpit.";
+          $("profileHint").textContent = "Bienvenue. Ton espace chauffeur est prêt : complète ton profil pour personnaliser ta gestion.";
         } else {
           state.className = "profileState ready";
           state.textContent = "Profil chargé";
-          $("profileHint").textContent = "Profil réel retrouvé par téléphone. Tu peux le modifier ou le compléter à tout moment.";
+          $("profileHint").textContent = "Profil réel retrouvé. Tu peux le modifier ou le compléter à tout moment.";
         }
       }
 
@@ -961,33 +974,39 @@
 
       function renderGuardLiveMeta(st){
         const viaPin = !!st?.pin_session_ok;
-        const label = viaPin ? "session PIN OK" : "abonnement OK";
+        const label = viaPin ? "session sécurisée active" : "abonnement actif";
+
         setAccessState(true, label);
 
-        $("titleMain").textContent = "🦅 DIGIY PRO DRIVER";
+        $("titleMain").textContent = "🦅 Je conduis";
         $("subMain").textContent = viaPin
-          ? "Cockpit personnel ouvert par session PIN. Les données réelles se rechargent depuis ton slug actif."
-          : "Cockpit personnel chauffeur. Profil, courses, accès, navigation.";
+          ? "Ton espace chauffeur est ouvert par session sécurisée. Les données réelles se rechargent sur le bon identifiant."
+          : "Ton espace chauffeur. Profil, trajets, QR et activité.";
 
         $("boardLead").textContent = viaPin
-          ? "Session PIN reconnue. Le cockpit reste ouvert sur ton slug actif, même sans repasser par l’abonnement."
-          : "Le cœur de ton module chauffeur. Ici, aucune démo partagée : seulement ton accès et tes vraies données.";
+          ? "Session reconnue. Ta gestion reste ouverte sur ton espace actif."
+          : "Ton espace chauffeur réel. Ici, on lit ton activité et ton profil sur le bon rail.";
       }
 
       function renderCockpitMeta(data, st){
         COCKPIT = data;
         phone = normPhone(data?.phone || phone);
 
-        $("titleMain").textContent = "🦅 " + (data?.public_label || "DIGIY PRO DRIVER");
+        const profileName = humanValue(
+          data?.profile?.business_name || data?.profile?.driver_name,
+          "Je conduis"
+        );
+
+        $("titleMain").textContent = "🦅 " + profileName;
         $("subMain").textContent = data?.is_blank
-          ? "Cockpit personnel vierge. Complète ton profil pour lancer ton univers chauffeur."
-          : "Cockpit personnel chauffeur. Tes vraies données sont rechargées par téléphone.";
+          ? "Ton espace chauffeur est prêt. Commence par compléter ton profil."
+          : "Tes vraies données chauffeur sont rechargées ici.";
 
         $("boardLead").textContent = data?.is_blank
-          ? "Tu es bien dans ton cockpit personnel. Aucun faux chauffeur, aucune démo : commence par remplir ton profil."
-          : "Tu pilotes depuis ici avec ton vrai profil et tes vraies données.";
+          ? "Tu es bien dans ton espace personnel. Aucun faux profil, aucune démo."
+          : "Tu pilotes ici avec ton vrai profil et tes vraies données.";
 
-        setAccessState(true, st?.pin_session_ok ? "session PIN OK" : (data?.access || "abonnement OK"));
+        setAccessState(true, st?.pin_session_ok ? "session sécurisée active" : (data?.access || "abonnement actif"));
         updateSessionUi();
         renderStats(data?.stats || {});
         renderProfile(data);
@@ -997,9 +1016,9 @@
         COCKPIT = null;
         clearProfileUi();
         renderStats({ assigned:0, in_progress:0, completed:0, cancelled:0 });
-        setAccessState(false, reasonText || "accès KO");
-        $("todayList").innerHTML = `<div class="empty">Accès non ouvert. Passe par la porte PIN ou l’abonnement.</div>`;
-        $("recentTripsList").innerHTML = `<div class="empty">Aucun historique lisible sans accès valide.</div>`;
+        setAccessState(false, reasonText || "accès indisponible");
+        $("todayList").innerHTML = `<div class="empty">Accès non ouvert pour le moment.</div>`;
+        $("recentTripsList").innerHTML = `<div class="empty">Aucun historique lisible pour l’instant.</div>`;
       }
 
       async function waitGuardIfAny(){
@@ -1098,7 +1117,7 @@
         const box = $("todayList");
 
         if (!data || data.length === 0){
-          box.innerHTML = `<div class="empty">Aucune course active pour ce chauffeur.</div>`;
+          box.innerHTML = `<div class="empty">Aucun trajet actif pour ce chauffeur.</div>`;
           return;
         }
 
@@ -1126,7 +1145,7 @@
               <div class="rideMeta">
                 <div class="metaLine">📅 ${escapeHtml(fmtDate(when))}</div>
                 <div class="metaLine">💰 ${escapeHtml(amount)}</div>
-                <div class="metaLine">🧾 ID : ${escapeHtml(rideId || "—")}</div>
+                <div class="metaLine">🧾 Référence : ${escapeHtml(rideId || "—")}</div>
               </div>
 
               <div class="rideActions">
@@ -1186,9 +1205,9 @@
           rows = await fetchDriverTrips();
         }catch(e){
           console.error("Trips load error:", e);
-          $("todayList").innerHTML = `<div class="empty">Lecture des courses indisponible pour le moment.</div>`;
+          $("todayList").innerHTML = `<div class="empty">Lecture des trajets indisponible pour le moment.</div>`;
           $("recentTripsList").innerHTML = `<div class="empty">Historique indisponible pour le moment.</div>`;
-          setMsg("⚠️ Cockpit ouvert, mais la lecture directe des courses ne remonte pas pour l’instant.", "warn");
+          setMsg("⚠️ La gestion est ouverte, mais la lecture directe des trajets ne remonte pas pour l’instant.", "warn");
           return;
         }
 
@@ -1218,7 +1237,7 @@
         if (IS_LOADING) return;
         IS_LOADING = true;
         document.body.classList.add("loading");
-        setMsg("⏳ Chargement du cockpit personnel…", "warn");
+        setMsg("⏳ Chargement de ta gestion chauffeur…", "warn");
 
         try{
           const st = await getGuardState(forceGuardRefresh);
@@ -1229,20 +1248,20 @@
           updateSessionUi();
 
           if (!slug){
-            setBlockedState("slug manquant");
-            setMsg("⚠️ Aucun slug détecté. Passe par la porte PIN ou par un lien d’accès valide.", "bad");
+            setBlockedState("accès introuvable");
+            setMsg("⚠️ Aucun accès détecté. Ouvre ton espace depuis ton lien sécurisé.", "bad");
             return;
           }
 
           if (!isDriverSlug(slug)){
-            setBlockedState("slug invalide");
-            setMsg("❌ Slug DRIVER invalide. Format attendu : driver-221XXXXXXXXX.", "bad");
+            setBlockedState("identifiant invalide");
+            setMsg("❌ Cet identifiant ne correspond pas à un espace chauffeur valide.", "bad");
             return;
           }
 
           if (!st?.access_ok){
-            setBlockedState(st?.reason || "accès KO");
-            setMsg("⚠️ Accès non ouvert pour ce slug. Passe par la porte PIN ou l’abonnement.", "bad");
+            setBlockedState("accès non ouvert");
+            setMsg("⚠️ Ton espace n’est pas ouvert pour le moment. Passe par ton accès sécurisé ou ton abonnement.", "bad");
             return;
           }
 
@@ -1265,11 +1284,11 @@
           } else {
             clearProfileUi();
             renderStats({ assigned:0, in_progress:0, completed:0, cancelled:0 });
-            setAccessState(true, st?.pin_session_ok ? "session PIN OK" : "abonnement OK");
+            setAccessState(true, st?.pin_session_ok ? "session sécurisée active" : "abonnement actif");
             updateSessionUi();
 
             if (st?.pin_session_ok){
-              $("profileHint").textContent = "Session PIN ouverte. Le profil détaillé ne remonte pas encore via le RPC cockpit, mais ton cockpit reste vivant.";
+              $("profileHint").textContent = "Session ouverte. Le profil détaillé ne remonte pas encore via le RPC, mais ton espace reste vivant.";
             }
           }
 
@@ -1280,20 +1299,20 @@
           if (cockpitData?.ok) {
             setMsg(
               cockpitData.is_blank
-                ? "✅ Cockpit vierge chargé. Tu peux maintenant compléter ton profil."
-                : "✅ Cockpit personnel synchronisé.",
+                ? "✅ Espace prêt. Tu peux maintenant compléter ton profil."
+                : "✅ Gestion chauffeur synchronisée.",
               "ok"
             );
           } else if (st?.pin_session_ok) {
-            setMsg("✅ Session PIN active. Le cockpit est ouvert, même si le RPC cockpit ne remonte pas encore tout.", "warn");
+            setMsg("✅ Session sécurisée active. L’espace est ouvert, même si le RPC détaillé ne remonte pas encore tout.", "warn");
           } else {
-            setMsg("✅ Accès validé. Certaines données cockpit ne remontent pas encore via le RPC.", "warn");
+            setMsg("✅ Accès validé. Certaines données détaillées ne remontent pas encore via le RPC.", "warn");
           }
 
         }catch(e){
           console.error(e);
-          setBlockedState("erreur cockpit");
-          setMsg("❌ Erreur de chargement du cockpit personnel.", "bad");
+          setBlockedState("erreur");
+          setMsg("❌ Erreur de chargement de ton espace chauffeur.", "bad");
         }finally{
           document.body.classList.remove("loading");
           IS_LOADING = false;
@@ -1327,17 +1346,17 @@
         const rideId = btn.dataset.id;
 
         if (!ACCESS_OK){
-          setMsg("⚠️ Accès non valide pour agir sur les courses.", "bad");
+          setMsg("⚠️ Accès non valide pour agir sur les trajets.", "bad");
           return;
         }
 
         if (!rideId){
-          setMsg("⚠️ Course introuvable.", "bad");
+          setMsg("⚠️ Trajet introuvable.", "bad");
           return;
         }
 
         if (!phone){
-          setMsg("⚠️ Téléphone chauffeur manquant.", "bad");
+          setMsg("⚠️ Numéro chauffeur manquant.", "bad");
           return;
         }
 
@@ -1346,17 +1365,17 @@
         try{
           if (action === "start"){
             await rpcWithFallback("digiy_driver_start_ride", rideId, phone);
-            setMsg("✅ Course démarrée.", "ok");
+            setMsg("✅ Trajet démarré.", "ok");
           } else if (action === "finish"){
             await rpcWithFallback("digiy_driver_complete_ride", rideId, phone);
-            setMsg("✅ Course terminée.", "ok");
+            setMsg("✅ Trajet terminé.", "ok");
           }
 
           ALL_RIDES = [];
           await reloadAllData(true);
         }catch(e){
           console.error(e);
-          setMsg("❌ Action impossible pour cette course.", "bad");
+          setMsg("❌ Action impossible pour ce trajet.", "bad");
         }finally{
           btn.disabled = false;
         }
@@ -1377,7 +1396,7 @@
 
       function toggleAutoRefresh(){
         AUTO_REFRESH = !AUTO_REFRESH;
-        $("btnAuto").textContent = "⏱️ Auto refresh : " + (AUTO_REFRESH ? "ON" : "OFF");
+        $("btnAuto").textContent = "⏱️ Actualisation auto : " + (AUTO_REFRESH ? "ON" : "OFF");
 
         if (refreshTimer){
           clearInterval(refreshTimer);
@@ -1412,16 +1431,17 @@
       }
 
       $("btnReload")?.addEventListener("click", () => reloadAllData(true));
+      $("btnReloadTop")?.addEventListener("click", () => reloadAllData(true));
 
       $("btnReloadToday")?.addEventListener("click", async () => {
         try{
           ALL_RIDES = [];
           await loadTripsAndRender();
           $("lastSync").value = new Date().toLocaleString("fr-FR");
-          setMsg("✅ Courses actives rafraîchies.", "ok");
+          setMsg("✅ Trajets actifs rafraîchis.", "ok");
         }catch(e){
           console.error(e);
-          setMsg("❌ Impossible de rafraîchir les courses actives.", "bad");
+          setMsg("❌ Impossible de rafraîchir les trajets actifs.", "bad");
         }
       });
 
@@ -1438,7 +1458,6 @@
       });
 
       $("btnCheckAccess")?.addEventListener("click", refreshAccessState);
-      $("btnPin")?.addEventListener("click", goPin);
       $("btnPay")?.addEventListener("click", goPay);
       $("btnHome")?.addEventListener("click", goHome);
       $("btnQrTop")?.addEventListener("click", goQr);
@@ -1446,9 +1465,10 @@
       $("btnReloadAll")?.addEventListener("click", () => reloadAllData(true));
       $("btnResetSession")?.addEventListener("click", resetSession);
       $("btnAuto")?.addEventListener("click", toggleAutoRefresh);
+      $("btnRecoverAccess")?.addEventListener("click", goPin);
 
       $("btnScrollToday")?.addEventListener("click", () => {
-        $("todayBlock")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        $("todayBlock")?.scrollIntoView({ behavior:"smooth", block:"start" });
       });
 
       boot();
