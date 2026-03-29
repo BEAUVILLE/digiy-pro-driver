@@ -57,7 +57,7 @@
 
   const qs = new URLSearchParams(location.search);
   const slugQ = qs.get("slug") || "";
-  const phoneQ = qs.get("phone") || "";
+  const phoneQ = qs.get("phone") || qs.get("tel") || "";
 
   function safeJsonParse(raw) {
     try {
@@ -78,11 +78,11 @@
   }
 
   function normPhone(value) {
-    const raw = String(value || "").trim();
-    const cleaned = raw.replace(/[^\d+]/g, "");
-    const digits = cleaned.replace(/[^\d]/g, "");
+    const digits = String(value || "").replace(/[^\d]/g, "");
     if (!digits) return "";
-    return cleaned.startsWith("+") ? `+${digits}` : digits;
+    if (digits.startsWith("221") && digits.length === 12) return digits;
+    if (digits.length === 9) return "221" + digits;
+    return digits;
   }
 
   function normPin(value) {
@@ -180,6 +180,29 @@
     } catch (_) {}
   }
 
+  function rememberIdentity(payload = {}) {
+    const slug = normSlug(payload.slug || "");
+    const phone = normPhone(payload.phone || "");
+
+    if (slug) saveSlugOnly(slug);
+    if (phone) savePhoneOnly(phone);
+
+    if (slug) state.slug = slug;
+    if (phone) state.phone = phone;
+
+    state.pin_url = buildPinUrl({ slug: state.slug, phone: state.phone });
+    state.pay_url = buildPayUrl({ slug: state.slug, phone: state.phone });
+
+    if (state.slug || state.phone) {
+      ensureUrlIdentity(state.slug, state.phone);
+    }
+
+    return {
+      slug: state.slug,
+      phone: state.phone
+    };
+  }
+
   function readSavedSlug() {
     try {
       return normSlug(
@@ -199,12 +222,13 @@
     try {
       return normPhone(
         qs.get("phone") ||
+        qs.get("tel") ||
         sessionStorage.getItem(CFG.STORAGE.PHONE_KEY) ||
         localStorage.getItem(CFG.STORAGE.PHONE_KEY) ||
         ""
       );
     } catch (_) {
-      return normPhone(qs.get("phone") || "");
+      return normPhone(qs.get("phone") || qs.get("tel") || "");
     }
   }
 
@@ -247,7 +271,8 @@
         !!parsed.access ||
         !!parsed.access_ok ||
         !!parsed.ok ||
-        !!parsed.has_access;
+        !!parsed.has_access ||
+        !!parsed.pin_session_ok;
 
       const verifiedAt =
         Number(
@@ -278,6 +303,8 @@
         owner_id,
         module: MODULE,
         access: true,
+        access_ok: true,
+        pin_session_ok: true,
         verified_at: verifiedAt || (validatedAtIso ? new Date(validatedAtIso).getTime() : 0),
         validated_at: validatedAtIso || (verifiedAt ? new Date(verifiedAt).toISOString() : null)
       };
@@ -299,6 +326,7 @@
       module: MODULE,
       access: !!payload.access,
       access_ok: !!payload.access,
+      pin_session_ok: !!payload.access,
       verified_at: verifiedAtMs,
       validated_at: validatedAtIso,
       ts: nowMs()
@@ -326,7 +354,12 @@
     const phone = normPhone(input.phone || state.phone || "");
 
     if (slug) url.searchParams.set("slug", slug);
+    else url.searchParams.delete("slug");
+
     if (phone && CFG.URL.KEEP_PHONE_IN_URL) url.searchParams.set("phone", phone);
+    else url.searchParams.delete("phone");
+
+    url.searchParams.delete("tel");
     url.searchParams.set("return", location.href);
 
     return url.toString();
@@ -345,6 +378,7 @@
     url.searchParams.set("module", MODULE);
     if (slug) url.searchParams.set("slug", slug);
     if (phone) url.searchParams.set("phone", phone);
+    url.searchParams.delete("tel");
     url.searchParams.set("return", location.href);
 
     return url.toString();
@@ -361,7 +395,7 @@
       const url = new URL(location.href);
 
       const currentSlug = normSlug(url.searchParams.get("slug") || "");
-      const currentPhone = normPhone(url.searchParams.get("phone") || "");
+      const currentPhone = normPhone(url.searchParams.get("phone") || url.searchParams.get("tel") || "");
 
       let changed = false;
 
@@ -372,6 +406,11 @@
 
       if (CFG.URL.KEEP_PHONE_IN_URL && p && currentPhone !== p) {
         url.searchParams.set("phone", p);
+        changed = true;
+      }
+
+      if (url.searchParams.has("tel")) {
+        url.searchParams.delete("tel");
         changed = true;
       }
 
@@ -583,6 +622,7 @@
 
     access: false,
     access_ok: false,
+    pin_session_ok: false,
     preview: true,
     ready_flag: false,
     error: null,
@@ -648,6 +688,7 @@
     state.owner_id = saved.owner_id;
     state.access = true;
     state.access_ok = true;
+    state.pin_session_ok = true;
     state.preview = false;
     state.ready_flag = true;
     state.error = null;
@@ -675,6 +716,7 @@
     state.owner_id = null;
     state.access = false;
     state.access_ok = false;
+    state.pin_session_ok = false;
     state.preview = true;
     state.ready_flag = false;
     state.error = null;
@@ -735,6 +777,7 @@
       if (CFG.ALLOW_PREVIEW_WITHOUT_IDENTITY) {
         state.access = false;
         state.access_ok = false;
+        state.pin_session_ok = false;
         state.preview = true;
         state.ready_flag = true;
         state.error = "Identité absente.";
@@ -745,6 +788,7 @@
       clearSessionsOnly();
       state.access = false;
       state.access_ok = false;
+      state.pin_session_ok = false;
       state.preview = true;
       state.ready_flag = true;
       state.error = "Identité absente.";
@@ -757,6 +801,7 @@
       clearSessionsOnly();
       state.access = false;
       state.access_ok = false;
+      state.pin_session_ok = false;
       state.preview = true;
       state.ready_flag = true;
       state.error = "Slug absent.";
@@ -774,6 +819,7 @@
 
       state.access = false;
       state.access_ok = false;
+      state.pin_session_ok = false;
       state.preview = true;
       state.ready_flag = true;
       state.error = "Session PIN absente ou expirée.";
@@ -784,6 +830,7 @@
 
     state.access = true;
     state.access_ok = true;
+    state.pin_session_ok = true;
     state.preview = false;
     state.ready_flag = true;
     state.error = null;
@@ -864,6 +911,10 @@
       return !!state.access_ok;
     },
 
+    rememberIdentity(payload = {}) {
+      return rememberIdentity(payload);
+    },
+
     saveSession(payload = {}) {
       const saved = saveSession(payload);
       state.slug = saved.slug;
@@ -871,6 +922,7 @@
       state.owner_id = saved.owner_id || null;
       state.access = !!saved.access;
       state.access_ok = !!saved.access;
+      state.pin_session_ok = !!saved.access;
       state.preview = !saved.access;
       state.verified_at = saved.verified_at;
       state.validated_at = saved.validated_at;
@@ -878,6 +930,7 @@
       state.error = null;
       state.pin_url = buildPinUrl(saved);
       state.pay_url = buildPayUrl(saved);
+      ensureUrlIdentity(saved.slug, saved.phone);
       return saved;
     },
 
@@ -885,6 +938,7 @@
       clearSessionsOnly();
       state.access = false;
       state.access_ok = false;
+      state.pin_session_ok = false;
       state.preview = true;
       state.ready_flag = false;
       state.error = null;
@@ -894,6 +948,7 @@
       clearAllLocalState();
       state.access = false;
       state.access_ok = false;
+      state.pin_session_ok = false;
       state.preview = true;
       state.ready_flag = false;
       state.error = null;
@@ -937,4 +992,4 @@
   };
 
   ready();
-})();
+})();;
