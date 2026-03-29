@@ -3,8 +3,12 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY PRO DRIVER — Dashboard</title>
+  <title>DIGIY DRIVER — Mon activité</title>
   <meta name="theme-color" content="#0b1020"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -14,7 +18,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-dashboard-20260321-qr-final"></script>
+  <script src="./guard.js?v=driver-dashboard-20260329-facade-clean"></script>
 
   <style>
     :root{
@@ -38,7 +42,7 @@
 
     body{
       margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       background:
         radial-gradient(1200px 700px at 20% -20%, rgba(99,102,241,.25), transparent 70%),
         radial-gradient(900px 600px at 100% 0%, rgba(34,197,94,.15), transparent 55%),
@@ -130,6 +134,7 @@
       justify-content:center;
       gap:8px;
       transition:.15s ease;
+      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     }
 
     .btn:hover{transform:translateY(-1px)}
@@ -336,26 +341,26 @@
         <div class="brand">
           <div class="badge">🦅</div>
           <div>
-            <div id="brandTitle">DIGIY PRO DRIVER</div>
-            <div class="brandSub" id="brandSub">Dashboard léger — statut, activité, aiguillage</div>
+            <div id="brandTitle">Je conduis</div>
+            <div class="brandSub" id="brandSub">Lecture rapide — statut, activité, aiguillage</div>
           </div>
         </div>
 
         <div class="nav">
-          <a class="btn primary" id="btnCockpit" href="#">🏠 Cockpit</a>
-          <a class="btn" id="btnProfil" href="#">👤 Profil</a>
-          <a class="btn" id="btnTarifs" href="#">💰 Tarifs</a>
-          <a class="btn" id="btnQr" href="#">📱 QR</a>
-          <a class="btn" id="btnPin" href="#">🔑 PIN</a>
-          <a class="btn gold" id="btnPay" href="#">💳 Abonnement</a>
+          <a class="btn primary" id="btnCockpit" href="#">🏠 Ma gestion</a>
+          <a class="btn" id="btnProfil" href="#">👤 Mon profil</a>
+          <a class="btn" id="btnTarifs" href="#">💰 Mes tarifs</a>
+          <a class="btn" id="btnQr" href="#">📱 Mon QR</a>
+          <a class="btn" id="btnPin" href="#">🔑 Mon accès</a>
+          <a class="btn gold" id="btnPay" href="#">💳 Mon abonnement</a>
           <a class="btn" id="btnHome" href="#">↩️ Vitrine</a>
         </div>
       </div>
 
       <div class="right">
-        <div class="pill" id="pillSlug">slug : <b>—</b></div>
-        <div class="pill" id="pillPhone">phone : <b>—</b></div>
-        <div class="pill warn" id="pillStatus">statut : <b>…</b></div>
+        <div class="pill" id="pillSlug">identifiant : <b>—</b></div>
+        <div class="pill" id="pillPhone">téléphone : <b>—</b></div>
+        <div class="pill warn" id="pillStatus">accès : <b>…</b></div>
         <button class="btn" id="btnRefresh" type="button">🔄 Vérifier</button>
       </div>
     </div>
@@ -446,7 +451,7 @@
 
         <div class="footer">
           <a class="smallLink" href="#" id="linkSupport">Support</a>
-          <a class="smallLink" href="#" id="linkPayments">Mes paiements</a>
+          <a class="smallLink" href="#" id="linkPayments">Mon abonnement</a>
         </div>
       </div>
 
@@ -459,7 +464,7 @@
 
       const SUPPORT_WA =
         "https://wa.me/221771342889?text=" +
-        encodeURIComponent("Salut DIGIY DRIVER, j'ai besoin d'aide sur mon dashboard chauffeur.");
+        encodeURIComponent("Salut DIGIY DRIVER, j'ai besoin d'aide sur mon activité chauffeur.");
 
       const $ = (id) => document.getElementById(id);
 
@@ -474,6 +479,7 @@
       let slug = "";
       let phone = "";
       let accessOk = false;
+      let pinSessionOk = false;
       let lastGuardState = null;
       let cockpitData = null;
       let ratesData = [];
@@ -506,20 +512,57 @@
         return normPhone(s.slice("driver-".length));
       }
 
+      function storageGet(key){
+        try{
+          const s = sessionStorage.getItem(key);
+          if (s) return s;
+        }catch{}
+        try{
+          const l = localStorage.getItem(key);
+          if (l) return l;
+        }catch{}
+        return "";
+      }
+
+      function buildSafeUrl(base, params = {}){
+        try{
+          const u = new URL(String(base || "").trim(), location.href);
+          Object.entries(params).forEach(([k, v]) => {
+            if (v !== null && v !== undefined && String(v).trim() !== "") {
+              u.searchParams.set(k, String(v).trim());
+            }
+          });
+          if (u.origin === location.origin) return u.pathname + u.search + u.hash;
+          return u.toString();
+        }catch{
+          const raw = String(base || "#");
+          const qp = new URLSearchParams();
+          Object.entries(params).forEach(([k, v]) => {
+            if (v !== null && v !== undefined && String(v).trim() !== "") {
+              qp.set(k, String(v).trim());
+            }
+          });
+          const tail = qp.toString();
+          if (!tail) return raw;
+          return raw + (raw.includes("?") ? "&" : "?") + tail;
+        }
+      }
+
       function withSlug(base){
-        const u = new URL(base, location.href);
-        if (slug) u.searchParams.set("slug", slug);
-        return u.pathname + u.search;
+        return buildSafeUrl(base, { slug, phone });
       }
 
       function buildPayUrl(){
         if (lastGuardState?.pay_url) return lastGuardState.pay_url;
-        const u = new URL("https://commencer-a-payer.digiylyfe.com/");
-        u.searchParams.set("module", "DRIVER");
-        if (phone) u.searchParams.set("phone", phone);
-        if (slug) u.searchParams.set("slug", slug);
-        u.searchParams.set("return", location.href);
-        return u.toString();
+
+        const params = {
+          module: "DRIVER",
+          phone: phone || "",
+          slug: slug || "",
+          return: location.href
+        };
+
+        return buildSafeUrl("https://commencer-a-payer.digiylyfe.com/", params);
       }
 
       function setMsgStatus(text, type){
@@ -536,13 +579,50 @@
         const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug || "");
         if (fromGuard) return fromGuard;
 
-        return "";
+        return normSlug(
+          storageGet("digiy_driver_slug") ||
+          storageGet("digiy_last_slug") ||
+          storageGet("DIGIY_SLUG") ||
+          ""
+        );
+      }
+
+      function resolvePhone(){
+        const qs = new URLSearchParams(location.search);
+        const fromUrl = normPhone(qs.get("phone") || qs.get("tel") || "");
+        if (fromUrl) return fromUrl;
+
+        const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone || "");
+        if (fromGuard) return fromGuard;
+
+        return normPhone(
+          storageGet("DIGIY_DRIVER_PHONE") ||
+          storageGet("DIGIY_PHONE") ||
+          phoneFromDriverSlug(slug) ||
+          ""
+        );
       }
 
       async function waitGuardIfAny(){
         try{
-          if (window.DIGIY_GUARD?.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
-            await window.DIGIY_GUARD.ready;
+          const g = window.DIGIY_GUARD;
+          if (!g) return;
+
+          if (typeof g.ready === "function"){
+            let out;
+            try{
+              out = g.ready(8000);
+            }catch{
+              out = g.ready();
+            }
+            if (out && typeof out.then === "function") {
+              await out;
+            }
+            return;
+          }
+
+          if (g.ready && typeof g.ready.then === "function"){
+            await g.ready;
           }
         }catch(e){
           console.warn("Guard ready warning:", e);
@@ -550,10 +630,13 @@
       }
 
       async function getGuardState(forceRefresh = false){
-        if (!window.DIGIY_GUARD){
+        const g = window.DIGIY_GUARD;
+
+        if (!g){
           return {
             ok:false,
             access_ok:false,
+            access:false,
             pin_session_ok:false,
             slug:"",
             phone:"",
@@ -562,20 +645,39 @@
           };
         }
 
-        if (forceRefresh && window.DIGIY_GUARD.refresh){
-          const fresh = await window.DIGIY_GUARD.refresh();
-          lastGuardState = fresh || null;
-          return fresh;
+        if (forceRefresh && typeof g.refresh === "function"){
+          try{
+            const fresh = await g.refresh();
+            lastGuardState = fresh || null;
+            return fresh || {};
+          }catch(e){
+            console.warn("Guard refresh warning:", e);
+          }
         }
 
-        if (window.DIGIY_GUARD.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
-          await window.DIGIY_GUARD.ready;
+        try{
+          if (typeof g.ready === "function"){
+            let out;
+            try{
+              out = g.ready(8000);
+            }catch{
+              out = g.ready();
+            }
+            if (out && typeof out.then === "function") {
+              await out;
+            }
+          } else if (g.ready && typeof g.ready.then === "function"){
+            await g.ready;
+          }
+        }catch(e){
+          console.warn("Guard ready state warning:", e);
         }
 
-        lastGuardState = window.DIGIY_GUARD.state || null;
-        return window.DIGIY_GUARD.state || {
+        lastGuardState = g.state || null;
+        return g.state || {
           ok:false,
           access_ok:false,
+          access:false,
           pin_session_ok:false,
           slug:"",
           phone:"",
@@ -704,57 +806,57 @@
 
         if (!slug){
           pill.className = "pill bad";
-          pill.innerHTML = "statut : <b>slug manquant</b>";
+          pill.innerHTML = "accès : <b>identifiant manquant</b>";
           dot.className = "statusDot bad";
-          $("statusLine").textContent = "Aucun slug DRIVER détecté.";
-          $("expiryLine").textContent = "Passe par la porte PIN ou un lien valide.";
+          $("statusLine").textContent = "Aucun identifiant chauffeur détecté.";
+          $("expiryLine").textContent = "Passe par ton accès ou un lien valide.";
           $("metaLine").innerHTML = "<span>Publication : —</span><span>•</span><span>Profil : —</span><span>•</span><span>Tarifs : —</span>";
-          setMsgStatus("❌ Slug manquant.", "bad");
+          setMsgStatus("❌ Identifiant manquant.", "bad");
           return;
         }
 
         if (!isDriverSlug(slug)){
           pill.className = "pill bad";
-          pill.innerHTML = "statut : <b>slug invalide</b>";
+          pill.innerHTML = "accès : <b>identifiant invalide</b>";
           dot.className = "statusDot bad";
-          $("statusLine").textContent = "Slug DRIVER invalide.";
-          $("expiryLine").textContent = "Format attendu : driver-221XXXXXXXXX.";
+          $("statusLine").textContent = "Identifiant chauffeur invalide.";
+          $("expiryLine").textContent = "Le lien utilisé n’est pas reconnu.";
           $("metaLine").innerHTML = "<span>Publication : —</span><span>•</span><span>Profil : —</span><span>•</span><span>Tarifs : —</span>";
-          setMsgStatus("❌ Slug DRIVER invalide.", "bad");
+          setMsgStatus("❌ Identifiant invalide.", "bad");
           return;
         }
 
         if (!accessOk){
           pill.className = "pill bad";
-          pill.innerHTML = "statut : <b>accès fermé</b>";
+          pill.innerHTML = "accès : <b>fermé</b>";
           dot.className = "statusDot bad";
           $("statusLine").textContent = "Accès non ouvert pour ce chauffeur.";
-          $("expiryLine").textContent = "Passe par la porte PIN ou l’abonnement.";
+          $("expiryLine").textContent = "Passe par ton accès ou l’abonnement.";
           $("metaLine").innerHTML = "<span>Publication : —</span><span>•</span><span>Profil : —</span><span>•</span><span>Tarifs : —</span>";
           setMsgStatus("⚠️ Accès non valide.", "bad");
           return;
         }
 
         pill.className = viaPin ? "pill warn" : "pill ok";
-        pill.innerHTML = `statut : <b>${viaPin ? "session PIN OK" : "abonnement OK"}</b>`;
+        pill.innerHTML = `accès : <b>${viaPin ? "session ouverte" : "abonnement actif"}</b>`;
         dot.className = viaPin ? "statusDot" : "statusDot ok";
         $("statusLine").textContent = viaPin
-          ? "Session PIN active. Dashboard ouvert."
-          : "Abonnement actif. Dashboard ouvert.";
+          ? "Session ouverte. Activité accessible."
+          : "Abonnement actif. Activité accessible.";
 
         const profile = cockpitData?.profile || {};
         const published = profile?.is_published ? "Publié" : "Masqué";
-        const pstate = cockpitData?.is_blank ? "Vierge" : "Chargé";
+        const pstate = cockpitData?.is_blank ? "À compléter" : "Chargé";
         const tarifs = ratesData.length ? `${ratesData.length} actif(s)` : "Aucun";
 
         $("expiryLine").textContent = cockpitData?.is_blank
-          ? "Ton moule chauffeur est prêt à être complété."
-          : "Rail DRIVER chargé depuis ton slug actif.";
+          ? "Ton espace chauffeur est prêt à être complété."
+          : "Ton activité chauffeur est bien chargée.";
 
         $("metaLine").innerHTML =
           `<span>Publication : ${published}</span><span>•</span><span>Profil : ${pstate}</span><span>•</span><span>Tarifs : ${tarifs}</span>`;
 
-        setMsgStatus("✅ Dashboard synchronisé.", "ok");
+        setMsgStatus("✅ Tableau synchronisé.", "ok");
       }
 
       function renderActivity(){
@@ -790,13 +892,13 @@
         const published = !!cockpitData?.profile?.is_published;
         const hasRates = ratesData.length > 0;
 
-        let label = "Ouvrir le cockpit";
-        let hint = "Cockpit principal";
-        let desc = "Ton dashboard te renvoie vers la bonne porte métier.";
+        let label = "Ouvrir ma gestion";
+        let hint = "Gestion principale";
+        let desc = "Ton tableau te renvoie vers la bonne porte.";
         let target = withSlug("./cockpit.html");
 
         if (!accessOk){
-          label = "Ouvrir la porte PIN";
+          label = "Ouvrir mon accès";
           hint = "Accès requis";
           desc = "Le chauffeur doit d’abord ouvrir son accès avant de travailler.";
           target = withSlug("./pin.html");
@@ -811,9 +913,9 @@
           desc = "Le profil existe, mais la grille tarifaire n’est pas encore posée.";
           target = withSlug("./tarifs.html");
         } else if (!published){
-          label = "Vérifier le profil";
+          label = "Vérifier mon profil";
           hint = "Publication à confirmer";
-          desc = "Ton rail est vivant, mais la publication chauffeur mérite un contrôle.";
+          desc = "Ton espace est vivant, mais la publication mérite un contrôle.";
           target = withSlug("./profil-chauffeur.html");
         }
 
@@ -836,25 +938,25 @@
         const box = $("notifList");
 
         if (!slug){
-          box.innerHTML = pushNotif("Aucun slug détecté. Ouvre le module avec un slug DRIVER valide.", "warn");
+          box.innerHTML = pushNotif("Aucun identifiant détecté. Ouvre le module avec un lien chauffeur valide.", "warn");
           return;
         }
 
         const items = [];
 
         if (!accessOk){
-          items.push(pushNotif("Accès non ouvert. Passe par la porte PIN ou l’abonnement.", "warn"));
+          items.push(pushNotif("Accès non ouvert. Passe par ton accès ou l’abonnement.", "warn"));
         } else {
           items.push(pushNotif(
-            lastGuardState?.pin_session_ok
-              ? "Session PIN active. Le chauffeur peut entrer directement dans son univers."
-              : "Abonnement actif reconnu. Le chauffeur peut travailler sur son rail réel.",
+            pinSessionOk
+              ? "Session ouverte. Le chauffeur peut entrer directement dans son activité."
+              : "Abonnement reconnu. Le chauffeur peut travailler normalement.",
             "ok"
           ));
         }
 
         if (cockpitData?.is_blank){
-          items.push(pushNotif("Le moule chauffeur est encore vierge. Il faut compléter le profil.", "warn"));
+          items.push(pushNotif("L’espace chauffeur est encore vide. Il faut compléter le profil.", "warn"));
         } else if (cockpitData?.profile?.is_published){
           items.push(pushNotif("Le profil chauffeur est publié.", "ok"));
         } else {
@@ -864,7 +966,7 @@
         if (!ratesData.length){
           items.push(pushNotif("Aucun tarif actif détecté. Pose la grille terrain du chauffeur.", "warn"));
         } else {
-          items.push(pushNotif(`${ratesData.length} tarif(s) actif(s) détecté(s) sur le rail DRIVER.`, "ok"));
+          items.push(pushNotif(`${ratesData.length} tarif(s) actif(s) détecté(s).`, "ok"));
         }
 
         const completed = completedTripsOnly(tripsData);
@@ -875,34 +977,38 @@
         }
 
         if (accessOk){
-          items.push(pushNotif("Le QR chauffeur est disponible sur le rail slug-only pour partager la bonne porte terrain.", "info"));
+          items.push(pushNotif("Le QR chauffeur est prêt pour partager la bonne porte terrain.", "info"));
         }
 
         box.innerHTML = items.join("");
       }
 
       async function boot(forceRefresh = false){
+        await waitGuardIfAny();
+
         slug = resolveSlug();
+        phone = resolvePhone();
 
         const state = await getGuardState(forceRefresh);
         lastGuardState = state || null;
 
         slug = normSlug(state?.slug || slug);
         phone = normPhone(state?.phone || phone || phoneFromDriverSlug(slug));
-        accessOk = !!state?.access_ok;
+        accessOk = !!(state?.access_ok || state?.access);
+        pinSessionOk = !!state?.pin_session_ok;
 
-        $("pillSlug").innerHTML = `slug : <b>${slug || "—"}</b>`;
-        $("pillPhone").innerHTML = `phone : <b>${displayPhone(phone)}</b>`;
+        $("pillSlug").innerHTML = `identifiant : <b>${slug || "—"}</b>`;
+        $("pillPhone").innerHTML = `téléphone : <b>${displayPhone(phone)}</b>`;
 
         bindLinks();
 
         if (!sb){
-          $("statusLine").textContent = "Supabase indisponible.";
-          $("expiryLine").textContent = "Le dashboard ne peut pas lire les données.";
+          $("statusLine").textContent = "Connexion indisponible.";
+          $("expiryLine").textContent = "Le tableau ne peut pas lire les données.";
           $("notifList").innerHTML = `<div class="empty">Client Supabase absent.</div>`;
           $("moneyMonth").textContent = "— FCFA";
           $("txCount").textContent = "— courses";
-          setMsgStatus("❌ Supabase indisponible.", "bad");
+          setMsgStatus("❌ Connexion indisponible.", "bad");
           return;
         }
 
@@ -913,24 +1019,29 @@
 
           if (cockpitData?.phone){
             phone = normPhone(cockpitData.phone || phone);
-            $("pillPhone").innerHTML = `phone : <b>${displayPhone(phone)}</b>`;
+            $("pillPhone").innerHTML = `téléphone : <b>${displayPhone(phone)}</b>`;
             if (window.DIGIY_GUARD?.rememberIdentity){
-              window.DIGIY_GUARD.rememberIdentity({ slug, phone });
+              try{
+                window.DIGIY_GUARD.rememberIdentity({ slug, phone });
+              }catch{}
             }
           }
 
           if (cockpitData?.public_label){
             $("brandTitle").textContent = cockpitData.public_label;
+          } else {
+            $("brandTitle").textContent = "Je conduis";
           }
+
           $("brandSub").textContent = cockpitData?.is_blank
-            ? "Dashboard léger — moule chauffeur à compléter"
-            : "Dashboard léger — statut, activité, aiguillage";
+            ? "Lecture rapide — espace chauffeur à compléter"
+            : "Lecture rapide — statut, activité, aiguillage";
         } else {
           cockpitData = null;
           ratesData = [];
           tripsData = [];
-          $("brandTitle").textContent = "DIGIY PRO DRIVER";
-          $("brandSub").textContent = "Dashboard léger — accès requis";
+          $("brandTitle").textContent = "Je conduis";
+          $("brandSub").textContent = "Lecture rapide — accès requis";
         }
 
         renderStatus(state);
