@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#061b14" />
-  <title>DIGIY DRIVER PRO — QR</title>
+  <title>DIGIY DRIVER — Mon QR</title>
 
   <script>
     window.DIGIY_MODULE = "DRIVER";
@@ -17,8 +17,9 @@
       window.DIGIY_SUPABASE_ANON || window.DIGIY_SUPABASE_ANON_KEY;
   </script>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-  <script src="./guard.js?v=driver-qr-20260321-final"></script>
+  <script src="./guard.js?v=driver-qr-20260329-v2"></script>
 
   <style>
     :root{
@@ -39,7 +40,7 @@
     *{box-sizing:border-box;margin:0;padding:0}
 
     body{
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
       color:var(--text);
       min-height:100vh;
       background:
@@ -153,6 +154,7 @@
       justify-content:center;
       gap:8px;
       transition:transform .12s ease, filter .12s ease, opacity .12s ease;
+      font-family:inherit;
     }
 
     .btn:hover:not(:disabled){
@@ -291,48 +293,48 @@
 
 <body>
   <a id="btnBackDashboardFixed" href="./dashboard-pro.html" class="back-dashboard">
-    ← Retour dashboard
+    ← Retour activité
   </a>
 
   <div class="wrap">
     <div class="hero">
-      <h1>🚖 QR du chauffeur</h1>
+      <h1>🚖 Mon QR chauffeur</h1>
       <p>
-        Un seul QR = <b>QR-PRO</b>. Derrière, QR-PRO peut ouvrir le rail chauffeur,
-        la page publique ou l’accès sécurisé selon le contexte.
+        Un seul QR pour partager ton activité plus vite.
+        Il peut ouvrir ta page, ton accès ou ton parcours chauffeur selon le contexte.
       </p>
     </div>
 
     <div class="card">
       <div class="pillRow">
-        <div class="pill" id="pillModule">module: DRIVER</div>
-        <div class="pill" id="pillSlug">slug: —</div>
-        <div class="pill" id="pillState">session: —</div>
+        <div class="pill" id="pillModule">activité : chauffeur</div>
+        <div class="pill" id="pillSlug">identifiant : —</div>
+        <div class="pill" id="pillState">état : —</div>
       </div>
 
       <div class="row">
-        <button class="btn ghost" id="btnBack" type="button">⬅️ Retour cockpit</button>
-        <button class="btn ghost" id="btnDashboard" type="button">📊 Dashboard</button>
-        <button class="btn primary" id="btnCopy" type="button">📋 Copier lien QR-PRO</button>
+        <button class="btn ghost" id="btnBack" type="button">⬅️ Revenir à ma gestion</button>
+        <button class="btn ghost" id="btnDashboard" type="button">📊 Ouvrir mon activité</button>
+        <button class="btn primary" id="btnCopy" type="button">📋 Copier mon lien</button>
       </div>
 
       <div class="row">
-        <button class="btn ghost" id="btnPublic" type="button">🌍 Ouvrir page publique</button>
-        <button class="btn good" id="btnOpen" type="button">↗️ Ouvrir QR-PRO</button>
+        <button class="btn ghost" id="btnPublic" type="button">🌍 Ouvrir ma page publique</button>
+        <button class="btn good" id="btnOpen" type="button">↗️ Ouvrir mon QR</button>
       </div>
 
       <div class="row">
-        <button class="btn primary" id="btnDownload" type="button">⬇️ Télécharger QR (PNG)</button>
-        <button class="btn ghost" id="btnSticker" type="button">🟩 Télécharger Sticker XL (PNG)</button>
+        <button class="btn primary" id="btnDownload" type="button">⬇️ Télécharger le QR (PNG)</button>
+        <button class="btn ghost" id="btnSticker" type="button">🟩 Télécharger le sticker XL</button>
       </div>
 
       <div class="qrbox">
         <a id="qrAnchor" href="#" target="_blank" rel="noopener">
-          <img id="qrImg" class="qrImg" alt="QR DIGIY QR PRO DRIVER" />
+          <img id="qrImg" class="qrImg" alt="QR DIGIY DRIVER" />
         </a>
       </div>
 
-      <div class="label mono" id="urlBox">URL: —</div>
+      <div class="label mono" id="urlBox">Lien : —</div>
       <div class="note warn" id="note"></div>
 
       <div class="hr"></div>
@@ -432,7 +434,7 @@
           }
           await ready;
         }catch(e){
-          console.warn("guard ready failed", e);
+          console.warn("[DIGIY DRIVER QR] guard ready failed", e);
         }
       }
 
@@ -451,30 +453,51 @@
         const sess = getGuardSession();
         return normPhone(
           sess.phone ||
-          qs.get("tel") ||
           qs.get("phone") ||
+          qs.get("tel") ||
           phoneFromDriverSlug(getSlugSafe()) ||
           ""
         );
       }
 
+      function buildSafeUrl(path, params){
+        try{
+          const u = new URL(path, location.href);
+          Object.entries(params || {}).forEach(([key, value]) => {
+            const clean = String(value == null ? "" : value).trim();
+            if (clean) u.searchParams.set(key, clean);
+            else u.searchParams.delete(key);
+          });
+          return u.toString();
+        }catch(e){
+          console.error("[DIGIY DRIVER QR] buildSafeUrl", e);
+          return path;
+        }
+      }
+
       function pageUrl(path){
-        const u = new URL(path, location.href);
-        if (slug) u.searchParams.set("slug", slug);
-        if (phone) u.searchParams.set("tel", phone);
-        return u.toString();
+        return buildSafeUrl(path, {
+          slug,
+          phone
+        });
       }
 
       function syncOwnUrl(){
-        const u = new URL(location.href);
+        try{
+          const u = new URL(location.href);
 
-        if (slug) u.searchParams.set("slug", slug);
-        else u.searchParams.delete("slug");
+          if (slug) u.searchParams.set("slug", slug);
+          else u.searchParams.delete("slug");
 
-        if (phone) u.searchParams.set("tel", phone);
-        else u.searchParams.delete("tel");
+          if (phone) u.searchParams.set("phone", phone);
+          else u.searchParams.delete("phone");
 
-        history.replaceState({}, "", u.toString());
+          u.searchParams.delete("tel");
+
+          history.replaceState({}, "", u.toString());
+        }catch(e){
+          console.error("[DIGIY DRIVER QR] syncOwnUrl", e);
+        }
       }
 
       async function copyText(text){
@@ -529,7 +552,7 @@
             await loadScript(src);
             if(window.QRCode?.toDataURL) return true;
           }catch(e){
-            console.warn("QR fallback failed", src, e);
+            console.warn("[DIGIY DRIVER QR] QR fallback failed", src, e);
           }
         }
         return !!window.QRCode?.toDataURL;
@@ -566,15 +589,15 @@
       phone = getPhoneSafe();
 
       if(!slug){
-        alert("❌ slug manquant. Ouvre cette page via le cockpit DRIVER avec ?slug=driver-221...");
+        alert("❌ Identifiant absent. Ouvre cette page depuis ton espace chauffeur.");
         return;
       }
 
       const sess = getGuardSession();
-      pillSlug.textContent = "slug: " + slug;
+      pillSlug.textContent = "identifiant : " + slug;
       pillState.textContent = sess.ok
-        ? ("session: OK" + (phone ? " · " + phone : ""))
-        : "session: aperçu / slug";
+        ? ("état : session ouverte" + (phone ? " · +" + phone : ""))
+        : "état : aperçu";
 
       syncOwnUrl();
 
@@ -589,25 +612,25 @@
       const qrProUrl = new URL(QR_PRO_BASE);
       qrProUrl.searchParams.set("slug", slug);
       qrProUrl.searchParams.set("module", MODULE);
-      if (phone) qrProUrl.searchParams.set("tel", phone);
+      if (phone) qrProUrl.searchParams.set("phone", phone);
       qrProUrl.searchParams.set("return", cockpitUrl);
       qrProUrl.searchParams.set("public", publicUrl);
 
       url = qrProUrl.toString();
 
-      urlBox.textContent = "URL: " + url;
+      urlBox.textContent = "Lien : " + url;
       dbgEl.textContent =
-        "slug: " + slug +
-        " | module: DRIVER" +
-        " | qr-base: " + QR_PRO_BASE +
-        (phone ? " | tel: " + phone : "") +
-        " | return: cockpit.html" +
+        "identifiant: " + slug +
+        " | activité: DRIVER" +
+        " | base-qr: " + QR_PRO_BASE +
+        (phone ? " | phone: " + phone : "") +
+        " | retour: cockpit.html" +
         " | public: index.html" +
-        " | dashboard: dashboard-pro.html";
+        " | activité: dashboard-pro.html";
 
       qrAnchor.href = url;
 
-      note("⏳ Préparation du QR local…", "warn");
+      note("⏳ Préparation du QR…", "warn");
       setBusy(true);
 
       try{
@@ -620,17 +643,17 @@
         qrXLDataUrl = await makeQrDataUrl(url, 900);
 
         qrImg.onload = () => {
-          note("✅ QR-PRO DRIVER prêt. Teste au téléphone avant impression.", "ok");
+          note("✅ QR prêt. Teste-le au téléphone avant impression.", "ok");
         };
 
         qrImg.onerror = () => {
-          note("❌ Impossible d’afficher l’image QR locale.", "bad");
+          note("❌ Impossible d’afficher l’image du QR.", "bad");
         };
 
         qrImg.src = qrNormalDataUrl;
       }catch(e){
         console.error(e);
-        note("❌ Génération QR locale impossible : " + (e?.message || e), "bad");
+        note("❌ Génération du QR impossible : " + (e?.message || e), "bad");
       }finally{
         setBusy(false);
       }
@@ -650,10 +673,10 @@
       btnCopy.onclick = async () => {
         try{
           await copyText(url);
-          note("✅ Lien QR-PRO DRIVER copié.", "ok");
+          note("✅ Lien copié.", "ok");
         }catch(e){
           console.error(e);
-          note("⚠️ Clipboard bloqué. Copie manuelle dans l’URL affichée.", "warn");
+          note("⚠️ Copie bloquée. Tu peux copier le lien affiché juste en dessous.", "warn");
         }
       };
 
@@ -664,17 +687,17 @@
       btnDownload.onclick = async () => {
         if(busy) return;
         if(!qrNormalDataUrl){
-          note("❌ QR normal non prêt.", "bad");
+          note("❌ QR non prêt.", "bad");
           return;
         }
         setBusy(true);
         try{
           note("⏳ Préparation du PNG…", "warn");
-          directDownload(qrNormalDataUrl, `DIGIY_QR_PRO_DRIVER_${slug}.png`);
-          note("⬇️ Téléchargement lancé (QR normal).", "ok");
+          directDownload(qrNormalDataUrl, `DIGIY_QR_DRIVER_${slug}.png`);
+          note("⬇️ Téléchargement lancé.", "ok");
         }catch(e){
           console.error(e);
-          note("❌ Download KO: " + (e?.message || e), "bad");
+          note("❌ Téléchargement impossible : " + (e?.message || e), "bad");
         }finally{
           setBusy(false);
         }
@@ -688,12 +711,12 @@
         }
         setBusy(true);
         try{
-          note("🟩 Préparation Sticker XL…", "warn");
+          note("🟩 Préparation du sticker XL…", "warn");
           directDownload(qrXLDataUrl, `DIGIY_STICKER_XL_DRIVER_${slug}.png`);
           note("⬇️ Sticker XL téléchargé.", "ok");
         }catch(e){
           console.error(e);
-          note("❌ Sticker XL KO: " + (e?.message || e), "bad");
+          note("❌ Sticker XL impossible : " + (e?.message || e), "bad");
         }finally{
           setBusy(false);
         }
