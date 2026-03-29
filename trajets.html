@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Je conduis — Mes trajets</title>
+  <meta name="theme-color" content="#22c55e" />
+  <meta
+    name="description"
+    content="DIGIY DRIVER — Espace chauffeur simple. Mes trajets, mon historique, mes actions."
+  />
+
+  <style>
+    :root{
+      --green:#22c55e;
+      --green2:#16a34a;
+      --sky:#0ea5e9;
+      --ok:#22c55e;
+
+      --bg:#f0fdf4;
+      --bg2:#ffffff;
+      --card:#ffffff;
+
+      --text:#0f172a;
+      --muted:#64748b;
+
+      --shadow:0 12px 28px rgba(2,6,23,.08);
+      --radius:18px;
+
+      --warn:#f59e0b;
+      --warnBg:rgba(245,158,11,.12);
+      --warnBd:rgba(245,158,11,.35);
+      --warnTx:#7c2d12;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:linear-gradient(180deg,#dcfce7 0%,var(--bg) 55%,var(--bg2) 100%);
+      color:var(--text);
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:5;
+      padding:16px 14px;
+      background:linear-gradient(90deg,var(--green),#4ade80);
+      color:#fff;
+      box-shadow:0 10px 22px rgba(34,197,94,.32);
+    }
+
+    .topRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      max-width:980px;
+      margin:0 auto;
+    }
+
+    .brand{
+      font-weight:1000;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size:17px;
+      white-space:nowrap;
+    }
+
+    .pill{
+      background:rgba(255,255,255,.22);
+      border:1px solid rgba(255,255,255,.35);
+      padding:7px 11px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    main{
+      max-width:980px;
+      margin:0 auto;
+      padding:14px;
+    }
+
+    .card{
+      background:#ffffffcc;
+      backdrop-filter:blur(7px);
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      margin-bottom:12px;
+    }
+
+    .bar{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:10px;
+    }
+
+    @media(max-width:860px){
+      .bar{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
+    }
+
+    .field label{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+      display:block;
+      margin-bottom:6px;
+    }
+
+    select,input{
+      width:100%;
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.12);
+      outline:none;
+      font-size:14px;
+      background:#fff;
+      font-family:inherit;
+    }
+
+    .status{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .status .left{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+
+    .status .title{
+      font-weight:1000;
+    }
+
+    .status .sub{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    .badge{
+      font-size:12px;
+      font-weight:1000;
+      padding:8px 10px;
+      border-radius:999px;
+      background:#dcfce7;
+      border:1px solid rgba(34,197,94,.22);
+      color:#14532d;
+      white-space:nowrap;
+    }
+
+    .badge.warn{
+      background:var(--warnBg);
+      border:1px solid var(--warnBd);
+      color:var(--warnTx);
+    }
+
+    .actionsTop{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:center;
+    }
+
+    button{
+      padding:11px 12px;
+      border:none;
+      border-radius:14px;
+      font-weight:1000;
+      font-size:14px;
+      cursor:pointer;
+      font-family:inherit;
+    }
+
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .btn-light{
+      background:#fff;
+      border:1px solid rgba(15,23,42,.14);
+      color:var(--text);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .trip{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:1px solid rgba(15,23,42,.08);
+      padding:14px;
+      overflow:hidden;
+    }
+
+    .trip .head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .trip .route{
+      font-weight:1000;
+      font-size:15px;
+      line-height:1.2;
+    }
+
+    .trip .meta{
+      margin-top:8px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+    }
+
+    .tag{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;
+    }
+
+    .price{
+      margin-top:10px;
+      font-size:16px;
+      font-weight:1100;
+      color:var(--green2);
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+
+    .btn-accept{background:var(--green2); color:#fff}
+    .btn-start{background:var(--sky); color:#fff}
+    .btn-done{background:var(--ok); color:#fff}
+    .btn-ghost{
+      background:#fff;
+      border:1px solid rgba(15,23,42,.12);
+      color:var(--text);
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:16px;
+      background:rgba(15,23,42,.92);
+      color:#fff;
+      padding:10px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:900;
+      display:none;
+      z-index:20;
+      max-width:92vw;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    a.link{
+      color:#14532d;
+      font-weight:1000;
+      text-decoration:none;
+      border-bottom:2px solid rgba(20,83,45,.25);
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="topRow">
+    <div class="brand">🚕 Je conduis <span class="pill">Trajets • Lecture simple</span></div>
+    <div class="pill" id="who">…</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="card">
+    <div class="bar">
+      <div class="field">
+        <label>📍 Zone recherchée</label>
+        <select id="zoneFilter">
+          <option value="">Toutes</option>
+          <option value="Plateau">Plateau</option>
+          <option value="Almadies">Almadies</option>
+          <option value="Yoff">Yoff</option>
+          <option value="Saly">Saly</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>🗂️ Ce que je veux voir</label>
+        <select id="viewFilter">
+          <option value="new" selected>Nouvelles demandes</option>
+          <option value="mine">Mes trajets en cours</option>
+          <option value="history">Mon historique</option>
+          <option value="all">Tout voir</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>🔎 Recherche rapide</label>
+        <input id="qFilter" type="text" placeholder="Ville, zone, client…" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card status" id="softCard" style="display:none">
+    <div class="left">
+      <div class="title" id="softTitle">⚠️ Session manquante</div>
+      <div class="sub" id="softSub">
+        Reviens par le HUB pour recevoir la session.
+        <br/>👉 <a class="link" href="https://beauville.github.io/digiy-hub/">Ouvrir le HUB</a>
+      </div>
+    </div>
+    <div class="badge warn">Accès</div>
+  </div>
+
+  <div class="card status">
+    <div class="left">
+      <div class="title" id="statusTitle">Connexion…</div>
+      <div class="sub" id="statusSub">Vérification de la session…</div>
+    </div>
+    <div class="badge" id="modeBadge">Lecture simple</div>
+  </div>
+
+  <div class="card status">
+    <div class="left">
+      <div class="title">👤 Mon espace chauffeur</div>
+      <div class="sub" id="meLine">Chargement…</div>
+    </div>
+    <div class="actionsTop">
+      <button class="btn-light" id="btnReload">🔄 Recharger mes trajets</button>
+      <button class="btn-light" id="btnLogout">🚪 Déconnexion</button>
+    </div>
+  </div>
+
+  <div class="grid" id="trips"></div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+
+  globalThis.__sb ||= createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sb = globalThis.__sb;
+
+  const tripsEl = document.getElementById("trips");
+  const zoneFilter = document.getElementById("zoneFilter");
+  const viewFilter = document.getElementById("viewFilter");
+  const qFilter = document.getElementById("qFilter");
+  const whoEl = document.getElementById("who");
+  const statusTitle = document.getElementById("statusTitle");
+  const statusSub = document.getElementById("statusSub");
+  const modeBadge = document.getElementById("modeBadge");
+  const meLine = document.getElementById("meLine");
+  const toastEl = document.getElementById("toast");
+  const btnReload = document.getElementById("btnReload");
+  const btnLogout = document.getElementById("btnLogout");
+  const softCard = document.getElementById("softCard");
+  const softTitle = document.getElementById("softTitle");
+  const softSub = document.getElementById("softSub");
+
+  const HUB_URL = "https://beauville.github.io/digiy-hub/";
+
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.style.display = "block";
+    clearTimeout(globalThis.__t);
+    globalThis.__t = setTimeout(()=> toastEl.style.display = "none", 2400);
+  }
+
+  function showSoft(title, html){
+    softTitle.textContent = title;
+    softSub.innerHTML = html;
+    softCard.style.display = "flex";
+  }
+
+  function getTokensFromUrl(){
+    const u = new URL(location.href);
+    const at = u.searchParams.get("at");
+    const rt = u.searchParams.get("rt");
+    return { at, rt };
+  }
+
+  function cleanUrlTokens(){
+    const u = new URL(location.href);
+    u.searchParams.delete("at");
+    u.searchParams.delete("rt");
+    history.replaceState({}, "", u.toString());
+  }
+
+  function esc(s){
+    return String(s ?? "").replace(/[&<>"']/g, m => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      "\"":"&quot;",
+      "'":"&#039;"
+    }[m]));
+  }
+
+  function pick(obj, keys, fallback = "—"){
+    for (const key of keys){
+      const val = obj?.[key];
+      if (val !== null && val !== undefined && String(val).trim() !== "") return val;
+    }
+    return fallback;
+  }
+
+  function money(v){
+    const n = Number(v || 0);
+    return Number.isFinite(n) ? n.toLocaleString("fr-FR") + " F CFA" : "—";
+  }
+
+  function fmtDate(v){
+    if (!v) return "—";
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return String(v);
+    return d.toLocaleString("fr-FR", {
+      year:"numeric",
+      month:"2-digit",
+      day:"2-digit",
+      hour:"2-digit",
+      minute:"2-digit"
+    });
+  }
+
+  function statusLabel(s){
+    const v = String(s || "").toLowerCase();
+    if (v === "requested") return "Nouvelle demande";
+    if (v === "accepted") return "À démarrer";
+    if (v === "ongoing" || v === "in_progress") return "En trajet";
+    if (v === "completed") return "Terminé";
+    if (v === "cancelled" || v === "canceled") return "Annulé";
+    return v || "—";
+  }
+
+  async function ensureSession(){
+    let { data } = await sb.auth.getSession();
+    if (data?.session) return data.session;
+
+    const { at, rt } = getTokensFromUrl();
+    if (at && rt){
+      const res = await sb.auth.setSession({ access_token: at, refresh_token: rt });
+      if (res?.data?.session){
+        cleanUrlTokens();
+        return res.data.session;
+      }
+    }
+    return null;
+  }
+
+  const store = new Map();
+
+  function passesFilters(trip){
+    const z = zoneFilter.value || "";
+    const v = viewFilter.value || "new";
+    const q = (qFilter.value || "").trim().toLowerCase();
+
+    const status = String(trip.status || "").toLowerCase();
+
+    if (v === "new" && status !== "requested") return false;
+    if (v === "mine" && !["accepted","ongoing","in_progress"].includes(status)) return false;
+    if (v === "history" && !["completed","cancelled","canceled"].includes(status)) return false;
+    if (v === "all" && !["requested","accepted","ongoing","in_progress","completed","cancelled","canceled"].includes(status)) return false;
+
+    if (z && String(trip.pickup_zone || "") !== z) return false;
+
+    if (q){
+      const hay = [
+        trip.client_name,
+        trip.customer_name,
+        trip.passenger_name,
+        trip.pickup_city,
+        trip.dropoff_city,
+        trip.pickup_zone,
+        trip.pickup_label,
+        trip.dropoff_label
+      ].join(" ").toLowerCase();
+
+      if (!hay.includes(q)) return false;
+    }
+
+    return true;
+  }
+
+  function renderAll(){
+    const items = Array.from(store.values())
+      .filter(passesFilters)
+      .sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+    tripsEl.innerHTML = "";
+
+    if (!items.length){
+      tripsEl.innerHTML = `
+        <div class="trip" style="grid-column:1/-1">
+          <div class="route">Aucun trajet dans cette vue</div>
+          <div class="meta">
+            <span class="tag">Tu peux changer la vue</span>
+            <span class="tag">Ou recharger manuellement</span>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    for (const trip of items){
+      const status = String(trip.status || "").toLowerCase();
+      const card = document.createElement("div");
+      card.className = "trip";
+
+      const pickup = pick(trip, ["pickup_label","pickup_address","pickup_text","pickup_city"], "Départ à préciser");
+      const dropoff = pick(trip, ["dropoff_label","dropoff_address","dropoff_text","dropoff_city"], "Arrivée à préciser");
+      const client = pick(trip, ["client_name","customer_name","passenger_name"], "Client");
+      const zone = pick(trip, ["pickup_zone"], "");
+      const when = pick(trip, ["pickup_at","ride_at","booking_time","created_at"], "");
+      const km = pick(trip, ["distance_km"], "");
+      const min = pick(trip, ["duration_min"], "");
+      const price = money(pick(trip, ["amount","final_price_fcfa","price_fcfa"], 0));
+
+      let actionsHtml = "";
+
+      if (status === "requested"){
+        actionsHtml = `
+          <div class="actions">
+            <button class="btn-accept" data-id="${trip.id}" data-act="accept">Accepter</button>
+          </div>
+        `;
+      } else if (status === "accepted"){
+        actionsHtml = `
+          <div class="actions">
+            <button class="btn-start" data-id="${trip.id}" data-act="start">Démarrer</button>
+          </div>
+        `;
+      } else if (status === "ongoing" || status === "in_progress"){
+        actionsHtml = `
+          <div class="actions">
+            <button class="btn-done" data-id="${trip.id}" data-act="complete">Terminer</button>
+          </div>
+        `;
+      } else {
+        actionsHtml = `
+          <div class="actions">
+            <button class="btn-ghost" disabled>Lecture seule</button>
+          </div>
+        `;
+      }
+
+      card.innerHTML = `
+        <div class="head">
+          <div>
+            <div class="route">${esc(client)} • ${esc(pickup)} → ${esc(dropoff)}</div>
+            <div class="meta">
+              <span class="tag">📍 ${esc(zone || "Zone non précisée")}</span>
+              <span class="tag">📅 ${esc(fmtDate(when))}</span>
+              ${km !== "" && km !== "—" ? `<span class="tag">🛣️ ${esc(km)} km</span>` : ``}
+              ${min !== "" && min !== "—" ? `<span class="tag">⏱️ ${esc(min)} min</span>` : ``}
+            </div>
+            <div class="price">💰 ${esc(price)}</div>
+          </div>
+          <div class="pill" style="color:#0f172a;background:#fff;border-color:rgba(15,23,42,.15)">
+            ${esc(statusLabel(status))}
+          </div>
+        </div>
+        ${actionsHtml}
+      `;
+
+      tripsEl.appendChild(card);
+    }
+  }
+
+  async function loadTrips(){
+    const { data, error } = await sb
+      .from("driver_trips")
+      .select("*")
+      .in("status", ["requested","accepted","ongoing","in_progress","completed","cancelled","canceled"])
+      .order("created_at", { ascending:false })
+      .limit(200);
+
+    if (error){
+      console.error(error);
+      statusSub.textContent = "Impossible de lire les trajets pour le moment.";
+      tripsEl.innerHTML = `
+        <div class="trip" style="grid-column:1/-1">
+          <div class="route">⚠️ Lecture des trajets indisponible</div>
+          <div class="meta">
+            <span class="tag">Table ou vue à vérifier</span>
+            <span class="tag">RLS à vérifier</span>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    store.clear();
+    (data || []).forEach(t => t?.id && store.set(t.id, t));
+    renderAll();
+    statusSub.textContent = "Lecture simple chargée. Utilise le bouton recharger quand tu veux.";
+  }
+
+  async function rpcAction(action, tripId){
+    if (!tripId) return;
+
+    toast("⏳ Action en cours…");
+
+    let res = null;
+
+    if (action === "accept"){
+      res = await sb.rpc("accept_trip", { p_trip_id: tripId });
+    } else if (action === "start"){
+      res = await sb.rpc("start_trip", { p_trip_id: tripId });
+    } else if (action === "complete"){
+      res = await sb.rpc("complete_trip", { p_trip_id: tripId });
+    } else {
+      return;
+    }
+
+    if (res?.error){
+      console.error(res.error);
+      toast("❌ " + res.error.message);
+      return;
+    }
+
+    toast("✅ Action enregistrée");
+    await loadTrips();
+  }
+
+  document.addEventListener("click", (e)=>{
+    const btn = e.target?.closest("button[data-act]");
+    if (!btn) return;
+    rpcAction(btn.getAttribute("data-act"), btn.getAttribute("data-id"));
+  });
+
+  btnReload?.addEventListener("click", async ()=>{
+    await loadTrips();
+    toast("✅ Trajets rechargés");
+  });
+
+  btnLogout?.addEventListener("click", async ()=>{
+    await sb.auth.signOut();
+    location.href = HUB_URL;
+  });
+
+  zoneFilter.addEventListener("change", renderAll);
+  viewFilter.addEventListener("change", renderAll);
+  qFilter.addEventListener("input", ()=>{
+    clearTimeout(globalThis.__q);
+    globalThis.__q = setTimeout(renderAll, 120);
+  });
+
+  async function main(){
+    statusTitle.textContent = "Connexion…";
+    statusSub.textContent = "Vérification de la session…";
+    modeBadge.textContent = "Lecture simple";
+
+    const session = await ensureSession();
+
+    if (!session){
+      statusTitle.textContent = "❌ Session introuvable";
+      statusSub.textContent = "Reviens via le HUB.";
+      whoEl.textContent = "Offline";
+      showSoft(
+        "⚠️ Pas de session",
+        `Reviens par le HUB pour recevoir la session.<br/>👉 <a class="link" href="${HUB_URL}">Ouvrir le HUB</a>`
+      );
+      return;
+    }
+
+    const uid = session.user.id;
+    whoEl.textContent = session.user.phone || session.user.email || "Chauffeur";
+    meLine.textContent = `ID: ${uid.slice(0,6)}… • Connecté`;
+    statusTitle.textContent = "🟢 Session ouverte";
+    statusSub.textContent = "Lecture simple de tes trajets.";
+    await loadTrips();
+  }
+
+  main();
+</script>
+</body>
+</html>
