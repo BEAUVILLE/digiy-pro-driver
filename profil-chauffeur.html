@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY PRO DRIVER — Profil chauffeur</title>
+  <title>DIGIY DRIVER — Mon profil</title>
   <meta name="theme-color" content="#061b14"/>
 
   <script>
@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-profile-guard-20260321-nav-qr-final"></script>
+  <script src="./guard.js?v=driver-profile-guard-20260329-v2"></script>
 
   <style>
     :root{
@@ -40,7 +40,7 @@
       padding:16px;
       background:var(--bg);
       color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
     }
 
     a{color:inherit;text-decoration:none}
@@ -111,6 +111,7 @@
       font-size:15px;
       font-weight:900;
       outline:none;
+      font-family:inherit;
     }
 
     .in:disabled, textarea:disabled{
@@ -121,7 +122,6 @@
     textarea{
       min-height:96px;
       resize:vertical;
-      font-family:inherit;
     }
 
     .btn{
@@ -138,6 +138,7 @@
       justify-content:center;
       gap:8px;
       transition:.15s ease;
+      font-family:inherit;
     }
 
     .btn:hover{transform:translateY(-1px)}
@@ -324,72 +325,72 @@
 
     <div class="top">
       <div>
-        <h1 id="titleMain">👤 DIGIY PRO DRIVER — Profil chauffeur</h1>
-        <div class="muted" id="subMain">Profil réel, publication et tarifs liés à ton slug actif. Aucune démo partagée.</div>
+        <h1 id="titleMain">👤 DIGIY DRIVER — Mon profil chauffeur</h1>
+        <div class="muted" id="subMain">Profil réel, publication et tarifs liés à ton identifiant actif. Aucune démo partagée.</div>
 
         <div class="nav">
-          <a class="btn primary" id="btnCockpit" href="#">⬅️ Cockpit</a>
-          <a class="btn blue" id="btnDashboard" href="#">📊 Dashboard</a>
-          <a class="btn" id="btnTarifsPage" href="#">💰 Tarifs</a>
-          <a class="btn" id="btnQr" href="#">📱 QR</a>
-          <a class="btn" id="btnPin" href="#">🔑 PIN</a>
-          <a class="btn gold" id="btnPay" href="#">💳 Abonnement</a>
-          <a class="btn" id="btnHome" href="#">🏠 Vitrine</a>
-          <button class="btn warn" id="btnReloadSession" type="button">🔄 Session</button>
+          <a class="btn primary" id="btnCockpit" href="#">⬅️ Ma gestion</a>
+          <a class="btn blue" id="btnDashboard" href="#">📊 Mon activité</a>
+          <a class="btn" id="btnTarifsPage" href="#">💰 Mes tarifs</a>
+          <a class="btn" id="btnQr" href="#">📱 Mon QR</a>
+          <a class="btn" id="btnPin" href="#">🔑 Mon accès</a>
+          <a class="btn gold" id="btnPay" href="#">💳 Mon abonnement</a>
+          <a class="btn" id="btnHome" href="#">🏠 Ma vitrine</a>
+          <button class="btn warn" id="btnReloadSession" type="button">🔄 Recharger ma session</button>
         </div>
       </div>
 
       <div class="row" style="flex:0 0 auto">
-        <div class="pill" id="slugPill">slug : —</div>
-        <div class="pill" id="phonePill">phone : —</div>
-        <div class="pill warn" id="accessPill">accès : contrôle…</div>
+        <div class="pill" id="slugPill">identifiant : —</div>
+        <div class="pill" id="phonePill">téléphone : —</div>
+        <div class="pill warn" id="accessPill">session : contrôle…</div>
       </div>
     </div>
 
     <div class="card">
       <h2>Navigation chauffeur</h2>
-      <div class="muted">Toutes les portes métier sont recousues sur le même slug réel.</div>
+      <div class="muted">Toutes les portes métier sont recousues sur le même identifiant réel.</div>
 
       <div class="quickNav">
         <div class="navbox">
-          <div class="title">🏠 Cockpit</div>
+          <div class="title">🏠 Ma gestion</div>
           <div class="desc">Retour au centre du module chauffeur avec accès, courses et état réel.</div>
           <a class="go" id="navCockpit" href="#">Ouvrir</a>
         </div>
 
         <div class="navbox">
-          <div class="title">📊 Dashboard</div>
+          <div class="title">📊 Mon activité</div>
           <div class="desc">Lecture rapide du statut, de l’activité et de l’aiguillage métier.</div>
           <a class="go" id="navDashboard" href="#">Ouvrir</a>
         </div>
 
         <div class="navbox">
-          <div class="title">💰 Tarifs</div>
-          <div class="desc">Grille terrain du chauffeur, liée au slug actif, sans fausse donnée.</div>
+          <div class="title">💰 Mes tarifs</div>
+          <div class="desc">Grille terrain du chauffeur, liée à l’identifiant actif, sans fausse donnée.</div>
           <a class="go" id="navTarifs" href="#">Ouvrir</a>
         </div>
 
         <div class="navbox">
-          <div class="title">📱 QR chauffeur</div>
-          <div class="desc">Partager la bonne porte terrain avec le slug actif déjà transmis.</div>
+          <div class="title">📱 Mon QR</div>
+          <div class="desc">Partager la bonne porte terrain avec l’identifiant déjà transmis.</div>
           <a class="go" id="navQr" href="#">Ouvrir</a>
         </div>
 
         <div class="navbox">
-          <div class="title">🔑 PIN</div>
-          <div class="desc">Repasser par la porte sécurisée sans casser le rail DRIVER.</div>
+          <div class="title">🔑 Mon accès</div>
+          <div class="desc">Repasser par la porte sécurisée sans casser le rail chauffeur.</div>
           <a class="go" id="navPin" href="#">Ouvrir</a>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h2>État du rail profil</h2>
+      <h2>État du profil</h2>
       <div class="muted">Lecture simple du contexte actif avant de modifier le profil.</div>
 
       <div class="stateGrid">
         <div class="stateBox">
-          <div class="k">Slug actif</div>
+          <div class="k">Identifiant actif</div>
           <div class="v" id="stateSlug">—</div>
         </div>
         <div class="stateBox">
@@ -397,7 +398,7 @@
           <div class="v" id="statePhone">—</div>
         </div>
         <div class="stateBox">
-          <div class="k">Publication</div>
+          <div class="k">Visibilité</div>
           <div class="v" id="statePublish">Chargement…</div>
         </div>
       </div>
@@ -411,33 +412,33 @@
           <div class="row">
             <div>
               <div class="muted">Nom affiché</div>
-              <input class="in" id="displayName" placeholder="Ex: Chauffeur Royal Saly"/>
+              <input class="in" id="displayName" placeholder="Ex : Chauffeur Royal Saly"/>
             </div>
             <div>
               <div class="muted">Type véhicule</div>
-              <input class="in" id="vehicleType" placeholder="Ex: Berline / SUV / Van"/>
+              <input class="in" id="vehicleType" placeholder="Ex : Berline / SUV / Van"/>
             </div>
           </div>
 
           <div class="row" style="margin-top:10px">
             <div>
               <div class="muted">Marque</div>
-              <input class="in" id="vehicleBrand" placeholder="Ex: Toyota"/>
+              <input class="in" id="vehicleBrand" placeholder="Ex : Toyota"/>
             </div>
             <div>
               <div class="muted">Modèle</div>
-              <input class="in" id="vehicleModel" placeholder="Ex: Corolla"/>
+              <input class="in" id="vehicleModel" placeholder="Ex : Corolla"/>
             </div>
           </div>
 
           <div class="row" style="margin-top:10px">
             <div>
               <div class="muted">Année</div>
-              <input class="in" id="vehicleYear" placeholder="Ex: 2018"/>
+              <input class="in" id="vehicleYear" placeholder="Ex : 2018"/>
             </div>
             <div>
               <div class="muted">Couleur</div>
-              <input class="in" id="vehicleColor" placeholder="Ex: Blanc"/>
+              <input class="in" id="vehicleColor" placeholder="Ex : Blanc"/>
             </div>
           </div>
 
@@ -452,13 +453,13 @@
           <div class="row">
             <div>
               <div class="muted">Ville principale</div>
-              <input class="in" id="city" placeholder="Ex: Saly"/>
+              <input class="in" id="city" placeholder="Ex : Saly"/>
             </div>
           </div>
 
           <div style="margin-top:10px">
             <div class="muted">Zones couvertes</div>
-            <textarea id="zonesText" placeholder="Ex: Saly, Ngaparou, Somone, Dakar, AIBD"></textarea>
+            <textarea id="zonesText" placeholder="Ex : Saly, Ngaparou, Somone, Dakar, AIBD"></textarea>
           </div>
 
           <div class="checks">
@@ -473,23 +474,23 @@
           <div class="row">
             <div>
               <div class="muted">WhatsApp</div>
-              <input class="in" id="whatsapp" placeholder="Ex: 221771342889"/>
+              <input class="in" id="whatsapp" placeholder="Ex : 221771342889"/>
             </div>
           </div>
 
           <div style="margin-top:10px">
             <div class="muted">Note contact</div>
-            <textarea id="contactNote" placeholder="Ex: Disponible sur réservation"></textarea>
+            <textarea id="contactNote" placeholder="Ex : Disponible sur réservation"></textarea>
           </div>
 
           <div style="margin-top:10px">
             <div class="muted">Bio</div>
-            <textarea id="bio" placeholder="Ex: Chauffeur propre, ponctuel, terrain."></textarea>
+            <textarea id="bio" placeholder="Ex : Chauffeur propre, ponctuel, terrain."></textarea>
           </div>
 
           <div class="row" style="margin-top:10px">
-            <button class="btn primary" id="btnSaveProfile" type="button">💾 Enregistrer le profil</button>
-            <button class="btn" id="btnReloadProfile" type="button">↻ Recharger profil</button>
+            <button class="btn primary" id="btnSaveProfile" type="button">💾 Enregistrer mon profil</button>
+            <button class="btn" id="btnReloadProfile" type="button">↻ Recharger mon profil</button>
           </div>
 
           <div class="msg" id="msgProfile">Prêt.</div>
@@ -498,13 +499,13 @@
 
       <div>
         <div class="card">
-          <h2>Publication chauffeur</h2>
+          <h2>Visibilité chauffeur</h2>
           <div class="muted">Contrôle simple de visibilité du profil chauffeur.</div>
 
           <div class="list" style="margin-top:12px">
             <div class="item">
               <div>
-                <b>État de publication</b>
+                <b>État de visibilité</b>
                 <div class="muted small" id="publishState">Chargement…</div>
               </div>
               <div class="actions">
@@ -523,17 +524,17 @@
           <div class="row">
             <div>
               <div class="muted">Nom du trajet</div>
-              <input class="in" id="routeLabel" placeholder="Ex: Saly → Dakar"/>
+              <input class="in" id="routeLabel" placeholder="Ex : Saly → Dakar"/>
             </div>
             <div>
               <div class="muted">Prix (FCFA)</div>
-              <input class="in" id="priceFcfa" inputmode="numeric" placeholder="Ex: 7000"/>
+              <input class="in" id="priceFcfa" inputmode="numeric" placeholder="Ex : 7000"/>
             </div>
           </div>
 
           <div class="row" style="margin-top:10px">
-            <button class="btn gold" id="btnSaveRate" type="button">💰 Enregistrer tarif</button>
-            <button class="btn" id="btnReloadRates" type="button">↻ Rafraîchir tarifs</button>
+            <button class="btn gold" id="btnSaveRate" type="button">💰 Enregistrer le tarif</button>
+            <button class="btn" id="btnReloadRates" type="button">↻ Rafraîchir mes tarifs</button>
           </div>
 
           <div class="msg" id="msgRates">Prêt.</div>
@@ -562,6 +563,15 @@
 
       const $ = (id) => document.getElementById(id);
       const META_PREFIX = "__DIGIY_DRIVER_META__:";
+
+      const PAGES = {
+        cockpit: "./cockpit.html",
+        dashboard: "./dashboard-pro.html",
+        tarifs: "./tarifs.html",
+        qr: "./generateur-digiy-driver.html",
+        pin: "./pin.html",
+        home: "./index.html"
+      };
 
       let slug = "";
       let phone = "";
@@ -610,20 +620,56 @@
         });
       }
 
-      function withSlug(base){
-        const u = new URL(base, location.href);
-        if (slug) u.searchParams.set("slug", slug);
-        return u.pathname + u.search;
+      function buildSafeUrl(base, params){
+        try{
+          const u = new URL(base, location.href);
+          Object.entries(params || {}).forEach(([key, value]) => {
+            const clean = String(value == null ? "" : value).trim();
+            if (clean) u.searchParams.set(key, clean);
+            else u.searchParams.delete(key);
+          });
+          u.searchParams.delete("tel");
+          return u.pathname + u.search;
+        }catch(e){
+          console.error("[DRIVER PROFILE] buildSafeUrl", e);
+          return base;
+        }
+      }
+
+      function pageUrl(base){
+        return buildSafeUrl(base, {
+          slug: normSlug(slug),
+          phone: normPhone(phone)
+        });
+      }
+
+      function syncOwnUrl(){
+        try{
+          const u = new URL(location.href);
+          if (slug) u.searchParams.set("slug", slug);
+          else u.searchParams.delete("slug");
+
+          if (phone) u.searchParams.set("phone", phone);
+          else u.searchParams.delete("phone");
+
+          u.searchParams.delete("tel");
+          history.replaceState({}, "", u.toString());
+        }catch(e){
+          console.warn("[DRIVER PROFILE] syncOwnUrl", e);
+        }
       }
 
       function buildPayUrl(){
-        if (LAST_GUARD_STATE?.pay_url) return LAST_GUARD_STATE.pay_url;
-        const u = new URL("https://commencer-a-payer.digiylyfe.com/");
-        u.searchParams.set("module", "DRIVER");
-        if (phone) u.searchParams.set("phone", phone);
-        if (slug) u.searchParams.set("slug", slug);
-        u.searchParams.set("return", location.href);
-        return u.toString();
+        try{
+          const u = new URL("https://commencer-a-payer.digiylyfe.com/");
+          u.searchParams.set("module", "DRIVER");
+          if (phone) u.searchParams.set("phone", phone);
+          if (slug) u.searchParams.set("slug", slug);
+          u.searchParams.set("return", location.href);
+          return u.toString();
+        }catch(_){
+          return "https://commencer-a-payer.digiylyfe.com/";
+        }
       }
 
       function setMsgProfile(txt, type){
@@ -648,7 +694,7 @@
         ACCESS_OK = !!ok;
         const el = $("accessPill");
         el.className = "pill " + (ok ? "ok" : "bad");
-        el.textContent = "accès : " + txt;
+        el.textContent = "session : " + txt;
       }
 
       function setActionButtonsDisabled(disabled){
@@ -703,7 +749,7 @@
             await window.DIGIY_GUARD.ready;
           }
         }catch(e){
-          console.warn("Guard ready warning:", e);
+          console.warn("[DRIVER PROFILE] guard ready warning:", e);
         }
       }
 
@@ -832,9 +878,9 @@
 
       function renderPublishState(){
         const published = CURRENT_IS_PUBLISHED ? "Publié" : "Masqué";
-        const active = CURRENT_COCKPIT?.profile?.is_active ? "active" : "inactive";
-        const access = ACCESS_OK ? "accès OK" : "accès KO";
-        $("publishState").textContent = `${published} • profil: ${active} • ${access}`;
+        const active = CURRENT_COCKPIT?.profile?.is_active ? "actif" : "inactif";
+        const access = ACCESS_OK ? "session ouverte" : "session fermée";
+        $("publishState").textContent = `${published} • profil : ${active} • ${access}`;
         $("statePublish").textContent = published;
         $("stateSlug").textContent = slug || "—";
         $("statePhone").textContent = displayPhone(phone);
@@ -857,19 +903,24 @@
       }
 
       function bindNav(){
-        $("btnCockpit").href = withSlug("./cockpit.html");
-        $("btnDashboard").href = withSlug("./dashboard-pro.html");
-        $("btnTarifsPage").href = withSlug("./tarifs.html");
-        $("btnQr").href = withSlug("./generateur-digiy-driver.html");
-        $("btnPin").href = withSlug("./pin.html");
-        $("btnHome").href = withSlug("./index.html");
+        $("btnCockpit").href = pageUrl(PAGES.cockpit);
+        $("btnDashboard").href = pageUrl(PAGES.dashboard);
+        $("btnTarifsPage").href = pageUrl(PAGES.tarifs);
+        $("btnQr").href = pageUrl(PAGES.qr);
+        $("btnPin").href = pageUrl(PAGES.pin);
+        $("btnHome").href = pageUrl(PAGES.home);
         $("btnPay").href = buildPayUrl();
 
-        $("navCockpit").href = withSlug("./cockpit.html");
-        $("navDashboard").href = withSlug("./dashboard-pro.html");
-        $("navTarifs").href = withSlug("./tarifs.html");
-        $("navQr").href = withSlug("./generateur-digiy-driver.html");
-        $("navPin").href = withSlug("./pin.html");
+        $("navCockpit").href = pageUrl(PAGES.cockpit);
+        $("navDashboard").href = pageUrl(PAGES.dashboard);
+        $("navTarifs").href = pageUrl(PAGES.tarifs);
+        $("navQr").href = pageUrl(PAGES.qr);
+        $("navPin").href = pageUrl(PAGES.pin);
+
+        $("slugPill").textContent = "identifiant : " + (slug || "—");
+        $("phonePill").textContent = "téléphone : " + displayPhone(phone);
+        $("stateSlug").textContent = slug || "—";
+        $("statePhone").textContent = displayPhone(phone);
       }
 
       async function loadProfile(forceGuardRefresh = false){
@@ -881,53 +932,49 @@
           slug = normSlug(st?.slug || resolveSlug());
           phone = normPhone(st?.phone || phone || phoneFromDriverSlug(slug));
           bindNav();
-
-          $("slugPill").textContent = "slug : " + (slug || "—");
-          $("phonePill").textContent = "phone : " + displayPhone(phone);
-          $("stateSlug").textContent = slug || "—";
-          $("statePhone").textContent = displayPhone(phone);
+          syncOwnUrl();
 
           if (!slug){
             CURRENT_COCKPIT = null;
             CURRENT_IS_PUBLISHED = false;
-            setAccessState(false, "slug manquant");
+            setAccessState(false, "identifiant absent");
             clearForm();
             renderPublishState();
             setFormDisabled(true);
-            setMsgProfile("⚠️ Slug manquant. Passe par la porte PIN ou un lien valide.", "bad");
+            setMsgProfile("⚠️ Identifiant absent. Passe par la porte d’accès ou un lien valide.", "bad");
             return false;
           }
 
           if (!isDriverSlug(slug)){
             CURRENT_COCKPIT = null;
             CURRENT_IS_PUBLISHED = false;
-            setAccessState(false, "slug invalide");
+            setAccessState(false, "identifiant invalide");
             clearForm();
             renderPublishState();
             setFormDisabled(true);
-            setMsgProfile("❌ Slug DRIVER invalide. Format attendu : driver-221XXXXXXXXX.", "bad");
+            setMsgProfile("❌ Identifiant DRIVER invalide. Format attendu : driver-221XXXXXXXXX.", "bad");
             return false;
           }
 
           if (!st?.access_ok){
             CURRENT_COCKPIT = null;
             CURRENT_IS_PUBLISHED = false;
-            setAccessState(false, st?.reason || "accès KO");
+            setAccessState(false, st?.reason || "session fermée");
             clearForm();
             renderPublishState();
             setFormDisabled(true);
-            setMsgProfile("⚠️ Accès non ouvert pour ce slug. Passe par la porte PIN ou l’abonnement.", "bad");
+            setMsgProfile("⚠️ Session non ouverte pour cet identifiant. Passe par la porte d’accès ou l’abonnement.", "bad");
             return false;
           }
 
-          setAccessState(true, st?.pin_session_ok ? "session PIN OK" : "abonnement OK");
+          setAccessState(true, st?.pin_session_ok ? "session ouverte" : "abonnement OK");
           setFormDisabled(false);
 
           let data = null;
           try{
             data = await fetchCockpit();
           }catch(e){
-            console.warn("Profile cockpit warning:", e);
+            console.warn("[DRIVER PROFILE] cockpit warning:", e);
           }
 
           if (data?.ok){
@@ -936,16 +983,15 @@
               window.DIGIY_GUARD.rememberIdentity({ slug, phone });
             }
 
-            $("titleMain").textContent = "👤 " + (data.public_label || "DIGIY PRO DRIVER") + " — Profil chauffeur";
+            bindNav();
+            syncOwnUrl();
+
+            $("titleMain").textContent = "👤 Mon profil chauffeur";
             $("subMain").textContent = data.is_blank
               ? "Ton moule personnel est vierge. Complète-le maintenant, sans démo."
               : "Profil réel retrouvé par téléphone. Tu peux le modifier librement.";
 
-            $("slugPill").textContent = "slug : " + (data.slug || slug || "—");
-            $("phonePill").textContent = "phone : " + displayPhone(phone);
-
             fillFormFromCockpit(data);
-            bindNav();
 
             setMsgProfile(
               data.is_blank
@@ -963,13 +1009,14 @@
           $("whatsapp").value = phone || "";
           renderPublishState();
           bindNav();
+          syncOwnUrl();
 
-          $("titleMain").textContent = "👤 DIGIY PRO DRIVER — Profil chauffeur";
+          $("titleMain").textContent = "👤 Mon profil chauffeur";
           $("subMain").textContent = st?.pin_session_ok
-            ? "Session PIN ouverte. Le profil détaillé ne remonte pas encore complètement, mais la page reste exploitable."
+            ? "Session ouverte. Le profil détaillé ne remonte pas encore complètement, mais la page reste exploitable."
             : "Accès valide. Le profil détaillé ne remonte pas encore complètement, mais tu peux travailler proprement.";
 
-          setMsgProfile("⚠️ Accès valide, mais le RPC cockpit ne remonte pas encore tout. La page reste ouverte sans démo.", "warn");
+          setMsgProfile("⚠️ Accès valide, mais le rail profil ne remonte pas encore tout. La page reste ouverte sans démo.", "warn");
           return true;
 
         }catch(e){
@@ -985,12 +1032,12 @@
 
       async function saveProfile(isPublishedOverride = null){
         if (!ACCESS_OK){
-          setMsgProfile("⚠️ Accès non valide pour enregistrer le profil.", "bad");
+          setMsgProfile("⚠️ Session non valide pour enregistrer le profil.", "bad");
           return false;
         }
 
         if (!slug){
-          setMsgProfile("❌ Slug manquant.", "bad");
+          setMsgProfile("❌ Identifiant absent.", "bad");
           return false;
         }
 
@@ -1004,7 +1051,7 @@
         const bridgeMeta = buildBridgeMeta();
 
         setActionButtonsDisabled(true);
-        setMsgProfile("⏳ Enregistrement profil…", "warn");
+        setMsgProfile("⏳ Enregistrement du profil…", "warn");
 
         try{
           const { data, error } = await sb.rpc("digiy_driver_save_profile", {
@@ -1039,7 +1086,7 @@
           return true;
         }catch(e){
           console.error(e);
-          setMsgProfile("❌ Erreur enregistrement profil.", "bad");
+          setMsgProfile("❌ Erreur pendant l’enregistrement du profil.", "bad");
           return false;
         }finally{
           setActionButtonsDisabled(false);
@@ -1048,17 +1095,17 @@
 
       async function setPublishState(isPublished){
         if (!ACCESS_OK){
-          setMsgPublish("⚠️ Accès non valide pour modifier la publication.", "bad");
+          setMsgPublish("⚠️ Session non valide pour modifier la visibilité.", "bad");
           return;
         }
 
         setActionButtonsDisabled(true);
-        setMsgPublish("⏳ Mise à jour publication…", "warn");
+        setMsgPublish("⏳ Mise à jour de la visibilité…", "warn");
 
         try{
           const ok = await saveProfile(isPublished);
           if (!ok){
-            setMsgPublish("❌ Publication non mise à jour.", "bad");
+            setMsgPublish("❌ Visibilité non mise à jour.", "bad");
             return;
           }
 
@@ -1067,7 +1114,7 @@
           setMsgPublish(isPublished ? "✅ Chauffeur publié." : "✅ Chauffeur masqué.", "ok");
         }catch(e){
           console.error(e);
-          setMsgPublish("❌ Erreur modification publication.", "bad");
+          setMsgPublish("❌ Erreur de modification de la visibilité.", "bad");
         }finally{
           setActionButtonsDisabled(false);
         }
@@ -1077,7 +1124,7 @@
         const data = Array.isArray(rows) ? rows : [];
 
         if (!ACCESS_OK){
-          $("ratesList").innerHTML = `<div class="empty">Aucun tarif lisible tant que l’accès n’est pas validé.</div>`;
+          $("ratesList").innerHTML = `<div class="empty">Aucun tarif lisible tant que la session n’est pas validée.</div>`;
           return;
         }
 
@@ -1109,7 +1156,7 @@
             if (!id) return;
 
             setActionButtonsDisabled(true);
-            setMsgRates("⏳ Désactivation tarif…", "warn");
+            setMsgRates("⏳ Désactivation du tarif…", "warn");
 
             try{
               const { data, error } = await sb.rpc("driver_disable_rate_by_slug", {
@@ -1133,7 +1180,7 @@
               await loadRates();
             }catch(e){
               console.error(e);
-              setMsgRates("❌ Erreur désactivation tarif.", "bad");
+              setMsgRates("❌ Erreur pendant la désactivation du tarif.", "bad");
             }finally{
               setActionButtonsDisabled(false);
             }
@@ -1145,11 +1192,11 @@
         if (!ACCESS_OK){
           RATES_RPC_READY = true;
           renderRates([]);
-          setMsgRates("⚠️ Accès non valide pour lire les tarifs.", "bad");
+          setMsgRates("⚠️ Session non valide pour lire les tarifs.", "bad");
           return;
         }
 
-        setMsgRates("⏳ Chargement tarifs…", "warn");
+        setMsgRates("⏳ Chargement des tarifs…", "warn");
 
         try{
           const { data, error } = await sb.rpc("driver_list_rates_by_slug", { p_slug: slug });
@@ -1169,7 +1216,7 @@
           setMsgRates("✅ Tarifs synchronisés.", "ok");
         }catch(e){
           console.error(e);
-          setMsgRates("❌ Erreur chargement tarifs.", "bad");
+          setMsgRates("❌ Erreur de chargement des tarifs.", "bad");
           $("ratesList").innerHTML = `<div class="empty">Erreur de chargement des tarifs.</div>`;
         }
       }
@@ -1179,7 +1226,7 @@
         const priceFcfa = parseInt($("priceFcfa").value || "0", 10);
 
         if (!ACCESS_OK){
-          setMsgRates("⚠️ Accès non valide pour enregistrer un tarif.", "bad");
+          setMsgRates("⚠️ Session non valide pour enregistrer un tarif.", "bad");
           return;
         }
 
@@ -1194,7 +1241,7 @@
         }
 
         setActionButtonsDisabled(true);
-        setMsgRates("⏳ Enregistrement tarif…", "warn");
+        setMsgRates("⏳ Enregistrement du tarif…", "warn");
 
         try{
           const { data, error } = await sb.rpc("driver_upsert_rate_by_slug", {
@@ -1221,7 +1268,7 @@
           await loadRates();
         }catch(e){
           console.error(e);
-          setMsgRates("❌ Erreur enregistrement tarif.", "bad");
+          setMsgRates("❌ Erreur pendant l’enregistrement du tarif.", "bad");
         }finally{
           setActionButtonsDisabled(false);
         }
@@ -1233,10 +1280,7 @@
         slug = normSlug(st?.slug || resolveSlug());
         phone = normPhone(st?.phone || phoneFromDriverSlug(slug));
         bindNav();
-        $("slugPill").textContent = "slug : " + (slug || "—");
-        $("phonePill").textContent = "phone : " + displayPhone(phone);
-        $("stateSlug").textContent = slug || "—";
-        $("statePhone").textContent = displayPhone(phone);
+        syncOwnUrl();
         setMsgProfile("✅ Session rechargée depuis le guard.", "ok");
       }
 
@@ -1251,11 +1295,7 @@
         phone = normPhone(st?.phone || phoneFromDriverSlug(slug));
 
         bindNav();
-
-        $("slugPill").textContent = "slug : " + (slug || "—");
-        $("phonePill").textContent = "phone : " + displayPhone(phone);
-        $("stateSlug").textContent = slug || "—";
-        $("statePhone").textContent = displayPhone(phone);
+        syncOwnUrl();
 
         if (!sb){
           setAccessState(false, "supabase absent");
@@ -1270,26 +1310,26 @@
         }
 
         if (!slug){
-          setAccessState(false, "slug manquant");
+          setAccessState(false, "identifiant absent");
           setFormDisabled(true);
           clearForm();
           renderPublishState();
-          $("ratesList").innerHTML = `<div class="empty">Aucun slug détecté. Passe par la porte PIN ou par un lien valide.</div>`;
-          setMsgProfile("⚠️ Slug manquant.", "bad");
-          setMsgRates("⚠️ Slug manquant.", "bad");
-          setMsgPublish("⚠️ Slug manquant.", "bad");
+          $("ratesList").innerHTML = `<div class="empty">Aucun identifiant détecté. Passe par la porte d’accès ou par un lien valide.</div>`;
+          setMsgProfile("⚠️ Identifiant absent.", "bad");
+          setMsgRates("⚠️ Identifiant absent.", "bad");
+          setMsgPublish("⚠️ Identifiant absent.", "bad");
           return;
         }
 
         if (!isDriverSlug(slug)){
-          setAccessState(false, "slug invalide");
+          setAccessState(false, "identifiant invalide");
           setFormDisabled(true);
           clearForm();
           renderPublishState();
-          $("ratesList").innerHTML = `<div class="empty">Slug DRIVER invalide.</div>`;
-          setMsgProfile("❌ Slug DRIVER invalide.", "bad");
-          setMsgRates("❌ Slug DRIVER invalide.", "bad");
-          setMsgPublish("❌ Slug DRIVER invalide.", "bad");
+          $("ratesList").innerHTML = `<div class="empty">Identifiant DRIVER invalide.</div>`;
+          setMsgProfile("❌ Identifiant DRIVER invalide.", "bad");
+          setMsgRates("❌ Identifiant DRIVER invalide.", "bad");
+          setMsgPublish("❌ Identifiant DRIVER invalide.", "bad");
           return;
         }
 
@@ -1307,7 +1347,12 @@
       $("btnUnpublish")?.addEventListener("click", () => setPublishState(false));
       $("btnReloadSession")?.addEventListener("click", reloadSession);
 
-      boot();
+      boot().catch((e) => {
+        console.error("[DRIVER PROFILE] boot error", e);
+        setAccessState(false, "erreur");
+        setFormDisabled(true);
+        setMsgProfile("❌ Erreur au démarrage de la page.", "bad");
+      });
     })();
   </script>
 </body>
