@@ -1,713 +1,1669 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Je conduis — Mes trajets</title>
-  <meta name="theme-color" content="#22c55e" />
-  <meta
-    name="description"
-    content="DIGIY DRIVER — Espace chauffeur simple. Mes trajets, mon historique, mes actions."
-  />
+  <meta name="theme-color" content="#0b1220"/>
+  <meta name="description" content="DIGIY DRIVER — Outil trajet mobile. Voir, filtrer, démarrer, terminer."/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "DRIVER";
+    window.DIGIY_LOGIN_URL = "./pin.html";
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=driver-trajets-mobile-20260330"></script>
 
   <style>
     :root{
-      --green:#22c55e;
-      --green2:#16a34a;
-      --sky:#0ea5e9;
+      --bg:#0b1220;
+      --bg2:#101a2e;
+      --card:#131f38;
+      --card2:#162646;
+      --line:rgba(255,255,255,.10);
+      --line2:rgba(255,255,255,.16);
+      --text:#eef2ff;
+      --muted:#aab5d5;
+      --soft:#cdd5ef;
       --ok:#22c55e;
-
-      --bg:#f0fdf4;
-      --bg2:#ffffff;
-      --card:#ffffff;
-
-      --text:#0f172a;
-      --muted:#64748b;
-
-      --shadow:0 12px 28px rgba(2,6,23,.08);
-      --radius:18px;
-
       --warn:#f59e0b;
-      --warnBg:rgba(245,158,11,.12);
-      --warnBd:rgba(245,158,11,.35);
-      --warnTx:#7c2d12;
+      --danger:#ef4444;
+      --accent:#6366f1;
+      --accent2:#8b5cf6;
+      --gold:#facc15;
+      --shadow:0 18px 42px rgba(0,0,0,.35);
+      --radius:20px;
+      --max:1120px;
     }
 
     *{box-sizing:border-box}
-
+    html{scroll-behavior:smooth}
     body{
       margin:0;
-      font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:linear-gradient(180deg,#dcfce7 0%,var(--bg) 55%,var(--bg2) 100%);
       color:var(--text);
+      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(1100px 650px at 10% -15%, rgba(99,102,241,.25), transparent 65%),
+        radial-gradient(900px 580px at 100% 0%, rgba(34,197,94,.10), transparent 58%),
+        linear-gradient(180deg,#0b1220 0%, #0b1324 100%);
+      min-height:100vh;
     }
 
-    header{
-      position:sticky;
-      top:0;
-      z-index:5;
-      padding:16px 14px;
-      background:linear-gradient(90deg,var(--green),#4ade80);
-      color:#fff;
-      box-shadow:0 10px 22px rgba(34,197,94,.32);
-    }
+    a{color:inherit;text-decoration:none}
+    button{font:inherit}
 
-    .topRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      max-width:980px;
+    .wrap{
+      max-width:var(--max);
       margin:0 auto;
+      padding:14px 14px 28px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+      margin-bottom:12px;
     }
 
     .brand{
-      font-weight:1000;
       display:flex;
+      gap:12px;
+      align-items:flex-start;
+      min-width:0;
+    }
+
+    .brandBadge{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      background:rgba(99,102,241,.16);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      font-size:22px;
+      flex:0 0 auto;
+    }
+
+    .brandTitle{
+      font-size:21px;
+      font-weight:950;
+      letter-spacing:-.01em;
+      line-height:1.1;
+    }
+
+    .brandSub{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.4;
+    }
+
+    .rightPills{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
       align-items:center;
-      gap:10px;
-      font-size:17px;
-      white-space:nowrap;
     }
 
     .pill{
-      background:rgba(255,255,255,.22);
-      border:1px solid rgba(255,255,255,.35);
-      padding:7px 11px;
+      min-height:38px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
       border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:var(--muted);
       font-size:12px;
-      font-weight:900;
+      font-weight:850;
       white-space:nowrap;
     }
 
-    main{
-      max-width:980px;
-      margin:0 auto;
-      padding:14px;
+    .pill b{color:var(--text)}
+    .pill.ok{
+      background:rgba(34,197,94,.10);
+      border-color:rgba(34,197,94,.30);
+      color:#d9ffe8;
+    }
+    .pill.warn{
+      background:rgba(245,158,11,.10);
+      border-color:rgba(245,158,11,.28);
+      color:#ffe5bb;
+    }
+    .pill.bad{
+      background:rgba(239,68,68,.10);
+      border-color:rgba(239,68,68,.28);
+      color:#fecaca;
     }
 
     .card{
-      background:#ffffffcc;
-      backdrop-filter:blur(7px);
-      border:1px solid rgba(15,23,42,.08);
+      background:linear-gradient(180deg,rgba(19,31,56,.96),rgba(14,22,40,.96));
+      border:1px solid var(--line);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       padding:14px;
       margin-bottom:12px;
     }
 
-    .bar{
-      display:grid;
-      grid-template-columns:1fr 1fr 1fr;
-      gap:10px;
+    .hero{
+      padding:16px;
+      border-radius:24px;
+      background:
+        radial-gradient(500px 220px at 0% 0%, rgba(99,102,241,.18), transparent 70%),
+        radial-gradient(420px 220px at 100% 100%, rgba(34,197,94,.10), transparent 70%),
+        linear-gradient(180deg, rgba(19,31,56,.98), rgba(13,22,39,.98));
     }
 
-    @media(max-width:860px){
-      .bar{grid-template-columns:1fr}
-      .grid{grid-template-columns:1fr}
-    }
-
-    .field label{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:900;
-      display:block;
-      margin-bottom:6px;
-    }
-
-    select,input{
-      width:100%;
-      padding:11px 12px;
-      border-radius:14px;
-      border:1px solid rgba(15,23,42,.12);
-      outline:none;
-      font-size:14px;
-      background:#fff;
-      font-family:inherit;
-    }
-
-    .status{
-      display:flex;
+    .eyebrow{
+      display:inline-flex;
       align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
+      gap:8px;
+      min-height:30px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      color:var(--soft);
+      font-size:11px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.06em;
     }
 
-    .status .left{
+    .eyebrow .dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:var(--warn);
+      flex:0 0 auto;
+    }
+
+    .heroTitle{
+      margin:14px 0 6px 0;
+      font-size:28px;
+      line-height:1.06;
+      font-weight:950;
+      letter-spacing:-.02em;
+    }
+
+    .heroLead{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.55;
+      font-weight:750;
+      max-width:780px;
+    }
+
+    .heroActions{
+      display:grid;
+      gap:10px;
+      margin-top:16px;
+      grid-template-columns:1fr;
+    }
+
+    .btn{
+      min-height:46px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:12px 14px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      cursor:pointer;
+      font-weight:900;
+      transition:transform .15s ease,border-color .15s ease,background .15s ease;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+    .btn.primary{
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      border-color:transparent;
+      color:#fff;
+      box-shadow:0 14px 30px rgba(99,102,241,.28);
+    }
+
+    .btn.ok{
+      background:rgba(34,197,94,.14);
+      border-color:rgba(34,197,94,.30);
+      color:#d8ffe7;
+    }
+
+    .btn.warn{
+      background:rgba(245,158,11,.14);
+      border-color:rgba(245,158,11,.28);
+      color:#ffe4b9;
+    }
+
+    .btn.gold{
+      background:rgba(250,204,21,.12);
+      border-color:rgba(250,204,21,.24);
+      color:#fde68a;
+    }
+
+    .btn.ghost{
+      background:transparent;
+    }
+
+    .miniNav{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .miniLink{
+      min-height:76px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      padding:12px;
       display:flex;
       flex-direction:column;
-      gap:2px;
+      justify-content:space-between;
+      gap:8px;
     }
 
-    .status .title{
-      font-weight:1000;
-    }
-
-    .status .sub{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:800;
-    }
-
-    .badge{
-      font-size:12px;
-      font-weight:1000;
-      padding:8px 10px;
-      border-radius:999px;
-      background:#dcfce7;
-      border:1px solid rgba(34,197,94,.22);
-      color:#14532d;
-      white-space:nowrap;
-    }
-
-    .badge.warn{
-      background:var(--warnBg);
-      border:1px solid var(--warnBd);
-      color:var(--warnTx);
-    }
-
-    .actionsTop{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-      align-items:center;
-    }
-
-    button{
-      padding:11px 12px;
-      border:none;
-      border-radius:14px;
-      font-weight:1000;
+    .miniLink strong{
       font-size:14px;
-      cursor:pointer;
-      font-family:inherit;
+      font-weight:900;
+      line-height:1.2;
     }
 
-    button:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-    }
-
-    .btn-light{
-      background:#fff;
-      border:1px solid rgba(15,23,42,.14);
-      color:var(--text);
+    .miniLink span{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:750;
+      line-height:1.35;
     }
 
     .grid{
       display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
       gap:12px;
     }
 
-    .trip{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      border:1px solid rgba(15,23,42,.08);
-      padding:14px;
-      overflow:hidden;
-    }
-
-    .trip .head{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
+    .kpis{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
       gap:10px;
     }
 
-    .trip .route{
-      font-weight:1000;
-      font-size:15px;
-      line-height:1.2;
+    .kpi{
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.035);
+      padding:14px;
     }
 
-    .trip .meta{
+    .kpiLabel{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:850;
+      margin-bottom:6px;
+      line-height:1.3;
+    }
+
+    .kpiValue{
+      font-size:24px;
+      font-weight:950;
+      line-height:1;
+      letter-spacing:-.02em;
+    }
+
+    .kpiSub{
       margin-top:8px;
+      color:var(--soft);
+      font-size:12px;
+      font-weight:750;
+      line-height:1.35;
+    }
+
+    .sectionHead{
       display:flex;
+      justify-content:space-between;
+      gap:10px;
       flex-wrap:wrap;
-      gap:8px;
+      align-items:flex-start;
+      margin-bottom:12px;
+    }
+
+    .sectionTitle{
+      margin:0;
+      font-size:17px;
+      font-weight:950;
+      letter-spacing:.01em;
+    }
+
+    .sectionLead{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:750;
+      line-height:1.45;
+    }
+
+    .toolbar{
+      display:grid;
+      gap:10px;
+      grid-template-columns:1fr;
+    }
+
+    .field label{
+      display:block;
       font-size:12px;
       color:var(--muted);
-      font-weight:900;
+      font-weight:850;
+      margin-bottom:6px;
+      line-height:1.3;
+    }
+
+    .field select,
+    .field input{
+      width:100%;
+      min-height:46px;
+      border-radius:14px;
+      border:1px solid var(--line2);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      padding:12px 13px;
+      outline:none;
+      font-size:14px;
+      font-weight:800;
+      font-family:inherit;
+    }
+
+    .field input::placeholder{color:#95a2c6}
+
+    .list{
+      display:grid;
+      gap:10px;
+    }
+
+    .trip{
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      padding:14px;
+      display:grid;
+      gap:10px;
+    }
+
+    .tripHead{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+
+    .tripTitle{
+      font-size:15px;
+      font-weight:950;
+      line-height:1.35;
+    }
+
+    .tripMeta{
+      display:grid;
+      gap:6px;
+    }
+
+    .metaLine{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:780;
+      line-height:1.45;
+    }
+
+    .tagRow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
     }
 
     .tag{
+      min-height:32px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
       padding:6px 10px;
       border-radius:999px;
-      border:1px solid rgba(15,23,42,.10);
-      background:#fff;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--soft);
+      font-size:11px;
+      font-weight:900;
+      line-height:1.2;
     }
 
-    .price{
-      margin-top:10px;
-      font-size:16px;
-      font-weight:1100;
-      color:var(--green2);
+    .badge{
+      min-height:32px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      font-size:11px;
+      font-weight:950;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      white-space:nowrap;
     }
 
-    .actions{
+    .badge.requested{
+      color:#d7ddff;
+      background:rgba(99,102,241,.12);
+      border-color:rgba(99,102,241,.28);
+    }
+
+    .badge.assigned,
+    .badge.accepted{
+      color:#ffe4ba;
+      background:rgba(245,158,11,.12);
+      border-color:rgba(245,158,11,.28);
+    }
+
+    .badge.in_progress{
+      color:#d7ffe7;
+      background:rgba(34,197,94,.12);
+      border-color:rgba(34,197,94,.30);
+    }
+
+    .badge.completed{
+      color:#d7ffe7;
+      background:rgba(34,197,94,.12);
+      border-color:rgba(34,197,94,.30);
+    }
+
+    .badge.canceled,
+    .badge.cancelled{
+      color:#fecaca;
+      background:rgba(239,68,68,.12);
+      border-color:rgba(239,68,68,.28);
+    }
+
+    .tripActions{
       display:flex;
-      gap:10px;
-      margin-top:12px;
+      gap:8px;
       flex-wrap:wrap;
     }
 
-    .btn-accept{background:var(--green2); color:#fff}
-    .btn-start{background:var(--sky); color:#fff}
-    .btn-done{background:var(--ok); color:#fff}
-    .btn-ghost{
-      background:#fff;
-      border:1px solid rgba(15,23,42,.12);
-      color:var(--text);
+    .empty{
+      padding:14px;
+      border-radius:16px;
+      border:1px dashed rgba(255,255,255,.16);
+      color:var(--muted);
+      background:rgba(255,255,255,.03);
+      font-size:13px;
+      font-weight:800;
+      line-height:1.45;
     }
+
+    .msg{
+      margin-top:12px;
+      font-size:13px;
+      font-weight:900;
+      line-height:1.45;
+    }
+
+    .msg.ok{color:#86efac}
+    .msg.bad{color:#fca5a5}
+    .msg.warn{color:#fde68a}
 
     .toast{
       position:fixed;
       left:50%;
       transform:translateX(-50%);
-      bottom:16px;
-      background:rgba(15,23,42,.92);
+      bottom:14px;
+      z-index:60;
+      max-width:92vw;
+      background:rgba(7,11,19,.95);
       color:#fff;
-      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.12);
       border-radius:999px;
+      padding:11px 14px;
       font-size:13px;
       font-weight:900;
       display:none;
-      z-index:20;
-      max-width:92vw;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      box-shadow:var(--shadow);
     }
 
-    a.link{
-      color:#14532d;
-      font-weight:1000;
-      text-decoration:none;
-      border-bottom:2px solid rgba(20,83,45,.25);
+    .loading{
+      opacity:.74;
+      pointer-events:none;
+    }
+
+    @media(min-width:760px){
+      .heroActions{grid-template-columns:repeat(3,1fr)}
+      .grid{grid-template-columns:1.03fr .97fr}
+      .kpis{grid-template-columns:repeat(4,1fr)}
+      .toolbar{grid-template-columns:1fr 1fr 1fr}
+    }
+
+    @media(max-width:759px){
+      .rightPills{
+        width:100%;
+        justify-content:flex-start;
+      }
+      .btn{width:100%}
+    }
+
+    @media(max-width:520px){
+      .wrap{padding:12px 12px 24px}
+      .heroTitle{font-size:24px}
+      .miniNav{grid-template-columns:1fr}
+      .kpis{grid-template-columns:1fr 1fr}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      .btn{transition:none}
     }
   </style>
 </head>
-
 <body>
-<header>
-  <div class="topRow">
-    <div class="brand">🚕 Je conduis <span class="pill">Trajets • Lecture simple</span></div>
-    <div class="pill" id="who">…</div>
-  </div>
-</header>
+  <div class="wrap">
 
-<main>
-
-  <div class="card">
-    <div class="bar">
-      <div class="field">
-        <label>📍 Zone recherchée</label>
-        <select id="zoneFilter">
-          <option value="">Toutes</option>
-          <option value="Plateau">Plateau</option>
-          <option value="Almadies">Almadies</option>
-          <option value="Yoff">Yoff</option>
-          <option value="Saly">Saly</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>🗂️ Ce que je veux voir</label>
-        <select id="viewFilter">
-          <option value="new" selected>Nouvelles demandes</option>
-          <option value="mine">Mes trajets en cours</option>
-          <option value="history">Mon historique</option>
-          <option value="all">Tout voir</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>🔎 Recherche rapide</label>
-        <input id="qFilter" type="text" placeholder="Ville, zone, client…" />
-      </div>
-    </div>
-  </div>
-
-  <div class="card status" id="softCard" style="display:none">
-    <div class="left">
-      <div class="title" id="softTitle">⚠️ Session manquante</div>
-      <div class="sub" id="softSub">
-        Reviens par le HUB pour recevoir la session.
-        <br/>👉 <a class="link" href="https://beauville.github.io/digiy-hub/">Ouvrir le HUB</a>
-      </div>
-    </div>
-    <div class="badge warn">Accès</div>
-  </div>
-
-  <div class="card status">
-    <div class="left">
-      <div class="title" id="statusTitle">Connexion…</div>
-      <div class="sub" id="statusSub">Vérification de la session…</div>
-    </div>
-    <div class="badge" id="modeBadge">Lecture simple</div>
-  </div>
-
-  <div class="card status">
-    <div class="left">
-      <div class="title">👤 Mon espace chauffeur</div>
-      <div class="sub" id="meLine">Chargement…</div>
-    </div>
-    <div class="actionsTop">
-      <button class="btn-light" id="btnReload">🔄 Recharger mes trajets</button>
-      <button class="btn-light" id="btnLogout">🚪 Déconnexion</button>
-    </div>
-  </div>
-
-  <div class="grid" id="trips"></div>
-</main>
-
-<div class="toast" id="toast"></div>
-
-<script type="module">
-  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-
-  globalThis.__sb ||= createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const sb = globalThis.__sb;
-
-  const tripsEl = document.getElementById("trips");
-  const zoneFilter = document.getElementById("zoneFilter");
-  const viewFilter = document.getElementById("viewFilter");
-  const qFilter = document.getElementById("qFilter");
-  const whoEl = document.getElementById("who");
-  const statusTitle = document.getElementById("statusTitle");
-  const statusSub = document.getElementById("statusSub");
-  const modeBadge = document.getElementById("modeBadge");
-  const meLine = document.getElementById("meLine");
-  const toastEl = document.getElementById("toast");
-  const btnReload = document.getElementById("btnReload");
-  const btnLogout = document.getElementById("btnLogout");
-  const softCard = document.getElementById("softCard");
-  const softTitle = document.getElementById("softTitle");
-  const softSub = document.getElementById("softSub");
-
-  const HUB_URL = "https://beauville.github.io/digiy-hub/";
-
-  function toast(msg){
-    toastEl.textContent = msg;
-    toastEl.style.display = "block";
-    clearTimeout(globalThis.__t);
-    globalThis.__t = setTimeout(()=> toastEl.style.display = "none", 2400);
-  }
-
-  function showSoft(title, html){
-    softTitle.textContent = title;
-    softSub.innerHTML = html;
-    softCard.style.display = "flex";
-  }
-
-  function getTokensFromUrl(){
-    const u = new URL(location.href);
-    const at = u.searchParams.get("at");
-    const rt = u.searchParams.get("rt");
-    return { at, rt };
-  }
-
-  function cleanUrlTokens(){
-    const u = new URL(location.href);
-    u.searchParams.delete("at");
-    u.searchParams.delete("rt");
-    history.replaceState({}, "", u.toString());
-  }
-
-  function esc(s){
-    return String(s ?? "").replace(/[&<>"']/g, m => ({
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      "\"":"&quot;",
-      "'":"&#039;"
-    }[m]));
-  }
-
-  function pick(obj, keys, fallback = "—"){
-    for (const key of keys){
-      const val = obj?.[key];
-      if (val !== null && val !== undefined && String(val).trim() !== "") return val;
-    }
-    return fallback;
-  }
-
-  function money(v){
-    const n = Number(v || 0);
-    return Number.isFinite(n) ? n.toLocaleString("fr-FR") + " F CFA" : "—";
-  }
-
-  function fmtDate(v){
-    if (!v) return "—";
-    const d = new Date(v);
-    if (Number.isNaN(d.getTime())) return String(v);
-    return d.toLocaleString("fr-FR", {
-      year:"numeric",
-      month:"2-digit",
-      day:"2-digit",
-      hour:"2-digit",
-      minute:"2-digit"
-    });
-  }
-
-  function statusLabel(s){
-    const v = String(s || "").toLowerCase();
-    if (v === "requested") return "Nouvelle demande";
-    if (v === "accepted") return "À démarrer";
-    if (v === "ongoing" || v === "in_progress") return "En trajet";
-    if (v === "completed") return "Terminé";
-    if (v === "cancelled" || v === "canceled") return "Annulé";
-    return v || "—";
-  }
-
-  async function ensureSession(){
-    let { data } = await sb.auth.getSession();
-    if (data?.session) return data.session;
-
-    const { at, rt } = getTokensFromUrl();
-    if (at && rt){
-      const res = await sb.auth.setSession({ access_token: at, refresh_token: rt });
-      if (res?.data?.session){
-        cleanUrlTokens();
-        return res.data.session;
-      }
-    }
-    return null;
-  }
-
-  const store = new Map();
-
-  function passesFilters(trip){
-    const z = zoneFilter.value || "";
-    const v = viewFilter.value || "new";
-    const q = (qFilter.value || "").trim().toLowerCase();
-
-    const status = String(trip.status || "").toLowerCase();
-
-    if (v === "new" && status !== "requested") return false;
-    if (v === "mine" && !["accepted","ongoing","in_progress"].includes(status)) return false;
-    if (v === "history" && !["completed","cancelled","canceled"].includes(status)) return false;
-    if (v === "all" && !["requested","accepted","ongoing","in_progress","completed","cancelled","canceled"].includes(status)) return false;
-
-    if (z && String(trip.pickup_zone || "") !== z) return false;
-
-    if (q){
-      const hay = [
-        trip.client_name,
-        trip.customer_name,
-        trip.passenger_name,
-        trip.pickup_city,
-        trip.dropoff_city,
-        trip.pickup_zone,
-        trip.pickup_label,
-        trip.dropoff_label
-      ].join(" ").toLowerCase();
-
-      if (!hay.includes(q)) return false;
-    }
-
-    return true;
-  }
-
-  function renderAll(){
-    const items = Array.from(store.values())
-      .filter(passesFilters)
-      .sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-
-    tripsEl.innerHTML = "";
-
-    if (!items.length){
-      tripsEl.innerHTML = `
-        <div class="trip" style="grid-column:1/-1">
-          <div class="route">Aucun trajet dans cette vue</div>
-          <div class="meta">
-            <span class="tag">Tu peux changer la vue</span>
-            <span class="tag">Ou recharger manuellement</span>
-          </div>
+    <div class="topbar">
+      <div class="brand">
+        <div class="brandBadge">🚕</div>
+        <div>
+          <div class="brandTitle" id="brandTitle">Mes trajets</div>
+          <div class="brandSub" id="brandSub">Lecture claire, gestes simples, pas de détour.</div>
         </div>
-      `;
-      return;
-    }
+      </div>
 
-    for (const trip of items){
-      const status = String(trip.status || "").toLowerCase();
-      const card = document.createElement("div");
-      card.className = "trip";
+      <div class="rightPills">
+        <div class="pill" id="pillSlug">identifiant : <b>—</b></div>
+        <div class="pill" id="pillPhone">téléphone : <b>—</b></div>
+        <div class="pill warn" id="pillAccess">accès : <b>contrôle…</b></div>
+      </div>
+    </div>
 
-      const pickup = pick(trip, ["pickup_label","pickup_address","pickup_text","pickup_city"], "Départ à préciser");
-      const dropoff = pick(trip, ["dropoff_label","dropoff_address","dropoff_text","dropoff_city"], "Arrivée à préciser");
-      const client = pick(trip, ["client_name","customer_name","passenger_name"], "Client");
-      const zone = pick(trip, ["pickup_zone"], "");
-      const when = pick(trip, ["pickup_at","ride_at","booking_time","created_at"], "");
-      const km = pick(trip, ["distance_km"], "");
-      const min = pick(trip, ["duration_min"], "");
-      const price = money(pick(trip, ["amount","final_price_fcfa","price_fcfa"], 0));
+    <section class="card hero">
+      <div class="eyebrow">
+        <span class="dot" id="eyebrowDot"></span>
+        <span id="eyebrowText">outil trajet</span>
+      </div>
 
-      let actionsHtml = "";
+      <h1 class="heroTitle" id="heroTitle">Voir, filtrer, agir.</h1>
+      <div class="heroLead" id="heroLead">
+        Ici, le chauffeur voit ses courses sans se perdre, puis touche une seule action au bon moment.
+      </div>
 
-      if (status === "requested"){
-        actionsHtml = `
-          <div class="actions">
-            <button class="btn-accept" data-id="${trip.id}" data-act="accept">Accepter</button>
-          </div>
-        `;
-      } else if (status === "accepted"){
-        actionsHtml = `
-          <div class="actions">
-            <button class="btn-start" data-id="${trip.id}" data-act="start">Démarrer</button>
-          </div>
-        `;
-      } else if (status === "ongoing" || status === "in_progress"){
-        actionsHtml = `
-          <div class="actions">
-            <button class="btn-done" data-id="${trip.id}" data-act="complete">Terminer</button>
-          </div>
-        `;
-      } else {
-        actionsHtml = `
-          <div class="actions">
-            <button class="btn-ghost" disabled>Lecture seule</button>
-          </div>
-        `;
-      }
+      <div class="heroActions">
+        <button class="btn primary" id="btnReload" type="button">🔄 Recharger mes trajets</button>
+        <a class="btn" id="btnDashboard" href="#">🏠 Mon activité</a>
+        <a class="btn" id="btnCockpit" href="#">🧭 Ma gestion</a>
+      </div>
 
-      card.innerHTML = `
-        <div class="head">
+      <div class="miniNav">
+        <a class="miniLink" id="btnProfil" href="#">
+          <strong>Mon profil</strong>
+          <span>Vérifier l’identité chauffeur et la publication.</span>
+        </a>
+        <a class="miniLink" id="btnTarifs" href="#">
+          <strong>Mes tarifs</strong>
+          <span>Contrôler la grille terrain du chauffeur.</span>
+        </a>
+        <a class="miniLink" id="btnQr" href="#">
+          <strong>Mon QR</strong>
+          <span>Partager la bonne porte chauffeur.</span>
+        </a>
+        <a class="miniLink" id="btnPin" href="#">
+          <strong>Mon accès</strong>
+          <span>Récupérer la session si le rail se casse.</span>
+        </a>
+      </div>
+
+      <div class="msg" id="msgStatus">Prêt.</div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <div class="sectionHead">
           <div>
-            <div class="route">${esc(client)} • ${esc(pickup)} → ${esc(dropoff)}</div>
-            <div class="meta">
-              <span class="tag">📍 ${esc(zone || "Zone non précisée")}</span>
-              <span class="tag">📅 ${esc(fmtDate(when))}</span>
-              ${km !== "" && km !== "—" ? `<span class="tag">🛣️ ${esc(km)} km</span>` : ``}
-              ${min !== "" && min !== "—" ? `<span class="tag">⏱️ ${esc(min)} min</span>` : ``}
-            </div>
-            <div class="price">💰 ${esc(price)}</div>
-          </div>
-          <div class="pill" style="color:#0f172a;background:#fff;border-color:rgba(15,23,42,.15)">
-            ${esc(statusLabel(status))}
+            <h2 class="sectionTitle">Lecture rapide</h2>
+            <div class="sectionLead">Ce qu’il faut comprendre tout de suite.</div>
           </div>
         </div>
-        ${actionsHtml}
-      `;
 
-      tripsEl.appendChild(card);
-    }
-  }
+        <div class="kpis">
+          <div class="kpi">
+            <div class="kpiLabel">Nouvelles demandes</div>
+            <div class="kpiValue" id="kpiNew">0</div>
+            <div class="kpiSub" id="kpiNewSub">À accepter</div>
+          </div>
 
-  async function loadTrips(){
-    const { data, error } = await sb
-      .from("driver_trips")
-      .select("*")
-      .in("status", ["requested","accepted","ongoing","in_progress","completed","cancelled","canceled"])
-      .order("created_at", { ascending:false })
-      .limit(200);
+          <div class="kpi">
+            <div class="kpiLabel">À faire maintenant</div>
+            <div class="kpiValue" id="kpiActive">0</div>
+            <div class="kpiSub" id="kpiActiveSub">Assignées / en cours</div>
+          </div>
 
-    if (error){
-      console.error(error);
-      statusSub.textContent = "Impossible de lire les trajets pour le moment.";
-      tripsEl.innerHTML = `
-        <div class="trip" style="grid-column:1/-1">
-          <div class="route">⚠️ Lecture des trajets indisponible</div>
-          <div class="meta">
-            <span class="tag">Table ou vue à vérifier</span>
-            <span class="tag">RLS à vérifier</span>
+          <div class="kpi">
+            <div class="kpiLabel">Terminées aujourd’hui</div>
+            <div class="kpiValue" id="kpiDoneToday">0</div>
+            <div class="kpiSub" id="kpiDoneTodaySub">Lecture du jour</div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpiLabel">Entrées 30 jours</div>
+            <div class="kpiValue" id="kpiMoney30d">0 FCFA</div>
+            <div class="kpiSub" id="kpiMoney30dSub">Courses terminées</div>
           </div>
         </div>
-      `;
-      return;
-    }
+      </div>
 
-    store.clear();
-    (data || []).forEach(t => t?.id && store.set(t.id, t));
-    renderAll();
-    statusSub.textContent = "Lecture simple chargée. Utilise le bouton recharger quand tu veux.";
-  }
+      <div class="card">
+        <div class="sectionHead">
+          <div>
+            <h2 class="sectionTitle">Statut</h2>
+            <div class="sectionLead">Accès, profil et lecture du rail.</div>
+          </div>
+        </div>
 
-  async function rpcAction(action, tripId){
-    if (!tripId) return;
+        <div class="list" id="statusList">
+          <div class="empty">Lecture en cours…</div>
+        </div>
+      </div>
+    </section>
 
-    toast("⏳ Action en cours…");
+    <section class="card">
+      <div class="sectionHead">
+        <div>
+          <h2 class="sectionTitle">Filtrer mes trajets</h2>
+          <div class="sectionLead">Peu de texte, plus d’action.</div>
+        </div>
+        <button class="btn ghost" id="btnResetFilters" type="button">↺ Réinitialiser</button>
+      </div>
 
-    let res = null;
+      <div class="toolbar">
+        <div class="field">
+          <label for="viewFilter">Ce que je veux voir</label>
+          <select id="viewFilter">
+            <option value="active" selected>À faire maintenant</option>
+            <option value="new">Nouvelles demandes</option>
+            <option value="history">Historique</option>
+            <option value="all">Tout voir</option>
+          </select>
+        </div>
 
-    if (action === "accept"){
-      res = await sb.rpc("accept_trip", { p_trip_id: tripId });
-    } else if (action === "start"){
-      res = await sb.rpc("start_trip", { p_trip_id: tripId });
-    } else if (action === "complete"){
-      res = await sb.rpc("complete_trip", { p_trip_id: tripId });
-    } else {
-      return;
-    }
+        <div class="field">
+          <label for="zoneFilter">Zone</label>
+          <select id="zoneFilter">
+            <option value="">Toutes</option>
+          </select>
+        </div>
 
-    if (res?.error){
-      console.error(res.error);
-      toast("❌ " + res.error.message);
-      return;
-    }
+        <div class="field">
+          <label for="qFilter">Recherche rapide</label>
+          <input id="qFilter" type="text" placeholder="Client, départ, arrivée, zone…"/>
+        </div>
+      </div>
+    </section>
 
-    toast("✅ Action enregistrée");
-    await loadTrips();
-  }
+    <section class="card">
+      <div class="sectionHead">
+        <div>
+          <h2 class="sectionTitle" id="listTitle">Mes trajets</h2>
+          <div class="sectionLead" id="listLead">Trajets lus sur le vrai rail chauffeur.</div>
+        </div>
+        <div class="pill" id="pillCount">0 visible</div>
+      </div>
 
-  document.addEventListener("click", (e)=>{
-    const btn = e.target?.closest("button[data-act]");
-    if (!btn) return;
-    rpcAction(btn.getAttribute("data-act"), btn.getAttribute("data-id"));
-  });
+      <div class="list" id="tripList">
+        <div class="empty">Lecture en cours…</div>
+      </div>
+    </section>
 
-  btnReload?.addEventListener("click", async ()=>{
-    await loadTrips();
-    toast("✅ Trajets rechargés");
-  });
+  </div>
 
-  btnLogout?.addEventListener("click", async ()=>{
-    await sb.auth.signOut();
-    location.href = HUB_URL;
-  });
+  <div class="toast" id="toast"></div>
 
-  zoneFilter.addEventListener("change", renderAll);
-  viewFilter.addEventListener("change", renderAll);
-  qFilter.addEventListener("input", ()=>{
-    clearTimeout(globalThis.__q);
-    globalThis.__q = setTimeout(renderAll, 120);
-  });
+  <script>
+    (() => {
+      "use strict";
 
-  async function main(){
-    statusTitle.textContent = "Connexion…";
-    statusSub.textContent = "Vérification de la session…";
-    modeBadge.textContent = "Lecture simple";
+      const MODULE = "DRIVER";
+      const SUPPORT_WA =
+        "https://wa.me/221771342889?text=" +
+        encodeURIComponent("Salut DIGIY DRIVER, j'ai besoin d'aide sur mes trajets.");
 
-    const session = await ensureSession();
+      const ROUTES = {
+        home: "./index.html",
+        pin: "./pin.html",
+        dashboard: "./dashboard-pro.html",
+        cockpit: "./cockpit.html",
+        profil: "./profil-chauffeur.html",
+        tarifs: "./tarifs.html",
+        qr: "./generateur-digiy-driver.html",
+        pay: "https://commencer-a-payer.digiylyfe.com/"
+      };
 
-    if (!session){
-      statusTitle.textContent = "❌ Session introuvable";
-      statusSub.textContent = "Reviens via le HUB.";
-      whoEl.textContent = "Offline";
-      showSoft(
-        "⚠️ Pas de session",
-        `Reviens par le HUB pour recevoir la session.<br/>👉 <a class="link" href="${HUB_URL}">Ouvrir le HUB</a>`
-      );
-      return;
-    }
+      const $ = (id) => document.getElementById(id);
 
-    const uid = session.user.id;
-    whoEl.textContent = session.user.phone || session.user.email || "Chauffeur";
-    meLine.textContent = `ID: ${uid.slice(0,6)}… • Connecté`;
-    statusTitle.textContent = "🟢 Session ouverte";
-    statusSub.textContent = "Lecture simple de tes trajets.";
-    await loadTrips();
-  }
+      const sb = window.supabase?.createClient
+        ? window.supabase.createClient(
+            window.DIGIY_SUPABASE_URL,
+            window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON,
+            { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false } }
+          )
+        : null;
 
-  main();
-</script>
+      let slug = "";
+      let phone = "";
+      let accessOk = false;
+      let pinSessionOk = false;
+      let lastGuardState = null;
+      let cockpitData = null;
+      let allTrips = [];
+      let isLoading = false;
+      let refreshTimer = null;
+
+      function normSlug(v){
+        return String(v || "").trim().toLowerCase();
+      }
+
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d.length >= 9 ? d : "";
+      }
+
+      function displayPhone(v){
+        const p = normPhone(v);
+        return p ? "+" + p : "—";
+      }
+
+      function isDriverSlug(v){
+        return /^driver-\d{12}$/.test(normSlug(v));
+      }
+
+      function phoneFromDriverSlug(v){
+        const s = normSlug(v);
+        if (!isDriverSlug(s)) return "";
+        return normPhone(s.slice("driver-".length));
+      }
+
+      function storageGet(key){
+        try{
+          const s = sessionStorage.getItem(key);
+          if (s) return s;
+        }catch{}
+        try{
+          const l = localStorage.getItem(key);
+          if (l) return l;
+        }catch{}
+        return "";
+      }
+
+      function phoneVariants(v){
+        const digits = normPhone(v);
+        const out = new Set();
+        if (!digits) return [];
+        out.add(digits);
+        out.add("+" + digits);
+        if (digits.startsWith("221") && digits.length === 12){
+          out.add(digits.slice(3));
+          out.add("+221" + digits.slice(3));
+        }
+        return Array.from(out).filter(Boolean);
+      }
+
+      function escapeHtml(str){
+        return String(str || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function humanValue(v, fallback = "—"){
+        if (v === null || v === undefined) return fallback;
+        if (Array.isArray(v)){
+          const clean = v.map(x => String(x || "").trim()).filter(Boolean).join(" • ");
+          return clean || fallback;
+        }
+        if (typeof v === "object"){
+          const clean = Object.values(v).map(x => String(x || "").trim()).filter(Boolean).join(" • ");
+          return clean || fallback;
+        }
+        const s = String(v).trim();
+        return s || fallback;
+      }
+
+      function money(v){
+        const n = Number(v || 0);
+        return Number.isFinite(n) ? n.toLocaleString("fr-FR") + " FCFA" : "0 FCFA";
+      }
+
+      function fmtDate(v){
+        if (!v) return "—";
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return String(v);
+        return d.toLocaleString("fr-FR", {
+          year:"numeric",
+          month:"2-digit",
+          day:"2-digit",
+          hour:"2-digit",
+          minute:"2-digit"
+        });
+      }
+
+      function buildSafeUrl(base, params = {}){
+        try{
+          const u = new URL(String(base || "").trim(), location.href);
+          Object.entries(params).forEach(([k, v]) => {
+            if (v === null || v === undefined) return;
+            const val = String(v).trim();
+            if (!val) return;
+            u.searchParams.set(k, val);
+          });
+          if (u.origin === location.origin) return u.pathname + u.search + u.hash;
+          return u.toString();
+        }catch{
+          const raw = String(base || "#");
+          const qp = new URLSearchParams();
+          Object.entries(params).forEach(([k, v]) => {
+            if (v === null || v === undefined) return;
+            const val = String(v).trim();
+            if (!val) return;
+            qp.set(k, val);
+          });
+          const tail = qp.toString();
+          return tail ? raw + (raw.includes("?") ? "&" : "?") + tail : raw;
+        }
+      }
+
+      function withSlug(base, extra = {}){
+        return buildSafeUrl(base, { slug, phone, ...extra });
+      }
+
+      function buildPayUrl(){
+        if (lastGuardState?.pay_url) return lastGuardState.pay_url;
+        return buildSafeUrl(ROUTES.pay, {
+          module: MODULE,
+          slug,
+          phone,
+          return: location.href
+        });
+      }
+
+      function showToast(msg){
+        const el = $("toast");
+        el.textContent = msg;
+        el.style.display = "block";
+        clearTimeout(window.__digiy_toast_timer);
+        window.__digiy_toast_timer = setTimeout(() => {
+          el.style.display = "none";
+        }, 2400);
+      }
+
+      function setMsg(text, type){
+        const el = $("msgStatus");
+        el.textContent = text;
+        el.className = "msg " + (type || "");
+      }
+
+      function resolveSlug(){
+        const qs = new URLSearchParams(location.search);
+        const fromUrl = normSlug(qs.get("slug") || "");
+        if (fromUrl) return fromUrl;
+
+        const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug || "");
+        if (fromGuard) return fromGuard;
+
+        return normSlug(
+          storageGet("digiy_driver_slug") ||
+          storageGet("digiy_driver_last_slug") ||
+          storageGet("digiy_last_slug") ||
+          storageGet("DIGIY_SLUG") ||
+          ""
+        );
+      }
+
+      function resolvePhone(){
+        const qs = new URLSearchParams(location.search);
+        const fromUrl = normPhone(qs.get("phone") || qs.get("tel") || "");
+        if (fromUrl) return fromUrl;
+
+        const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone || "");
+        if (fromGuard) return fromGuard;
+
+        return normPhone(
+          storageGet("DIGIY_DRIVER_PHONE") ||
+          storageGet("digiy_driver_phone") ||
+          storageGet("DIGIY_PHONE") ||
+          phoneFromDriverSlug(slug) ||
+          ""
+        );
+      }
+
+      async function waitGuardIfAny(){
+        try{
+          const g = window.DIGIY_GUARD;
+          if (!g) return;
+
+          if (typeof g.ready === "function"){
+            let out;
+            try{
+              out = g.ready(8000);
+            }catch{
+              out = g.ready();
+            }
+            if (out && typeof out.then === "function") await out;
+            return;
+          }
+
+          if (g.ready && typeof g.ready.then === "function"){
+            await g.ready;
+          }
+        }catch(e){
+          console.warn("Guard ready warning:", e);
+        }
+      }
+
+      async function getGuardState(forceRefresh = false){
+        const g = window.DIGIY_GUARD;
+
+        if (!g){
+          return {
+            ok:false,
+            access_ok:false,
+            access:false,
+            pin_session_ok:false,
+            slug:"",
+            phone:"",
+            reason:"guard_missing",
+            pay_url:buildPayUrl()
+          };
+        }
+
+        if (forceRefresh && typeof g.refresh === "function"){
+          try{
+            const fresh = await g.refresh();
+            lastGuardState = fresh || null;
+            return fresh || {};
+          }catch(e){
+            console.warn("Guard refresh warning:", e);
+          }
+        }
+
+        try{
+          if (typeof g.ready === "function"){
+            let out;
+            try{
+              out = g.ready(8000);
+            }catch{
+              out = g.ready();
+            }
+            if (out && typeof out.then === "function") await out;
+          } else if (g.ready && typeof g.ready.then === "function"){
+            await g.ready;
+          }
+        }catch(e){
+          console.warn("Guard state warning:", e);
+        }
+
+        lastGuardState = g.state || null;
+        return g.state || {
+          ok:false,
+          access_ok:false,
+          access:false,
+          pin_session_ok:false,
+          slug:"",
+          phone:"",
+          reason:"guard_empty",
+          pay_url:buildPayUrl()
+        };
+      }
+
+      function isRpcMissing(error){
+        const txt = String(error?.message || error?.details || error?.hint || "");
+        return error?.code === "PGRST202" || txt.includes("Could not find the function");
+      }
+
+      async function fetchCockpit(){
+        if (!sb || !slug) return null;
+        try{
+          const { data, error } = await sb.rpc("digiy_driver_get_cockpit_by_slug", { p_slug: slug });
+          if (error) throw error;
+          return data || null;
+        }catch(e){
+          console.warn("trajets cockpit warning:", e);
+          return null;
+        }
+      }
+
+      async function fetchTrips(){
+        if (!sb || !phone) return [];
+        try{
+          const variants = phoneVariants(phone);
+          if (!variants.length) return [];
+
+          const { data, error } = await sb
+            .from("digiy_driver_trips")
+            .select("*")
+            .in("driver_phone", variants)
+            .order("created_at", { ascending:false });
+
+          if (error) throw error;
+          return Array.isArray(data) ? data : [];
+        }catch(e){
+          console.warn("trajets read warning:", e);
+          return [];
+        }
+      }
+
+      function tripStatus(trip){
+        const raw = String(trip?.status || "").trim().toLowerCase();
+        if (raw === "ongoing") return "in_progress";
+        if (raw === "cancelled") return "canceled";
+        return raw;
+      }
+
+      function statusLabel(status){
+        const s = tripStatus({ status });
+        if (s === "requested") return "nouvelle demande";
+        if (s === "assigned") return "assignée";
+        if (s === "accepted") return "acceptée";
+        if (s === "in_progress") return "en course";
+        if (s === "completed") return "terminée";
+        if (s === "canceled") return "annulée";
+        return s || "—";
+      }
+
+      function statusRank(status){
+        const s = tripStatus({ status });
+        if (s === "in_progress") return 0;
+        if (s === "accepted") return 1;
+        if (s === "assigned") return 2;
+        if (s === "requested") return 3;
+        if (s === "completed") return 4;
+        if (s === "canceled") return 5;
+        return 9;
+      }
+
+      function firstDate(obj){
+        const keys = ["updated_at","completed_at","pickup_at","ride_at","booking_time","created_at"];
+        for (const k of keys){
+          const v = obj?.[k];
+          if (!v) continue;
+          const t = new Date(v).getTime();
+          if (!Number.isNaN(t)) return t;
+        }
+        return 0;
+      }
+
+      function tripAmount(trip){
+        const n = Number(
+          trip?.final_price_fcfa ??
+          trip?.price_fcfa ??
+          trip?.amount_fcfa ??
+          trip?.amount ??
+          0
+        );
+        return Number.isFinite(n) ? n : 0;
+      }
+
+      function tripWhen(trip){
+        return trip?.pickup_at || trip?.ride_at || trip?.booking_time || trip?.completed_at || trip?.updated_at || trip?.created_at || null;
+      }
+
+      function isSameLocalDay(v){
+        if (!v) return false;
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return false;
+        const now = new Date();
+        return d.getFullYear() === now.getFullYear()
+          && d.getMonth() === now.getMonth()
+          && d.getDate() === now.getDate();
+      }
+
+      function inLastDays(v, days){
+        if (!v) return false;
+        const t = new Date(v).getTime();
+        if (!Number.isFinite(t)) return false;
+        const diff = Date.now() - t;
+        return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
+      }
+
+      function pick(obj, keys, fallback = "—"){
+        for (const k of keys){
+          const v = obj?.[k];
+          if (v !== null && v !== undefined && String(v).trim() !== "") return v;
+        }
+        return fallback;
+      }
+
+      function tripTitle(trip){
+        const client = humanValue(
+          trip?.client_name || trip?.customer_name || trip?.passenger_name,
+          "Client"
+        );
+        const from = humanValue(
+          trip?.pickup_label || trip?.pickup_address || trip?.pickup_text || trip?.depart_label || trip?.origin_label || trip?.pickup_city,
+          "Départ à préciser"
+        );
+        const to = humanValue(
+          trip?.dropoff_label || trip?.dropoff_address || trip?.dropoff_text || trip?.arrival_label || trip?.destination_label || trip?.dropoff_city,
+          "Arrivée à préciser"
+        );
+        return `${client} • ${from} → ${to}`;
+      }
+
+      function buildStatusList(){
+        const box = $("statusList");
+
+        if (!slug){
+          box.innerHTML = `
+            <div class="empty">Aucun identifiant chauffeur détecté. Passe par ton accès ou un lien valide.</div>
+          `;
+          return;
+        }
+
+        if (!isDriverSlug(slug)){
+          box.innerHTML = `
+            <div class="empty">Cet identifiant ne correspond pas à un espace chauffeur valide.</div>
+          `;
+          return;
+        }
+
+        if (!accessOk){
+          box.innerHTML = `
+            <div class="empty">Accès non ouvert. Reprends ton accès ou ton abonnement.</div>
+          `;
+          return;
+        }
+
+        const profile = cockpitData?.profile || {};
+        const isBlank = !!cockpitData?.is_blank;
+        const published = !!profile?.is_published;
+
+        const lines = [];
+
+        lines.push(`
+          <div class="tag">Accès : ${escapeHtml(pinSessionOk ? "session ouverte" : "abonnement actif")}</div>
+        `);
+
+        lines.push(`
+          <div class="tag">Profil : ${escapeHtml(isBlank ? "à compléter" : "chargé")}</div>
+        `);
+
+        lines.push(`
+          <div class="tag">Publication : ${escapeHtml(published ? "publiée" : "masquée")}</div>
+        `);
+
+        lines.push(`
+          <div class="tag">Zone : ${escapeHtml(humanValue(profile?.city || profile?.zones, "—"))}</div>
+        `);
+
+        box.innerHTML = lines.join("");
+      }
+
+      function populateZoneFilter(){
+        const select = $("zoneFilter");
+        const current = select.value;
+
+        const zones = Array.from(new Set(
+          allTrips
+            .map(t => String(t?.pickup_zone || t?.zone || "").trim())
+            .filter(Boolean)
+        )).sort((a,b) => a.localeCompare(b, "fr"));
+
+        select.innerHTML = `<option value="">Toutes</option>` + zones.map(z =>
+          `<option value="${escapeHtml(z)}">${escapeHtml(z)}</option>`
+        ).join("");
+
+        if (zones.includes(current)) {
+          select.value = current;
+        }
+      }
+
+      function renderKpis(){
+        const requested = allTrips.filter(t => tripStatus(t) === "requested");
+        const active = allTrips.filter(t => ["assigned","accepted","in_progress"].includes(tripStatus(t)));
+        const completed = allTrips.filter(t => tripStatus(t) === "completed");
+        const completedToday = completed.filter(t => isSameLocalDay(tripWhen(t)));
+        const completed30d = completed.filter(t => inLastDays(tripWhen(t), 30));
+        const amount30d = completed30d.reduce((sum, t) => sum + tripAmount(t), 0);
+
+        $("kpiNew").textContent = String(requested.length);
+        $("kpiActive").textContent = String(active.length);
+        $("kpiDoneToday").textContent = String(completedToday.length);
+        $("kpiMoney30d").textContent = money(amount30d);
+
+        $("kpiNewSub").textContent = requested.length ? "Demandes à lire" : "Aucune nouvelle demande";
+        $("kpiActiveSub").textContent = active.length ? "Trajets à traiter" : "Aucun trajet ouvert";
+        $("kpiDoneTodaySub").textContent = completedToday.length ? "Courses terminées aujourd’hui" : "Aucune terminée aujourd’hui";
+        $("kpiMoney30dSub").textContent = completed30d.length ? `${completed30d.length} course(s) terminée(s)` : "Aucune entrée lue";
+      }
+
+      function renderHeaderState(){
+        $("pillSlug").innerHTML = `identifiant : <b>${slug || "—"}</b>`;
+        $("pillPhone").innerHTML = `téléphone : <b>${displayPhone(phone)}</b>`;
+
+        const pill = $("pillAccess");
+        const dot = $("eyebrowDot");
+
+        if (!slug){
+          pill.className = "pill bad";
+          pill.innerHTML = "accès : <b>identifiant manquant</b>";
+          $("eyebrowText").textContent = "identifiant requis";
+          $("heroTitle").textContent = "Ouvre ton accès chauffeur.";
+          $("heroLead").textContent = "Le rail trajet a besoin d’un identifiant valide avant de travailler.";
+          dot.style.background = "var(--danger)";
+          return;
+        }
+
+        if (!isDriverSlug(slug)){
+          pill.className = "pill bad";
+          pill.innerHTML = "accès : <b>identifiant invalide</b>";
+          $("eyebrowText").textContent = "lien invalide";
+          $("heroTitle").textContent = "Le lien chauffeur n’est pas reconnu.";
+          $("heroLead").textContent = "Repars par ton accès ou utilise un lien chauffeur propre.";
+          dot.style.background = "var(--danger)";
+          return;
+        }
+
+        if (!accessOk){
+          pill.className = "pill bad";
+          pill.innerHTML = "accès : <b>fermé</b>";
+          $("eyebrowText").textContent = "accès requis";
+          $("heroTitle").textContent = "Commence par ouvrir ton accès.";
+          $("heroLead").textContent = "Pas de mur brutal : le trajet attend juste que ton accès soit reconnu.";
+          dot.style.background = "var(--danger)";
+          return;
+        }
+
+        pill.className = pinSessionOk ? "pill warn" : "pill ok";
+        pill.innerHTML = `accès : <b>${pinSessionOk ? "session ouverte" : "abonnement actif"}</b>`;
+        $("eyebrowText").textContent = pinSessionOk ? "session ouverte" : "trajets disponibles";
+        $("heroTitle").textContent = cockpitData?.public_label
+          ? `${cockpitData.public_label} — mes trajets`
+          : "Mes trajets chauffeur";
+        $("heroLead").textContent = "Lis, filtre, démarre, termine. Le reste reste rangé derrière.";
+        dot.style.background = pinSessionOk ? "var(--warn)" : "var(--ok)";
+      }
+
+      function bindLinks(){
+        $("btnDashboard").href = withSlug(ROUTES.dashboard);
+        $("btnCockpit").href = withSlug(ROUTES.cockpit);
+        $("btnProfil").href = withSlug(ROUTES.profil);
+        $("btnTarifs").href = withSlug(ROUTES.tarifs);
+        $("btnQr").href = withSlug(ROUTES.qr);
+        $("btnPin").href = withSlug(ROUTES.pin);
+      }
+
+      function activeViewTitle(){
+        const view = $("viewFilter").value;
+        if (view === "new") return ["Nouvelles demandes", "Les courses qui attendent une prise en main."];
+        if (view === "active") return ["À faire maintenant", "Les trajets ouverts du chauffeur."];
+        if (view === "history") return ["Historique", "Les trajets terminés ou annulés."];
+        return ["Tous les trajets", "Vue complète du rail chauffeur."];
+      }
+
+      function filteredTrips(){
+        const view = $("viewFilter").value;
+        const zone = String($("zoneFilter").value || "").trim().toLowerCase();
+        const q = String($("qFilter").value || "").trim().toLowerCase();
+
+        let rows = [...allTrips];
+
+        if (view === "new"){
+          rows = rows.filter(t => tripStatus(t) === "requested");
+        } else if (view === "active"){
+          rows = rows.filter(t => ["assigned","accepted","in_progress"].includes(tripStatus(t)));
+        } else if (view === "history"){
+          rows = rows.filter(t => ["completed","canceled"].includes(tripStatus(t)));
+        } else {
+          rows = rows.filter(t => ["requested","assigned","accepted","in_progress","completed","canceled"].includes(tripStatus(t)));
+        }
+
+        if (zone){
+          rows = rows.filter(t => String(t?.pickup_zone || t?.zone || "").trim().toLowerCase() === zone);
+        }
+
+        if (q){
+          rows = rows.filter(t => {
+            const hay = [
+              t?.client_name,
+              t?.customer_name,
+              t?.passenger_name,
+              t?.pickup_zone,
+              t?.pickup_city,
+              t?.dropoff_city,
+              t?.pickup_label,
+              t?.dropoff_label,
+              t?.pickup_address,
+              t?.dropoff_address,
+              t?.id
+            ].map(v => String(v || "").toLowerCase()).join(" ");
+            return hay.includes(q);
+          });
+        }
+
+        rows.sort((a,b) => {
+          const byStatus = statusRank(a.status) - statusRank(b.status);
+          if (byStatus !== 0 && view !== "history" && view !== "all") return byStatus;
+          return firstDate(b) - firstDate(a);
+        });
+
+        return rows;
+      }
+
+      function actionButtons(trip){
+        const status = tripStatus(trip);
+        const tripId = String(trip?.id || "");
+        const buttons = [];
+
+        if (status === "requested"){
+          buttons.push(`<button class="btn ok" data-action="accept" data-id="${escapeHtml(tripId)}">✅ Accepter</button>`);
+        }
+
+        if (status === "assigned" || status === "accepted"){
+          buttons.push(`<button class="btn primary" data-action="start" data-id="${escapeHtml(tripId)}">▶️ Démarrer</button>`);
+        }
+
+        if (status === "in_progress"){
+          buttons.push(`<button class="btn warn" data-action="finish" data-id="${escapeHtml(tripId)}">🏁 Terminer</button>`);
+        }
+
+        if (!buttons.length){
+          buttons.push(`<button class="btn ghost" type="button" disabled>Lecture seule</button>`);
+        }
+
+        return buttons.join("");
+      }
+
+      function renderTrips(){
+        const [title, lead] = activeViewTitle();
+        $("listTitle").textContent = title;
+        $("listLead").textContent = lead;
+
+        const box = $("tripList");
+
+        if (!slug){
+          box.innerHTML = `<div class="empty">Aucun identifiant chauffeur détecté.</div>`;
+          $("pillCount").textContent = "0 visible";
+          return;
+        }
+
+        if (!isDriverSlug(slug)){
+          box.innerHTML = `<div class="empty">Cet identifiant n’est pas reconnu comme un espace chauffeur valide.</div>`;
+          $("pillCount").textContent = "0 visible";
+          return;
+        }
+
+        if (!accessOk){
+          box.innerHTML = `<div class="empty">Ton accès n’est pas ouvert pour le moment. Reprends ton accès ou ton abonnement.</div>`;
+          $("pillCount").textContent = "0 visible";
+          return;
+        }
+
+        const rows = filteredTrips();
+        $("pillCount").textContent = `${rows.length} visible${rows.length > 1 ? "s" : ""}`;
+
+        if (!rows.length){
+          box.innerHTML = `<div class="empty">Aucun trajet dans cette vue. Essaie un autre filtre ou recharge la page.</div>`;
+          return;
+        }
+
+        box.innerHTML = rows.map((trip) => {
+          const status = tripStatus(trip);
+          const amount = tripAmount(trip);
+          const zone = humanValue(trip?.pickup_zone || trip?.zone, "Zone non précisée");
+          const when = fmtDate(tripWhen(trip));
+          const km = humanValue(trip?.distance_km, "");
+          const min = humanValue(trip?.duration_min, "");
+          const ref = humanValue(trip?.id, "—");
+
+          return `
+            <article class="trip">
+              <div class="tripHead">
+                <div>
+                  <div class="tripTitle">${escapeHtml(tripTitle(trip))}</div>
+                  <div class="tripMeta">
+                    <div class="metaLine">📅 ${escapeHtml(when)}</div>
+                    <div class="metaLine">💰 ${escapeHtml(amount ? money(amount) : "Montant non précisé")}</div>
+                    <div class="metaLine">🧾 Référence : ${escapeHtml(ref)}</div>
+                  </div>
+                </div>
+                <div class="badge ${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</div>
+              </div>
+
+              <div class="tagRow">
+                <div class="tag">📍 ${escapeHtml(zone)}</div>
+                ${km ? `<div class="tag">🛣️ ${escapeHtml(String(km))} km</div>` : ``}
+                ${min ? `<div class="tag">⏱️ ${escapeHtml(String(min))} min</div>` : ``}
+              </div>
+
+              <div class="tripActions">
+                ${actionButtons(trip)}
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      async function rpcWithFallback(functionNames, rideId, driverPhone){
+        if (!sb) throw new Error("supabase_absent");
+
+        const funcs = Array.isArray(functionNames) ? functionNames : [functionNames];
+        const attempts = [
+          { p_ride_id: rideId, p_driver_phone: driverPhone },
+          { ride_id: rideId, driver_phone: driverPhone },
+          { p_trip_id: rideId, p_driver_phone: driverPhone },
+          { p_trip_id: rideId },
+          { trip_id: rideId },
+          { id: rideId, phone: driverPhone },
+          { p_id: rideId, p_phone: driverPhone }
+        ];
+
+        let lastError = null;
+
+        for (const fn of funcs){
+          for (const args of attempts){
+            const { data, error } = await sb.rpc(fn, args);
+            if (!error) return data;
+            lastError = error;
+            if (!isRpcMissing(error) && !String(error?.message || "").includes("function")) {
+              continue;
+            }
+          }
+        }
+
+        throw lastError || new Error("rpc_failed");
+      }
+
+      async function onTripAction(ev){
+        const btn = ev.target.closest("[data-action]");
+        if (!btn) return;
+
+        const action = btn.getAttribute("data-action");
+        const rideId = btn.getAttribute("data-id");
+
+        if (!accessOk){
+          setMsg("⚠️ Accès non valide pour agir sur les trajets.", "bad");
+          showToast("Accès non valide");
+          return;
+        }
+
+        if (!rideId){
+          setMsg("⚠️ Trajet introuvable.", "bad");
+          showToast("Trajet introuvable");
+          return;
+        }
+
+        if (!phone){
+          setMsg("⚠️ Numéro chauffeur manquant.", "bad");
+          showToast("Numéro chauffeur manquant");
+          return;
+        }
+
+        btn.disabled = true;
+        showToast("⏳ Action en cours…");
+
+        try{
+          if (action === "accept"){
+            await rpcWithFallback(["digiy_driver_accept_ride", "accept_trip"], rideId, phone);
+            setMsg("✅ Demande acceptée.", "ok");
+            showToast("✅ Demande acceptée");
+          } else if (action === "start"){
+            await rpcWithFallback(["digiy_driver_start_ride", "start_trip"], rideId, phone);
+            setMsg("✅ Trajet démarré.", "ok");
+            showToast("✅ Trajet démarré");
+          } else if (action === "finish"){
+            await rpcWithFallback(["digiy_driver_complete_ride", "complete_trip"], rideId, phone);
+            setMsg("✅ Trajet terminé.", "ok");
+            showToast("✅ Trajet terminé");
+          }
+
+          await boot(true);
+        }catch(e){
+          console.error(e);
+          setMsg("❌ Action impossible pour ce trajet.", "bad");
+          showToast("❌ Action impossible");
+        }finally{
+          btn.disabled = false;
+        }
+      }
+
+      function resetFilters(){
+        $("viewFilter").value = "active";
+        $("zoneFilter").value = "";
+        $("qFilter").value = "";
+        renderTrips();
+      }
+
+      function bindUi(){
+        $("btnReload")?.addEventListener("click", () => boot(true));
+        $("btnResetFilters")?.addEventListener("click", resetFilters);
+        $("viewFilter")?.addEventListener("change", renderTrips);
+        $("zoneFilter")?.addEventListener("change", renderTrips);
+        $("qFilter")?.addEventListener("input", () => {
+          clearTimeout(window.__driver_trip_search_timer);
+          window.__driver_trip_search_timer = setTimeout(renderTrips, 120);
+        });
+
+        $("tripList")?.addEventListener("click", onTripAction);
+
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden && accessOk) boot(false);
+        });
+      }
+
+      async function boot(forceRefresh = false){
+        if (isLoading) return;
+        isLoading = true;
+        document.body.classList.add("loading");
+        setMsg("⏳ Chargement de tes trajets…", "warn");
+
+        try{
+          await waitGuardIfAny();
+
+          const state = await getGuardState(forceRefresh);
+          lastGuardState = state || null;
+
+          slug = normSlug(state?.slug || resolveSlug());
+          phone = normPhone(state?.phone || resolvePhone() || phoneFromDriverSlug(slug));
+          accessOk = !!(state?.access_ok || state?.access);
+          pinSessionOk = !!state?.pin_session_ok;
+
+          bindLinks();
+          renderHeaderState();
+
+          if (!sb){
+            $("tripList").innerHTML = `<div class="empty">Connexion Supabase indisponible.</div>`;
+            $("statusList").innerHTML = `<div class="empty">Connexion indisponible.</div>`;
+            setMsg("❌ Connexion indisponible.", "bad");
+            return;
+          }
+
+          cockpitData = null;
+          allTrips = [];
+
+          if (accessOk){
+            cockpitData = await fetchCockpit();
+
+            if (cockpitData?.phone){
+              phone = normPhone(cockpitData.phone || phone);
+              if (window.DIGIY_GUARD?.rememberIdentity){
+                try{
+                  window.DIGIY_GUARD.rememberIdentity({ slug, phone });
+                }catch{}
+              }
+            }
+
+            allTrips = await fetchTrips();
+          }
+
+          renderHeaderState();
+          buildStatusList();
+          renderKpis();
+          populateZoneFilter();
+          renderTrips();
+
+          if (!slug){
+            setMsg("⚠️ Aucun identifiant chauffeur détecté.", "bad");
+          } else if (!isDriverSlug(slug)){
+            setMsg("❌ Identifiant chauffeur invalide.", "bad");
+          } else if (!accessOk){
+            setMsg("⚠️ Accès non ouvert. Passe par ton accès ou ton abonnement.", "bad");
+          } else {
+            setMsg("✅ Outil trajet synchronisé.", "ok");
+          }
+
+          if (refreshTimer){
+            clearInterval(refreshTimer);
+            refreshTimer = null;
+          }
+
+          if (accessOk){
+            refreshTimer = setInterval(() => {
+              if (!document.hidden) boot(false);
+            }, 15000);
+          }
+
+        }catch(e){
+          console.error(e);
+          $("tripList").innerHTML = `<div class="empty">Erreur de chargement des trajets.</div>`;
+          $("statusList").innerHTML = `<div class="empty">Erreur de lecture du rail chauffeur.</div>`;
+          setMsg("❌ Erreur de chargement des trajets.", "bad");
+        }finally{
+          document.body.classList.remove("loading");
+          isLoading = false;
+        }
+      }
+
+      bindUi();
+      boot(false);
+    })();
+  </script>
 </body>
 </html>
