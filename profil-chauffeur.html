@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER — Mon profil</title>
+  <title>Je conduis — Mon profil</title>
   <meta name="theme-color" content="#061b14"/>
 
   <script>
@@ -11,10 +11,11 @@
     window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
     window.DIGIY_MODULE = "DRIVER";
+    window.DIGIY_LOGIN_URL = "./pin.html";
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-profile-guard-20260329-v2"></script>
+  <script src="./guard.js?v=driver-profile-lightpatch-20260330"></script>
 
   <style>
     :root{
@@ -244,7 +245,7 @@
     }
 
     @media(min-width:760px){
-      .quickNav{grid-template-columns:repeat(5,1fr)}
+      .quickNav{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
     }
 
     .navbox{
@@ -325,12 +326,13 @@
 
     <div class="top">
       <div>
-        <h1 id="titleMain">👤 DIGIY DRIVER — Mon profil chauffeur</h1>
-        <div class="muted" id="subMain">Profil réel, publication et tarifs liés à ton identifiant actif. Aucune démo partagée.</div>
+        <h1 id="titleMain">👤 Je conduis — Mon profil</h1>
+        <div class="muted" id="subMain">Ici, tu règles ton identité, ton véhicule, ta zone, ta visibilité et tes tarifs. Sans démo.</div>
 
         <div class="nav">
-          <a class="btn primary" id="btnCockpit" href="#">⬅️ Ma gestion</a>
-          <a class="btn blue" id="btnDashboard" href="#">📊 Mon activité</a>
+          <a class="btn primary" id="btnCockpit" href="#">🧭 Ma gestion</a>
+          <a class="btn blue" id="btnDashboard" href="#">🏠 Mon activité</a>
+          <a class="btn" id="btnTrajetsPage" href="#">🚕 Mes trajets</a>
           <a class="btn" id="btnTarifsPage" href="#">💰 Mes tarifs</a>
           <a class="btn" id="btnQr" href="#">📱 Mon QR</a>
           <a class="btn" id="btnPin" href="#">🔑 Mon accès</a>
@@ -343,25 +345,31 @@
       <div class="row" style="flex:0 0 auto">
         <div class="pill" id="slugPill">identifiant : —</div>
         <div class="pill" id="phonePill">téléphone : —</div>
-        <div class="pill warn" id="accessPill">session : contrôle…</div>
+        <div class="pill warn" id="accessPill">accès : contrôle…</div>
       </div>
     </div>
 
     <div class="card">
       <h2>Navigation chauffeur</h2>
-      <div class="muted">Toutes les portes métier sont recousues sur le même identifiant réel.</div>
+      <div class="muted">Toutes les portes utiles restent recousues sur le même identifiant réel.</div>
 
       <div class="quickNav">
         <div class="navbox">
-          <div class="title">🏠 Ma gestion</div>
+          <div class="title">🧭 Ma gestion</div>
           <div class="desc">Retour au centre du module chauffeur avec accès, courses et état réel.</div>
           <a class="go" id="navCockpit" href="#">Ouvrir</a>
         </div>
 
         <div class="navbox">
-          <div class="title">📊 Mon activité</div>
+          <div class="title">🏠 Mon activité</div>
           <div class="desc">Lecture rapide du statut, de l’activité et de l’aiguillage métier.</div>
           <a class="go" id="navDashboard" href="#">Ouvrir</a>
+        </div>
+
+        <div class="navbox">
+          <div class="title">🚕 Mes trajets</div>
+          <div class="desc">Voir, filtrer, démarrer ou terminer les courses du chauffeur.</div>
+          <a class="go" id="navTrajets" href="#">Ouvrir</a>
         </div>
 
         <div class="navbox">
@@ -567,6 +575,7 @@
       const PAGES = {
         cockpit: "./cockpit.html",
         dashboard: "./dashboard-pro.html",
+        trajets: "./trajets.html",
         tarifs: "./tarifs.html",
         qr: "./generateur-digiy-driver.html",
         pin: "./pin.html",
@@ -694,7 +703,7 @@
         ACCESS_OK = !!ok;
         const el = $("accessPill");
         el.className = "pill " + (ok ? "ok" : "bad");
-        el.textContent = "session : " + txt;
+        el.textContent = "accès : " + txt;
       }
 
       function setActionButtonsDisabled(disabled){
@@ -745,8 +754,22 @@
 
       async function waitGuardIfAny(){
         try{
-          if (window.DIGIY_GUARD?.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
-            await window.DIGIY_GUARD.ready;
+          const g = window.DIGIY_GUARD;
+          if (!g) return;
+
+          if (typeof g.ready === "function"){
+            let out;
+            try{
+              out = g.ready(8000);
+            }catch{
+              out = g.ready();
+            }
+            if (out && typeof out.then === "function") await out;
+            return;
+          }
+
+          if (g.ready && typeof g.ready.then === "function"){
+            await g.ready;
           }
         }catch(e){
           console.warn("[DRIVER PROFILE] guard ready warning:", e);
@@ -754,7 +777,7 @@
       }
 
       async function getGuardState(forceRefresh = false){
-        if (!window.DIGIY_GUARD) {
+        if (!window.DIGIY_GUARD){
           return {
             ok:false,
             preview:false,
@@ -767,13 +790,13 @@
           };
         }
 
-        if (forceRefresh && window.DIGIY_GUARD.refresh) {
+        if (forceRefresh && typeof window.DIGIY_GUARD.refresh === "function"){
           const fresh = await window.DIGIY_GUARD.refresh();
           LAST_GUARD_STATE = fresh || null;
           return fresh;
         }
 
-        if (window.DIGIY_GUARD.ready && typeof window.DIGIY_GUARD.ready.then === "function") {
+        if (window.DIGIY_GUARD.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
           await window.DIGIY_GUARD.ready;
         }
 
@@ -879,7 +902,7 @@
       function renderPublishState(){
         const published = CURRENT_IS_PUBLISHED ? "Publié" : "Masqué";
         const active = CURRENT_COCKPIT?.profile?.is_active ? "actif" : "inactif";
-        const access = ACCESS_OK ? "session ouverte" : "session fermée";
+        const access = ACCESS_OK ? "accès ouvert" : "accès fermé";
         $("publishState").textContent = `${published} • profil : ${active} • ${access}`;
         $("statePublish").textContent = published;
         $("stateSlug").textContent = slug || "—";
@@ -888,9 +911,7 @@
 
       async function fetchCockpit(){
         if (!sb) throw new Error("supabase_absent");
-        if (!slug){
-          return { ok:false, reason:"slug_manquant" };
-        }
+        if (!slug) return { ok:false, reason:"slug_manquant" };
 
         const { data, error } = await sb.rpc("digiy_driver_get_cockpit_by_slug", { p_slug: slug });
         if (error) throw error;
@@ -905,6 +926,7 @@
       function bindNav(){
         $("btnCockpit").href = pageUrl(PAGES.cockpit);
         $("btnDashboard").href = pageUrl(PAGES.dashboard);
+        $("btnTrajetsPage").href = pageUrl(PAGES.trajets);
         $("btnTarifsPage").href = pageUrl(PAGES.tarifs);
         $("btnQr").href = pageUrl(PAGES.qr);
         $("btnPin").href = pageUrl(PAGES.pin);
@@ -913,6 +935,7 @@
 
         $("navCockpit").href = pageUrl(PAGES.cockpit);
         $("navDashboard").href = pageUrl(PAGES.dashboard);
+        $("navTrajets").href = pageUrl(PAGES.trajets);
         $("navTarifs").href = pageUrl(PAGES.tarifs);
         $("navQr").href = pageUrl(PAGES.qr);
         $("navPin").href = pageUrl(PAGES.pin);
@@ -959,11 +982,11 @@
           if (!st?.access_ok){
             CURRENT_COCKPIT = null;
             CURRENT_IS_PUBLISHED = false;
-            setAccessState(false, st?.reason || "session fermée");
+            setAccessState(false, st?.reason || "accès fermé");
             clearForm();
             renderPublishState();
             setFormDisabled(true);
-            setMsgProfile("⚠️ Session non ouverte pour cet identifiant. Passe par la porte d’accès ou l’abonnement.", "bad");
+            setMsgProfile("⚠️ Accès non ouvert pour cet identifiant. Passe par la porte d’accès ou l’abonnement.", "bad");
             return false;
           }
 
@@ -979,14 +1002,16 @@
 
           if (data?.ok){
             phone = normPhone(data.phone || phone);
-            if (window.DIGIY_GUARD?.rememberIdentity) {
-              window.DIGIY_GUARD.rememberIdentity({ slug, phone });
+            if (window.DIGIY_GUARD?.rememberIdentity){
+              try{
+                window.DIGIY_GUARD.rememberIdentity({ slug, phone });
+              }catch{}
             }
 
             bindNav();
             syncOwnUrl();
 
-            $("titleMain").textContent = "👤 Mon profil chauffeur";
+            $("titleMain").textContent = "👤 Je conduis — Mon profil";
             $("subMain").textContent = data.is_blank
               ? "Ton moule personnel est vierge. Complète-le maintenant, sans démo."
               : "Profil réel retrouvé par téléphone. Tu peux le modifier librement.";
@@ -1011,7 +1036,7 @@
           bindNav();
           syncOwnUrl();
 
-          $("titleMain").textContent = "👤 Mon profil chauffeur";
+          $("titleMain").textContent = "👤 Je conduis — Mon profil";
           $("subMain").textContent = st?.pin_session_ok
             ? "Session ouverte. Le profil détaillé ne remonte pas encore complètement, mais la page reste exploitable."
             : "Accès valide. Le profil détaillé ne remonte pas encore complètement, mais tu peux travailler proprement.";
@@ -1032,7 +1057,7 @@
 
       async function saveProfile(isPublishedOverride = null){
         if (!ACCESS_OK){
-          setMsgProfile("⚠️ Session non valide pour enregistrer le profil.", "bad");
+          setMsgProfile("⚠️ Accès non valide pour enregistrer le profil.", "bad");
           return false;
         }
 
@@ -1095,7 +1120,7 @@
 
       async function setPublishState(isPublished){
         if (!ACCESS_OK){
-          setMsgPublish("⚠️ Session non valide pour modifier la visibilité.", "bad");
+          setMsgPublish("⚠️ Accès non valide pour modifier la visibilité.", "bad");
           return;
         }
 
@@ -1124,7 +1149,7 @@
         const data = Array.isArray(rows) ? rows : [];
 
         if (!ACCESS_OK){
-          $("ratesList").innerHTML = `<div class="empty">Aucun tarif lisible tant que la session n’est pas validée.</div>`;
+          $("ratesList").innerHTML = `<div class="empty">Aucun tarif lisible tant que l’accès n’est pas validé.</div>`;
           return;
         }
 
@@ -1192,7 +1217,7 @@
         if (!ACCESS_OK){
           RATES_RPC_READY = true;
           renderRates([]);
-          setMsgRates("⚠️ Session non valide pour lire les tarifs.", "bad");
+          setMsgRates("⚠️ Accès non valide pour lire les tarifs.", "bad");
           return;
         }
 
@@ -1226,7 +1251,7 @@
         const priceFcfa = parseInt($("priceFcfa").value || "0", 10);
 
         if (!ACCESS_OK){
-          setMsgRates("⚠️ Session non valide pour enregistrer un tarif.", "bad");
+          setMsgRates("⚠️ Accès non valide pour enregistrer un tarif.", "bad");
           return;
         }
 
