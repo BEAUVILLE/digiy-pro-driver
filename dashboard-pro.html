@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER — Mon activité</title>
-  <meta name="theme-color" content="#0b1020"/>
+  <title>Je conduis — Mon activité</title>
+  <meta name="theme-color" content="#09121f"/>
+  <meta name="description" content="Lecture rapide chauffeur DIGIY. Nouveau trajet, activité, statut, tarifs et accès."/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -18,97 +19,113 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-dashboard-20260329-facade-clean"></script>
+  <script src="./guard.js?v=driver-dashboard-mobile-20260330"></script>
 
   <style>
     :root{
-      --bg:#0b1020;
-      --card:#121a33;
-      --muted:#a8b1d1;
-      --text:#eef1ff;
+      --bg:#09121f;
+      --bg2:#0d1830;
+      --card:#121d38;
+      --card2:#162343;
+      --line:rgba(255,255,255,.10);
+      --line-strong:rgba(255,255,255,.16);
+      --text:#eef2ff;
+      --muted:#aeb8da;
+      --soft:#c9d2f1;
       --ok:#22c55e;
       --warn:#f59e0b;
       --danger:#ef4444;
       --accent:#6366f1;
-      --line:rgba(255,255,255,.09);
-      --shadow:0 12px 30px rgba(0,0,0,.35);
-      --radius:18px;
+      --accent-2:#8b5cf6;
+      --gold:#facc15;
+      --shadow:0 18px 45px rgba(0,0,0,.35);
+      --radius:20px;
+      --max:1100px;
       --pad:16px;
-      --max:1080px;
     }
 
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
-
     body{
       margin:0;
       font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:
-        radial-gradient(1200px 700px at 20% -20%, rgba(99,102,241,.25), transparent 70%),
-        radial-gradient(900px 600px at 100% 0%, rgba(34,197,94,.15), transparent 55%),
-        var(--bg);
       color:var(--text);
+      background:
+        radial-gradient(1000px 600px at 15% -10%, rgba(99,102,241,.25), transparent 65%),
+        radial-gradient(900px 520px at 100% 0%, rgba(34,197,94,.12), transparent 55%),
+        linear-gradient(180deg, #09121f 0%, #0b1325 100%);
+      min-height:100vh;
     }
 
     a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:0 auto;padding:18px 14px 34px}
+    button{font:inherit}
+    .wrap{max-width:var(--max);margin:0 auto;padding:14px 14px 34px}
 
     .topbar{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
       gap:12px;
-      padding:10px 6px;
-      margin-bottom:10px;
       flex-wrap:wrap;
+      margin-bottom:12px;
     }
 
     .brand{
       display:flex;
       align-items:flex-start;
-      gap:10px;
-      font-weight:900;
-      letter-spacing:.2px;
+      gap:12px;
+      min-width:0;
     }
 
-    .brand .badge{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:38px;
-      height:38px;
-      border-radius:12px;
-      background:rgba(99,102,241,.18);
+    .brandBadge{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      font-size:22px;
+      background:rgba(99,102,241,.16);
       border:1px solid var(--line);
       flex:0 0 auto;
+      box-shadow:var(--shadow);
+    }
+
+    .brandTitle{
+      font-size:20px;
+      font-weight:900;
+      letter-spacing:.01em;
+      line-height:1.1;
     }
 
     .brandSub{
+      margin-top:4px;
       color:var(--muted);
       font-size:12px;
       font-weight:800;
-      margin-top:4px;
+      line-height:1.4;
     }
 
     .right{
       display:flex;
-      align-items:center;
-      gap:10px;
+      gap:8px;
       flex-wrap:wrap;
       justify-content:flex-end;
+      align-items:center;
     }
 
     .pill{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding:8px 10px;
+      min-height:38px;
+      padding:8px 12px;
       border-radius:999px;
       background:rgba(255,255,255,.04);
       border:1px solid var(--line);
       color:var(--muted);
-      font-weight:700;
-      font-size:13px;
+      font-size:12px;
+      font-weight:800;
+      white-space:nowrap;
     }
 
     .pill b{
@@ -116,43 +133,55 @@
       font-weight:900;
     }
 
-    .pill.ok{border-color:rgba(34,197,94,.35);color:#c9ffd9}
-    .pill.warn{border-color:rgba(245,158,11,.35);color:#ffe2b0}
-    .pill.bad{border-color:rgba(239,68,68,.35);color:#fecaca}
+    .pill.ok{
+      background:rgba(34,197,94,.10);
+      border-color:rgba(34,197,94,.30);
+      color:#c7f9d8;
+    }
+
+    .pill.warn{
+      background:rgba(245,158,11,.10);
+      border-color:rgba(245,158,11,.28);
+      color:#ffe3b3;
+    }
+
+    .pill.bad{
+      background:rgba(239,68,68,.10);
+      border-color:rgba(239,68,68,.28);
+      color:#fecaca;
+    }
 
     .btn{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.05);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      font-weight:900;
-      cursor:pointer;
-      min-height:42px;
+      min-height:46px;
+      border:none;
+      border-radius:14px;
+      padding:12px 14px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
       gap:8px;
-      transition:.15s ease;
-      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      cursor:pointer;
+      font-weight:900;
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      border:1px solid var(--line);
+      transition:transform .15s ease, border-color .15s ease, background .15s ease;
     }
 
     .btn:hover{transform:translateY(-1px)}
-    .btn:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-      transform:none;
-    }
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
 
     .btn.primary{
-      background:rgba(99,102,241,.22);
-      border-color:rgba(99,102,241,.35);
+      background:linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-color:transparent;
+      color:white;
+      box-shadow:0 14px 28px rgba(99,102,241,.28);
     }
 
     .btn.ok{
-      background:rgba(34,197,94,.16);
-      border-color:rgba(34,197,94,.35);
-      color:#d1fae5;
+      background:rgba(34,197,94,.14);
+      border-color:rgba(34,197,94,.32);
+      color:#d7ffe6;
     }
 
     .btn.gold{
@@ -161,299 +190,607 @@
       color:#fde68a;
     }
 
-    .nav{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:12px;
+    .btn.ghost{
+      background:transparent;
     }
 
-    .grid{
+    .shell{
       display:grid;
-      grid-template-columns:1fr;
       gap:12px;
-      margin-top:8px;
     }
 
-    @media(min-width:920px){
-      .grid{grid-template-columns:1.02fr .98fr}
+    .hero{
+      display:grid;
+      gap:12px;
     }
 
     .card{
-      background:rgba(18,26,51,.92);
+      background:linear-gradient(180deg, rgba(18,29,56,.96), rgba(14,24,45,.95));
       border:1px solid var(--line);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       padding:var(--pad);
     }
 
-    .card h3{
-      margin:0 0 8px 0;
-      font-size:15px;
-      letter-spacing:.2px;
+    .heroCard{
+      padding:16px;
+      border-radius:24px;
+      background:
+        radial-gradient(500px 220px at 0% 0%, rgba(99,102,241,.20), transparent 70%),
+        radial-gradient(420px 220px at 100% 100%, rgba(34,197,94,.10), transparent 70%),
+        linear-gradient(180deg, rgba(18,29,56,.98), rgba(12,21,38,.98));
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:var(--shadow);
     }
 
-    .muted{color:var(--muted)}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .hr{height:1px;background:var(--line);margin:12px 0}
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      min-height:30px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      color:var(--soft);
+      font-size:11px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
 
-    .statusDot{
-      width:10px;
-      height:10px;
+    .eyebrow .dot{
+      width:8px;
+      height:8px;
       border-radius:999px;
       background:var(--warn);
     }
-    .statusDot.ok{background:var(--ok)}
-    .statusDot.bad{background:var(--danger)}
 
-    .bigMoney{
-      font-size:34px;
-      font-weight:950;
-      letter-spacing:-.8px;
-      margin:6px 0 2px 0;
+    .heroTitle{
+      margin:14px 0 6px 0;
+      font-size:28px;
+      line-height:1.05;
+      font-weight:900;
+      letter-spacing:-.02em;
     }
 
-    .mini{
-      display:flex;
+    .heroLead{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.55;
+      font-weight:700;
+      max-width:760px;
+    }
+
+    .heroAction{
+      margin-top:16px;
+      display:grid;
+      gap:12px;
+    }
+
+    .heroActionMain{
+      display:grid;
       gap:10px;
       align-items:center;
-      flex-wrap:wrap;
-      font-size:13px;
+    }
+
+    .actionHint{
+      color:var(--soft);
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+    }
+
+    .actionText{
+      font-size:20px;
+      font-weight:900;
+      line-height:1.15;
+    }
+
+    .actionDesc{
       color:var(--muted);
-      font-weight:750;
+      font-size:13px;
+      line-height:1.5;
+      font-weight:700;
+    }
+
+    .heroButtons{
+      display:grid;
+      gap:10px;
+      grid-template-columns:1fr;
+    }
+
+    .quickNav{
+      display:grid;
+      gap:10px;
+      grid-template-columns:repeat(2,1fr);
+      margin-top:14px;
+    }
+
+    .quickLink{
+      min-height:76px;
+      border-radius:18px;
+      padding:12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:8px;
+    }
+
+    .quickLink strong{
+      font-size:14px;
+      font-weight:900;
+      line-height:1.2;
+    }
+
+    .quickLink span{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+      font-weight:700;
+    }
+
+    .grid{
+      display:grid;
+      gap:12px;
     }
 
     .kpis{
       display:grid;
       gap:10px;
-      margin-top:12px;
-    }
-
-    @media(min-width:760px){
-      .kpis{grid-template-columns:repeat(3,1fr)}
+      grid-template-columns:repeat(2,1fr);
     }
 
     .kpi{
-      padding:12px;
-      border-radius:16px;
+      border-radius:18px;
       border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
+      background:rgba(255,255,255,.035);
+      padding:14px;
     }
 
-    .kpi .label{
+    .kpiLabel{
       color:var(--muted);
       font-size:12px;
       font-weight:800;
       margin-bottom:6px;
+      line-height:1.3;
     }
 
-    .kpi .value{
-      font-size:20px;
+    .kpiValue{
+      font-size:24px;
       font-weight:950;
+      line-height:1;
+      letter-spacing:-.02em;
     }
 
-    .notifList{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
+    .kpiSub{
       margin-top:8px;
+      color:var(--soft);
+      font-size:12px;
+      font-weight:700;
+      line-height:1.35;
     }
 
-    .notif{
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
+    .sectionHead{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .sectionTitle{
+      margin:0;
+      font-size:16px;
+      font-weight:900;
+      letter-spacing:.01em;
+    }
+
+    .sectionLead{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:700;
+      line-height:1.45;
+    }
+
+    .statusBlock{
+      display:grid;
       gap:10px;
     }
 
-    .tag{
+    .statusLine{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+
+    .statusDot{
+      width:11px;
+      height:11px;
+      border-radius:999px;
+      background:var(--warn);
+      margin-top:5px;
+      flex:0 0 auto;
+    }
+
+    .statusDot.ok{background:var(--ok)}
+    .statusDot.bad{background:var(--danger)}
+
+    .statusMain{
+      font-weight:900;
+      line-height:1.35;
+      font-size:15px;
+    }
+
+    .statusSub{
+      color:var(--muted);
       font-size:12px;
-      font-weight:950;
-      padding:6px 9px;
+      font-weight:700;
+      line-height:1.45;
+      margin-top:4px;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:2px;
+    }
+
+    .metaTag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      min-height:34px;
+      padding:7px 10px;
       border-radius:999px;
       border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--soft);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.2;
+    }
+
+    .list{
+      display:grid;
+      gap:10px;
+    }
+
+    .item{
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.035);
+      padding:14px;
+      display:grid;
+      gap:10px;
+    }
+
+    .itemTop{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+
+    .itemTitle{
+      font-size:15px;
+      font-weight:900;
+      line-height:1.35;
+    }
+
+    .itemMeta{
       color:var(--muted);
+      font-size:12px;
+      font-weight:700;
+      line-height:1.45;
+      display:grid;
+      gap:4px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:32px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:950;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      border:1px solid var(--line);
       white-space:nowrap;
     }
 
-    .tag.warn{
-      color:#ffe2b0;
-      border-color:rgba(245,158,11,.35);
-      background:rgba(245,158,11,.10);
+    .badge.ok{
+      color:#d7ffe6;
+      background:rgba(34,197,94,.12);
+      border-color:rgba(34,197,94,.30);
     }
 
-    .tag.ok{
-      color:#c9ffd9;
-      border-color:rgba(34,197,94,.35);
-      background:rgba(34,197,94,.08);
+    .badge.warn{
+      color:#ffe4b8;
+      background:rgba(245,158,11,.12);
+      border-color:rgba(245,158,11,.28);
     }
 
-    .tag.info{
-      color:#cfd6ff;
-      border-color:rgba(99,102,241,.35);
-      background:rgba(99,102,241,.10);
+    .badge.bad{
+      color:#fecaca;
+      background:rgba(239,68,68,.12);
+      border-color:rgba(239,68,68,.28);
     }
 
-    .footer{
-      margin-top:14px;
+    .badge.info{
+      color:#d7ddff;
+      background:rgba(99,102,241,.12);
+      border-color:rgba(99,102,241,.28);
+    }
+
+    .notif{
       display:flex;
+      justify-content:space-between;
       gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
+      align-items:flex-start;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.035);
+      padding:12px;
     }
 
-    .smallLink{
-      color:var(--muted);
-      text-decoration:none;
+    .notifText{
+      font-size:13px;
       font-weight:800;
+      line-height:1.45;
     }
-
-    .smallLink:hover{color:var(--text)}
 
     .empty{
       padding:14px;
       border-radius:16px;
       border:1px dashed rgba(255,255,255,.16);
       color:var(--muted);
-      font-weight:800;
       background:rgba(255,255,255,.03);
+      font-size:13px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .footerActions{
+      display:grid;
+      gap:10px;
     }
 
     .msg{
-      margin-top:10px;
+      margin-top:12px;
+      font-size:13px;
       font-weight:900;
+      line-height:1.4;
     }
+
     .msg.ok{color:#86efac}
     .msg.bad{color:#fca5a5}
     .msg.warn{color:#fde68a}
+
+    @media(min-width:760px){
+      .heroAction{
+        grid-template-columns:1.2fr .8fr;
+      }
+      .heroButtons{
+        align-content:start;
+      }
+      .grid{
+        grid-template-columns:1.05fr .95fr;
+      }
+      .kpis{
+        grid-template-columns:repeat(4,1fr);
+      }
+      .footerActions{
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media(max-width:759px){
+      .right{
+        width:100%;
+        justify-content:flex-start;
+      }
+      .pill{
+        max-width:100%;
+      }
+      .btn{
+        width:100%;
+      }
+      .quickNav{
+        grid-template-columns:1fr 1fr;
+      }
+    }
+
+    @media(max-width:520px){
+      .wrap{padding:12px 12px 30px}
+      .heroTitle{font-size:24px}
+      .quickNav{grid-template-columns:1fr}
+      .kpis{grid-template-columns:1fr 1fr}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      .btn{transition:none}
+    }
   </style>
 </head>
-
 <body>
   <div class="wrap">
 
     <div class="topbar">
-      <div>
-        <div class="brand">
-          <div class="badge">🦅</div>
-          <div>
-            <div id="brandTitle">Je conduis</div>
-            <div class="brandSub" id="brandSub">Lecture rapide — statut, activité, aiguillage</div>
-          </div>
-        </div>
-
-        <div class="nav">
-          <a class="btn primary" id="btnCockpit" href="#">🏠 Ma gestion</a>
-          <a class="btn" id="btnProfil" href="#">👤 Mon profil</a>
-          <a class="btn" id="btnTarifs" href="#">💰 Mes tarifs</a>
-          <a class="btn" id="btnQr" href="#">📱 Mon QR</a>
-          <a class="btn" id="btnPin" href="#">🔑 Mon accès</a>
-          <a class="btn gold" id="btnPay" href="#">💳 Mon abonnement</a>
-          <a class="btn" id="btnHome" href="#">↩️ Vitrine</a>
+      <div class="brand">
+        <div class="brandBadge">🦅</div>
+        <div>
+          <div class="brandTitle" id="brandTitle">Je conduis</div>
+          <div class="brandSub" id="brandSub">Mobile d’abord — une lecture claire, une action directe.</div>
         </div>
       </div>
 
       <div class="right">
         <div class="pill" id="pillSlug">identifiant : <b>—</b></div>
         <div class="pill" id="pillPhone">téléphone : <b>—</b></div>
-        <div class="pill warn" id="pillStatus">accès : <b>…</b></div>
-        <button class="btn" id="btnRefresh" type="button">🔄 Vérifier</button>
+        <div class="pill warn" id="pillStatus">accès : <b>contrôle…</b></div>
       </div>
     </div>
 
-    <div class="grid">
+    <div class="shell">
 
-      <div class="card" id="cardStatus">
-        <h3>Statut & sécurité</h3>
+      <section class="heroCard">
+        <div class="eyebrow">
+          <span class="dot" id="eyebrowDot"></span>
+          <span id="eyebrowText">activité chauffeur</span>
+        </div>
 
-        <div class="row">
-          <div class="statusDot" id="dot"></div>
-          <div style="flex:1">
-            <div style="font-weight:950" id="statusLine">Chargement…</div>
-            <div class="muted" style="font-weight:800;font-size:13px;margin-top:2px" id="expiryLine">—</div>
+        <h1 class="heroTitle" id="heroTitle">Ton activité, sous le pouce.</h1>
+        <div class="heroLead" id="heroLead">
+          Ici, le chauffeur doit comprendre en 2 secondes où il en est et quoi faire maintenant.
+        </div>
+
+        <div class="heroAction">
+          <div class="heroActionMain">
+            <div class="actionHint" id="actionHint">action du moment</div>
+            <div class="actionText" id="actionText">Nouveau trajet</div>
+            <div class="actionDesc" id="actionDesc">Quand tout est prêt, on pousse vers l’outil trajet.</div>
+            <button class="btn primary" id="btnPrimaryAction" type="button">🚕 Nouveau trajet</button>
+            <div class="msg" id="msgStatus">Prêt.</div>
+          </div>
+
+          <div class="heroButtons">
+            <button class="btn ok" id="btnRefresh" type="button">🔄 Vérifier mon activité</button>
+            <a class="btn" id="btnTrajets" href="#">📋 Mes trajets</a>
+            <a class="btn" id="btnProfil" href="#">👤 Mon profil</a>
+            <a class="btn" id="btnTarifs" href="#">💰 Mes tarifs</a>
+            <a class="btn" id="btnQr" href="#">📱 Mon QR</a>
+            <a class="btn gold" id="btnPay" href="#">💳 Mon abonnement</a>
           </div>
         </div>
 
-        <div class="hr"></div>
-
-        <div class="mini" id="metaLine">
-          <span>Publication : —</span>
-          <span>•</span>
-          <span>Profil : —</span>
-          <span>•</span>
-          <span>Tarifs : —</span>
+        <div class="quickNav">
+          <a class="quickLink" id="btnGestion" href="#">
+            <strong>Ma gestion</strong>
+            <span>Le centre complet, derrière l’écran maître.</span>
+          </a>
+          <a class="quickLink" id="btnPin" href="#">
+            <strong>Mon accès</strong>
+            <span>Entrer ou récupérer la session si besoin.</span>
+          </a>
+          <a class="quickLink" id="btnHome" href="#">
+            <strong>Vitrine</strong>
+            <span>Retour vers la façade publique du module.</span>
+          </a>
+          <a class="quickLink" id="btnSupport" href="#">
+            <strong>Support</strong>
+            <span>WhatsApp direct si le terrain coince.</span>
+          </a>
         </div>
+      </section>
 
-        <div class="msg" id="msgStatus">Prêt.</div>
-
-        <div class="footer">
-          <button class="btn" id="btnManageSub" type="button">Gérer mon abonnement</button>
-        </div>
-      </div>
-
-      <div class="card" id="cardMoney">
-        <h3>Activité</h3>
-
-        <div class="bigMoney" id="moneyMonth">— FCFA</div>
-        <div class="mini">
-          <span id="txCount">— courses</span>
-          <span>•</span>
-          <span id="todayHint">30 derniers jours</span>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="kpis">
-          <div class="kpi">
-            <div class="label">Courses jour</div>
-            <div class="value" id="kpiTripsToday">—</div>
+      <section class="grid">
+        <div class="card">
+          <div class="sectionHead">
+            <div>
+              <h2 class="sectionTitle">Lecture rapide</h2>
+              <div class="sectionLead">Ce qui compte tout de suite, sans te noyer.</div>
+            </div>
           </div>
-          <div class="kpi">
-            <div class="label">Courses 7j</div>
-            <div class="value" id="kpiTrips7d">—</div>
+
+          <div class="kpis">
+            <div class="kpi">
+              <div class="kpiLabel">En cours maintenant</div>
+              <div class="kpiValue" id="kpiActiveNow">0</div>
+              <div class="kpiSub" id="kpiActiveNowSub">Courses ouvertes</div>
+            </div>
+
+            <div class="kpi">
+              <div class="kpiLabel">Terminées aujourd’hui</div>
+              <div class="kpiValue" id="kpiDoneToday">0</div>
+              <div class="kpiSub" id="kpiDoneTodaySub">Activité du jour</div>
+            </div>
+
+            <div class="kpi">
+              <div class="kpiLabel">Terminées sur 7 jours</div>
+              <div class="kpiValue" id="kpiDone7d">0</div>
+              <div class="kpiSub" id="kpiDone7dSub">Semaine en cours</div>
+            </div>
+
+            <div class="kpi">
+              <div class="kpiLabel">Entrées sur 30 jours</div>
+              <div class="kpiValue" id="kpiMoney30d">0 FCFA</div>
+              <div class="kpiSub" id="kpiMoney30dSub">Courses terminées</div>
+            </div>
           </div>
-          <div class="kpi">
-            <div class="label">Courses 30j</div>
-            <div class="value" id="kpiTrips30d">—</div>
+        </div>
+
+        <div class="card">
+          <div class="sectionHead">
+            <div>
+              <h2 class="sectionTitle">Statut</h2>
+              <div class="sectionLead">Accès, profil, publication et grille terrain.</div>
+            </div>
+          </div>
+
+          <div class="statusBlock">
+            <div class="statusLine">
+              <div class="statusDot" id="statusDot"></div>
+              <div>
+                <div class="statusMain" id="statusMain">Chargement…</div>
+                <div class="statusSub" id="statusSub">Lecture en cours.</div>
+              </div>
+            </div>
+
+            <div class="meta">
+              <div class="metaTag" id="metaPublication">Publication : —</div>
+              <div class="metaTag" id="metaProfile">Profil : —</div>
+              <div class="metaTag" id="metaRates">Tarifs : —</div>
+              <div class="metaTag" id="metaZone">Zone : —</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <div class="sectionHead">
+            <div>
+              <h2 class="sectionTitle">Dernières courses</h2>
+              <div class="sectionLead">Une lecture propre avant d’ouvrir le détail.</div>
+            </div>
+            <a class="btn ghost" id="btnTrajetsInline" href="#">Ouvrir mes trajets</a>
+          </div>
+
+          <div class="list" id="recentTripsList">
+            <div class="empty">Lecture en cours…</div>
           </div>
         </div>
 
-        <div class="hr"></div>
+        <div class="card">
+          <div class="sectionHead">
+            <div>
+              <h2 class="sectionTitle">Signaux utiles</h2>
+              <div class="sectionLead">Ce qu’il faut corriger, confirmer ou pousser.</div>
+            </div>
+          </div>
 
-        <div class="mini" style="gap:16px">
-          <span>Zone : <b id="kpiZone">—</b></span>
-          <span>Statut : <b id="kpiDriverStatus">—</b></span>
-          <span>Dernière : <b id="kpiLastTripAt">—</b></span>
+          <div class="list" id="notifList">
+            <div class="empty">Lecture en cours…</div>
+          </div>
+
+          <div class="footerActions" style="margin-top:12px">
+            <a class="btn" id="btnQrBottom" href="#">📱 Partager mon QR</a>
+            <a class="btn" id="btnSupportBottom" href="#">💬 Parler au support</a>
+          </div>
         </div>
-      </div>
-
-      <div class="card" id="cardAction" style="grid-column:1/-1">
-        <h3>Action principale</h3>
-        <div class="muted" style="font-weight:800;margin-bottom:10px" id="actionDesc">
-          Une action. Simple. Efficace.
-        </div>
-
-        <div class="row" style="justify-content:space-between">
-          <div class="muted" style="font-weight:900" id="actionHint">—</div>
-          <button class="btn primary" id="btnPrimaryAction" type="button">…</button>
-        </div>
-
-        <div class="hr"></div>
-
-        <h3>Notifications</h3>
-        <div class="notifList" id="notifList">
-          <div class="empty">Lecture en cours…</div>
-        </div>
-
-        <div class="footer">
-          <a class="smallLink" href="#" id="linkSupport">Support</a>
-          <a class="smallLink" href="#" id="linkPayments">Mon abonnement</a>
-        </div>
-      </div>
+      </section>
 
     </div>
   </div>
@@ -462,9 +799,21 @@
     (() => {
       "use strict";
 
+      const MODULE = "DRIVER";
       const SUPPORT_WA =
         "https://wa.me/221771342889?text=" +
         encodeURIComponent("Salut DIGIY DRIVER, j'ai besoin d'aide sur mon activité chauffeur.");
+
+      const ROUTES = {
+        home: "./index.html",
+        pin: "./pin.html",
+        cockpit: "./cockpit.html",
+        trajets: "./trajets.html",
+        profil: "./profil-chauffeur.html",
+        tarifs: "./tarifs.html",
+        qr: "./generateur-digiy-driver.html",
+        pay: "https://commencer-a-payer.digiylyfe.com/"
+      };
 
       const $ = (id) => document.getElementById(id);
 
@@ -528,9 +877,10 @@
         try{
           const u = new URL(String(base || "").trim(), location.href);
           Object.entries(params).forEach(([k, v]) => {
-            if (v !== null && v !== undefined && String(v).trim() !== "") {
-              u.searchParams.set(k, String(v).trim());
-            }
+            if (v === null || v === undefined) return;
+            const val = String(v).trim();
+            if (!val) return;
+            u.searchParams.set(k, val);
           });
           if (u.origin === location.origin) return u.pathname + u.search + u.hash;
           return u.toString();
@@ -538,34 +888,150 @@
           const raw = String(base || "#");
           const qp = new URLSearchParams();
           Object.entries(params).forEach(([k, v]) => {
-            if (v !== null && v !== undefined && String(v).trim() !== "") {
-              qp.set(k, String(v).trim());
-            }
+            if (v === null || v === undefined) return;
+            const val = String(v).trim();
+            if (!val) return;
+            qp.set(k, val);
           });
           const tail = qp.toString();
-          if (!tail) return raw;
-          return raw + (raw.includes("?") ? "&" : "?") + tail;
+          return tail ? raw + (raw.includes("?") ? "&" : "?") + tail : raw;
         }
       }
 
-      function withSlug(base){
-        return buildSafeUrl(base, { slug, phone });
+      function withSlug(base, extra = {}){
+        return buildSafeUrl(base, { slug, phone, ...extra });
       }
 
       function buildPayUrl(){
         if (lastGuardState?.pay_url) return lastGuardState.pay_url;
-
-        const params = {
-          module: "DRIVER",
-          phone: phone || "",
-          slug: slug || "",
+        return buildSafeUrl(ROUTES.pay, {
+          module: MODULE,
+          slug,
+          phone,
           return: location.href
-        };
-
-        return buildSafeUrl("https://commencer-a-payer.digiylyfe.com/", params);
+        });
       }
 
-      function setMsgStatus(text, type){
+      function phoneVariants(v){
+        const digits = normPhone(v);
+        const out = new Set();
+        if (!digits) return [];
+        out.add(digits);
+        out.add("+" + digits);
+        if (digits.startsWith("221") && digits.length === 12){
+          out.add(digits.slice(3));
+          out.add("+221" + digits.slice(3));
+        }
+        return Array.from(out).filter(Boolean);
+      }
+
+      function isRpcMissing(error){
+        const txt = String(error?.message || error?.details || error?.hint || "");
+        return error?.code === "PGRST202" || txt.includes("Could not find the function");
+      }
+
+      function humanValue(v, fallback = "—"){
+        if (v === null || v === undefined) return fallback;
+        if (Array.isArray(v)){
+          const clean = v.map(x => String(x || "").trim()).filter(Boolean).join(" • ");
+          return clean || fallback;
+        }
+        if (typeof v === "object"){
+          const clean = Object.values(v).map(x => String(x || "").trim()).filter(Boolean).join(" • ");
+          return clean || fallback;
+        }
+        const s = String(v).trim();
+        return s || fallback;
+      }
+
+      function money(v){
+        const n = Number(v || 0);
+        return Number.isFinite(n) ? n.toLocaleString("fr-FR") + " FCFA" : "0 FCFA";
+      }
+
+      function fmtDate(v){
+        if (!v) return "—";
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return "—";
+        return d.toLocaleString("fr-FR", {
+          day:"2-digit",
+          month:"2-digit",
+          year:"2-digit",
+          hour:"2-digit",
+          minute:"2-digit"
+        });
+      }
+
+      function isSameLocalDay(v){
+        if (!v) return false;
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return false;
+        const now = new Date();
+        return d.getFullYear() === now.getFullYear()
+          && d.getMonth() === now.getMonth()
+          && d.getDate() === now.getDate();
+      }
+
+      function inLastDays(v, days){
+        if (!v) return false;
+        const t = new Date(v).getTime();
+        if (!Number.isFinite(t)) return false;
+        const diff = Date.now() - t;
+        return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
+      }
+
+      function tripStatus(trip){
+        return String(trip?.status || "").trim().toLowerCase();
+      }
+
+      function tripAmount(trip){
+        const n = Number(trip?.final_price_fcfa || trip?.price_fcfa || trip?.amount_fcfa || 0);
+        return Number.isFinite(n) ? n : 0;
+      }
+
+      function tripWhen(trip){
+        return trip?.completed_at || trip?.updated_at || trip?.started_at || trip?.created_at || null;
+      }
+
+      function completedTripsOnly(rows){
+        return rows.filter(r => tripStatus(r) === "completed");
+      }
+
+      function activeTripsOnly(rows){
+        return rows.filter(r => ["assigned","accepted","in_progress","ongoing","pending"].includes(tripStatus(r)));
+      }
+
+      function tripTitle(trip){
+        const from = humanValue(
+          trip?.pickup_label || trip?.from_label || trip?.origin_label || trip?.departure_label || trip?.from,
+          ""
+        );
+        const to = humanValue(
+          trip?.dropoff_label || trip?.to_label || trip?.destination_label || trip?.arrival_label || trip?.to,
+          ""
+        );
+        if (from && to) return from + " → " + to;
+        if (to) return "Vers " + to;
+        if (from) return "Départ " + from;
+        return humanValue(trip?.label || trip?.trip_label || trip?.description || "Course chauffeur");
+      }
+
+      function tripClient(trip){
+        return humanValue(
+          trip?.client_name || trip?.customer_name || trip?.passenger_name || trip?.contact_name,
+          "Client non précisé"
+        );
+      }
+
+      function badgeForStatus(status){
+        if (["completed"].includes(status)) return { cls:"ok", label:"terminée" };
+        if (["assigned","accepted","pending"].includes(status)) return { cls:"warn", label:"assignée" };
+        if (["in_progress","ongoing"].includes(status)) return { cls:"info", label:"en cours" };
+        if (["cancelled","canceled"].includes(status)) return { cls:"bad", label:"annulée" };
+        return { cls:"info", label: status || "course" };
+      }
+
+      function setMsg(text, type){
         const el = $("msgStatus");
         el.textContent = text;
         el.className = "msg " + (type || "");
@@ -581,6 +1047,7 @@
 
         return normSlug(
           storageGet("digiy_driver_slug") ||
+          storageGet("digiy_driver_last_slug") ||
           storageGet("digiy_last_slug") ||
           storageGet("DIGIY_SLUG") ||
           ""
@@ -597,6 +1064,7 @@
 
         return normPhone(
           storageGet("DIGIY_DRIVER_PHONE") ||
+          storageGet("digiy_driver_phone") ||
           storageGet("DIGIY_PHONE") ||
           phoneFromDriverSlug(slug) ||
           ""
@@ -615,9 +1083,7 @@
             }catch{
               out = g.ready();
             }
-            if (out && typeof out.then === "function") {
-              await out;
-            }
+            if (out && typeof out.then === "function") await out;
             return;
           }
 
@@ -663,14 +1129,12 @@
             }catch{
               out = g.ready();
             }
-            if (out && typeof out.then === "function") {
-              await out;
-            }
+            if (out && typeof out.then === "function") await out;
           } else if (g.ready && typeof g.ready.then === "function"){
             await g.ready;
           }
         }catch(e){
-          console.warn("Guard ready state warning:", e);
+          console.warn("Guard state warning:", e);
         }
 
         lastGuardState = g.state || null;
@@ -684,24 +1148,6 @@
           reason:"guard_empty",
           pay_url:buildPayUrl()
         };
-      }
-
-      function phoneVariants(v){
-        const digits = normPhone(v);
-        const out = new Set();
-        if (!digits) return [];
-        out.add(digits);
-        out.add("+" + digits);
-        if (digits.startsWith("221") && digits.length === 12){
-          out.add(digits.slice(3));
-          out.add("+221" + digits.slice(3));
-        }
-        return Array.from(out).filter(Boolean);
-      }
-
-      function isRpcMissing(error){
-        const txt = String(error?.message || error?.details || error?.hint || "");
-        return error?.code === "PGRST202" || txt.includes("Could not find the function");
       }
 
       async function fetchCockpit(){
@@ -733,17 +1179,14 @@
 
       async function fetchTrips(){
         if (!sb || !phone) return [];
-
         try{
           const variants = phoneVariants(phone);
           if (!variants.length) return [];
-
           const { data, error } = await sb
             .from("digiy_driver_trips")
             .select("*")
             .in("driver_phone", variants)
             .order("created_at", { ascending:false });
-
           if (error) throw error;
           return Array.isArray(data) ? data : [];
         }catch(e){
@@ -753,65 +1196,57 @@
       }
 
       function bindLinks(){
-        $("btnCockpit").href = withSlug("./cockpit.html");
-        $("btnProfil").href = withSlug("./profil-chauffeur.html");
-        $("btnTarifs").href = withSlug("./tarifs.html");
-        $("btnQr").href = withSlug("./generateur-digiy-driver.html");
-        $("btnPin").href = withSlug("./pin.html");
-        $("btnHome").href = withSlug("./index.html");
+        $("btnGestion").href = withSlug(ROUTES.cockpit);
+        $("btnTrajets").href = withSlug(ROUTES.trajets);
+        $("btnTrajetsInline").href = withSlug(ROUTES.trajets);
+        $("btnProfil").href = withSlug(ROUTES.profil);
+        $("btnTarifs").href = withSlug(ROUTES.tarifs);
+        $("btnQr").href = withSlug(ROUTES.qr);
+        $("btnQrBottom").href = withSlug(ROUTES.qr);
+        $("btnPin").href = withSlug(ROUTES.pin);
+        $("btnHome").href = withSlug(ROUTES.home);
         $("btnPay").href = buildPayUrl();
 
-        $("btnManageSub").onclick = () => location.href = buildPayUrl();
-        $("linkSupport").href = SUPPORT_WA;
-        $("linkSupport").target = "_blank";
-        $("linkSupport").rel = "noopener";
-        $("linkPayments").href = buildPayUrl();
+        $("btnSupport").href = SUPPORT_WA;
+        $("btnSupport").target = "_blank";
+        $("btnSupport").rel = "noopener";
+
+        $("btnSupportBottom").href = SUPPORT_WA;
+        $("btnSupportBottom").target = "_blank";
+        $("btnSupportBottom").rel = "noopener";
       }
 
-      function fmtDate(v){
-        if (!v) return "—";
-        const d = new Date(v);
-        if (Number.isNaN(d.getTime())) return "—";
-        return d.toLocaleString("fr-FR", {
-          day:"2-digit",
-          month:"2-digit",
-          year:"2-digit",
-          hour:"2-digit",
-          minute:"2-digit"
-        });
-      }
-
-      function tripMoney(trip){
-        const v = Number(trip?.final_price_fcfa || trip?.price_fcfa || 0);
-        return Number.isFinite(v) ? v : 0;
-      }
-
-      function completedTripsOnly(rows){
-        return rows.filter(r => String(r?.status || "").toLowerCase() === "completed");
-      }
-
-      function inLastDays(dateValue, days){
-        if (!dateValue) return false;
-        const t = new Date(dateValue).getTime();
-        if (!t) return false;
-        const now = Date.now();
-        const diff = now - t;
-        return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
+      function renderHeader(){
+        $("pillSlug").innerHTML = `identifiant : <b>${slug || "—"}</b>`;
+        $("pillPhone").innerHTML = `téléphone : <b>${displayPhone(phone)}</b>`;
       }
 
       function renderStatus(state){
         const pill = $("pillStatus");
-        const dot = $("dot");
+        const dot = $("statusDot");
+        const eyebrowDot = $("eyebrowDot");
         const viaPin = !!state?.pin_session_ok;
+        const profile = cockpitData?.profile || {};
+        const isBlank = !!cockpitData?.is_blank;
+        const published = !!profile?.is_published;
+        const zone = humanValue(profile?.city || profile?.zones, "—");
+        const ratesCount = Array.isArray(ratesData) ? ratesData.length : 0;
 
         if (!slug){
           pill.className = "pill bad";
           pill.innerHTML = "accès : <b>identifiant manquant</b>";
           dot.className = "statusDot bad";
-          $("statusLine").textContent = "Aucun identifiant chauffeur détecté.";
-          $("expiryLine").textContent = "Passe par ton accès ou un lien valide.";
-          $("metaLine").innerHTML = "<span>Publication : —</span><span>•</span><span>Profil : —</span><span>•</span><span>Tarifs : —</span>";
-          setMsgStatus("❌ Identifiant manquant.", "bad");
+          eyebrowDot.style.background = "var(--danger)";
+          $("eyebrowText").textContent = "identifiant requis";
+          $("heroTitle").textContent = "Ouvre ton accès chauffeur.";
+          $("heroLead").textContent = "Le tableau ne peut pas travailler sans identifiant chauffeur valide.";
+          $("statusMain").textContent = "Aucun identifiant chauffeur détecté.";
+          $("statusSub").textContent = "Passe par ton accès ou un lien chauffeur valide.";
+          $("metaPublication").textContent = "Publication : —";
+          $("metaProfile").textContent = "Profil : —";
+          $("metaRates").textContent = "Tarifs : —";
+          $("metaZone").textContent = "Zone : —";
+          setMsg("❌ Identifiant manquant.", "bad");
           return;
         }
 
@@ -819,10 +1254,17 @@
           pill.className = "pill bad";
           pill.innerHTML = "accès : <b>identifiant invalide</b>";
           dot.className = "statusDot bad";
-          $("statusLine").textContent = "Identifiant chauffeur invalide.";
-          $("expiryLine").textContent = "Le lien utilisé n’est pas reconnu.";
-          $("metaLine").innerHTML = "<span>Publication : —</span><span>•</span><span>Profil : —</span><span>•</span><span>Tarifs : —</span>";
-          setMsgStatus("❌ Identifiant invalide.", "bad");
+          eyebrowDot.style.background = "var(--danger)";
+          $("eyebrowText").textContent = "lien invalide";
+          $("heroTitle").textContent = "Le lien chauffeur n’est pas reconnu.";
+          $("heroLead").textContent = "Ouvre le module avec un identifiant propre ou repasse par l’accès.";
+          $("statusMain").textContent = "Identifiant chauffeur invalide.";
+          $("statusSub").textContent = "Le lien utilisé ne correspond pas au format attendu.";
+          $("metaPublication").textContent = "Publication : —";
+          $("metaProfile").textContent = "Profil : —";
+          $("metaRates").textContent = "Tarifs : —";
+          $("metaZone").textContent = "Zone : —";
+          setMsg("❌ Identifiant invalide.", "bad");
           return;
         }
 
@@ -830,106 +1272,179 @@
           pill.className = "pill bad";
           pill.innerHTML = "accès : <b>fermé</b>";
           dot.className = "statusDot bad";
-          $("statusLine").textContent = "Accès non ouvert pour ce chauffeur.";
-          $("expiryLine").textContent = "Passe par ton accès ou l’abonnement.";
-          $("metaLine").innerHTML = "<span>Publication : —</span><span>•</span><span>Profil : —</span><span>•</span><span>Tarifs : —</span>";
-          setMsgStatus("⚠️ Accès non valide.", "bad");
+          eyebrowDot.style.background = "var(--danger)";
+          $("eyebrowText").textContent = "accès requis";
+          $("heroTitle").textContent = "Commence par ouvrir ton accès.";
+          $("heroLead").textContent = "Pas de détour inutile : l’accès doit être reconnu avant de travailler.";
+          $("statusMain").textContent = "Accès non ouvert pour ce chauffeur.";
+          $("statusSub").textContent = "Passe par ton accès ou l’abonnement.";
+          $("metaPublication").textContent = "Publication : —";
+          $("metaProfile").textContent = "Profil : —";
+          $("metaRates").textContent = "Tarifs : —";
+          $("metaZone").textContent = "Zone : —";
+          setMsg("⚠️ Accès non valide.", "bad");
           return;
         }
 
         pill.className = viaPin ? "pill warn" : "pill ok";
         pill.innerHTML = `accès : <b>${viaPin ? "session ouverte" : "abonnement actif"}</b>`;
         dot.className = viaPin ? "statusDot" : "statusDot ok";
-        $("statusLine").textContent = viaPin
-          ? "Session ouverte. Activité accessible."
-          : "Abonnement actif. Activité accessible.";
+        eyebrowDot.style.background = viaPin ? "var(--warn)" : "var(--ok)";
+        $("eyebrowText").textContent = viaPin ? "session ouverte" : "activité disponible";
 
-        const profile = cockpitData?.profile || {};
-        const published = profile?.is_published ? "Publié" : "Masqué";
-        const pstate = cockpitData?.is_blank ? "À compléter" : "Chargé";
-        const tarifs = ratesData.length ? `${ratesData.length} actif(s)` : "Aucun";
+        if (isBlank){
+          $("heroTitle").textContent = "Ton espace chauffeur est prêt.";
+          $("heroLead").textContent = "Le bon geste maintenant, c’est de compléter ton profil pour personnaliser ton activité.";
+          $("statusMain").textContent = "Profil encore à compléter.";
+          $("statusSub").textContent = "Le chauffeur est bien reconnu, mais son identité terrain reste à poser.";
+        } else {
+          const publicLabel = humanValue(cockpitData?.public_label || profile?.business_name || profile?.driver_name, "Je conduis");
+          $("heroTitle").textContent = publicLabel;
+          $("heroLead").textContent = "Lecture claire, décisions rapides, profondeur rangée derrière.";
+          $("statusMain").textContent = viaPin
+            ? "Session ouverte. Tu peux travailler maintenant."
+            : "Abonnement actif. Tu peux travailler maintenant.";
+          $("statusSub").textContent = published
+            ? "Profil publié et données chauffeur chargées."
+            : "Données chauffeur chargées. Publication à vérifier si besoin.";
+        }
 
-        $("expiryLine").textContent = cockpitData?.is_blank
-          ? "Ton espace chauffeur est prêt à être complété."
-          : "Ton activité chauffeur est bien chargée.";
+        $("metaPublication").textContent = "Publication : " + (published ? "Publiée" : "Masquée");
+        $("metaProfile").textContent = "Profil : " + (isBlank ? "À compléter" : "Chargé");
+        $("metaRates").textContent = "Tarifs : " + (ratesCount ? `${ratesCount} actif(s)` : "Aucun");
+        $("metaZone").textContent = "Zone : " + zone;
 
-        $("metaLine").innerHTML =
-          `<span>Publication : ${published}</span><span>•</span><span>Profil : ${pstate}</span><span>•</span><span>Tarifs : ${tarifs}</span>`;
+        if (cockpitData?.public_label){
+          $("brandTitle").textContent = cockpitData.public_label;
+        } else {
+          $("brandTitle").textContent = "Je conduis";
+        }
 
-        setMsgStatus("✅ Tableau synchronisé.", "ok");
-      }
+        $("brandSub").textContent = isBlank
+          ? "Mobile d’abord — commence par poser ton profil."
+          : "Mobile d’abord — une lecture claire, une action directe.";
 
-      function renderActivity(){
-        const completed = completedTripsOnly(tripsData);
-        const todayRows = completed.filter(t => inLastDays(t.completed_at || t.updated_at || t.created_at, 1));
-        const rows7d = completed.filter(t => inLastDays(t.completed_at || t.updated_at || t.created_at, 7));
-        const rows30d = completed.filter(t => inLastDays(t.completed_at || t.updated_at || t.created_at, 30));
-
-        const money30d = rows30d.reduce((sum, t) => sum + tripMoney(t), 0);
-        const lastTrip = completed
-          .map(t => t.completed_at || t.updated_at || t.created_at)
-          .filter(Boolean)
-          .sort((a,b) => new Date(b) - new Date(a))[0] || null;
-
-        const profile = cockpitData?.profile || {};
-        const zone = String(profile.city || profile.zones || "").trim() || "—";
-        const driverStatus = accessOk
-          ? (profile.is_published ? "Publié" : "Masqué")
-          : "Fermé";
-
-        $("moneyMonth").textContent = Number(money30d).toLocaleString("fr-FR") + " FCFA";
-        $("txCount").textContent = rows30d.length + " courses";
-        $("kpiTripsToday").textContent = String(todayRows.length);
-        $("kpiTrips7d").textContent = String(rows7d.length);
-        $("kpiTrips30d").textContent = String(rows30d.length);
-        $("kpiZone").textContent = zone;
-        $("kpiDriverStatus").textContent = driverStatus;
-        $("kpiLastTripAt").textContent = fmtDate(lastTrip);
+        setMsg("✅ Tableau mobile synchronisé.", "ok");
       }
 
       function renderAction(){
-        const profileBlank = !!cockpitData?.is_blank;
+        const isBlank = !!cockpitData?.is_blank;
         const published = !!cockpitData?.profile?.is_published;
-        const hasRates = ratesData.length > 0;
+        const hasRates = Array.isArray(ratesData) && ratesData.length > 0;
 
-        let label = "Ouvrir ma gestion";
-        let hint = "Gestion principale";
-        let desc = "Ton tableau te renvoie vers la bonne porte.";
-        let target = withSlug("./cockpit.html");
+        let label = "🚕 Nouveau trajet";
+        let hint = "action du moment";
+        let desc = "Tout est en place. Ouvre maintenant l’outil trajet.";
+        let target = withSlug(ROUTES.trajets);
 
         if (!accessOk){
-          label = "Ouvrir mon accès";
-          hint = "Accès requis";
-          desc = "Le chauffeur doit d’abord ouvrir son accès avant de travailler.";
-          target = withSlug("./pin.html");
-        } else if (profileBlank){
-          label = "Compléter mon profil";
-          hint = "Profil prioritaire";
-          desc = "Commence par poser l’identité du chauffeur et du véhicule.";
-          target = withSlug("./profil-chauffeur.html");
+          label = "🔓 Ouvrir mon accès";
+          hint = "premier passage";
+          desc = "Avant tout, il faut ouvrir l’accès chauffeur.";
+          target = withSlug(ROUTES.pin);
+        } else if (isBlank){
+          label = "👤 Compléter mon profil";
+          hint = "profil prioritaire";
+          desc = "Commence par ton identité, ton véhicule et ta zone.";
+          target = withSlug(ROUTES.profil);
         } else if (!hasRates){
-          label = "Poser mes tarifs";
-          hint = "Tarifs prioritaires";
-          desc = "Le profil existe, mais la grille tarifaire n’est pas encore posée.";
-          target = withSlug("./tarifs.html");
+          label = "💰 Poser mes tarifs";
+          hint = "tarifs prioritaires";
+          desc = "Le profil existe. Maintenant, pose ta grille terrain.";
+          target = withSlug(ROUTES.tarifs);
         } else if (!published){
-          label = "Vérifier mon profil";
-          hint = "Publication à confirmer";
-          desc = "Ton espace est vivant, mais la publication mérite un contrôle.";
-          target = withSlug("./profil-chauffeur.html");
+          label = "👤 Vérifier mon profil";
+          hint = "publication à confirmer";
+          desc = "Tes bases sont là. Vérifie la publication et les infos visibles.";
+          target = withSlug(ROUTES.profil);
         }
 
-        $("actionDesc").textContent = desc;
         $("actionHint").textContent = hint;
+        $("actionText").textContent = label.replace(/^.[^\s]*\s/, "");
+        $("actionDesc").textContent = desc;
         $("btnPrimaryAction").textContent = label;
         $("btnPrimaryAction").onclick = () => { location.href = target; };
       }
 
-      function pushNotif(text, tag){
+      function renderKpis(){
+        const completed = completedTripsOnly(tripsData);
+        const active = activeTripsOnly(tripsData);
+
+        const todayDone = completed.filter(t => isSameLocalDay(tripWhen(t)));
+        const rows7d = completed.filter(t => inLastDays(tripWhen(t), 7));
+        const rows30d = completed.filter(t => inLastDays(tripWhen(t), 30));
+        const money30d = rows30d.reduce((sum, t) => sum + tripAmount(t), 0);
+
+        $("kpiActiveNow").textContent = String(active.length);
+        $("kpiDoneToday").textContent = String(todayDone.length);
+        $("kpiDone7d").textContent = String(rows7d.length);
+        $("kpiMoney30d").textContent = money(money30d);
+
+        $("kpiActiveNowSub").textContent = active.length
+          ? "Courses encore ouvertes"
+          : "Aucune course ouverte";
+        $("kpiDoneTodaySub").textContent = todayDone.length
+          ? "Courses terminées aujourd’hui"
+          : "Aucune course terminée aujourd’hui";
+        $("kpiDone7dSub").textContent = rows7d.length
+          ? "Historique utile sur 7 jours"
+          : "Semaine encore vide";
+        $("kpiMoney30dSub").textContent = rows30d.length
+          ? rows30d.length + " course(s) terminée(s)"
+          : "Aucune entrée lue";
+      }
+
+      function renderRecentTrips(){
+        const box = $("recentTripsList");
+
+        if (!slug){
+          box.innerHTML = `<div class="empty">Aucun identifiant chauffeur détecté.</div>`;
+          return;
+        }
+
+        if (!accessOk){
+          box.innerHTML = `<div class="empty">Accès non ouvert pour le moment.</div>`;
+          return;
+        }
+
+        if (!Array.isArray(tripsData) || !tripsData.length){
+          box.innerHTML = `<div class="empty">Aucune course trouvée pour ce chauffeur.</div>`;
+          return;
+        }
+
+        const rows = tripsData.slice(0, 6);
+
+        box.innerHTML = rows.map((trip) => {
+          const status = tripStatus(trip);
+          const badge = badgeForStatus(status);
+          const when = fmtDate(tripWhen(trip));
+          const amount = tripAmount(trip);
+          const client = tripClient(trip);
+          return `
+            <div class="item">
+              <div class="itemTop">
+                <div>
+                  <div class="itemTitle">${escapeHtml(tripTitle(trip))}</div>
+                  <div class="itemMeta">
+                    <div>${escapeHtml(client)}</div>
+                    <div>${escapeHtml(when)}</div>
+                    <div>${escapeHtml(amount ? money(amount) : "Montant non précisé")}</div>
+                  </div>
+                </div>
+                <div class="badge ${badge.cls}">${escapeHtml(badge.label)}</div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function pushNotif(text, type){
+        const cls = type === "ok" ? "ok" : type === "warn" ? "warn" : type === "bad" ? "bad" : "info";
+        const label = cls === "ok" ? "OK" : cls === "warn" ? "À voir" : cls === "bad" ? "Bloqué" : "Info";
         return `
           <div class="notif">
-            <div style="font-weight:850;line-height:1.45">${text}</div>
-            <div class="tag ${tag}">${tag.toUpperCase()}</div>
+            <div class="notifText">${escapeHtml(text)}</div>
+            <div class="badge ${cls}">${escapeHtml(label)}</div>
           </div>
         `;
       }
@@ -938,7 +1453,7 @@
         const box = $("notifList");
 
         if (!slug){
-          box.innerHTML = pushNotif("Aucun identifiant détecté. Ouvre le module avec un lien chauffeur valide.", "warn");
+          box.innerHTML = pushNotif("Aucun identifiant détecté. Ouvre le module avec un lien chauffeur valide.", "bad");
           return;
         }
 
@@ -946,21 +1461,18 @@
 
         if (!accessOk){
           items.push(pushNotif("Accès non ouvert. Passe par ton accès ou l’abonnement.", "warn"));
+        } else if (pinSessionOk){
+          items.push(pushNotif("Session ouverte. La circulation interne peut rester directe.", "ok"));
         } else {
-          items.push(pushNotif(
-            pinSessionOk
-              ? "Session ouverte. Le chauffeur peut entrer directement dans son activité."
-              : "Abonnement reconnu. Le chauffeur peut travailler normalement.",
-            "ok"
-          ));
+          items.push(pushNotif("Abonnement reconnu. Le chauffeur peut travailler normalement.", "ok"));
         }
 
         if (cockpitData?.is_blank){
-          items.push(pushNotif("L’espace chauffeur est encore vide. Il faut compléter le profil.", "warn"));
+          items.push(pushNotif("Le profil chauffeur est encore vide. Il faut commencer par l’identité terrain.", "warn"));
         } else if (cockpitData?.profile?.is_published){
           items.push(pushNotif("Le profil chauffeur est publié.", "ok"));
         } else {
-          items.push(pushNotif("Le profil chauffeur est masqué. Vérifie la publication si besoin.", "info"));
+          items.push(pushNotif("Le profil existe mais reste masqué. Vérifie la publication si besoin.", "info"));
         }
 
         if (!ratesData.length){
@@ -969,11 +1481,19 @@
           items.push(pushNotif(`${ratesData.length} tarif(s) actif(s) détecté(s).`, "ok"));
         }
 
+        const active = activeTripsOnly(tripsData);
         const completed = completedTripsOnly(tripsData);
-        if (!completed.length){
-          items.push(pushNotif("Aucune course terminée récente détectée.", "info"));
+
+        if (active.length){
+          items.push(pushNotif(`${active.length} course(s) encore ouverte(s).`, "info"));
         } else {
-          items.push(pushNotif(`${completed.length} course(s) terminée(s) lues sur l’historique disponible.`, "ok"));
+          items.push(pushNotif("Aucune course ouverte pour le moment.", "info"));
+        }
+
+        if (completed.length){
+          items.push(pushNotif(`${completed.length} course(s) terminée(s) lue(s) sur l’historique disponible.`, "ok"));
+        } else {
+          items.push(pushNotif("Aucune course terminée récente détectée.", "info"));
         }
 
         if (accessOk){
@@ -981,6 +1501,15 @@
         }
 
         box.innerHTML = items.join("");
+      }
+
+      function escapeHtml(str){
+        return String(str || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
       }
 
       async function boot(forceRefresh = false){
@@ -997,18 +1526,19 @@
         accessOk = !!(state?.access_ok || state?.access);
         pinSessionOk = !!state?.pin_session_ok;
 
-        $("pillSlug").innerHTML = `identifiant : <b>${slug || "—"}</b>`;
-        $("pillPhone").innerHTML = `téléphone : <b>${displayPhone(phone)}</b>`;
-
+        renderHeader();
         bindLinks();
 
         if (!sb){
-          $("statusLine").textContent = "Connexion indisponible.";
-          $("expiryLine").textContent = "Le tableau ne peut pas lire les données.";
-          $("notifList").innerHTML = `<div class="empty">Client Supabase absent.</div>`;
-          $("moneyMonth").textContent = "— FCFA";
-          $("txCount").textContent = "— courses";
-          setMsgStatus("❌ Connexion indisponible.", "bad");
+          $("pillStatus").className = "pill bad";
+          $("pillStatus").innerHTML = "accès : <b>connexion absente</b>";
+          $("statusDot").className = "statusDot bad";
+          $("statusMain").textContent = "Connexion indisponible.";
+          $("statusSub").textContent = "Le tableau ne peut pas lire les données.";
+          $("recentTripsList").innerHTML = `<div class="empty">Client Supabase absent.</div>`;
+          $("notifList").innerHTML = pushNotif("Client Supabase absent.", "bad");
+          $("kpiMoney30d").textContent = "0 FCFA";
+          setMsg("❌ Connexion indisponible.", "bad");
           return;
         }
 
@@ -1019,34 +1549,23 @@
 
           if (cockpitData?.phone){
             phone = normPhone(cockpitData.phone || phone);
-            $("pillPhone").innerHTML = `téléphone : <b>${displayPhone(phone)}</b>`;
+            renderHeader();
             if (window.DIGIY_GUARD?.rememberIdentity){
               try{
                 window.DIGIY_GUARD.rememberIdentity({ slug, phone });
               }catch{}
             }
           }
-
-          if (cockpitData?.public_label){
-            $("brandTitle").textContent = cockpitData.public_label;
-          } else {
-            $("brandTitle").textContent = "Je conduis";
-          }
-
-          $("brandSub").textContent = cockpitData?.is_blank
-            ? "Lecture rapide — espace chauffeur à compléter"
-            : "Lecture rapide — statut, activité, aiguillage";
         } else {
           cockpitData = null;
           ratesData = [];
           tripsData = [];
-          $("brandTitle").textContent = "Je conduis";
-          $("brandSub").textContent = "Lecture rapide — accès requis";
         }
 
         renderStatus(state);
-        renderActivity();
         renderAction();
+        renderKpis();
+        renderRecentTrips();
         renderNotifs();
       }
 
