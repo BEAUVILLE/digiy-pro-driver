@@ -1278,7 +1278,7 @@
       function bindMiniForm(){
         const $ = (id) => document.getElementById(id);
         const btnApplyNow = $("btnApplyNow");
-        if (!btnApplyNow) return;
+        if (!btnApplyNow) return () => {};
 
         const update = () => {
           const city = ($("fCity")?.value || "").trim();
@@ -1310,6 +1310,7 @@
         });
 
         update();
+        return update;
       }
 
       function bindHashScroll(){
@@ -1379,13 +1380,12 @@
 
       bootReveal();
       bindHashScroll();
-      bindMiniForm();
+      const refreshMiniFormHref = bindMiniForm();
       applyVersionTag();
 
       initDriverContext()
         .then(() => {
-          recutRouteLinks();
-          recutWhatsAppLinks();
+          refreshMiniFormHref();
         })
         .catch((err) => {
           console.error("[DRIVER] init context error", err);
