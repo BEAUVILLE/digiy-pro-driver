@@ -1,25 +1,22 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<script>
-  window.DIGIY_SUPABASE_URL  = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
-  window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
-  window.DIGIY_MODULE = "DRIVER";
-
-  // IMPORTANT : défini AVANT guard.js
-  window.DIGIY_LOGIN_URL = "./pin.html";
-
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./guard.js"></script>
-  
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Je conduis avec DIGIY | Mon entrée chauffeur</title>
   <meta name="theme-color" content="#040f09"/>
   <meta name="description" content="Entrée chauffeur DIGIY : mon activité, mon espace, mon code, mon profil, mes tarifs et contact WhatsApp. 0% commission. Liberté totale."/>
+
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "DRIVER";
+    window.DIGIY_LOGIN_URL = "./pin.html";
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js"></script>
 
   <link rel="canonical" href="https://pro-driver.digiylyfe.com/"/>
   <meta property="og:type" content="website"/>
@@ -781,7 +778,7 @@
   </a>
 
   <nav class="topbar" aria-label="Navigation principale">
-    <a href="./index.html" class="topbar-brand" aria-label="Accueil portail DIGIY PRO DRIVER">
+    <a id="brandHome" href="./index.html" class="topbar-brand" aria-label="Accueil portail DIGIY PRO DRIVER">
       <div class="logo">♾</div>
       <div>
         <div class="brand-name">DIGIY DRIVER</div>
@@ -1070,30 +1067,12 @@
     (() => {
       "use strict";
 
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) e.target.classList.add("visible");
-        });
-      }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
-
-      document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
-
-      document.querySelectorAll('a[href^="#"]').forEach((a) => {
-        a.addEventListener("click", (e) => {
-          const href = a.getAttribute("href");
-          if (!href || href === "#") return;
-          const target = document.querySelector(href);
-          if (target) {
-            e.preventDefault();
-            target.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
-        });
-      });
-
-      const qs = new URLSearchParams(location.search);
-      const slug = (qs.get("slug") || "").trim();
+      const DRIVER_SLUG_KEY = "digiy_driver_slug";
+      const LAST_SLUG_KEY = "digiy_last_slug";
+      const DRIVER_PHONE_KEY = "DIGIY_DRIVER_HUB_PHONE";
 
       const ROUTES = {
+        home: "./index.html",
         dashboard: "./dashboard-pro.html",
         cockpit: "./cockpit.html",
         pin: "./pin.html",
@@ -1101,14 +1080,8 @@
         tarifs: "./tarifs.html"
       };
 
-      function withSlug(base){
-        if (!slug) return base;
-        const u = new URL(base, location.href);
-        u.searchParams.set("slug", slug);
-        return u.pathname + u.search;
-      }
-
       const routeBindings = [
+        ["brandHome", ROUTES.home],
         ["btnDashboardTop", ROUTES.dashboard],
         ["btnDashboardHero", ROUTES.dashboard],
         ["btnDashboardCard", ROUTES.dashboard],
@@ -1133,51 +1106,180 @@
         ["fPin", ROUTES.pin]
       ];
 
-      routeBindings.forEach(([id, path]) => {
-        const a = document.getElementById(id);
-        if (a) a.href = withSlug(path);
-      });
-
       const WA_PHONE = "221771342889";
+      const lead = "DRVPRO-" + Date.now().toString(36).toUpperCase();
+      const ua = navigator.userAgent || "";
+      const device = /Android|iPhone|iPad|iPod/i.test(ua) ? "mobile" : "desktop";
 
-      function buildLeadId(){
-        return "DRVPRO-" + Date.now().toString(36).toUpperCase();
+      function normPhone(p){
+        if(!p) return "";
+        let s = String(p).trim().replace(/\s+/g, "").replace(/[^\d+]/g, "");
+        if (s.startsWith("00221")) s = "+221" + s.slice(5);
+        if (!s.startsWith("+") && s.startsWith("221")) s = "+" + s;
+        if (!s.startsWith("+221") && /^\d{9}$/.test(s)) s = "+221" + s;
+        return s;
+      }
+
+      function getUrlParts(){
+        try{
+          const u = new URL(location.href);
+          return {
+            slug: (u.searchParams.get("slug") || "").trim(),
+            phone: normPhone(u.searchParams.get("phone") || "")
+          };
+        }catch{
+          return { slug:"", phone:"" };
+        }
+      }
+
+      function getSavedSlug(){
+        try{
+          return (
+            localStorage.getItem(DRIVER_SLUG_KEY) ||
+            localStorage.getItem(LAST_SLUG_KEY) ||
+            ""
+          ).trim();
+        }catch{
+          return "";
+        }
+      }
+
+      function saveSlug(slug){
+        const v = String(slug || "").trim();
+        if(!v) return;
+        try{ localStorage.setItem(DRIVER_SLUG_KEY, v); }catch(_){}
+        try{ localStorage.setItem(LAST_SLUG_KEY, v); }catch(_){}
+      }
+
+      function ensureSlugInUrl(slug){
+        const v = String(slug || "").trim();
+        if(!v) return;
+        try{
+          const u = new URL(location.href);
+          if(!u.searchParams.get("slug")){
+            u.searchParams.set("slug", v);
+            history.replaceState({}, "", u.toString());
+          }
+        }catch(_){}
+      }
+
+      function savePhone(phone){
+        const v = normPhone(phone);
+        if(!v) return;
+        try{ sessionStorage.setItem(DRIVER_PHONE_KEY, v); }catch(_){}
+        window.DIGIY_DRIVER_HUB_PHONE = v;
+      }
+
+      function getSavedPhone(){
+        try{
+          return normPhone(
+            window.DIGIY_DRIVER_HUB_PHONE ||
+            sessionStorage.getItem(DRIVER_PHONE_KEY) ||
+            ""
+          );
+        }catch{
+          return normPhone(window.DIGIY_DRIVER_HUB_PHONE || "");
+        }
+      }
+
+      function getGuardState(){
+        return window.DIGIY_GUARD?.state || {
+          preview: true,
+          access_ok: false,
+          slug: "",
+          phone: "",
+          reason: "guard_missing"
+        };
+      }
+
+      async function waitGuardReady(){
+        if(!window.DIGIY_GUARD || typeof window.DIGIY_GUARD.ready !== "function"){
+          throw new Error("guard_absent");
+        }
+        return await window.DIGIY_GUARD.ready({ redirect:false, timeout:8000 });
+      }
+
+      function getEffectiveSlug(){
+        const st = getGuardState();
+        const url = getUrlParts();
+        return String(st.slug || url.slug || getSavedSlug() || "").trim();
+      }
+
+      function getEffectivePhone(){
+        const st = getGuardState();
+        const url = getUrlParts();
+        return normPhone(st.phone || url.phone || getSavedPhone() || "");
+      }
+
+      function withCtx(base){
+        const slug = getEffectiveSlug();
+        const phone = getEffectivePhone();
+
+        try{
+          const u = new URL(base, location.href);
+          if(slug && !u.searchParams.get("slug")) u.searchParams.set("slug", slug);
+          if(phone && !u.searchParams.get("phone")) u.searchParams.set("phone", phone);
+          if(u.origin === location.origin) return u.pathname + u.search + u.hash;
+          return u.toString();
+        }catch{
+          let out = base;
+          if(slug){
+            out += (out.includes("?") ? "&" : "?") + "slug=" + encodeURIComponent(slug);
+          }
+          if(phone){
+            out += (out.includes("?") ? "&" : "?") + "phone=" + encodeURIComponent(phone);
+          }
+          return out;
+        }
       }
 
       function waLink(msg){
         return "https://wa.me/" + WA_PHONE + "?text=" + encodeURIComponent(msg);
       }
 
-      const lead = buildLeadId();
-      const ua = navigator.userAgent || "";
-      const device = /Android|iPhone|iPad|iPod/i.test(ua) ? "mobile" : "desktop";
-
       function baseMsg(extraLines){
+        const slug = getEffectiveSlug();
+        const phone = getEffectivePhone();
+
         const lines = [
           "Bonjour, je souhaite rejoindre DIGIY PRO DRIVER.",
           "Lead: " + lead,
           "Source: digiy-pro-driver-index",
           "Device: " + device
         ];
+
         if (slug) lines.push("Slug: " + slug);
+        if (phone) lines.push("Phone: " + phone);
+
         if (Array.isArray(extraLines)) {
           lines.push(...extraLines.filter(Boolean));
         }
+
         return lines.join("\n");
       }
 
-      document.querySelectorAll('a[data-wa="join"]').forEach((a) => {
-        a.href = waLink(baseMsg([
-          "Ville: (Dakar/Saly/Mbour/Autre)",
-          "Véhicule: (type + année)",
-          "Disponibilité: (jours/heures)"
-        ]));
-      });
+      function recutRouteLinks(){
+        routeBindings.forEach(([id, path]) => {
+          const a = document.getElementById(id);
+          if (a) a.href = withCtx(path);
+        });
+      }
 
-      const $ = (id) => document.getElementById(id);
-      const btnApplyNow = $("btnApplyNow");
+      function recutWhatsAppLinks(){
+        document.querySelectorAll('a[data-wa="join"]').forEach((a) => {
+          a.href = waLink(baseMsg([
+            "Ville: (Dakar/Saly/Mbour/Autre)",
+            "Véhicule: (type + année)",
+            "Disponibilité: (jours/heures)"
+          ]));
+        });
+      }
 
-      if (btnApplyNow) {
+      function bindMiniForm(){
+        const $ = (id) => document.getElementById(id);
+        const btnApplyNow = $("btnApplyNow");
+        if (!btnApplyNow) return;
+
         const update = () => {
           const city = ($("fCity")?.value || "").trim();
           const veh  = ($("fVehicle")?.value || "").trim();
@@ -1190,11 +1292,13 @@
           if (veh)  extra.push("Véhicule: " + veh);
           if (av)   extra.push("Disponibilité: " + av);
 
-          btnApplyNow.href = waLink(baseMsg(extra.length ? extra : [
-            "Ville: " + (city || "(à préciser)"),
-            "Véhicule: " + (veh || "(à préciser)"),
-            "Disponibilité: " + (av || "(à préciser)")
-          ]));
+          btnApplyNow.href = waLink(baseMsg(
+            extra.length ? extra : [
+              "Ville: " + (city || "(à préciser)"),
+              "Véhicule: " + (veh || "(à préciser)"),
+              "Disponibilité: " + (av || "(à préciser)")
+            ]
+          ));
         };
 
         ["fCity","fVehicle","fAvail","fName"].forEach((id) => {
@@ -1208,11 +1312,84 @@
         update();
       }
 
-      const v = qs.get("v");
-      if (v) {
-        const t = document.getElementById("vtag");
-        if (t) t.textContent = "v" + v;
+      function bindHashScroll(){
+        document.querySelectorAll('a[href^="#"]').forEach((a) => {
+          a.addEventListener("click", (e) => {
+            const href = a.getAttribute("href");
+            if (!href || href === "#") return;
+            const target = document.querySelector(href);
+            if (target) {
+              e.preventDefault();
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          });
+        });
       }
+
+      function bootReveal(){
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) e.target.classList.add("visible");
+          });
+        }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+
+        document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+      }
+
+      async function initDriverContext(){
+        const url = getUrlParts();
+
+        if (url.slug) saveSlug(url.slug);
+        if (url.phone) savePhone(url.phone);
+
+        recutRouteLinks();
+        recutWhatsAppLinks();
+
+        try{
+          await waitGuardReady();
+        }catch(err){
+          console.warn("[DRIVER] guard ready non bloquant:", err?.message || err);
+        }
+
+        const slug = getEffectiveSlug();
+        const phone = getEffectivePhone();
+
+        if (slug){
+          saveSlug(slug);
+          ensureSlugInUrl(slug);
+        }
+        if (phone){
+          savePhone(phone);
+        }
+
+        recutRouteLinks();
+        recutWhatsAppLinks();
+      }
+
+      function applyVersionTag(){
+        try{
+          const qs = new URLSearchParams(location.search);
+          const v = qs.get("v");
+          if (v) {
+            const t = document.getElementById("vtag");
+            if (t) t.textContent = "v" + v;
+          }
+        }catch(_){}
+      }
+
+      bootReveal();
+      bindHashScroll();
+      bindMiniForm();
+      applyVersionTag();
+
+      initDriverContext()
+        .then(() => {
+          recutRouteLinks();
+          recutWhatsAppLinks();
+        })
+        .catch((err) => {
+          console.error("[DRIVER] init context error", err);
+        });
     })();
   </script>
 </body>
