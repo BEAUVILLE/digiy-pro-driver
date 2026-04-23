@@ -1574,5 +1574,53 @@
       boot(false);
     })();
   </script>
+  <script>
+function digiyDriverDashboardAudio(){
+
+  const accessOk = window.accessOk;
+  const cockpit = window.cockpitData || {};
+  const rates = window.ratesData || [];
+
+  const hour = new Date().getHours();
+
+  if (!accessOk) {
+    return "Commence par ouvrir ton accès chauffeur pour continuer.";
+  }
+
+  if (cockpit?.is_blank) {
+    return "Commence par compléter ton profil pour poser ton activité.";
+  }
+
+  if (!rates.length) {
+    return "Ajoute tes tarifs pour pouvoir travailler correctement.";
+  }
+
+  if (hour < 12) {
+    return "Bonjour. Tu peux démarrer ta journée avec un nouveau trajet.";
+  }
+
+  if (hour >= 18) {
+    return "Tu peux vérifier tes courses et voir ce que tu as gagné aujourd’hui.";
+  }
+
+  return "Tu peux lancer un nouveau trajet ou consulter ton activité.";
+}
+</script>
+  <script>
+window.DIGIY_AUDIO_CONFIG = {
+  label: "Écouter",
+  stopLabel: "Arrêter",
+  text: digiyDriverDashboardAudio(),
+  buttonBg: "linear-gradient(135deg,#d4af37,#b78b34)",
+  buttonColor: "#111827",
+  bottom: "24px",
+  left: "24px",
+  rate: 0.82,
+  pitch: 1,
+  volume: 1,
+  zIndex: 99999,
+  shadow: "0 10px 30px rgba(0,0,0,.26)"
+};
+</script>
 </body>
 </html>
