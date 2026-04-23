@@ -1512,6 +1512,52 @@
           .replaceAll("'", "&#039;");
       }
 
+      function digiyDriverDashboardAudio(){
+        const hour = new Date().getHours();
+        const isBlank = !!cockpitData?.is_blank;
+        const hasRates = Array.isArray(ratesData) && ratesData.length > 0;
+        const published = !!cockpitData?.profile?.is_published;
+        const activeTrips = activeTripsOnly(tripsData).length;
+        const completedToday = completedTripsOnly(tripsData).filter(t => isSameLocalDay(tripWhen(t))).length;
+
+        if (!accessOk) {
+          return "Commence par ouvrir ton accès chauffeur pour continuer.";
+        }
+
+        if (isBlank) {
+          return "Commence par compléter ton profil pour poser ton activité chauffeur.";
+        }
+
+        if (!hasRates) {
+          return "Ajoute tes tarifs pour pouvoir travailler correctement sur le terrain.";
+        }
+
+        if (!published) {
+          return "Vérifie ton profil chauffeur avant de reprendre la route.";
+        }
+
+        if (activeTrips > 0) {
+          return "Tu as des courses encore ouvertes. Reprends ton activité ou vérifie tes trajets.";
+        }
+
+        if (hour < 12) {
+          return "Bonjour. Tu peux démarrer ta journée avec un nouveau trajet.";
+        }
+
+        if (hour >= 18) {
+          if (completedToday > 0) {
+            return "Tu peux vérifier tes courses et voir ce qui est rentré aujourd’hui.";
+          }
+          return "Tu peux revoir ton activité du jour et préparer la suite.";
+        }
+
+        return "Tu peux lancer un nouveau trajet ou consulter ton activité.";
+      }
+
+      function refreshDriverAudioText(){
+        window.DIGIY_DRIVER_DASHBOARD_AUDIO_TEXT = digiyDriverDashboardAudio();
+      }
+
       async function boot(forceRefresh = false){
         await waitGuardIfAny();
 
@@ -1539,6 +1585,7 @@
           $("notifList").innerHTML = pushNotif("Client Supabase absent.", "bad");
           $("kpiMoney30d").textContent = "0 FCFA";
           setMsg("❌ Connexion indisponible.", "bad");
+          refreshDriverAudioText();
           return;
         }
 
@@ -1567,6 +1614,7 @@
         renderKpis();
         renderRecentTrips();
         renderNotifs();
+        refreshDriverAudioText();
       }
 
       $("btnRefresh")?.addEventListener("click", () => boot(true));
@@ -1574,53 +1622,294 @@
       boot(false);
     })();
   </script>
+
+  <!-- ============================================================
+       DIGIY AUDIO — DRIVER DASHBOARD
+       ============================================================ -->
+
   <script>
-function digiyDriverDashboardAudio(){
+    window.DIGIY_AUDIO_CONFIG = {
+      label: "Écouter",
+      stopLabel: "Arrêter",
+      text: window.DIGIY_DRIVER_DASHBOARD_AUDIO_TEXT || "Tu peux lancer un nouveau trajet ou consulter ton activité.",
+      buttonBg: "linear-gradient(135deg,#d4af37,#b78b34)",
+      buttonColor: "#111827",
+      bottom: "24px",
+      left: "24px",
+      rate: 0.82,
+      pitch: 1,
+      volume: 1,
+      zIndex: 99999,
+      shadow: "0 10px 30px rgba(0,0,0,.26)"
+    };
+  </script>
 
-  const accessOk = window.accessOk;
-  const cockpit = window.cockpitData || {};
-  const rates = window.ratesData || [];
+  <style>
+    #digiy-audio-btn{
+      position:fixed;
+      display:inline-flex;
+      align-items:center;
+      gap:12px;
+      padding:16px 26px;
+      border:none;
+      border-radius:999px;
+      cursor:pointer;
+      font-family:'Outfit',sans-serif;
+      font-weight:900;
+      font-size:17px;
+      line-height:1;
+      -webkit-tap-highlight-color:transparent;
+      user-select:none;
+      transition:transform .18s ease,box-shadow .18s ease,opacity .18s ease;
+      z-index:99999;
+    }
+    #digiy-audio-btn:hover{transform:translateY(-2px)}
+    #digiy-audio-btn:active{transform:scale(.97)}
+    #digiy-audio-btn:disabled{opacity:.65;cursor:not-allowed}
+    #digiy-audio-btn .digiy-audio-ico{
+      font-size:18px;
+      line-height:1;
+    }
+    #digiy-audio-progress-wrap{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      height:3px;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .25s ease;
+      z-index:99998;
+    }
+    #digiy-audio-progress{
+      width:0%;
+      height:100%;
+      transition:width .18s linear;
+    }
 
-  const hour = new Date().getHours();
+    @media (max-width:600px){
+      #digiy-audio-btn{
+        left:12px !important;
+        right:12px !important;
+        bottom:12px !important;
+        justify-content:center;
+        font-size:16px;
+        padding:15px 18px;
+        gap:11px;
+      }
+      #digiy-audio-btn .digiy-audio-ico{
+        font-size:17px;
+      }
+    }
+  </style>
 
-  if (!accessOk) {
-    return "Commence par ouvrir ton accès chauffeur pour continuer.";
-  }
+  <button id="digiy-audio-btn" type="button" aria-label="Écouter">
+    <span class="digiy-audio-ico">&#9654;</span>
+    <span class="digiy-audio-lbl">Écouter</span>
+  </button>
 
-  if (cockpit?.is_blank) {
-    return "Commence par compléter ton profil pour poser ton activité.";
-  }
+  <div id="digiy-audio-progress-wrap" aria-hidden="true">
+    <div id="digiy-audio-progress"></div>
+  </div>
 
-  if (!rates.length) {
-    return "Ajoute tes tarifs pour pouvoir travailler correctement.";
-  }
-
-  if (hour < 12) {
-    return "Bonjour. Tu peux démarrer ta journée avec un nouveau trajet.";
-  }
-
-  if (hour >= 18) {
-    return "Tu peux vérifier tes courses et voir ce que tu as gagné aujourd’hui.";
-  }
-
-  return "Tu peux lancer un nouveau trajet ou consulter ton activité.";
-}
-</script>
   <script>
-window.DIGIY_AUDIO_CONFIG = {
-  label: "Écouter",
-  stopLabel: "Arrêter",
-  text: digiyDriverDashboardAudio(),
-  buttonBg: "linear-gradient(135deg,#d4af37,#b78b34)",
-  buttonColor: "#111827",
-  bottom: "24px",
-  left: "24px",
-  rate: 0.82,
-  pitch: 1,
-  volume: 1,
-  zIndex: 99999,
-  shadow: "0 10px 30px rgba(0,0,0,.26)"
-};
-</script>
+    (function(){
+      var cfg = window.DIGIY_AUDIO_CONFIG || {};
+
+      var config = {
+        label: cfg.label || "Écouter DIGIY",
+        stopLabel: cfg.stopLabel || "Arrêter",
+        text: cfg.text || "Bienvenue sur DIGIYLYFE.",
+        buttonBg: cfg.buttonBg || "linear-gradient(135deg,#d4af37,#b78b34)",
+        buttonColor: cfg.buttonColor || "#111827",
+        bottom: cfg.bottom || "24px",
+        left: cfg.left || "24px",
+        right: cfg.right || null,
+        rate: typeof cfg.rate === "number" ? cfg.rate : 0.82,
+        pitch: typeof cfg.pitch === "number" ? cfg.pitch : 1,
+        volume: typeof cfg.volume === "number" ? cfg.volume : 1,
+        zIndex: cfg.zIndex || 99999,
+        shadow: cfg.shadow || "0 8px 28px rgba(0,0,0,.24)"
+      };
+
+      var btn = document.getElementById("digiy-audio-btn");
+      var lbl = btn ? btn.querySelector(".digiy-audio-lbl") : null;
+      var ico = btn ? btn.querySelector(".digiy-audio-ico") : null;
+      var progressWrap = document.getElementById("digiy-audio-progress-wrap");
+      var progressBar = document.getElementById("digiy-audio-progress");
+
+      if (!btn || !lbl || !ico || !progressWrap || !progressBar) return;
+
+      btn.style.bottom = config.bottom;
+      btn.style.left = config.left ? config.left : "auto";
+      btn.style.right = config.right ? config.right : "auto";
+      btn.style.background = config.buttonBg;
+      btn.style.color = config.buttonColor;
+      btn.style.boxShadow = config.shadow;
+      btn.style.zIndex = String(config.zIndex);
+
+      progressWrap.style.background = "rgba(212,175,55,.2)";
+      progressBar.style.background = "linear-gradient(90deg,#d4af37,#b78b34)";
+
+      if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+        btn.style.display = "none";
+        return;
+      }
+
+      var synth = window.speechSynthesis;
+      var utterance = null;
+      var playing = false;
+      var timer = null;
+      var launchId = 0;
+
+      function currentAudioText(){
+        return window.DIGIY_DRIVER_DASHBOARD_AUDIO_TEXT || config.text;
+      }
+
+      function getFrenchVoice(){
+        var voices = synth.getVoices() || [];
+        if (!voices.length) return null;
+
+        return (
+          voices.find(function(v){ return /fr[-_]?FR/i.test(v.lang) && /google/i.test(v.name); }) ||
+          voices.find(function(v){ return /fr[-_]?FR/i.test(v.lang); }) ||
+          voices.find(function(v){ return /^fr/i.test(v.lang); }) ||
+          null
+        );
+      }
+
+      function setIdle(){
+        playing = false;
+        ico.innerHTML = "&#9654;";
+        lbl.textContent = config.label;
+        btn.setAttribute("aria-label", config.label);
+        clearInterval(timer);
+        timer = null;
+        progressWrap.style.opacity = "0";
+        progressBar.style.width = "0%";
+      }
+
+      function setPlaying(){
+        playing = true;
+        ico.innerHTML = "&#9632;";
+        lbl.textContent = config.stopLabel;
+        btn.setAttribute("aria-label", config.stopLabel);
+      }
+
+      function stop(){
+        clearInterval(timer);
+        timer = null;
+        try { synth.cancel(); } catch(e){}
+        utterance = null;
+        setIdle();
+      }
+
+      function startProgress(text, currentId){
+        var words = (text.trim().match(/\S+/g) || []).length;
+        var estimatedDuration = Math.max(2500, words * 520);
+        var elapsed = 0;
+
+        clearInterval(timer);
+        progressBar.style.width = "0%";
+        progressWrap.style.opacity = "1";
+
+        timer = setInterval(function(){
+          if (!playing || currentId !== launchId) {
+            clearInterval(timer);
+            timer = null;
+            return;
+          }
+          elapsed += 150;
+          var pct = Math.min((elapsed / estimatedDuration) * 100, 97);
+          progressBar.style.width = pct + "%";
+        }, 150);
+      }
+
+      function launch(){
+        launchId += 1;
+        var currentId = launchId;
+        var smartText = currentAudioText();
+
+        try { synth.cancel(); } catch(e){}
+
+        utterance = new SpeechSynthesisUtterance(smartText);
+        utterance.lang = "fr-FR";
+        utterance.rate = config.rate;
+        utterance.pitch = config.pitch;
+        utterance.volume = config.volume;
+
+        var voice = getFrenchVoice();
+        if (voice) utterance.voice = voice;
+
+        utterance.onstart = function(){
+          if (currentId !== launchId) return;
+          setPlaying();
+          startProgress(smartText, currentId);
+        };
+
+        utterance.onend = function(){
+          if (currentId !== launchId) return;
+          clearInterval(timer);
+          timer = null;
+          progressBar.style.width = "100%";
+          setTimeout(function(){
+            if (currentId === launchId) setIdle();
+          }, 250);
+        };
+
+        utterance.onerror = function(){
+          if (currentId !== launchId) return;
+          stop();
+        };
+
+        synth.speak(utterance);
+      }
+
+      function play(){
+        if (playing) return;
+
+        if (synth.speaking || synth.pending) {
+          try { synth.cancel(); } catch(e){}
+        }
+
+        var voices = synth.getVoices();
+        if (voices && voices.length) {
+          launch();
+          return;
+        }
+
+        var launched = false;
+
+        function handleVoicesChanged(){
+          if (launched) return;
+          launched = true;
+          synth.removeEventListener("voiceschanged", handleVoicesChanged);
+          launch();
+        }
+
+        synth.addEventListener("voiceschanged", handleVoicesChanged);
+
+        setTimeout(function(){
+          if (launched) return;
+          launched = true;
+          synth.removeEventListener("voiceschanged", handleVoicesChanged);
+          launch();
+        }, 700);
+      }
+
+      btn.addEventListener("click", function(){
+        if (playing) stop();
+        else play();
+      });
+
+      window.addEventListener("beforeunload", stop);
+
+      document.addEventListener("visibilitychange", function(){
+        if (document.hidden && playing) stop();
+      });
+
+      setIdle();
+    })();
+  </script>
 </body>
 </html>
