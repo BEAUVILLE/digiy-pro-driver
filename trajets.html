@@ -621,6 +621,93 @@
 
     .quickDraft strong{color:#fff}
 
+
+    .memoryBox{
+      margin-top:12px;
+      padding:12px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.14);
+      display:grid;
+      gap:10px;
+    }
+
+    .memoryHead{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .memoryTitle{
+      font-size:13px;
+      font-weight:950;
+      color:#fde68a;
+      line-height:1.25;
+    }
+
+    .memoryHelp{
+      margin-top:3px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:780;
+      line-height:1.4;
+    }
+
+    .memoryList{
+      display:grid;
+      gap:8px;
+    }
+
+    .memoryItem{
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      padding:10px;
+      display:grid;
+      gap:4px;
+    }
+
+    .memoryItemTop{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+
+    .memoryItemTitle{
+      font-size:13px;
+      font-weight:950;
+      color:var(--text);
+      line-height:1.35;
+    }
+
+    .memoryItemAmount{
+      font-size:12px;
+      font-weight:950;
+      color:#d9ffe8;
+      white-space:nowrap;
+    }
+
+    .memoryItemMeta{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:780;
+      line-height:1.35;
+    }
+
+    .memoryEmpty{
+      padding:10px;
+      border-radius:14px;
+      border:1px dashed rgba(255,255,255,.14);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
     .toast{
       position:fixed;
       left:50%;
@@ -813,6 +900,19 @@
       </div>
 
       <div class="quickDraft" id="quickDriverDraft"></div>
+
+      <div class="memoryBox" id="quickMemoryBox">
+        <div class="memoryHead">
+          <div>
+            <div class="memoryTitle">🧠 Aide-mémoire chauffeur</div>
+            <div class="memoryHelp">Dernières notes confirmées ici. Plus tard, tu pourras les envoyer vers Mon argent.</div>
+          </div>
+          <button class="btn ghost" id="btnQuickMemoryClear" type="button">Vider</button>
+        </div>
+        <div class="memoryList" id="quickMemoryList">
+          <div class="memoryEmpty">Aucune note confirmée pour le moment.</div>
+        </div>
+      </div>
     </section>
 
 
@@ -1806,6 +1906,88 @@
         }
       }
 
+
+      function quickMemoryKey(){
+        return slug ? `digiy_driver_quick_memory:${slug}` : "digiy_driver_quick_memory";
+      }
+
+      function readQuickMemory(){
+        try{
+          const raw = localStorage.getItem(quickMemoryKey());
+          const arr = raw ? JSON.parse(raw) : [];
+          return Array.isArray(arr) ? arr : [];
+        }catch{
+          return [];
+        }
+      }
+
+      function writeQuickMemory(items){
+        try{
+          localStorage.setItem(quickMemoryKey(), JSON.stringify((items || []).slice(0, 10)));
+          return true;
+        }catch{
+          return false;
+        }
+      }
+
+      function addQuickMemory(draft){
+        const item = {
+          ...draft,
+          memory_id: "mem_" + Date.now(),
+          confirmed_at: new Date().toISOString()
+        };
+
+        const list = readQuickMemory();
+        list.unshift(item);
+        writeQuickMemory(list);
+        renderQuickMemory();
+      }
+
+      function quickMemoryLine(item){
+        const amount = item?.amount_xof ? money(item.amount_xof) : "montant à préciser";
+        const channel = item?.channel && item.channel !== "manual" ? item.channel : "canal à préciser";
+        const comp = item?.complement ? " · " + item.complement : "";
+        return {
+          title: item?.title || "Note chauffeur",
+          amount,
+          meta: `${channel} · ${item?.impact || "à classer"}${comp}`
+        };
+      }
+
+      function renderQuickMemory(){
+        const box = $("quickMemoryList");
+        if(!box) return;
+
+        const list = readQuickMemory();
+        if(!list.length){
+          box.innerHTML = `<div class="memoryEmpty">Aucune note confirmée pour le moment.</div>`;
+          return;
+        }
+
+        box.innerHTML = list.slice(0, 10).map(item => {
+          const line = quickMemoryLine(item);
+          return `
+            <div class="memoryItem">
+              <div class="memoryItemTop">
+                <div class="memoryItemTitle">✅ ${escapeHtml(line.title)}</div>
+                <div class="memoryItemAmount">${escapeHtml(line.amount)}</div>
+              </div>
+              <div class="memoryItemMeta">${escapeHtml(line.meta)}</div>
+              <div class="memoryItemMeta">${escapeHtml(item?.sentence || "")}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function clearQuickMemory(){
+        const ok = window.confirm("Vider l’aide-mémoire chauffeur sur cet appareil ?");
+        if(!ok) return;
+
+        writeQuickMemory([]);
+        renderQuickMemory();
+        showToast("Aide-mémoire vidé.");
+      }
+
       function renderQuickDraft(draft){
         const box = $("quickDriverDraft");
         const confirmBtn = $("btnQuickConfirm");
@@ -1871,11 +2053,15 @@
           }
 
           saveQuickDraft(draft, true);
+          addQuickMemory(draft);
           renderQuickDraft({...draft, status:"confirmed_local"});
           if(confirm) confirm.style.display = "none";
-          setMsg("✅ Note chauffeur confirmée et gardée ici.", "ok");
-          showToast("✅ Note confirmée.");
+          setMsg("✅ Note chauffeur confirmée dans l’aide-mémoire.", "ok");
+          showToast("✅ Note ajoutée à l’aide-mémoire.");
         });
+
+        $("btnQuickMemoryClear")?.addEventListener("click", clearQuickMemory);
+        renderQuickMemory();
 
         clear?.addEventListener("click", () => {
           if(input) input.value = "";
