@@ -708,6 +708,39 @@
       line-height:1.45;
     }
 
+
+    .memoryPayAction{
+      margin-top:6px;
+      display:inline-flex;
+      width:max-content;
+      max-width:100%;
+      min-height:36px;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      padding:8px 11px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.28);
+      background:rgba(250,204,21,.10);
+      color:#fde68a;
+      font-size:12px;
+      font-weight:950;
+      cursor:pointer;
+    }
+
+    .memoryPayAction:hover{
+      transform:translateY(-1px);
+      background:rgba(250,204,21,.14);
+    }
+
+    .memoryPayHint{
+      margin-top:2px;
+      color:rgba(205,213,239,.72);
+      font-size:11px;
+      font-weight:780;
+      line-height:1.35;
+    }
+
     .toast{
       position:fixed;
       left:50%;
@@ -905,7 +938,7 @@
         <div class="memoryHead">
           <div>
             <div class="memoryTitle">🧠 Aide-mémoire chauffeur</div>
-            <div class="memoryHelp">Dernières notes confirmées ici. Plus tard, tu pourras les envoyer vers Mon argent.</div>
+            <div class="memoryHelp">Dernières notes confirmées ici. Avec Mon argent, tu peux les transformer en entrées, dépenses ou épargne suivies.</div>
           </div>
           <button class="btn ghost" id="btnQuickMemoryClear" type="button">Vider</button>
         </div>
@@ -1943,6 +1976,75 @@
         renderQuickMemory();
       }
 
+
+      function isQuickFinancialNote(item){
+        const type = String(item?.type || "").toLowerCase();
+        return ["ride_income","vehicle_expense","advance","client_debt"].includes(type);
+      }
+
+      function paySlugFromDriverPhone(){
+        const p = normPhone(phone || phoneFromDriverSlug(slug));
+        return p ? "pay-" + p : "";
+      }
+
+      function payDirectionFromQuick(item){
+        const type = String(item?.type || "").toLowerCase();
+        if(type === "ride_income" || type === "advance") return "in";
+        return "out";
+      }
+
+      function payKindFromQuick(item){
+        const type = String(item?.type || "").toLowerCase();
+        if(type === "ride_income" || type === "advance") return "sale";
+        return "expense";
+      }
+
+      function payCategoryFromQuick(item){
+        const type = String(item?.type || "").toLowerCase();
+        if(type === "ride_income") return "ride_income";
+        if(type === "advance") return "advance";
+        if(type === "client_debt") return "client_debt";
+        if(item?.category === "fuel") return "fuel";
+        if(item?.category === "vehicle_maintenance") return "vehicle_maintenance";
+        return item?.category || "driver_note";
+      }
+
+      function payLabelFromQuick(item){
+        const type = String(item?.type || "").toLowerCase();
+        const comp = String(item?.complement || "").trim();
+
+        if(type === "ride_income") return "Course chauffeur";
+        if(type === "advance") return "Avance chauffeur";
+        if(type === "client_debt") return comp ? "Client doit " + comp : "Client doit encore";
+        if(item?.category === "fuel") return "Carburant";
+        if(item?.category === "vehicle_maintenance") return comp ? comp.charAt(0).toUpperCase() + comp.slice(1) : "Entretien véhicule";
+        return item?.title || "Note chauffeur";
+      }
+
+      function buildPayFromQuickUrl(item){
+        const p = normPhone(phone || phoneFromDriverSlug(slug));
+        const paySlug = paySlugFromDriverPhone();
+        const qs = new URLSearchParams();
+
+        if(paySlug) qs.set("slug", paySlug);
+        if(p) qs.set("phone", p);
+
+        qs.set("fromDraft", "1");
+        qs.set("direction", payDirectionFromQuick(item));
+        qs.set("scope", "pro");
+        qs.set("amount", String(Math.round(Number(item?.amount_xof || 0))));
+        qs.set("kind", payKindFromQuick(item));
+        qs.set("channel", item?.channel && item.channel !== "manual" ? String(item.channel) : "manual");
+        qs.set("category", payCategoryFromQuick(item));
+        qs.set("source_module", "DRIVER");
+        qs.set("label", payLabelFromQuick(item));
+        qs.set("note", String(item?.sentence || "").trim());
+        qs.set("complement", String(item?.complement || "").trim());
+        qs.set("intent", "driver_quick_note");
+
+        return "https://pay.digiylyfe.com/admin.html?" + qs.toString();
+      }
+
       function quickMemoryLine(item){
         const amount = item?.amount_xof ? money(item.amount_xof) : "montant à préciser";
         const channel = item?.channel && item.channel !== "manual" ? item.channel : "canal à préciser";
@@ -1974,6 +2076,12 @@
               </div>
               <div class="memoryItemMeta">${escapeHtml(line.meta)}</div>
               <div class="memoryItemMeta">${escapeHtml(item?.sentence || "")}</div>
+              ${isQuickFinancialNote(item) ? `
+                <a class="memoryPayAction" href="${escapeHtml(buildPayFromQuickUrl(item))}">
+                  💼 Envoyer vers Mon argent
+                </a>
+                <div class="memoryPayHint">Abonnement Mon argent requis pour enregistrer.</div>
+              ` : ``}
             </div>
           `;
         }).join("");
