@@ -528,6 +528,99 @@
     .msg.bad{color:#fca5a5}
     .msg.warn{color:#fde68a}
 
+
+    .quickNote{
+      border:1px solid rgba(250,204,21,.24);
+      background:
+        radial-gradient(420px 160px at 100% 0%, rgba(250,204,21,.10), transparent 70%),
+        rgba(255,255,255,.04);
+    }
+
+    .quickGuide{
+      padding:12px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.14);
+      display:grid;
+      gap:8px;
+      margin-bottom:12px;
+    }
+
+    .quickGuide strong{
+      color:#fde68a;
+      font-size:13px;
+      font-weight:950;
+    }
+
+    .quickGuide p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:780;
+      line-height:1.45;
+    }
+
+    .quickExamples{
+      display:flex;
+      gap:7px;
+      flex-wrap:wrap;
+    }
+
+    .quickExamples button{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:var(--soft);
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:11px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .quickExamples button:hover{
+      border-color:rgba(250,204,21,.28);
+      color:#fde68a;
+    }
+
+    .quickInput{
+      width:100%;
+      min-height:78px;
+      border-radius:16px;
+      border:1px solid var(--line2);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      padding:12px 13px;
+      outline:none;
+      font-size:14px;
+      font-weight:800;
+      font-family:inherit;
+      resize:vertical;
+    }
+
+    .quickInput::placeholder{color:#95a2c6}
+
+    .quickActions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .quickDraft{
+      display:none;
+      margin-top:12px;
+      padding:12px;
+      border-radius:18px;
+      border:1px solid rgba(34,197,94,.28);
+      background:rgba(34,197,94,.08);
+      color:#d9ffe8;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.5;
+    }
+
+    .quickDraft strong{color:#fff}
+
     .toast{
       position:fixed;
       left:50%;
@@ -689,6 +782,39 @@
         </div>
       </div>
     </section>
+
+
+    <section class="card quickNote" id="quickDriverNote">
+      <div class="sectionHead">
+        <div>
+          <h2 class="sectionTitle">Note rapide chauffeur</h2>
+          <div class="sectionLead">Écris court, DIGIY prépare. Tu confirmes avant toute suite.</div>
+        </div>
+      </div>
+
+      <div class="quickGuide">
+        <strong>Une phrase suffit.</strong>
+        <p>Exemples : course, carburant, lavage, réparation, avance ou client qui doit encore.</p>
+        <div class="quickExamples" id="quickDriverExamples">
+          <button type="button">Course Saly AIBD 28000 cash</button>
+          <button type="button">Carburant 7000 cash</button>
+          <button type="button">Lavage voiture 3000</button>
+          <button type="button">Réparation pneu 5000</button>
+          <button type="button">Client Moussa doit 10000</button>
+        </div>
+      </div>
+
+      <textarea class="quickInput" id="quickDriverInput" placeholder="Ex : Course Saly AIBD 28000 cash"></textarea>
+
+      <div class="quickActions">
+        <button class="btn gold" id="btnQuickPrepare" type="button">Préparer</button>
+        <button class="btn ok" id="btnQuickConfirm" type="button" style="display:none">✅ Confirmer</button>
+        <button class="btn ghost" id="btnQuickClear" type="button">Effacer</button>
+      </div>
+
+      <div class="quickDraft" id="quickDriverDraft"></div>
+    </section>
+
 
     <section class="card">
       <div class="sectionHead">
@@ -1554,6 +1680,210 @@
         }
       }
 
+
+      function extractQuickAmount(text){
+        const m = String(text || "").replace(/\s+/g, " ").match(/(\d[\d\s.,]*)\s*(f|fcfa|xof)?/i);
+        if(!m) return 0;
+        const raw = String(m[1] || "").replace(/[^\d]/g, "");
+        const n = Number(raw);
+        return Number.isFinite(n) ? n : 0;
+      }
+
+      function quickChannel(text){
+        const t = String(text || "").toLowerCase();
+        if(/\bwave\b/.test(t)) return "wave";
+        if(/\b(cash|espèces|especes|liquide)\b/.test(t)) return "cash";
+        if(/\b(orange money|om)\b/.test(t)) return "orange_money";
+        if(/\b(banque|virement)\b/.test(t)) return "bank";
+        return "manual";
+      }
+
+      function quickComplement(text, type){
+        const s = String(text || "").trim();
+        const lower = s.toLowerCase();
+
+        if(/\b(carburant|essence|gasoil)\b/.test(lower)) return "carburant";
+        if(/\b(lavage|laver)\b/.test(lower)) return "lavage";
+        if(/\b(pneu|réparation|reparation|vidange|garage|mécano|mecano)\b/.test(lower)) return "entretien véhicule";
+        if(/\b(course|trajet)\b/.test(lower)) return "course";
+        if(/\b(avance|acompte)\b/.test(lower)) return "avance";
+
+        if(type === "client_debt"){
+          const words = s.replace(/[.,;:!?]/g, " ").split(/\s+/).filter(Boolean);
+          const banned = new Set(["client","doit","reste","payer","cash","wave","fcfa","xof","f"]);
+          const candidates = words.filter(w => {
+            const clean = w.toLowerCase().replace(/[^\p{L}\p{N}-]/gu, "");
+            if(!clean || /^\d+$/.test(clean)) return false;
+            return !banned.has(clean);
+          });
+          if(candidates.length){
+            const raw = candidates[candidates.length - 1].replace(/[^\p{L}\p{N}-]/gu, "");
+            return raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "";
+          }
+        }
+
+        return "";
+      }
+
+      function quickRouteFromText(text){
+        const s = String(text || "").trim();
+        const clean = s.replace(/\s+/g, " ");
+        const amount = extractQuickAmount(clean);
+        const channel = quickChannel(clean);
+        const lower = clean.toLowerCase();
+
+        let type = "note";
+        let title = "Note chauffeur";
+        let direction = "none";
+        let category = "driver_note";
+        let impact = "à classer";
+
+        if(/\b(client|moussa|awa|amadou|fatou).*\b(doit|reste)\b|\b(doit|reste)\b/.test(lower)){
+          type = "client_debt";
+          title = "Client doit encore";
+          direction = "debt";
+          category = "client_debt";
+          impact = "à suivre";
+        } else if(/\b(course|trajet|aibd|saly|dakar|mbour|client payé|client paye)\b/.test(lower)){
+          type = "ride_income";
+          title = "Course encaissée";
+          direction = "in";
+          category = "ride_income";
+          impact = "recette chauffeur";
+        } else if(/\b(carburant|essence|gasoil)\b/.test(lower)){
+          type = "vehicle_expense";
+          title = "Dépense carburant";
+          direction = "out";
+          category = "fuel";
+          impact = "dépense véhicule";
+        } else if(/\b(lavage|pneu|réparation|reparation|vidange|garage|mécano|mecano)\b/.test(lower)){
+          type = "vehicle_expense";
+          title = "Dépense véhicule";
+          direction = "out";
+          category = "vehicle_maintenance";
+          impact = "dépense véhicule";
+        } else if(/\b(avance|acompte)\b/.test(lower)){
+          type = "advance";
+          title = "Avance reçue";
+          direction = "in";
+          category = "advance";
+          impact = "avance chauffeur";
+        }
+
+        const complement = quickComplement(clean, type);
+
+        return {
+          sentence: clean,
+          type,
+          title,
+          amount_xof: amount,
+          channel,
+          direction,
+          category,
+          impact,
+          complement,
+          module: "DRIVER",
+          status: "draft",
+          created_at: new Date().toISOString()
+        };
+      }
+
+      function quickDraftKey(){
+        return slug ? `digiy_driver_quick_note:${slug}` : "digiy_driver_quick_note";
+      }
+
+      function saveQuickDraft(draft, confirmed = false){
+        try{
+          const data = {
+            ...draft,
+            status: confirmed ? "confirmed_local" : "draft",
+            confirmed_at: confirmed ? new Date().toISOString() : null
+          };
+          localStorage.setItem(quickDraftKey(), JSON.stringify(data));
+          return true;
+        }catch{
+          return false;
+        }
+      }
+
+      function renderQuickDraft(draft){
+        const box = $("quickDriverDraft");
+        const confirmBtn = $("btnQuickConfirm");
+        if(!box) return;
+
+        if(!draft || !draft.sentence){
+          box.style.display = "none";
+          box.innerHTML = "";
+          if(confirmBtn) confirmBtn.style.display = "none";
+          return;
+        }
+
+        const amountText = draft.amount_xof ? money(draft.amount_xof) : "montant à préciser";
+        const channelText = draft.channel === "manual" ? "canal à préciser" : draft.channel;
+
+        box.style.display = "block";
+        if(confirmBtn) confirmBtn.style.display = "inline-flex";
+
+        box.innerHTML = `
+          <strong>Voilà ce que DIGIY DRIVER a préparé :</strong><br>
+          Type : ${escapeHtml(draft.title)}<br>
+          Montant : ${escapeHtml(amountText)}<br>
+          Canal : ${escapeHtml(channelText)}<br>
+          Impact : ${escapeHtml(draft.impact)}<br>
+          ${draft.complement ? `Complément : ${escapeHtml(draft.complement)}<br>` : ``}
+          <br>
+          <span style="color:rgba(238,242,255,.72)">Brouillon seulement. Rien n’est envoyé en base automatiquement.</span>
+        `;
+      }
+
+      function bindQuickDriverNote(){
+        const input = $("quickDriverInput");
+        const prepare = $("btnQuickPrepare");
+        const confirm = $("btnQuickConfirm");
+        const clear = $("btnQuickClear");
+
+        $("quickDriverExamples")?.querySelectorAll("button").forEach(btn => {
+          btn.addEventListener("click", () => {
+            if(!input) return;
+            input.value = btn.textContent.trim();
+            input.focus();
+          });
+        });
+
+        prepare?.addEventListener("click", () => {
+          const sentence = String(input?.value || "").trim();
+          if(!sentence){
+            showToast("Écris une note chauffeur.");
+            return;
+          }
+
+          const draft = quickRouteFromText(sentence);
+          saveQuickDraft(draft, false);
+          renderQuickDraft(draft);
+          showToast("Brouillon chauffeur préparé.");
+        });
+
+        confirm?.addEventListener("click", () => {
+          const draft = quickRouteFromText(String(input?.value || "").trim());
+          if(!draft.sentence){
+            showToast("Prépare d’abord une note.");
+            return;
+          }
+
+          saveQuickDraft(draft, true);
+          renderQuickDraft({...draft, status:"confirmed_local"});
+          if(confirm) confirm.style.display = "none";
+          setMsg("✅ Note chauffeur confirmée et gardée ici.", "ok");
+          showToast("✅ Note confirmée.");
+        });
+
+        clear?.addEventListener("click", () => {
+          if(input) input.value = "";
+          renderQuickDraft(null);
+          showToast("Note effacée.");
+        });
+      }
+
       function resetFilters(){
         $("viewFilter").value = "active";
         $("zoneFilter").value = "";
@@ -1572,6 +1902,7 @@
         });
 
         $("tripList")?.addEventListener("click", onTripAction);
+        bindQuickDriverNote();
 
         document.addEventListener("visibilitychange", () => {
           if (!document.hidden && accessOk) boot(false);
