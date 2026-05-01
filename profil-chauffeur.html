@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Je conduis — Mon profil</title>
+  <title>Je conduis — Plus</title>
   <meta name="theme-color" content="#061b14"/>
 
   <script>
@@ -38,7 +38,7 @@
 
     body{
       margin:0;
-      padding:16px;
+      padding:16px 16px calc(104px + env(safe-area-inset-bottom,0px));
       background:var(--bg);
       color:var(--text);
       font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
@@ -316,9 +316,64 @@
     }
 
     @media (max-width:720px){
-      body{padding:12px}
+      body{padding:12px 12px calc(104px + env(safe-area-inset-bottom,0px))}
       .top,.card{padding:12px}
     }
+
+    #profileForm, #visibilityBlock, #ratesBlock{scroll-margin-top:96px}
+
+    .bottomNav{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:99990;
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+      background:rgba(6,27,20,.94);
+      border-top:1px solid rgba(255,255,255,.10);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+    .bottomNavInner{
+      width:min(100%,760px);
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+    }
+    .bottomNav a{
+      min-height:58px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      align-content:center;
+      gap:3px;
+      color:rgba(234,255,241,.70);
+      font-size:11px;
+      font-weight:950;
+      text-align:center;
+      border:1px solid transparent;
+      text-decoration:none;
+    }
+    .bottomNav .ico{font-size:18px;line-height:1}
+    .bottomNav a.active{
+      color:#042012;
+      background:linear-gradient(135deg,var(--gold),var(--primary));
+      border-color:rgba(250,204,21,.28);
+      box-shadow:0 12px 26px rgba(34,197,94,.18);
+    }
+
+    .plusFastRow{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+    @media(max-width:720px){
+      .plusFastRow{grid-template-columns:1fr 1fr}
+      .nav{display:none}
+    }
+
   </style>
 </head>
 <body>
@@ -326,16 +381,23 @@
 
     <div class="top">
       <div>
-        <h1 id="titleMain">👤 Je conduis — Mon profil</h1>
-        <div class="muted" id="subMain">Ici, tu règles ton identité, ton véhicule, ta zone, ta visibilité et tes tarifs. Sans démo.</div>
+        <h1 id="titleMain">⚙️ Je conduis — Plus</h1>
+        <div class="muted" id="subMain">Ici, tu ranges le profil chauffeur, la visibilité, les tarifs et les accès utiles. Sans démo.</div>
+
+        <div class="plusFastRow">
+          <a class="btn blue" id="fastHome" href="#">🏠 Accueil</a>
+          <a class="btn" id="fastTrips" href="#">📋 Trajets</a>
+          <a class="btn gold" id="fastRates" href="#ratesBlock">💰 Tarifs</a>
+          <a class="btn primary" id="fastProfile" href="#profileForm">👤 Profil</a>
+        </div>
 
         <div class="nav">
-          <a class="btn primary" id="btnCockpit" href="#">🧭 Ma gestion</a>
-          <a class="btn blue" id="btnDashboard" href="#">🏠 Mon activité</a>
-          <a class="btn" id="btnTrajetsPage" href="#">🚕 Mes trajets</a>
-          <a class="btn" id="btnTarifsPage" href="#">💰 Mes tarifs</a>
-          <a class="btn" id="btnQr" href="#">📱 Mon QR</a>
-          <a class="btn" id="btnPin" href="#">🔑 Mon accès</a>
+          <a class="btn primary" id="btnCockpit" href="#">⚙️ Plus</a>
+          <a class="btn blue" id="btnDashboard" href="#">🏠 Accueil</a>
+          <a class="btn" id="btnTrajetsPage" href="#">📋 Trajets</a>
+          <a class="btn" id="btnTarifsPage" href="#">💰 Tarifs</a>
+          <a class="btn" id="btnQr" href="#">📱 QR</a>
+          <a class="btn" id="btnPin" href="#">🔑 Accès</a>
           <a class="btn gold" id="btnPay" href="#">💳 Mon abonnement</a>
           <a class="btn" id="btnHome" href="#">🏠 Ma vitrine</a>
           <button class="btn warn" id="btnReloadSession" type="button">🔄 Recharger ma session</button>
@@ -350,51 +412,51 @@
     </div>
 
     <div class="card">
-      <h2>Navigation chauffeur</h2>
-      <div class="muted">Toutes les portes utiles restent recousues sur le même identifiant réel.</div>
+      <h2>Plus chauffeur</h2>
+      <div class="muted">Profil, tarifs, QR, accès et portes secondaires restent rangés ici.</div>
 
       <div class="quickNav">
         <div class="navbox">
-          <div class="title">🧭 Ma gestion</div>
-          <div class="desc">Retour au centre du module chauffeur avec accès, courses et état réel.</div>
+          <div class="title">⚙️ Plus</div>
+          <div class="desc">Revenir aux réglages et outils secondaires du chauffeur.</div>
           <a class="go" id="navCockpit" href="#">Ouvrir</a>
         </div>
 
         <div class="navbox">
-          <div class="title">🏠 Mon activité</div>
-          <div class="desc">Lecture rapide du statut, de l’activité et de l’aiguillage métier.</div>
+          <div class="title">🏠 Accueil</div>
+          <div class="desc">Lecture rapide de ce qui demande attention maintenant.</div>
           <a class="go" id="navDashboard" href="#">Ouvrir</a>
         </div>
 
         <div class="navbox">
-          <div class="title">🚕 Mes trajets</div>
-          <div class="desc">Voir, filtrer, démarrer ou terminer les courses du chauffeur.</div>
+          <div class="title">📋 Trajets</div>
+          <div class="desc">Voir, filtrer, démarrer ou terminer les courses.</div>
           <a class="go" id="navTrajets" href="#">Ouvrir</a>
         </div>
 
         <div class="navbox">
-          <div class="title">💰 Mes tarifs</div>
-          <div class="desc">Grille terrain du chauffeur, liée à l’identifiant actif, sans fausse donnée.</div>
+          <div class="title">💰 Tarifs</div>
+          <div class="desc">Grille terrain liée à l’identifiant actif.</div>
           <a class="go" id="navTarifs" href="#">Ouvrir</a>
         </div>
 
         <div class="navbox">
-          <div class="title">📱 Mon QR</div>
-          <div class="desc">Partager la bonne porte terrain avec l’identifiant déjà transmis.</div>
+          <div class="title">📱 QR</div>
+          <div class="desc">Partager la bonne porte chauffeur.</div>
           <a class="go" id="navQr" href="#">Ouvrir</a>
         </div>
 
         <div class="navbox">
-          <div class="title">🔑 Mon accès</div>
-          <div class="desc">Repasser par la porte sécurisée sans casser le rail chauffeur.</div>
+          <div class="title">🔑 Accès</div>
+          <div class="desc">Revenir par le code si la session se ferme.</div>
           <a class="go" id="navPin" href="#">Ouvrir</a>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h2>État du profil</h2>
-      <div class="muted">Lecture simple du contexte actif avant de modifier le profil.</div>
+      <h2>État chauffeur</h2>
+      <div class="muted">Lecture simple avant de modifier les infos.</div>
 
       <div class="stateGrid">
         <div class="stateBox">
@@ -414,8 +476,8 @@
 
     <div class="grid2">
       <div>
-        <div class="card">
-          <h2>Identité & véhicule</h2>
+        <div class="card" id="profileForm">
+          <h2>Profil & véhicule</h2>
 
           <div class="row">
             <div>
@@ -456,7 +518,7 @@
         </div>
 
         <div class="card">
-          <h2>Zone de service</h2>
+          <h2>Zone</h2>
 
           <div class="row">
             <div>
@@ -477,7 +539,7 @@
         </div>
 
         <div class="card">
-          <h2>Contact pro</h2>
+          <h2>Contact</h2>
 
           <div class="row">
             <div>
@@ -506,8 +568,8 @@
       </div>
 
       <div>
-        <div class="card">
-          <h2>Visibilité chauffeur</h2>
+        <div class="card" id="visibilityBlock">
+          <h2>Visibilité</h2>
           <div class="muted">Contrôle simple de visibilité du profil chauffeur.</div>
 
           <div class="list" style="margin-top:12px">
@@ -526,8 +588,8 @@
           <div class="msg" id="msgPublish">Prêt.</div>
         </div>
 
-        <div class="card">
-          <h2>Mes tarifs actifs</h2>
+        <div class="card" id="ratesBlock">
+          <h2>Tarifs actifs</h2>
 
           <div class="row">
             <div>
@@ -555,6 +617,17 @@
     </div>
 
   </div>
+
+
+  <nav class="bottomNav" aria-label="Navigation DRIVER">
+    <div class="bottomNavInner">
+      <a id="navHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
+      <a id="navTrips" href="./trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
+      <a id="navNew" href="./trajets.html#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
+      <a id="navNotes" href="./trajets.html#quickDriverNote"><span class="ico">✍️</span><span>Notes</span></a>
+      <a class="active" id="navMore" href="./profil-chauffeur.html"><span class="ico">⚙️</span><span>Plus</span></a>
+    </div>
+  </nav>
 
   <script>
     (() => {
@@ -907,6 +980,26 @@
         $("statePublish").textContent = published;
         $("stateSlug").textContent = slug || "—";
         $("statePhone").textContent = displayPhone(phone);
+
+        const extra = {
+          fastHome: PAGES.dashboard,
+          fastTrips: PAGES.trajets,
+          navHome: PAGES.dashboard,
+          navTrips: PAGES.trajets,
+          navMore: "./profil-chauffeur.html"
+        };
+        Object.entries(extra).forEach(([id, base]) => {
+          const el = $(id);
+          if (el) el.href = pageUrl(base);
+        });
+        const fastRates = $("fastRates");
+        const fastProfile = $("fastProfile");
+        const navNew = $("navNew");
+        const navNotes = $("navNotes");
+        if (fastRates) fastRates.href = "#ratesBlock";
+        if (fastProfile) fastProfile.href = "#profileForm";
+        if (navNew) navNew.href = pageUrl(PAGES.trajets) + "#newTrip";
+        if (navNotes) navNotes.href = pageUrl(PAGES.trajets) + "#quickDriverNote";
       }
 
       async function fetchCockpit(){
@@ -1011,7 +1104,7 @@
             bindNav();
             syncOwnUrl();
 
-            $("titleMain").textContent = "👤 Je conduis — Mon profil";
+            $("titleMain").textContent = "⚙️ Je conduis — Plus";
             $("subMain").textContent = data.is_blank
               ? "Ton moule personnel est vierge. Complète-le maintenant, sans démo."
               : "Profil réel retrouvé par téléphone. Tu peux le modifier librement.";
@@ -1036,7 +1129,7 @@
           bindNav();
           syncOwnUrl();
 
-          $("titleMain").textContent = "👤 Je conduis — Mon profil";
+          $("titleMain").textContent = "⚙️ Je conduis — Plus";
           $("subMain").textContent = st?.pin_session_ok
             ? "Session ouverte. Le profil détaillé ne remonte pas encore complètement, mais la page reste exploitable."
             : "Accès valide. Le profil détaillé ne remonte pas encore complètement, mais tu peux travailler proprement.";
