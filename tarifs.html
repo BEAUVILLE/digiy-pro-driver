@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER — Mes tarifs</title>
+  <title>Je conduis — Tarifs</title>
   <meta name="theme-color" content="#061b14"/>
 
   <script>
@@ -43,7 +43,7 @@
         radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.18), transparent 60%),
         radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
         var(--bg);
-      padding:16px;
+      padding:16px 16px calc(104px + env(safe-area-inset-bottom,0px));
     }
 
     a{color:inherit;text-decoration:none}
@@ -499,6 +499,66 @@
       font-size:13px;
       display:none;
     }
+
+    #tarifsForm, #tarifsPreview{scroll-margin-top:96px}
+
+    .bottomNav{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:99990;
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+      background:rgba(6,27,20,.94);
+      border-top:1px solid rgba(255,255,255,.10);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+
+    .bottomNavInner{
+      width:min(100%,760px);
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+    }
+
+    .bottomNav a{
+      min-height:58px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      align-content:center;
+      gap:3px;
+      color:rgba(234,255,241,.70);
+      font-size:11px;
+      font-weight:950;
+      text-align:center;
+      border:1px solid transparent;
+      text-decoration:none;
+    }
+
+    .bottomNav .ico{font-size:18px;line-height:1}
+
+    .bottomNav a.active{
+      color:#042012;
+      background:linear-gradient(135deg,var(--gold),var(--green));
+      border-color:rgba(250,204,21,.28);
+      box-shadow:0 12px 26px rgba(34,197,94,.18);
+    }
+
+    .tarifsFastRow{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+
+    @media(max-width:720px){
+      .tarifsFastRow{grid-template-columns:1fr 1fr}
+      .navbox{display:none}
+    }
+
   </style>
 </head>
 <body>
@@ -506,9 +566,16 @@
 
     <div class="top">
       <div>
-        <h1>💰 DIGIY DRIVER — Mes tarifs</h1>
+        <h1>💰 Je conduis — Tarifs</h1>
         <div class="muted" id="topSub">
-          Lecture simple des prix terrain. Cette page garde tes tarifs en brouillon local selon ton identifiant.
+          Lecture simple des prix terrain. Tes tarifs restent rangés ici, dans Plus, sans faux rail SQL.
+        </div>
+
+        <div class="tarifsFastRow">
+          <a class="btn" id="fastHome" href="./dashboard-pro.html">🏠 Accueil</a>
+          <a class="btn" id="fastTrips" href="./trajets.html">📋 Trajets</a>
+          <a class="btn primary" id="fastProfile" href="./profil-chauffeur.html">👤 Profil</a>
+          <a class="btn gold" id="fastTarifs" href="#tarifsForm">💰 Tarifs</a>
         </div>
       </div>
 
@@ -522,14 +589,14 @@
     <div class="stack">
 
       <div class="navbox">
-        <div class="navtitle">Navigation chauffeur</div>
+        <div class="navtitle">Plus chauffeur</div>
         <div class="navgrid">
-          <a class="navbtn" id="navDashboard" href="./dashboard-pro.html">📊 Mon activité</a>
-          <a class="navbtn" id="navCockpit" href="./cockpit.html">🧭 Ma gestion</a>
-          <a class="navbtn" id="navProfil" href="./profil-chauffeur.html">👤 Mon profil</a>
-          <a class="navbtn active" id="navTarifs" href="./tarifs.html">💰 Mes tarifs</a>
-          <a class="navbtn" id="navPin" href="./pin.html">🔐 Mon accès</a>
-          <a class="navbtn" id="navHome" href="./index.html">🏠 Ma vitrine</a>
+          <a class="navbtn" id="navDashboard" href="./dashboard-pro.html">🏠 Accueil</a>
+          <a class="navbtn" id="navCockpit" href="./cockpit.html">⚙️ Plus</a>
+          <a class="navbtn" id="navProfil" href="./profil-chauffeur.html">👤 Profil</a>
+          <a class="navbtn active" id="navTarifs" href="./tarifs.html">💰 Tarifs</a>
+          <a class="navbtn" id="navPin" href="./pin.html">🔐 Accès</a>
+          <a class="navbtn" id="navHome" href="./index.html">🌍 Façade</a>
           <a class="navbtn" id="navQr" href="./generateur-digiy-driver.html">📱 Mon QR</a>
           <button class="navbtn" id="btnPay" type="button">💳 Mon abonnement</button>
         </div>
@@ -537,12 +604,12 @@
 
       <div class="grid">
 
-        <div class="card">
+        <div class="card" id="tarifsForm">
           <div class="row">
             <div>
-              <h2>Base tarifs chauffeur</h2>
+              <h2>Tarifs chauffeur</h2>
               <div class="muted">
-                Tu poses ici tes prix visibles, sans inventer un faux rail SQL. Le brouillon suit ton identifiant.
+                Tu poses ici tes prix visibles. Le brouillon suit ton identifiant chauffeur.
               </div>
             </div>
             <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
@@ -715,11 +782,11 @@
 
         <div class="list">
 
-          <div class="card">
+          <div class="card" id="tarifsPreview">
             <div class="row">
               <div>
-                <h2>Aperçu public</h2>
-                <div class="muted">Lecture terrain directe pour le client.</div>
+                <h2>Aperçu client</h2>
+                <div class="muted">Lecture simple pour le client avant WhatsApp.</div>
               </div>
               <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap">
                 <button class="btn" id="btnCopyPublic" type="button">📋 Copier résumé</button>
@@ -751,14 +818,14 @@
 
               <div class="row" style="margin-top:12px">
                 <a class="btn ghost" id="btnBackCockpit" href="./cockpit.html">⬅️ Revenir</a>
-                <a class="btn" id="btnGoProfile" href="./profil-chauffeur.html">👤 Mon profil</a>
+                <a class="btn" id="btnGoProfile" href="./profil-chauffeur.html">👤 Profil</a>
                 <a class="btn ghost" id="btnGoQr" href="./generateur-digiy-driver.html">📱 Mon QR</a>
               </div>
             </div>
           </div>
 
           <div class="card">
-            <h2>Envoi rapide</h2>
+            <h2>Envoyer au client</h2>
             <div class="muted">Tu peux copier le texte ou ouvrir WhatsApp si le numéro est prêt.</div>
 
             <div class="row" style="margin-top:12px">
@@ -769,7 +836,7 @@
             <div class="hr"></div>
 
             <div class="muted small">
-              Astuce terrain : pose ici la vérité simple. 6 à 10 lignes propres valent mieux qu’un catalogue flou.
+              Astuce terrain : une grille claire vaut mieux qu’un catalogue flou.
             </div>
           </div>
 
@@ -778,6 +845,17 @@
       </div>
     </div>
   </div>
+
+
+  <nav class="bottomNav" aria-label="Navigation DRIVER">
+    <div class="bottomNavInner">
+      <a id="bottomHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
+      <a id="bottomTrips" href="./trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
+      <a id="bottomNew" href="./trajets.html#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
+      <a id="bottomNotes" href="./trajets.html#quickDriverNote"><span class="ico">✍️</span><span>Notes</span></a>
+      <a class="active" id="bottomMore" href="./profil-chauffeur.html"><span class="ico">⚙️</span><span>Plus</span></a>
+    </div>
+  </nav>
 
   <script>
     (() => {
@@ -1171,6 +1249,26 @@
         $("btnBackCockpit").href = pageUrl(COCKPIT_PAGE, ACCESS.slug, ACCESS.phone);
         $("btnGoProfile").href = pageUrl(PROFILE_PAGE, ACCESS.slug, ACCESS.phone);
         $("btnGoQr").href = pageUrl(QR_PAGE, ACCESS.slug, ACCESS.phone);
+
+        const moreLinks = {
+          fastHome: DASHBOARD_PAGE,
+          fastTrips: "./trajets.html",
+          fastProfile: PROFILE_PAGE,
+          bottomHome: DASHBOARD_PAGE,
+          bottomTrips: "./trajets.html",
+          bottomMore: PROFILE_PAGE
+        };
+        Object.entries(moreLinks).forEach(([id, base]) => {
+          const el = $(id);
+          if (el) el.href = pageUrl(base, ACCESS.slug, ACCESS.phone);
+        });
+
+        const fastTarifs = $("fastTarifs");
+        const bottomNew = $("bottomNew");
+        const bottomNotes = $("bottomNotes");
+        if (fastTarifs) fastTarifs.href = "#tarifsForm";
+        if (bottomNew) bottomNew.href = pageUrl("./trajets.html", ACCESS.slug, ACCESS.phone) + "#newTrip";
+        if (bottomNotes) bottomNotes.href = pageUrl("./trajets.html", ACCESS.slug, ACCESS.phone) + "#quickDriverNote";
 
         try{
           const u = new URL(location.href);
