@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Je conduis — Mon activité</title>
+  <title>Je conduis — Accueil</title>
   <meta name="theme-color" content="#09121f"/>
-  <meta name="description" content="Lecture rapide chauffeur DIGIY. Nouveau trajet, activité, statut, tarifs et accès."/>
+  <meta name="description" content="Je conduis — Accueil mobile : trajets, nouveau trajet, notes rapides, tarifs et accès."/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -59,7 +59,7 @@
 
     a{color:inherit;text-decoration:none}
     button{font:inherit}
-    .wrap{max-width:var(--max);margin:0 auto;padding:14px 14px 34px}
+    .wrap{max-width:var(--max);margin:0 auto;padding:14px 14px calc(104px + env(safe-area-inset-bottom,0px))}
 
     .topbar{
       display:flex;
@@ -612,7 +612,7 @@
     }
 
     @media(max-width:520px){
-      .wrap{padding:12px 12px 30px}
+      .wrap{padding:12px 12px calc(104px + env(safe-area-inset-bottom,0px))}
       .heroTitle{font-size:24px}
       .quickNav{grid-template-columns:1fr}
       .kpis{grid-template-columns:1fr 1fr}
@@ -622,6 +622,112 @@
       html{scroll-behavior:auto}
       .btn{transition:none}
     }
+
+    #driverNotes{scroll-margin-top:96px}
+
+    .bottomNav{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:99990;
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+      background:rgba(9,18,31,.94);
+      border-top:1px solid rgba(255,255,255,.10);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+    .bottomNavInner{
+      width:min(100%,760px);
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+    }
+    .bottomNav a{
+      min-height:58px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      align-content:center;
+      gap:3px;
+      color:rgba(238,242,255,.70);
+      font-size:11px;
+      font-weight:950;
+      text-align:center;
+      border:1px solid transparent;
+      text-decoration:none;
+    }
+    .bottomNav .ico{font-size:18px;line-height:1}
+    .bottomNav a.active{
+      color:#fff;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      border-color:rgba(99,102,241,.32);
+      box-shadow:0 12px 26px rgba(99,102,241,.22);
+    }
+
+    .driverNotesBox{
+      border-color:rgba(250,204,21,.22);
+      background:
+        radial-gradient(520px 220px at 100% 0%, rgba(250,204,21,.10), transparent 70%),
+        linear-gradient(180deg, rgba(18,29,56,.96), rgba(14,24,45,.95));
+    }
+
+    .noteExamples{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .noteChip{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.045);
+      color:var(--text);
+      border-radius:999px;
+      padding:9px 11px;
+      font-size:12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .noteChip:hover{
+      border-color:rgba(250,204,21,.28);
+      color:#fde68a;
+    }
+    .noteInput{
+      width:100%;
+      min-height:96px;
+      resize:vertical;
+      margin-top:12px;
+      padding:14px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      outline:none;
+      font:inherit;
+      font-size:15px;
+      font-weight:800;
+      line-height:1.5;
+    }
+    .noteDraft{
+      display:none;
+      margin-top:12px;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(34,197,94,.28);
+      background:rgba(34,197,94,.08);
+      color:#d7ffe6;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.55;
+    }
+
+    @media(max-width:600px){
+      #digiy-audio-btn{
+        bottom:86px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -632,7 +738,7 @@
         <div class="brandBadge">🦅</div>
         <div>
           <div class="brandTitle" id="brandTitle">Je conduis</div>
-          <div class="brandSub" id="brandSub">Mobile d’abord — une lecture claire, une action directe.</div>
+          <div class="brandSub" id="brandSub">Accueil · trajets · notes · argent</div>
         </div>
       </div>
 
@@ -648,12 +754,12 @@
       <section class="heroCard">
         <div class="eyebrow">
           <span class="dot" id="eyebrowDot"></span>
-          <span id="eyebrowText">activité chauffeur</span>
+          <span id="eyebrowText">accueil chauffeur</span>
         </div>
 
-        <h1 class="heroTitle" id="heroTitle">Ton activité, sous le pouce.</h1>
+        <h1 class="heroTitle" id="heroTitle">Ta route, sous le pouce.</h1>
         <div class="heroLead" id="heroLead">
-          Ici, le chauffeur doit comprendre en 2 secondes où il en est et quoi faire maintenant.
+          En deux secondes : voir les trajets, lancer une course, écrire une note, garder l’argent lisible.
         </div>
 
         <div class="heroAction">
@@ -677,16 +783,16 @@
 
         <div class="quickNav">
           <a class="quickLink" id="btnGestion" href="#">
-            <strong>Ma gestion</strong>
-            <span>Le centre complet, derrière l’écran maître.</span>
+            <strong>Plus</strong>
+            <span>Profil, tarifs, QR et outils secondaires.</span>
           </a>
           <a class="quickLink" id="btnPin" href="#">
-            <strong>Mon accès</strong>
-            <span>Entrer ou récupérer la session si besoin.</span>
+            <strong>Accès</strong>
+            <span>Revenir par le code si la session se ferme.</span>
           </a>
           <a class="quickLink" id="btnHome" href="#">
-            <strong>Vitrine</strong>
-            <span>Retour vers la façade publique du module.</span>
+            <strong>Façade</strong>
+            <span>Ce que le client découvre.</span>
           </a>
           <a class="quickLink" id="btnSupport" href="#">
             <strong>Support</strong>
@@ -699,8 +805,8 @@
         <div class="card">
           <div class="sectionHead">
             <div>
-              <h2 class="sectionTitle">Lecture rapide</h2>
-              <div class="sectionLead">Ce qui compte tout de suite, sans te noyer.</div>
+              <h2 class="sectionTitle">Ce qui demande attention</h2>
+              <div class="sectionLead">Courses, entrées et signaux utiles.</div>
             </div>
           </div>
 
@@ -758,14 +864,42 @@
         </div>
       </section>
 
+      <section class="card driverNotesBox" id="driverNotes">
+        <div class="sectionHead">
+          <div>
+            <h2 class="sectionTitle">Notes rapides</h2>
+            <div class="sectionLead">Carburant, péage, lavage, réparation, client qui doit — une phrase suffit pour nourrir Mon argent.</div>
+          </div>
+          <a class="btn gold" id="btnOpenPayNotes" href="#">💰 Voir Mon argent</a>
+        </div>
+
+        <textarea class="noteInput" id="driverQuickNote" placeholder="Ex : Carburant 10000 cash"></textarea>
+
+        <div class="noteExamples">
+          <button class="noteChip" type="button">Course 28000 cash</button>
+          <button class="noteChip" type="button">Carburant 10000 cash</button>
+          <button class="noteChip" type="button">Lavage 2000</button>
+          <button class="noteChip" type="button">Péage 1000 wave</button>
+          <button class="noteChip" type="button">Client doit 3000</button>
+          <button class="noteChip" type="button">Réparation pneu 5000</button>
+        </div>
+
+        <div class="heroButtons" style="margin-top:12px">
+          <button class="btn primary" id="btnPrepareDriverNote" type="button">Préparer la note</button>
+          <a class="btn gold" id="btnSendDriverNotePay" href="#">Envoyer vers Mon argent</a>
+        </div>
+
+        <div class="noteDraft" id="driverNoteDraft"></div>
+      </section>
+
       <section class="grid">
         <div class="card">
           <div class="sectionHead">
             <div>
-              <h2 class="sectionTitle">Dernières courses</h2>
-              <div class="sectionLead">Une lecture propre avant d’ouvrir le détail.</div>
+              <h2 class="sectionTitle">Trajets récents</h2>
+              <div class="sectionLead">Lecture rapide avant d’ouvrir la liste complète.</div>
             </div>
-            <a class="btn ghost" id="btnTrajetsInline" href="#">Ouvrir mes trajets</a>
+            <a class="btn ghost" id="btnTrajetsInline" href="#">Voir les trajets</a>
           </div>
 
           <div class="list" id="recentTripsList">
@@ -776,8 +910,8 @@
         <div class="card">
           <div class="sectionHead">
             <div>
-              <h2 class="sectionTitle">Signaux utiles</h2>
-              <div class="sectionLead">Ce qu’il faut corriger, confirmer ou pousser.</div>
+              <h2 class="sectionTitle">À surveiller</h2>
+              <div class="sectionLead">Profil, tarifs, courses ouvertes et visibilité.</div>
             </div>
           </div>
 
@@ -795,6 +929,17 @@
     </div>
   </div>
 
+
+  <nav class="bottomNav" aria-label="Navigation DRIVER">
+    <div class="bottomNavInner">
+      <a class="active" id="navHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
+      <a id="navTrips" href="./trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
+      <a id="navNew" href="./trajets.html#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
+      <a id="navNotes" href="#driverNotes"><span class="ico">✍️</span><span>Notes</span></a>
+      <a id="navMore" href="./profil-chauffeur.html"><span class="ico">⚙️</span><span>Plus</span></a>
+    </div>
+  </nav>
+
   <script>
     (() => {
       "use strict";
@@ -802,7 +947,7 @@
       const MODULE = "DRIVER";
       const SUPPORT_WA =
         "https://wa.me/221771342889?text=" +
-        encodeURIComponent("Salut DIGIY DRIVER, j'ai besoin d'aide sur mon activité chauffeur.");
+        encodeURIComponent("Salut DIGIY DRIVER, j'ai besoin d'aide sur mon accueil chauffeur.");
 
       const ROUTES = {
         home: "./index.html",
@@ -812,7 +957,8 @@
         profil: "./profil-chauffeur.html",
         tarifs: "./tarifs.html",
         qr: "./generateur-digiy-driver.html",
-        pay: "https://commencer-a-payer.digiylyfe.com/"
+        pay: "https://commencer-a-payer.digiylyfe.com/",
+        proPay: "https://pro-pay.digiylyfe.com/admin.html"
       };
 
       const $ = (id) => document.getElementById(id);
@@ -910,6 +1056,86 @@
           phone,
           return: location.href
         });
+      }
+
+      function parseDriverNote(text){
+        const sentence = String(text || "").trim().replace(/\s+/g, " ");
+        const lower = sentence.toLowerCase();
+        const amountMatch = sentence.match(/(\d[\d\s.,]*)\s*(f|fcfa|xof)?/i);
+        const amount = amountMatch ? Number(String(amountMatch[1]).replace(/[^\d]/g, "")) || 0 : 0;
+
+        let channel = "other";
+        if (/\bwave\b/.test(lower)) channel = "wave";
+        else if (/\b(cash|espèces|especes|liquide)\b/.test(lower)) channel = "cash";
+        else if (/\b(orange money|om)\b/.test(lower)) channel = "orange_money";
+        else if (/\b(banque|virement)\b/.test(lower)) channel = "bank";
+
+        let direction = "out";
+        let kind = "expense";
+        let category = "other";
+        let label = "Note chauffeur";
+
+        if (/\b(course|trajet|client payé|client paye|recette)\b/.test(lower)){
+          direction = "in";
+          kind = "sale";
+          category = "ride_income";
+          label = "Recette chauffeur";
+        } else if (/\b(carburant|essence|gasoil|diesel)\b/.test(lower)){
+          category = "fuel";
+          label = "Carburant";
+        } else if (/\b(lavage|nettoyage)\b/.test(lower)){
+          category = "cleaning";
+          label = "Lavage véhicule";
+        } else if (/\b(péage|peage)\b/.test(lower)){
+          category = "toll";
+          label = "Péage";
+        } else if (/\b(réparation|reparation|pneu|garage|huile)\b/.test(lower)){
+          category = "repair";
+          label = "Réparation véhicule";
+        } else if (/\b(client)\b.*\b(doit|reste)\b|\b(doit|reste)\b/.test(lower)){
+          direction = "out";
+          kind = "other";
+          category = "client_debt";
+          label = "Client doit";
+        }
+
+        return {
+          sentence,
+          amount_xof: amount,
+          channel,
+          direction,
+          kind,
+          category,
+          label
+        };
+      }
+
+      function buildDriverPayDraftUrl(draft){
+        const d = draft || parseDriverNote($("driverQuickNote")?.value || "");
+        const u = new URL(ROUTES.proPay);
+        const ownerPhone = phone || phoneFromDriverSlug(slug);
+        if (ownerPhone){
+          u.searchParams.set("slug", "pay-" + ownerPhone);
+          u.searchParams.set("phone", ownerPhone);
+        }
+        u.searchParams.set("fromDraft", "1");
+        u.searchParams.set("intent", "quick_note");
+        u.searchParams.set("source_module", "DRIVER");
+        if (slug) u.searchParams.set("source_slug", slug);
+        u.searchParams.set("source_id", "driver-note-" + Date.now());
+        if (d.amount_xof) {
+          u.searchParams.set("amount", String(d.amount_xof));
+          u.searchParams.set("amount_xof", String(d.amount_xof));
+        }
+        u.searchParams.set("channel", d.channel || "other");
+        u.searchParams.set("scope", "pro");
+        u.searchParams.set("movement_date", new Date().toISOString().slice(0,10));
+        u.searchParams.set("direction", d.direction || "out");
+        u.searchParams.set("kind", d.kind || "expense");
+        u.searchParams.set("category", d.category || "other");
+        u.searchParams.set("label", d.label || "Note chauffeur");
+        u.searchParams.set("note", d.sentence || "");
+        return u.toString();
       }
 
       function phoneVariants(v){
@@ -1207,6 +1433,24 @@
         $("btnHome").href = withSlug(ROUTES.home);
         $("btnPay").href = buildPayUrl();
 
+        const notePay = $("btnOpenPayNotes");
+        if (notePay) notePay.href = buildDriverPayDraftUrl(null);
+        const sendPay = $("btnSendDriverNotePay");
+        if (sendPay) sendPay.href = buildDriverPayDraftUrl(null);
+
+        const navMap = {
+          navHome: ROUTES.cockpit ? "./dashboard-pro.html" : "./dashboard-pro.html",
+          navTrips: ROUTES.trajets,
+          navNew: ROUTES.trajets + "#newTrip",
+          navMore: ROUTES.profil
+        };
+        Object.entries(navMap).forEach(([id, base]) => {
+          const el = $(id);
+          if (el) el.href = withSlug(base);
+        });
+        const navNotes = $("navNotes");
+        if (navNotes) navNotes.href = "#driverNotes";
+
         $("btnSupport").href = SUPPORT_WA;
         $("btnSupport").target = "_blank";
         $("btnSupport").rel = "noopener";
@@ -1322,7 +1566,7 @@
 
         $("brandSub").textContent = isBlank
           ? "Mobile d’abord — commence par poser ton profil."
-          : "Mobile d’abord — une lecture claire, une action directe.";
+          : "Accueil · trajets · notes · argent";
 
         setMsg("✅ Tableau mobile synchronisé.", "ok");
       }
@@ -1525,7 +1769,7 @@
         }
 
         if (isBlank) {
-          return "Commence par compléter ton profil pour poser ton activité chauffeur.";
+          return "Commence par compléter ton profil pour poser ton accueil chauffeur.";
         }
 
         if (!hasRates) {
@@ -1619,6 +1863,36 @@
 
       $("btnRefresh")?.addEventListener("click", () => boot(true));
 
+      document.querySelectorAll(".noteChip").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const input = $("driverQuickNote");
+          if (input) input.value = btn.textContent.trim();
+          const draftBox = $("driverNoteDraft");
+          if (draftBox) draftBox.style.display = "none";
+        });
+      });
+
+      $("btnPrepareDriverNote")?.addEventListener("click", () => {
+        const input = $("driverQuickNote");
+        const draftBox = $("driverNoteDraft");
+        if (!input || !draftBox) return;
+        const draft = parseDriverNote(input.value);
+        if (!draft.sentence){
+          draftBox.style.display = "block";
+          draftBox.innerHTML = "Écris une phrase simple : course, carburant, lavage, péage, réparation ou client qui doit.";
+          return;
+        }
+        draftBox.style.display = "block";
+        draftBox.innerHTML = `
+          <strong>${escapeHtml(draft.label)}</strong><br>
+          ${escapeHtml(draft.direction)} · ${escapeHtml(draft.kind)} · ${escapeHtml(draft.channel)} · ${escapeHtml(draft.category)}<br>
+          ${draft.amount_xof ? escapeHtml(money(draft.amount_xof)) : "Montant à préciser"}<br>
+          ${escapeHtml(draft.sentence)}
+        `;
+        const pay = $("btnSendDriverNotePay");
+        if (pay) pay.href = buildDriverPayDraftUrl(draft);
+      });
+
       boot(false);
     })();
   </script>
@@ -1691,7 +1965,7 @@
       #digiy-audio-btn{
         left:12px !important;
         right:12px !important;
-        bottom:12px !important;
+        bottom:86px !important;
         justify-content:center;
         font-size:16px;
         padding:15px 18px;
