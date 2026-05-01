@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Je conduis — Mon accès</title>
+  <title>Je conduis — Accès</title>
   <meta name="theme-color" content="#061b14"/>
-  <meta name="description" content="Accès sécurisé DIGIY DRIVER par téléphone et code PIN."/>
+  <meta name="description" content="Je conduis — ouvrir l’accès et revenir vers Accueil, Trajets, Nouveau, Notes ou Plus."/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -53,7 +53,7 @@
 
     .wrap{
       min-height:100vh;
-      padding:18px 14px 30px;
+      padding:18px 14px calc(104px + env(safe-area-inset-bottom,0px));
       display:flex;
       align-items:center;
       justify-content:center;
@@ -333,29 +333,86 @@
         grid-template-columns:1fr;
       }
     }
+
+    .bottomNav{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:99990;
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+      background:rgba(6,27,20,.94);
+      border-top:1px solid rgba(255,255,255,.10);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+    .bottomNavInner{
+      width:min(100%,760px);
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+    }
+    .bottomNav a{
+      min-height:58px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      align-content:center;
+      gap:3px;
+      color:rgba(238,251,244,.70);
+      font-size:11px;
+      font-weight:950;
+      text-align:center;
+      border:1px solid transparent;
+      text-decoration:none;
+    }
+    .bottomNav .ico{font-size:18px;line-height:1}
+    .bottomNav a.active{
+      color:#042012;
+      background:linear-gradient(135deg,var(--gold),var(--green2));
+      border-color:rgba(244,201,93,.28);
+      box-shadow:0 12px 26px rgba(25,180,107,.18);
+    }
+
+    .fastLinks{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:8px;
+      margin-top:12px;
+    }
+    .fastLinks .linkBtn{
+      min-height:44px;
+      font-size:.86rem;
+    }
+
+    @media(max-width:520px){
+      .fastLinks{grid-template-columns:1fr 1fr}
+    }
+
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="shell">
       <div class="topbar">
-        <a class="back" id="backLink" href="./index.html">← Retour vitrine</a>
-        <div class="badge">Driver • Accès</div>
+        <a class="back" id="backLink" href="./index.html">← Retour</a>
+        <div class="badge">Je conduis • Accès</div>
       </div>
 
       <section class="card">
         <div class="hero">
-          <div class="kicker">DIGIY DRIVER</div>
-          <h1>Entre avec ton téléphone et ton code PIN</h1>
+          <div class="kicker">JE CONDUIS</div>
+          <h1>Ouvre ton accès chauffeur</h1>
           <p class="sub">
-            Porte d’entrée simple pour le chauffeur. Une fois validé, tu pars direct vers ton espace.
+            Une porte, puis tu circules entre Accueil, Trajets, Nouveau, Notes et Plus.
           </p>
         </div>
 
         <div class="body">
           <div id="statusBox" class="status warn">
             <div>🔐</div>
-            <div id="statusText">Préparation de l’accès sécurisé chauffeur…</div>
+            <div id="statusText">Préparation de l’accès chauffeur…</div>
           </div>
 
           <form id="pinForm" novalidate>
@@ -388,34 +445,52 @@
             </div>
 
             <div class="actions">
-              <button id="btnSubmit" type="submit" class="mainBtn">Ouvrir mon espace</button>
-              <button id="btnReuse" type="button" class="softBtn">Réutiliser ma session</button>
+              <button id="btnSubmit" type="submit" class="mainBtn">Entrer dans DRIVER</button>
+              <button id="btnReuse" type="button" class="softBtn">Reprendre ma session</button>
             </div>
           </form>
 
           <div class="mini">
             <div class="miniBox">
-              <div class="miniTitle">Passage chauffeur</div>
+              <div class="miniTitle">Une seule porte</div>
               <div class="miniText">
-                Le PIN est une porte d’entrée. Après validation, la session suit la navigation interne normale du module.
+                Après validation, tu ne dois pas retaper ton code entre les pages internes.
               </div>
             </div>
 
             <div class="links">
-              <a class="linkBtn" id="linkCockpit" href="./cockpit.html">Ma gestion</a>
-              <a class="linkBtn" id="linkProfil" href="./profil-chauffeur.html">Mon profil</a>
-              <a class="linkBtn" id="linkTarifs" href="./tarifs.html">Mes tarifs</a>
-              <a class="linkBtn" id="linkQr" href="./qr.html">Mon QR</a>
+              <a class="linkBtn" id="linkCockpit" href="./cockpit.html">Plus</a>
+              <a class="linkBtn" id="linkProfil" href="./profil-chauffeur.html">Profil</a>
+              <a class="linkBtn" id="linkTarifs" href="./tarifs.html">Tarifs</a>
+              <a class="linkBtn" id="linkQr" href="./qr.html">QR</a>
+            </div>
+
+            <div class="fastLinks">
+              <a class="linkBtn" id="fastHome" href="./dashboard-pro.html">Accueil</a>
+              <a class="linkBtn" id="fastTrips" href="./trajets.html">Trajets</a>
+              <a class="linkBtn" id="fastNotes" href="./trajets.html#quickDriverNote">Notes</a>
+              <a class="linkBtn" id="fastNew" href="./trajets.html#newTrip">Nouveau</a>
             </div>
           </div>
 
           <div class="foot">
-            DIGIY DRIVER • accès protégé • session locale 8h
+            JE CONDUIS • accès protégé • session locale 8h
           </div>
         </div>
       </section>
     </div>
   </div>
+
+
+  <nav class="bottomNav" aria-label="Navigation DRIVER">
+    <div class="bottomNavInner">
+      <a id="bottomHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
+      <a id="bottomTrips" href="./trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
+      <a id="bottomNew" href="./trajets.html#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
+      <a id="bottomNotes" href="./trajets.html#quickDriverNote"><span class="ico">✍️</span><span>Notes</span></a>
+      <a class="active" id="bottomMore" href="./pin.html"><span class="ico">🔐</span><span>Accès</span></a>
+    </div>
+  </nav>
 
   <script>
     (function(){
@@ -429,10 +504,13 @@
 
       const PAGES = {
         home: "./index.html",
+        dashboard: "./dashboard-pro.html",
         cockpit: "./cockpit.html",
+        trajets: "./trajets.html",
         profil: "./profil-chauffeur.html",
         tarifs: "./tarifs.html",
-        qr: "./qr.html"
+        qr: "./generateur-digiy-driver.html",
+        pin: "./pin.html"
       };
 
       const $ = (id) => document.getElementById(id);
@@ -451,6 +529,10 @@
       const linkProfil = $("linkProfil");
       const linkTarifs = $("linkTarifs");
       const linkQr = $("linkQr");
+      const fastHome = $("fastHome");
+      const fastTrips = $("fastTrips");
+      const fastNotes = $("fastNotes");
+      const fastNew = $("fastNew");
 
       const query = new URLSearchParams(window.location.search);
 
@@ -507,7 +589,7 @@
 
       function setBusy(isBusy){
         btnSubmit.disabled = !!isBusy;
-        btnSubmit.textContent = isBusy ? "Connexion en cours..." : "Ouvrir mon espace";
+        btnSubmit.textContent = isBusy ? "Ouverture en cours..." : "Entrer dans DRIVER";
       }
 
       function buildSafeUrl(path, params){
@@ -539,11 +621,25 @@
         const cleanPhone = normalizePhone(phone);
         const cleanSlug = healDriverSlug(slug, cleanPhone);
 
-        backLink.href = buildPageUrl(PAGES.home, cleanSlug, cleanPhone);
-        linkCockpit.href = buildPageUrl(PAGES.cockpit, cleanSlug, cleanPhone);
+        backLink.href = buildPageUrl(PAGES.dashboard, cleanSlug, cleanPhone);
+        linkCockpit.href = buildPageUrl(PAGES.profil, cleanSlug, cleanPhone);
         linkProfil.href = buildPageUrl(PAGES.profil, cleanSlug, cleanPhone);
         linkTarifs.href = buildPageUrl(PAGES.tarifs, cleanSlug, cleanPhone);
         linkQr.href = buildPageUrl(PAGES.qr, cleanSlug, cleanPhone);
+        if (fastHome) fastHome.href = buildPageUrl(PAGES.dashboard, cleanSlug, cleanPhone);
+        if (fastTrips) fastTrips.href = buildPageUrl(PAGES.trajets, cleanSlug, cleanPhone);
+        if (fastNotes) fastNotes.href = buildPageUrl(PAGES.trajets, cleanSlug, cleanPhone) + "#quickDriverNote";
+        if (fastNew) fastNew.href = buildPageUrl(PAGES.trajets, cleanSlug, cleanPhone) + "#newTrip";
+
+        ["bottomHome","bottomTrips","bottomNew","bottomNotes","bottomMore"].forEach(function(id){
+          const el = document.getElementById(id);
+          if(!el) return;
+          if(id === "bottomHome") el.href = buildPageUrl(PAGES.dashboard, cleanSlug, cleanPhone);
+          if(id === "bottomTrips") el.href = buildPageUrl(PAGES.trajets, cleanSlug, cleanPhone);
+          if(id === "bottomNew") el.href = buildPageUrl(PAGES.trajets, cleanSlug, cleanPhone) + "#newTrip";
+          if(id === "bottomNotes") el.href = buildPageUrl(PAGES.trajets, cleanSlug, cleanPhone) + "#quickDriverNote";
+          if(id === "bottomMore") el.href = buildPageUrl(PAGES.pin, cleanSlug, cleanPhone);
+        });
       }
 
       function readStoredSession(){
@@ -604,6 +700,12 @@
         try{ localStorage.setItem(SESSION_KEY, JSON.stringify(payload)); }catch(_){}
         try{ localStorage.setItem(SESSION_KEY_ALT, JSON.stringify(payload)); }catch(_){}
         try{ localStorage.setItem(SESSION_KEY_GLOBAL, JSON.stringify(payload)); }catch(_){}
+        try{ localStorage.setItem("digiy_driver_slug", cleanSlug); }catch(_){}
+        try{ localStorage.setItem("digiy_driver_last_slug", cleanSlug); }catch(_){}
+        try{ localStorage.setItem("digiy_driver_phone", cleanPhone); }catch(_){}
+        try{ sessionStorage.setItem("digiy_driver_slug", cleanSlug); }catch(_){}
+        try{ sessionStorage.setItem("digiy_driver_last_slug", cleanSlug); }catch(_){}
+        try{ sessionStorage.setItem("digiy_driver_phone", cleanPhone); }catch(_){}
 
         refreshLinks(cleanSlug, cleanPhone);
         return payload;
@@ -613,6 +715,12 @@
         try{ localStorage.removeItem(SESSION_KEY); }catch(_){}
         try{ localStorage.removeItem(SESSION_KEY_ALT); }catch(_){}
         try{ localStorage.removeItem(SESSION_KEY_GLOBAL); }catch(_){}
+        try{ localStorage.removeItem("digiy_driver_slug"); }catch(_){}
+        try{ localStorage.removeItem("digiy_driver_last_slug"); }catch(_){}
+        try{ localStorage.removeItem("digiy_driver_phone"); }catch(_){}
+        try{ sessionStorage.removeItem("digiy_driver_slug"); }catch(_){}
+        try{ sessionStorage.removeItem("digiy_driver_last_slug"); }catch(_){}
+        try{ sessionStorage.removeItem("digiy_driver_phone"); }catch(_){}
       }
 
       function normalizeRpcPayload(payload){
@@ -705,7 +813,7 @@
       }
 
       function buildCockpitUrl(slug, phone){
-        return buildPageUrl(PAGES.cockpit, slug, phone);
+        return buildPageUrl(PAGES.dashboard, slug, phone);
       }
 
       async function goWithSession(session){
@@ -728,7 +836,7 @@
           return;
         }
 
-        setStatus("ok", "Session chauffeur retrouvée. Redirection vers ton espace...");
+        setStatus("ok", "Session chauffeur retrouvée. Ouverture de l’accueil...");
         window.location.href = buildCockpitUrl(saved.slug, saved.phone);
       }
 
@@ -875,7 +983,7 @@
             return;
           }
 
-          setStatus("ok", "PIN accepté. Ouverture de ton espace chauffeur...");
+          setStatus("ok", "Code accepté. Ouverture de l’accueil DRIVER...");
           window.location.href = buildCockpitUrl(session.slug, session.phone);
         }catch(err){
           console.error("[DRIVER PIN] submit error", err);
@@ -892,9 +1000,6 @@
         setStatus("bad", "Erreur au démarrage de la page.");
       });
     })();
-  </script>
-</body>
-</html>
   </script>
 </body>
 </html>
