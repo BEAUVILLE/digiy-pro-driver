@@ -1387,25 +1387,48 @@
         const hasSession = !!(guardState && guardState.access_ok && (guardState.slug || guardState.phone));
         const hasKnownContext = !!(slug || phone);
         const hasJoinForm = !!document.getElementById("btnApplyNow");
-        const hasWorkDoors = !!document.getElementById("btnCockpitHero") && !!document.getElementById("btnDashboardHero");
 
-        if (!hasSession && !hasKnownContext && hasJoinForm) {
-          return "Bienvenue. Tu peux entrer avec ton code, ouvrir ton activité, ou nous rejoindre par WhatsApp si tu veux devenir chauffeur.";
-        }
+        const intro =
+          "Bienvenue dans Je conduis avec DIGIY. Cette page est l’entrée principale du chauffeur. " +
+          "Elle sert à ne pas te perdre entre ton code, ton activité, ton espace chauffeur, ton profil, tes tarifs et WhatsApp. ";
 
-        if (hour < 12 && hasWorkDoors) {
-          return "Bonjour. Tu peux entrer avec ton code, ouvrir ton activité, et commencer ta journée de conduite sans te perdre.";
-        }
+        const novice =
+          "Si tu découvres DIGIY DRIVER, pense à cette page comme à une gare simple. " +
+          "Chaque bouton est une porte. Mon code sert à ouvrir ton accès sécurisé. " +
+          "Mon activité donne une lecture rapide de ce qui demande attention. " +
+          "Mon espace chauffeur est le cœur du travail : reprendre la route, gérer ton quotidien, retrouver tes liens utiles. " +
+          "Ton profil montre qui tu es, ta zone, ton véhicule, ton contact et ta présence professionnelle. " +
+          "Tes tarifs servent à afficher des prix clairs pour les trajets, sans discussion confuse. ";
 
-        if (hour >= 18 && hasWorkDoors) {
-          return "Tu peux retrouver ton activité, revoir ton espace chauffeur, et vérifier tes tarifs avant de reprendre une course.";
-        }
+        const doctrine =
+          "DIGIY ne prend pas de commission sur tes courses. Le client te contacte directement, ton argent reste entre toi et ton client, et WhatsApp reste une porte humaine quand il faut parler. " +
+          "L’objectif n’est pas de compliquer ton métier. L’objectif est de te donner une présence claire, un accès propre et des outils simples pour travailler avec plus d’ordre. ";
+
+        const join =
+          "Si tu es nouveau chauffeur, tu peux utiliser le bloc Devenir chauffeur. Tu mets ta ville, ton véhicule, ta disponibilité, et DIGIY prépare un message WhatsApp propre pour commencer l’échange. ";
+
+        const morning =
+          "Ce matin, le bon chemin est simple : ouvre ton activité, vérifie ton espace, regarde tes tarifs, puis reprends la route avec la bonne information. ";
+
+        const evening =
+          "En fin de journée, tu peux revenir ici pour relire ton espace, vérifier tes tarifs, revoir ton profil et garder ton activité bien rangée avant demain. ";
+
+        const session =
+          "Ton contexte semble déjà reconnu. Tu peux donc reprendre plus vite : activité, espace chauffeur, profil ou tarifs, sans refaire tout le chemin. ";
 
         if (hasSession || hasKnownContext) {
-          return "Tu peux reprendre ton activité, ouvrir ton espace chauffeur, revoir ton profil ou ajuster tes tarifs.";
+          return intro + session + novice + doctrine;
         }
 
-        return "Bienvenue. Ici, tu peux entrer avec ton code, retrouver ton espace chauffeur, ton profil, tes tarifs, ou nous rejoindre simplement par WhatsApp.";
+        if (hour < 12) {
+          return intro + morning + novice + doctrine + (hasJoinForm ? join : "");
+        }
+
+        if (hour >= 18) {
+          return intro + evening + novice + doctrine + (hasJoinForm ? join : "");
+        }
+
+        return intro + novice + doctrine + (hasJoinForm ? join : "");
       }
 
       bootReveal();
@@ -1433,9 +1456,9 @@
 
   <script>
     window.DIGIY_AUDIO_CONFIG = {
-      label: "Écouter mon entrée",
+      label: "Comprendre mon entrée chauffeur",
       stopLabel: "Arrêter",
-      text: window.DIGIY_DRIVER_AUDIO_TEXT || "Bienvenue. Ici, tu peux entrer avec ton code, retrouver ton espace chauffeur, ton profil, tes tarifs, ou nous rejoindre simplement par WhatsApp.",
+      text: window.DIGIY_DRIVER_AUDIO_TEXT || "Bienvenue dans Je conduis avec DIGIY. Cette page est l’entrée principale du chauffeur : ton code, ton activité, ton espace, ton profil, tes tarifs et WhatsApp. DIGIY t’aide à travailler avec plus d’ordre, sans commission sur tes courses, et en gardant le contact direct avec le client.",
       buttonBg: "linear-gradient(135deg,#d4af37,#b78b34)",
       buttonColor: "#111827",
       bottom: "24px",
@@ -1505,9 +1528,9 @@
     }
   </style>
 
-  <button id="digiy-audio-btn" type="button" aria-label="Écouter mon entrée">
+  <button id="digiy-audio-btn" type="button" aria-label="Comprendre mon entrée chauffeur">
     <span class="digiy-audio-ico">&#9654;</span>
-    <span class="digiy-audio-lbl">Écouter mon entrée</span>
+    <span class="digiy-audio-lbl">Comprendre mon entrée</span>
   </button>
 
   <div id="digiy-audio-progress-wrap" aria-hidden="true">
