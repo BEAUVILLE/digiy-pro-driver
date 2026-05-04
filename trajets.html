@@ -20,7 +20,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-trajets-mobile-20260330"></script>
+  <script src="./guard.js?v=driver-security-v2-20260504"></script>
 
   <style>
     :root{
@@ -868,8 +868,8 @@
       </div>
 
       <div class="rightPills">
-        <div class="pill" id="pillSlug">identifiant : <b>—</b></div>
-        <div class="pill" id="pillPhone">téléphone : <b>—</b></div>
+        <div class="pill" id="pillSlug">espace : <b>sécurisé</b></div>
+        <div class="pill" id="pillPhone">compte : <b>protégé</b></div>
         <div class="pill warn" id="pillAccess">accès : <b>contrôle…</b></div>
       </div>
     </div>
@@ -1134,6 +1134,69 @@
         return p ? "+" + p : "—";
       }
 
+      function isSensitiveSlug(value){
+        return /\d{7,}/.test(String(value || ""));
+      }
+
+      function canExposeSlug(value){
+        const s = normSlug(value);
+        return !!s && !isSensitiveSlug(s);
+      }
+
+      function displaySpace(value){
+        const s = normSlug(value);
+        if(!s) return "Espace chauffeur sécurisé";
+        if(isSensitiveSlug(s)) return "Espace chauffeur sécurisé";
+        return "Espace DRIVER";
+      }
+
+      function cleanVisibleUrl(){
+        try{
+          const u = new URL(location.href);
+          let changed = false;
+
+          if(u.searchParams.has("phone")){
+            u.searchParams.delete("phone");
+            changed = true;
+          }
+
+          if(u.searchParams.has("tel")){
+            u.searchParams.delete("tel");
+            changed = true;
+          }
+
+          const urlSlug = normSlug(u.searchParams.get("slug") || "");
+          const identifiant = normSlug(u.searchParams.get("identifiant") || "");
+
+          if(urlSlug && isSensitiveSlug(urlSlug)){
+            u.searchParams.delete("slug");
+            changed = true;
+          }
+
+          if(identifiant && isSensitiveSlug(identifiant)){
+            u.searchParams.delete("identifiant");
+            changed = true;
+          }
+
+          if(changed){
+            history.replaceState({}, "", u.pathname + u.search + u.hash);
+          }
+        }catch(_){ }
+      }
+
+      function safeReturnUrl(){
+        try{
+          const u = new URL(location.href);
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+          const urlSlug = normSlug(u.searchParams.get("slug") || "");
+          if(urlSlug && isSensitiveSlug(urlSlug)) u.searchParams.delete("slug");
+          return u.pathname + u.search + u.hash;
+        }catch(_){
+          return location.pathname;
+        }
+      }
+
       function isDriverSlug(v){
         return /^driver-\d{12}$/.test(normSlug(v));
       }
@@ -1213,12 +1276,38 @@
       function buildSafeUrl(base, params = {}){
         try{
           const u = new URL(String(base || "").trim(), location.href);
+
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+
           Object.entries(params).forEach(([k, v]) => {
             if (v === null || v === undefined) return;
             const val = String(v).trim();
             if (!val) return;
+
+            if(k === "phone" || k === "tel") return;
+
+            if(k === "slug" || k === "identifiant"){
+              const clean = normSlug(val);
+              if(canExposeSlug(clean)) u.searchParams.set("slug", clean);
+              else{
+                u.searchParams.delete("slug");
+                u.searchParams.delete("identifiant");
+              }
+              return;
+            }
+
+            if(k === "return"){
+              u.searchParams.set("return", safeReturnUrl());
+              return;
+            }
+
             u.searchParams.set(k, val);
           });
+
+          const existingSlug = normSlug(u.searchParams.get("slug") || "");
+          if(existingSlug && isSensitiveSlug(existingSlug)) u.searchParams.delete("slug");
+
           if (u.origin === location.origin) return u.pathname + u.search + u.hash;
           return u.toString();
         }catch{
@@ -1228,7 +1317,14 @@
             if (v === null || v === undefined) return;
             const val = String(v).trim();
             if (!val) return;
-            qp.set(k, val);
+            if(k === "phone" || k === "tel") return;
+            if(k === "slug" || k === "identifiant"){
+              const clean = normSlug(val);
+              if(canExposeSlug(clean)) qp.set("slug", clean);
+              return;
+            }
+            if(k === "return") qp.set("return", safeReturnUrl());
+            else qp.set(k, val);
           });
           const tail = qp.toString();
           return tail ? raw + (raw.includes("?") ? "&" : "?") + tail : raw;
@@ -1236,16 +1332,21 @@
       }
 
       function withSlug(base, extra = {}){
-        return buildSafeUrl(base, { slug, phone, ...extra });
+        const safeParams = { ...extra };
+        delete safeParams.phone;
+        delete safeParams.tel;
+
+        if(canExposeSlug(slug)) safeParams.slug = slug;
+        else delete safeParams.slug;
+
+        return buildSafeUrl(base, safeParams);
       }
 
       function buildPayUrl(){
         if (lastGuardState?.pay_url) return lastGuardState.pay_url;
         return buildSafeUrl(ROUTES.pay, {
           module: MODULE,
-          slug,
-          phone,
-          return: location.href
+          return: safeReturnUrl()
         });
       }
 
@@ -1266,8 +1367,11 @@
       }
 
       function resolveSlug(){
-        const qs = new URLSearchParams(location.search);
-        const fromUrl = normSlug(qs.get("slug") || "");
+        let fromUrl = "";
+        try{
+          const qs = new URLSearchParams(location.search);
+          fromUrl = normSlug(qs.get("slug") || qs.get("identifiant") || "");
+        }catch{}
         if (fromUrl) return fromUrl;
 
         const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug || "");
@@ -1283,8 +1387,11 @@
       }
 
       function resolvePhone(){
-        const qs = new URLSearchParams(location.search);
-        const fromUrl = normPhone(qs.get("phone") || qs.get("tel") || "");
+        let fromUrl = "";
+        try{
+          const qs = new URLSearchParams(location.search);
+          fromUrl = normPhone(qs.get("phone") || qs.get("tel") || "");
+        }catch{}
         if (fromUrl) return fromUrl;
 
         const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone || "");
@@ -1293,6 +1400,7 @@
         return normPhone(
           storageGet("DIGIY_DRIVER_PHONE") ||
           storageGet("digiy_driver_phone") ||
+          storageGet("DIGIY_DRIVER_HUB_PHONE") ||
           storageGet("DIGIY_PHONE") ||
           phoneFromDriverSlug(slug) ||
           ""
@@ -1600,8 +1708,8 @@
       }
 
       function renderHeaderState(){
-        $("pillSlug").innerHTML = `identifiant : <b>${slug || "—"}</b>`;
-        $("pillPhone").innerHTML = `téléphone : <b>${displayPhone(phone)}</b>`;
+        $("pillSlug").innerHTML = `espace : <b>${displaySpace(slug)}</b>`;
+        $("pillPhone").innerHTML = `compte : <b>${phone ? "reconnu" : "protégé"}</b>`;
 
         const pill = $("pillAccess");
         const dot = $("eyebrowDot");
@@ -2125,7 +2233,7 @@
         qs.set("channel", item?.channel && item.channel !== "manual" ? String(item.channel) : "other");
         qs.set("category", payCategoryFromQuick(item));
         qs.set("source_module", "DRIVER");
-        if(slug) qs.set("source_slug", slug);
+        if(slug && canExposeSlug(slug)) qs.set("source_slug", slug);
         qs.set("source_id", item?.memory_id || ("driver-note-" + Date.now()));
         qs.set("label", payLabelFromQuick(item));
         qs.set("note", String(item?.sentence || "").trim());
@@ -2294,6 +2402,7 @@
       }
 
       async function boot(forceRefresh = false){
+        cleanVisibleUrl();
         if (isLoading) return;
         isLoading = true;
         document.body.classList.add("loading");
@@ -2307,6 +2416,7 @@
 
           slug = normSlug(state?.slug || resolveSlug());
           phone = normPhone(state?.phone || resolvePhone() || phoneFromDriverSlug(slug));
+          cleanVisibleUrl();
           accessOk = !!(state?.access_ok || state?.access);
           pinSessionOk = !!state?.pin_session_ok;
 
@@ -2376,6 +2486,7 @@
         }
       }
 
+      cleanVisibleUrl();
       bindUi();
       boot(false);
     })();
