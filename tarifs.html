@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-tarifs-20260329-v2"></script>
+  <script src="./guard.js?v=driver-security-v2-20260504"></script>
 
   <style>
     :root{
@@ -568,7 +568,7 @@
       <div>
         <h1>💰 Je conduis — Tarifs</h1>
         <div class="muted" id="topSub">
-          Lecture simple des prix terrain. Tes tarifs restent rangés ici, dans Plus, sans faux rail SQL.
+          Lecture simple des prix terrain. Tes tarifs restent rangés ici, dans Plus, sans exposer tes identifiants.
         </div>
 
         <div class="tarifsFastRow">
@@ -580,8 +580,8 @@
       </div>
 
       <div class="pillRow">
-        <div class="pill" id="slugPill">identifiant : —</div>
-        <div class="pill" id="phonePill">téléphone : —</div>
+        <div class="pill" id="slugPill">compte : sécurisé</div>
+        <div class="pill" id="phonePill">contact : masqué</div>
         <div class="pill warn" id="accessPill">session : contrôle…</div>
       </div>
     </div>
@@ -609,7 +609,7 @@
             <div>
               <h2>Tarifs chauffeur</h2>
               <div class="muted">
-                Tu poses ici tes prix visibles. Le brouillon suit ton identifiant chauffeur.
+                Tu poses ici tes prix visibles. Le brouillon suit le compte chauffeur reconnu, sans l’afficher.
               </div>
             </div>
             <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
@@ -633,7 +633,7 @@
               <div class="value" id="kpiMax">—</div>
             </div>
             <div class="kpi">
-              <div class="label">Brouillon lié à</div>
+              <div class="label">Compte</div>
               <div class="value" id="kpiSlug" style="font-size:14px;line-height:1.35">—</div>
             </div>
           </div>
@@ -655,7 +655,7 @@
             <div>
               <label>WhatsApp</label>
               <input id="f_whatsapp" placeholder="22177xxxxxxx"/>
-              <div class="hint">Ce numéro sert pour le bouton WhatsApp du résumé.</div>
+              <div class="hint">Ce numéro sert seulement au résumé client si tu veux l’afficher.</div>
             </div>
             <div>
               <label>Zones</label>
@@ -776,7 +776,7 @@
 
           <div id="toast" class="toast"></div>
           <div id="disabledNote" class="disabledNote">
-            ℹ️ Ici on garde un brouillon local par identifiant. Pas de fausse écriture SQL inventée sur un rail tarifaire non prouvé.
+            ℹ️ Ici on garde un brouillon local lié au compte reconnu. Pas de fausse écriture SQL inventée sur un rail tarifaire non prouvé.
           </div>
         </div>
 
@@ -924,15 +924,89 @@
         return isDriverSlug(s) ? normPhone(s.slice("driver-".length)) : "";
       }
 
+      function isSensitiveSlug(v){
+        return /\d{7,}/.test(String(v || ""));
+      }
+
+      function canExposeSlug(v){
+        const s = normSlug(v);
+        return !!s && !isSensitiveSlug(s);
+      }
+
+      function cleanVisibleUrl(){
+        try{
+          const u = new URL(location.href);
+          let changed = false;
+
+          if (u.searchParams.has("phone")){
+            u.searchParams.delete("phone");
+            changed = true;
+          }
+
+          if (u.searchParams.has("tel")){
+            u.searchParams.delete("tel");
+            changed = true;
+          }
+
+          const urlSlug = normSlug(u.searchParams.get("slug") || "");
+          if (urlSlug && isSensitiveSlug(urlSlug)){
+            u.searchParams.delete("slug");
+            changed = true;
+          }
+
+          if (changed){
+            history.replaceState({}, "", u.pathname + u.search + u.hash);
+          }
+        }catch(_){}
+      }
+
+      function sanitizeReturnUrl(){
+        try{
+          const u = new URL(location.href);
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+          const s = normSlug(u.searchParams.get("slug") || "");
+          if (s && isSensitiveSlug(s)) u.searchParams.delete("slug");
+          return u.pathname + u.search + u.hash;
+        }catch(_){
+          return location.pathname;
+        }
+      }
+
+      function accountLabel(){
+        return ACCESS.access_ok ? "compte : sécurisé" : (ACCESS.slug ? "compte : reconnu" : "compte : à vérifier");
+      }
+
       function buildSafeUrl(base, params){
         try{
           const u = new URL(base, location.href);
+
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+
           Object.entries(params || {}).forEach(([key, value]) => {
             const clean = String(value == null ? "" : value).trim();
+
+            if (key === "phone" || key === "tel") return;
+
+            if (key === "slug" || key === "identifiant"){
+              const s = normSlug(clean);
+              if (canExposeSlug(s)) u.searchParams.set("slug", s);
+              else u.searchParams.delete("slug");
+              return;
+            }
+
             if (clean) u.searchParams.set(key, clean);
             else u.searchParams.delete(key);
           });
-          return u.pathname + u.search;
+
+          const currentSlug = normSlug(u.searchParams.get("slug") || "");
+          if (currentSlug && isSensitiveSlug(currentSlug)){
+            u.searchParams.delete("slug");
+          }
+
+          if (u.origin === location.origin) return u.pathname + u.search + u.hash;
+          return u.toString();
         }catch(e){
           console.error("[DIGIY DRIVER TARIFS] buildSafeUrl", e);
           return base;
@@ -949,11 +1023,18 @@
       function buildPayUrl(){
         try{
           if (ACCESS.pay_url) return ACCESS.pay_url;
+
           const u = new URL(PAY_HOME);
           u.searchParams.set("module", MODULE);
-          if (ACCESS.phone) u.searchParams.set("phone", ACCESS.phone);
-          if (ACCESS.slug) u.searchParams.set("slug", ACCESS.slug);
-          u.searchParams.set("return", location.href);
+
+          if (canExposeSlug(ACCESS.slug)){
+            u.searchParams.set("slug", ACCESS.slug);
+          }
+
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+          u.searchParams.set("return", sanitizeReturnUrl());
+
           return u.toString();
         }catch(_){
           return PAY_HOME;
@@ -1048,7 +1129,7 @@
       function loadIntoForm(data){
         $("f_display_name").value = data?.display_name || "";
         $("f_city").value = data?.city || "";
-        $("f_whatsapp").value = data?.whatsapp || ACCESS.phone || "";
+        $("f_whatsapp").value = data?.whatsapp || "";
         $("f_zones").value = arrayToCsv(data?.zones);
         $("f_note").value = data?.note || "";
 
@@ -1076,7 +1157,7 @@
         const data = currentData();
         try{
           localStorage.setItem(storageKey(), JSON.stringify(data));
-          setToast("💾 Brouillon tarifs enregistré sur cet identifiant.", "ok");
+          setToast("💾 Brouillon tarifs enregistré sur ce compte.", "ok");
           refreshPreview();
         }catch(e){
           console.error(e);
@@ -1091,13 +1172,13 @@
         loadIntoForm({
           display_name: ACCESS.profile?.display_name || deriveNameFromSlug(ACCESS.slug),
           city: ACCESS.profile?.city || "",
-          whatsapp: ACCESS.profile?.whatsapp || ACCESS.phone || "",
+          whatsapp: ACCESS.profile?.whatsapp || "",
           zones: ACCESS.profile?.zones || [],
           note: "",
           fares: {},
           extras: []
         });
-        setToast("🧹 Brouillon effacé pour cet identifiant.", "warn");
+        setToast("🧹 Brouillon effacé pour ce compte.", "warn");
       }
 
       function readDraft(){
@@ -1145,7 +1226,7 @@
         const displayName = data.display_name || deriveNameFromSlug(ACCESS.slug);
         const city = data.city || "Sénégal";
         const zones = (data.zones || []).length ? data.zones.join(", ") : "Zones à confirmer";
-        const wa = data.whatsapp || ACCESS.phone || "";
+        const wa = data.whatsapp || "";
         const fares = fareEntries(data);
 
         let txt = `🚖 ${displayName}\n`;
@@ -1231,12 +1312,14 @@
         $("kpiCount").textContent = String(entries.length);
         $("kpiMin").textContent = amounts.length ? money(Math.min(...amounts)) : "—";
         $("kpiMax").textContent = amounts.length ? money(Math.max(...amounts)) : "—";
-        $("kpiSlug").textContent = ACCESS.slug || "—";
+        $("kpiSlug").textContent = ACCESS.slug ? "sécurisé" : "—";
       }
 
       function updateNav(){
-        $("slugPill").textContent = "identifiant : " + (ACCESS.slug || "—");
-        $("phonePill").textContent = "téléphone : " + displayPhone(ACCESS.phone);
+        cleanVisibleUrl();
+
+        $("slugPill").textContent = accountLabel();
+        $("phonePill").textContent = "contact : masqué";
 
         $("navDashboard").href = pageUrl(DASHBOARD_PAGE, ACCESS.slug, ACCESS.phone);
         $("navCockpit").href = pageUrl(COCKPIT_PAGE, ACCESS.slug, ACCESS.phone);
@@ -1258,6 +1341,7 @@
           bottomTrips: "./trajets.html",
           bottomMore: PROFILE_PAGE
         };
+
         Object.entries(moreLinks).forEach(([id, base]) => {
           const el = $(id);
           if (el) el.href = pageUrl(base, ACCESS.slug, ACCESS.phone);
@@ -1266,25 +1350,16 @@
         const fastTarifs = $("fastTarifs");
         const bottomNew = $("bottomNew");
         const bottomNotes = $("bottomNotes");
+
         if (fastTarifs) fastTarifs.href = "#tarifsForm";
         if (bottomNew) bottomNew.href = pageUrl("./trajets.html", ACCESS.slug, ACCESS.phone) + "#newTrip";
         if (bottomNotes) bottomNotes.href = pageUrl("./trajets.html", ACCESS.slug, ACCESS.phone) + "#quickDriverNote";
 
-        try{
-          const u = new URL(location.href);
-          if (ACCESS.slug) u.searchParams.set("slug", ACCESS.slug);
-          else u.searchParams.delete("slug");
-
-          if (ACCESS.phone) u.searchParams.set("phone", ACCESS.phone);
-          else u.searchParams.delete("phone");
-
-          u.searchParams.delete("tel");
-          history.replaceState({}, "", u.toString());
-        }catch(_){}
+        cleanVisibleUrl();
       }
 
       function updateActionLinks(data){
-        const wa = normPhone(data.whatsapp || ACCESS.phone || "");
+        const wa = normPhone(data.whatsapp || "");
         const txt = buildSummary(data);
         $("btnOpenWhatsApp").disabled = !wa;
         $("btnOpenWhatsApp").dataset.href = wa
@@ -1407,7 +1482,7 @@
             const merged = {
               display_name: draft?.display_name || data.display_name || deriveNameFromSlug(ACCESS.slug),
               city: draft?.city || data.city || "",
-              whatsapp: draft?.whatsapp || data.whatsapp || ACCESS.phone || "",
+              whatsapp: draft?.whatsapp || data.whatsapp || "",
               zones: draft?.zones?.length ? draft.zones : (Array.isArray(data.zones) ? data.zones : []),
               note: draft?.note || "",
               fares: draft?.fares || {},
@@ -1424,7 +1499,7 @@
               loadIntoForm({
                 display_name: deriveNameFromSlug(ACCESS.slug),
                 city: "",
-                whatsapp: ACCESS.phone || "",
+                whatsapp: "",
                 zones: [],
                 note: "",
                 fares: {},
@@ -1441,8 +1516,13 @@
 
       async function guardBoot(){
         try{
-          if (window.DIGIY_GUARD?.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
-            await window.DIGIY_GUARD.ready;
+          const guard = window.DIGIY_GUARD;
+
+          if (guard && typeof guard.ready === "function"){
+            const out = guard.ready({ redirect:false, preserve_validation:true });
+            if (out && typeof out.then === "function") await out;
+          } else if (guard?.ready && typeof guard.ready.then === "function"){
+            await guard.ready;
           }
         }catch(e){
           console.warn("[DIGIY DRIVER TARIFS] guard ready error", e);
@@ -1465,7 +1545,7 @@
           ""
         );
 
-        ACCESS.access_ok = !!st?.access_ok;
+        ACCESS.access_ok = !!(st?.access_ok || st?.access);
         ACCESS.preview = !ACCESS.access_ok;
         ACCESS.reason = st?.reason || (ACCESS.access_ok ? "access_ok" : "preview");
         ACCESS.pay_url = st?.pay_url || "";
@@ -1476,26 +1556,28 @@
           }catch(_){}
         }
 
+        cleanVisibleUrl();
+
         if (!ACCESS.slug){
-          setAccessPill("bad", "identifiant absent");
-          setTopSub("Aucun identifiant chauffeur détecté. Ouvre cette page depuis ton accès ou depuis ta gestion.");
+          setAccessPill("bad", "compte à vérifier");
+          setTopSub("Aucun compte chauffeur détecté. Ouvre cette page depuis ton accès ou depuis ta gestion.");
           $("disabledNote").style.display = "block";
           return;
         }
 
         if (!isDriverSlug(ACCESS.slug)){
-          setAccessPill("bad", "identifiant invalide");
-          setTopSub("Identifiant chauffeur invalide. Format attendu : driver-221XXXXXXXXX.");
+          setAccessPill("bad", "lien invalide");
+          setTopSub("Lien chauffeur non reconnu. Repars par ton accès.");
           $("disabledNote").style.display = "block";
           return;
         }
 
         if (ACCESS.access_ok){
           setAccessPill("ok", st?.pin_session_ok ? "session ouverte" : "accès ouvert");
-          setTopSub("Accès vivant détecté. Les tarifs restent gérés en brouillon local par identifiant.");
+          setTopSub("Accès vivant détecté. Les tarifs restent rangés sans exposer tes identifiants.");
         } else {
           setAccessPill("warn", "aperçu");
-          setTopSub("Mode aperçu : tu peux préparer les tarifs localement par identifiant, même sans rail SQL tarifaire.");
+          setTopSub("Mode aperçu : tu peux préparer les tarifs localement, sans exposer ton compte dans l’adresse.");
         }
 
         $("disabledNote").style.display = "block";
@@ -1579,7 +1661,7 @@
           loadIntoForm({
             display_name: deriveNameFromSlug(ACCESS.slug),
             city: "",
-            whatsapp: ACCESS.phone || "",
+            whatsapp: "",
             zones: [],
             note: "",
             fares: {},
