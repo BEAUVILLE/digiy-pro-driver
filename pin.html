@@ -139,6 +139,18 @@
       font-size:.97rem;
     }
 
+    .securityNote{
+      margin-top:12px;
+      padding:12px 13px;
+      border-radius:16px;
+      border:1px solid rgba(244,201,93,.22);
+      background:rgba(244,201,93,.08);
+      color:#fff4cf;
+      font-weight:850;
+      font-size:.88rem;
+      line-height:1.45;
+    }
+
     .body{
       padding:18px;
     }
@@ -389,7 +401,6 @@
     @media(max-width:520px){
       .fastLinks{grid-template-columns:1fr 1fr}
     }
-
   </style>
 </head>
 <body>
@@ -407,6 +418,9 @@
           <p class="sub">
             Une porte, puis tu circules entre Accueil, Trajets, Nouveau, Notes et Plus.
           </p>
+          <div class="securityNote">
+            🔐 Les identifiants sensibles ne sont pas affichés. Le système peut reconnaître ton espace, mais l’écran ne l’expose pas.
+          </div>
         </div>
 
         <div class="body">
@@ -417,19 +431,19 @@
 
           <form id="pinForm" novalidate>
             <div class="field">
-              <label class="label" for="phone">Téléphone</label>
+              <label class="label" for="identifier">Identifiant ou téléphone</label>
               <input
-                id="phone"
-                name="phone"
-                type="tel"
-                inputmode="numeric"
-                autocomplete="tel"
-                placeholder="Exemple : 221771342889"
+                id="identifier"
+                name="identifier"
+                type="text"
+                inputmode="text"
+                autocomplete="username"
+                placeholder="Laisse vide si ton compte est déjà reconnu"
               />
             </div>
 
             <div class="field">
-              <label class="label" for="pin">Code PIN</label>
+              <label class="label" for="pin">Code d’accès</label>
               <div class="pinRow">
                 <input
                   id="pin"
@@ -437,8 +451,8 @@
                   type="password"
                   inputmode="numeric"
                   maxlength="8"
-                  autocomplete="one-time-code"
-                  placeholder="Ton code PIN"
+                  autocomplete="current-password"
+                  placeholder="••••"
                 />
                 <button type="button" id="togglePin" class="ghostBtn">Afficher</button>
               </div>
@@ -454,7 +468,7 @@
             <div class="miniBox">
               <div class="miniTitle">Une seule porte</div>
               <div class="miniText">
-                Après validation, tu ne dois pas retaper ton code entre les pages internes.
+                Après validation, tu ne dois pas retaper ton code entre les pages internes pendant 8h.
               </div>
             </div>
 
@@ -462,7 +476,7 @@
               <a class="linkBtn" id="linkCockpit" href="./cockpit.html">Plus</a>
               <a class="linkBtn" id="linkProfil" href="./profil-chauffeur.html">Profil</a>
               <a class="linkBtn" id="linkTarifs" href="./tarifs.html">Tarifs</a>
-              <a class="linkBtn" id="linkQr" href="./qr.html">QR</a>
+              <a class="linkBtn" id="linkQr" href="./generateur-digiy-driver.html">QR</a>
             </div>
 
             <div class="fastLinks">
@@ -480,7 +494,6 @@
       </section>
     </div>
   </div>
-
 
   <nav class="bottomNav" aria-label="Navigation DRIVER">
     <div class="bottomNavInner">
@@ -518,7 +531,7 @@
       const statusBox = $("statusBox");
       const statusText = $("statusText");
       const form = $("pinForm");
-      const phoneInput = $("phone");
+      const identifierInput = $("identifier");
       const pinInput = $("pin");
       const btnSubmit = $("btnSubmit");
       const btnReuse = $("btnReuse");
@@ -534,8 +547,6 @@
       const fastNotes = $("fastNotes");
       const fastNew = $("fastNew");
 
-      const query = new URLSearchParams(window.location.search);
-
       const SUPABASE_URL = window.DIGIY_SUPABASE_URL || "";
       const SUPABASE_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON || "";
       const supabase = window.supabase && SUPABASE_URL && SUPABASE_KEY
@@ -548,6 +559,11 @@
           })
         : null;
 
+      const hiddenContext = {
+        slug: "",
+        phone: ""
+      };
+
       function normalizePhone(v){
         const d = String(v || "").replace(/[^\d]/g, "");
         if (!d) return "";
@@ -557,7 +573,23 @@
       }
 
       function normalizeSlug(v){
-        return String(v || "").trim().toLowerCase();
+        return String(v || "")
+          .trim()
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9\-_]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^[-_]+|[-_]+$/g, "");
+      }
+
+      function isSensitiveSlug(slug){
+        return /\d{7,}/.test(String(slug || ""));
+      }
+
+      function canExposeSlug(slug){
+        const clean = normalizeSlug(slug);
+        return !!clean && !isSensitiveSlug(clean);
       }
 
       function isDriverSlug(v){
@@ -575,7 +607,7 @@
 
         if (isDriverSlug(cleanSlug)) return cleanSlug;
         if (cleanPhone) return buildDriverSlug(cleanPhone);
-        return "";
+        return cleanSlug || "";
       }
 
       function safeJsonParse(raw){
@@ -592,14 +624,126 @@
         btnSubmit.textContent = isBusy ? "Ouverture en cours..." : "Entrer dans DRIVER";
       }
 
+      function storageGet(key){
+        try{
+          const s = sessionStorage.getItem(key);
+          if(s) return s;
+        }catch(_){}
+        try{
+          return localStorage.getItem(key) || "";
+        }catch(_){
+          return "";
+        }
+      }
+
+      function storageSetBoth(key, value){
+        if(value == null || String(value).trim() === "") return;
+        try{ sessionStorage.setItem(key, String(value)); }catch(_){}
+        try{ localStorage.setItem(key, String(value)); }catch(_){}
+      }
+
+      function storageSetSessionOnly(key, value){
+        if(value == null || String(value).trim() === "") return;
+        try{ sessionStorage.setItem(key, String(value)); }catch(_){}
+        try{ localStorage.removeItem(key); }catch(_){}
+      }
+
+      function storageRemoveBoth(key){
+        try{ sessionStorage.removeItem(key); }catch(_){}
+        try{ localStorage.removeItem(key); }catch(_){}
+      }
+
+      function cleanVisibleUrl(){
+        try{
+          const url = new URL(window.location.href);
+          let changed = false;
+
+          if(url.searchParams.has("phone")){
+            url.searchParams.delete("phone");
+            changed = true;
+          }
+
+          if(url.searchParams.has("tel")){
+            url.searchParams.delete("tel");
+            changed = true;
+          }
+
+          const slug = normalizeSlug(url.searchParams.get("slug") || url.searchParams.get("identifiant") || "");
+
+          if(slug && isSensitiveSlug(slug)){
+            url.searchParams.delete("slug");
+            url.searchParams.delete("identifiant");
+            changed = true;
+          }
+
+          if(changed){
+            history.replaceState({}, "", url.pathname + url.search + url.hash);
+          }
+        }catch(_){}
+      }
+
+      function readUrlContext(){
+        try{
+          const url = new URL(window.location.href);
+          return {
+            slug: normalizeSlug(url.searchParams.get("slug") || url.searchParams.get("identifiant") || ""),
+            phone: normalizePhone(url.searchParams.get("phone") || url.searchParams.get("tel") || "")
+          };
+        }catch(_){
+          return { slug:"", phone:"" };
+        }
+      }
+
+      function parseValidatedAt(value){
+        if(value == null || value === "") return 0;
+        if(typeof value === "number") return value < 100000000000 ? value * 1000 : value;
+
+        const s = String(value).trim();
+        if(/^\d+$/.test(s)){
+          const n = Number(s);
+          return n < 100000000000 ? n * 1000 : n;
+        }
+
+        const d = Date.parse(s);
+        return Number.isFinite(d) ? d : 0;
+      }
+
       function buildSafeUrl(path, params){
         try{
           const url = new URL(path, window.location.href);
+
+          url.searchParams.delete("phone");
+          url.searchParams.delete("tel");
+
           Object.entries(params || {}).forEach(([key, value]) => {
             const clean = String(value == null ? "" : value).trim();
-            if (clean) url.searchParams.set(key, clean);
+
+            if(key === "phone" || key === "tel") return;
+
+            if(key === "slug" || key === "identifiant"){
+              const slug = normalizeSlug(clean);
+              if(slug && canExposeSlug(slug)){
+                url.searchParams.set("slug", slug);
+              }else{
+                url.searchParams.delete("slug");
+                url.searchParams.delete("identifiant");
+              }
+              return;
+            }
+
+            if(clean) url.searchParams.set(key, clean);
             else url.searchParams.delete(key);
           });
+
+          const slug = normalizeSlug(url.searchParams.get("slug") || "");
+          if(slug && isSensitiveSlug(slug)){
+            url.searchParams.delete("slug");
+          }
+
+          if(url.origin === window.location.origin){
+            return url.pathname + url.search + url.hash;
+          }
+
           return url.toString();
         }catch(e){
           console.error("[DRIVER PIN] buildSafeUrl", e);
@@ -607,38 +751,38 @@
         }
       }
 
-      function buildPageUrl(path, slug, phone){
-        const cleanPhone = normalizePhone(phone);
-        const cleanSlug = healDriverSlug(slug, cleanPhone);
+      function buildPageUrl(path, slug){
+        const cleanSlug = normalizeSlug(slug);
 
-        return buildSafeUrl(path, {
-          slug: cleanSlug,
-          phone: cleanPhone
-        });
+        if(cleanSlug && canExposeSlug(cleanSlug)){
+          return buildSafeUrl(path, { slug: cleanSlug });
+        }
+
+        return buildSafeUrl(path, {});
       }
 
-      function refreshLinks(slug, phone){
-        const cleanPhone = normalizePhone(phone);
-        const cleanSlug = healDriverSlug(slug, cleanPhone);
+      function refreshLinks(slug){
+        const cleanSlug = normalizeSlug(slug);
 
-        backLink.href = buildPageUrl(PAGES.dashboard, cleanSlug, cleanPhone);
-        linkCockpit.href = buildPageUrl(PAGES.profil, cleanSlug, cleanPhone);
-        linkProfil.href = buildPageUrl(PAGES.profil, cleanSlug, cleanPhone);
-        linkTarifs.href = buildPageUrl(PAGES.tarifs, cleanSlug, cleanPhone);
-        linkQr.href = buildPageUrl(PAGES.qr, cleanSlug, cleanPhone);
-        if (fastHome) fastHome.href = buildPageUrl(PAGES.dashboard, cleanSlug, cleanPhone);
-        if (fastTrips) fastTrips.href = buildPageUrl(PAGES.trajets, cleanSlug, cleanPhone);
-        if (fastNotes) fastNotes.href = buildPageUrl(PAGES.trajets, cleanSlug, cleanPhone) + "#quickDriverNote";
-        if (fastNew) fastNew.href = buildPageUrl(PAGES.trajets, cleanSlug, cleanPhone) + "#newTrip";
+        backLink.href = buildPageUrl(PAGES.dashboard, cleanSlug);
+        linkCockpit.href = buildPageUrl(PAGES.cockpit, cleanSlug);
+        linkProfil.href = buildPageUrl(PAGES.profil, cleanSlug);
+        linkTarifs.href = buildPageUrl(PAGES.tarifs, cleanSlug);
+        linkQr.href = buildPageUrl(PAGES.qr, cleanSlug);
+
+        if (fastHome) fastHome.href = buildPageUrl(PAGES.dashboard, cleanSlug);
+        if (fastTrips) fastTrips.href = buildPageUrl(PAGES.trajets, cleanSlug);
+        if (fastNotes) fastNotes.href = buildPageUrl(PAGES.trajets, cleanSlug) + "#quickDriverNote";
+        if (fastNew) fastNew.href = buildPageUrl(PAGES.trajets, cleanSlug) + "#newTrip";
 
         ["bottomHome","bottomTrips","bottomNew","bottomNotes","bottomMore"].forEach(function(id){
           const el = document.getElementById(id);
           if(!el) return;
-          if(id === "bottomHome") el.href = buildPageUrl(PAGES.dashboard, cleanSlug, cleanPhone);
-          if(id === "bottomTrips") el.href = buildPageUrl(PAGES.trajets, cleanSlug, cleanPhone);
-          if(id === "bottomNew") el.href = buildPageUrl(PAGES.trajets, cleanSlug, cleanPhone) + "#newTrip";
-          if(id === "bottomNotes") el.href = buildPageUrl(PAGES.trajets, cleanSlug, cleanPhone) + "#quickDriverNote";
-          if(id === "bottomMore") el.href = buildPageUrl(PAGES.pin, cleanSlug, cleanPhone);
+          if(id === "bottomHome") el.href = buildPageUrl(PAGES.dashboard, cleanSlug);
+          if(id === "bottomTrips") el.href = buildPageUrl(PAGES.trajets, cleanSlug);
+          if(id === "bottomNew") el.href = buildPageUrl(PAGES.trajets, cleanSlug) + "#newTrip";
+          if(id === "bottomNotes") el.href = buildPageUrl(PAGES.trajets, cleanSlug) + "#quickDriverNote";
+          if(id === "bottomMore") el.href = buildPageUrl(PAGES.pin, cleanSlug);
         });
       }
 
@@ -646,33 +790,36 @@
         const keys = [SESSION_KEY, SESSION_KEY_ALT, SESSION_KEY_GLOBAL];
 
         for(const key of keys){
-          try{
-            const raw = localStorage.getItem(key);
-            if(!raw) continue;
+          const raw = storageGet(key);
+          if(!raw) continue;
 
-            const parsed = safeJsonParse(raw);
-            if(!parsed) continue;
+          const parsed = safeJsonParse(raw);
+          if(!parsed) continue;
 
-            const phone = normalizePhone(parsed.phone);
-            const slug = healDriverSlug(parsed.slug, phone);
-            const module = String(parsed.module || "").toUpperCase();
-            const validatedAt = Number(parsed.validated_at || parsed.ts || 0);
+          const phone = normalizePhone(parsed.phone);
+          const slug = healDriverSlug(parsed.slug, phone);
+          const module = String(parsed.module || "").toUpperCase();
+          const validatedAt = parseValidatedAt(parsed.validated_at || parsed.ts || parsed.created_at || 0);
+          const expiresAt = parseValidatedAt(parsed.expires_at || 0);
 
-            if(module && module !== MODULE) continue;
-            if(!slug || !isDriverSlug(slug)) continue;
-            if(!validatedAt) continue;
-            if(Date.now() - validatedAt > MAX_AGE_MS) continue;
+          if(module && module !== MODULE) continue;
+          if(!slug || !phone) continue;
+          if(!validatedAt && !expiresAt) continue;
 
-            return {
-              slug,
-              phone,
-              module: MODULE,
-              validated_at: validatedAt,
-              access_ok: true,
-              preview: false,
-              reason: "access_ok"
-            };
-          }catch(_){}
+          const fresh = expiresAt ? Date.now() < expiresAt : Date.now() - validatedAt <= MAX_AGE_MS;
+          if(!fresh) continue;
+
+          return {
+            slug,
+            phone,
+            module: MODULE,
+            validated_at: validatedAt || Date.now(),
+            expires_at: expiresAt || (Date.now() + MAX_AGE_MS),
+            access_ok: true,
+            access: true,
+            preview: false,
+            reason: "access_ok"
+          };
         }
 
         return null;
@@ -682,7 +829,7 @@
         const cleanPhone = normalizePhone(phone);
         const cleanSlug = healDriverSlug(slug, cleanPhone);
 
-        if(!cleanSlug || !isDriverSlug(cleanSlug)) return null;
+        if(!cleanSlug || !cleanPhone) return null;
 
         const now = Date.now();
 
@@ -691,36 +838,51 @@
           phone: cleanPhone,
           module: MODULE,
           access_ok: true,
+          access: true,
           preview: false,
           reason: "access_ok",
           validated_at: now,
+          expires_at: now + MAX_AGE_MS,
           ts: now
         }, extra || {});
 
-        try{ localStorage.setItem(SESSION_KEY, JSON.stringify(payload)); }catch(_){}
-        try{ localStorage.setItem(SESSION_KEY_ALT, JSON.stringify(payload)); }catch(_){}
-        try{ localStorage.setItem(SESSION_KEY_GLOBAL, JSON.stringify(payload)); }catch(_){}
-        try{ localStorage.setItem("digiy_driver_slug", cleanSlug); }catch(_){}
-        try{ localStorage.setItem("digiy_driver_last_slug", cleanSlug); }catch(_){}
-        try{ localStorage.setItem("digiy_driver_phone", cleanPhone); }catch(_){}
-        try{ sessionStorage.setItem("digiy_driver_slug", cleanSlug); }catch(_){}
-        try{ sessionStorage.setItem("digiy_driver_last_slug", cleanSlug); }catch(_){}
-        try{ sessionStorage.setItem("digiy_driver_phone", cleanPhone); }catch(_){}
+        const json = JSON.stringify(payload);
 
-        refreshLinks(cleanSlug, cleanPhone);
+        /*
+          Compatibilité guard/pages internes : session disponible 8h.
+          Mais rien n’est affiché ni envoyé dans les URL.
+        */
+        [SESSION_KEY, SESSION_KEY_ALT, SESSION_KEY_GLOBAL].forEach((key) => {
+          storageSetBoth(key, json);
+        });
+
+        storageSetBoth("digiy_driver_slug", cleanSlug);
+        storageSetBoth("digiy_driver_last_slug", cleanSlug);
+
+        storageSetSessionOnly("digiy_driver_phone", cleanPhone);
+        storageSetSessionOnly("digiy_driver_last_phone", cleanPhone);
+        storageSetSessionOnly("DIGIY_DRIVER_HUB_PHONE", cleanPhone);
+
+        window.DIGIY_DRIVER_HUB_PHONE = cleanPhone;
+
+        refreshLinks(cleanSlug);
         return payload;
       }
 
       function clearSession(){
-        try{ localStorage.removeItem(SESSION_KEY); }catch(_){}
-        try{ localStorage.removeItem(SESSION_KEY_ALT); }catch(_){}
-        try{ localStorage.removeItem(SESSION_KEY_GLOBAL); }catch(_){}
-        try{ localStorage.removeItem("digiy_driver_slug"); }catch(_){}
-        try{ localStorage.removeItem("digiy_driver_last_slug"); }catch(_){}
-        try{ localStorage.removeItem("digiy_driver_phone"); }catch(_){}
-        try{ sessionStorage.removeItem("digiy_driver_slug"); }catch(_){}
-        try{ sessionStorage.removeItem("digiy_driver_last_slug"); }catch(_){}
-        try{ sessionStorage.removeItem("digiy_driver_phone"); }catch(_){}
+        [
+          SESSION_KEY,
+          SESSION_KEY_ALT,
+          SESSION_KEY_GLOBAL,
+          "digiy_driver_slug",
+          "digiy_driver_last_slug",
+          "digiy_driver_phone",
+          "digiy_driver_last_phone",
+          "DIGIY_DRIVER_HUB_PHONE"
+        ].forEach(storageRemoveBoth);
+
+        hiddenContext.slug = "";
+        hiddenContext.phone = "";
       }
 
       function normalizeRpcPayload(payload){
@@ -748,7 +910,7 @@
 
       async function resolveSlugByPhone(phone){
         const cleanPhone = normalizePhone(phone);
-        if(!supabase || !cleanPhone) return "";
+        if(!supabase || !cleanPhone) return buildDriverSlug(cleanPhone);
 
         const { data, error } = await supabase
           .from("digiy_subscriptions_public")
@@ -812,8 +974,8 @@
         return normalizeRpcPayload(data) || { ok:false, reason:"empty_rpc_payload" };
       }
 
-      function buildCockpitUrl(slug, phone){
-        return buildPageUrl(PAGES.dashboard, slug, phone);
+      function buildHomeUrl(slug){
+        return buildPageUrl(PAGES.dashboard, slug);
       }
 
       async function goWithSession(session){
@@ -825,8 +987,8 @@
         const phone = normalizePhone(session.phone);
         const slug = healDriverSlug(session.slug, phone);
 
-        if(!slug || !isDriverSlug(slug)){
-          setStatus("bad", "Session invalide. Reprends avec ton téléphone et ton PIN.");
+        if(!phone || !slug){
+          setStatus("bad", "Session invalide. Reprends avec ton code.");
           return;
         }
 
@@ -837,70 +999,82 @@
         }
 
         setStatus("ok", "Session chauffeur retrouvée. Ouverture de l’accueil...");
-        window.location.href = buildCockpitUrl(saved.slug, saved.phone);
+        window.location.href = buildHomeUrl(saved.slug);
       }
 
       async function tryReuseSession(){
         const stored = readStoredSession();
         if(!stored){
-          setStatus("warn", "Pas de session active. Entre ton téléphone et ton PIN.");
+          setStatus("warn", "Pas de session active. Entre ton identifiant ou ton téléphone, puis ton code.");
           return;
         }
         await goWithSession(stored);
       }
 
+      function hydrateHiddenContext(){
+        const urlCtx = readUrlContext();
+        const stored = readStoredSession();
+
+        hiddenContext.slug = urlCtx.slug || (stored && stored.slug) || normalizeSlug(storageGet("digiy_driver_slug") || storageGet("digiy_driver_last_slug") || "");
+        hiddenContext.phone = urlCtx.phone || (stored && stored.phone) || normalizePhone(storageGet("digiy_driver_phone") || storageGet("digiy_driver_last_phone") || storageGet("DIGIY_DRIVER_HUB_PHONE") || "");
+
+        if(urlCtx.phone){
+          storageSetSessionOnly("DIGIY_DRIVER_HUB_PHONE", urlCtx.phone);
+          storageSetSessionOnly("digiy_driver_phone", urlCtx.phone);
+          storageSetSessionOnly("digiy_driver_last_phone", urlCtx.phone);
+        }
+
+        if(urlCtx.slug){
+          storageSetBoth("digiy_driver_slug", urlCtx.slug);
+          storageSetBoth("digiy_driver_last_slug", urlCtx.slug);
+        }
+
+        cleanVisibleUrl();
+      }
+
       async function bootstrap(){
-        refreshLinks("", "");
+        refreshLinks("");
 
         if(!supabase){
           setStatus("bad", "Supabase n’est pas disponible sur cette page.");
           return;
         }
 
-        const rawSlugFromUrl = normalizeSlug(query.get("slug") || query.get("identifiant"));
-        const phoneFromUrl = normalizePhone(query.get("phone") || query.get("tel"));
+        hydrateHiddenContext();
+
         const stored = readStoredSession();
 
-        let activePhone = "";
-        let activeSlug = "";
-
-        if(phoneFromUrl){
-          activePhone = phoneFromUrl;
-        }else if(stored && stored.phone){
-          activePhone = stored.phone;
+        if(stored && stored.access_ok){
+          refreshLinks(stored.slug);
+          setStatus("ok", "Session chauffeur encore active. Tu peux la réutiliser directement.");
+          return;
         }
 
-        if(activePhone){
-          phoneInput.value = activePhone;
-        }
-
-        if(rawSlugFromUrl && isDriverSlug(rawSlugFromUrl)){
-          activeSlug = rawSlugFromUrl;
-        }else if(stored && stored.slug){
-          activeSlug = healDriverSlug(stored.slug, stored.phone);
-        }
+        let activeSlug = hiddenContext.slug || "";
+        let activePhone = hiddenContext.phone || "";
 
         if(!activePhone && activeSlug){
           const resolvedPhone = await resolvePhoneBySlug(activeSlug);
           if(resolvedPhone){
             activePhone = resolvedPhone;
-            phoneInput.value = resolvedPhone;
+            hiddenContext.phone = resolvedPhone;
           }
         }
 
         if(!activeSlug && activePhone){
           activeSlug = await resolveSlugByPhone(activePhone);
+          hiddenContext.slug = activeSlug;
         }
 
-        activeSlug = healDriverSlug(activeSlug, activePhone);
+        refreshLinks(activeSlug);
 
-        refreshLinks(activeSlug, activePhone);
-
-        if(stored && stored.slug && isDriverSlug(stored.slug)){
-          setStatus("ok", "Session chauffeur encore active. Tu peux la réutiliser directement.");
+        if(activeSlug || activePhone){
+          setStatus("warn", "Compte chauffeur reconnu. Les identifiants restent cachés. Entre seulement ton code.");
         }else{
-          setStatus("warn", "Entre ton téléphone puis ton PIN pour ouvrir ton espace chauffeur.");
+          setStatus("warn", "Entre ton identifiant ou ton téléphone, puis ton code.");
         }
+
+        identifierInput.value = "";
       }
 
       btnTogglePin.addEventListener("click", function(){
@@ -916,61 +1090,77 @@
       form.addEventListener("submit", async function(e){
         e.preventDefault();
 
-        const phone = normalizePhone(phoneInput.value);
+        const rawIdentifier = String(identifierInput.value || "").trim();
         const pin = String(pinInput.value || "").trim();
 
+        let phone = hiddenContext.phone || "";
+        let slug = hiddenContext.slug || "";
+
+        if(rawIdentifier){
+          const maybePhone = normalizePhone(rawIdentifier);
+          const maybeSlug = normalizeSlug(rawIdentifier);
+
+          if(maybePhone && maybePhone.length >= 8){
+            phone = maybePhone;
+          }else if(maybeSlug){
+            slug = maybeSlug;
+          }
+        }
+
+        if(!phone && slug){
+          phone = await resolvePhoneBySlug(slug);
+        }
+
+        if(!slug && phone){
+          slug = await resolveSlugByPhone(phone);
+        }
+
         if(!phone){
-          setStatus("bad", "Entre d’abord le numéro du chauffeur.");
-          phoneInput.focus();
+          setStatus("bad", "Compte chauffeur non reconnu. Entre ton identifiant ou ton téléphone.");
+          identifierInput.focus();
           return;
         }
 
         if(pin.length < 4){
-          setStatus("bad", "Le code PIN doit contenir au moins 4 chiffres.");
+          setStatus("bad", "Le code doit contenir au moins 4 chiffres.");
           pinInput.focus();
           return;
         }
 
         setBusy(true);
-        setStatus("warn", "Vérification réelle du PIN chauffeur en cours...");
+        setStatus("warn", "Vérification réelle du code chauffeur en cours...");
 
         try{
           const verify = await verifyPin(phone, pin);
 
           if(!verify || verify.ok !== true){
             clearSession();
-            refreshLinks("", phone);
-            setStatus("bad", "PIN refusé ou accès chauffeur inactif.");
+            refreshLinks("");
+            setStatus("bad", "Code refusé ou accès chauffeur inactif.");
             return;
           }
 
           const phoneFromVerify = normalizePhone(verify.phone) || phone;
 
-          let slug =
+          let finalSlug =
             healDriverSlug(verify.slug, phoneFromVerify) ||
-            healDriverSlug(verify.owner_slug, phoneFromVerify);
+            healDriverSlug(verify.owner_slug, phoneFromVerify) ||
+            slug;
 
-          if(!slug){
-            const candidateFromUrl = normalizeSlug(query.get("slug") || query.get("identifiant"));
-            if(isDriverSlug(candidateFromUrl)){
-              slug = candidateFromUrl;
-            }
+          if(!finalSlug){
+            finalSlug = await resolveSlugByPhone(phoneFromVerify);
           }
 
-          if(!slug){
-            slug = await resolveSlugByPhone(phoneFromVerify);
-          }
+          finalSlug = healDriverSlug(finalSlug, phoneFromVerify);
 
-          slug = healDriverSlug(slug, phoneFromVerify);
-
-          if(!slug || !isDriverSlug(slug)){
+          if(!finalSlug || !phoneFromVerify){
             clearSession();
-            refreshLinks("", phoneFromVerify);
-            setStatus("bad", "PIN validé mais identifiant chauffeur introuvable.");
+            refreshLinks("");
+            setStatus("bad", "Code validé mais compte chauffeur introuvable.");
             return;
           }
 
-          const session = saveSession(slug, phoneFromVerify, {
+          const session = saveSession(finalSlug, phoneFromVerify, {
             label: verify.label || "",
             session_token: verify.session_token || "",
             raw_verify: verify
@@ -978,22 +1168,29 @@
 
           if(!session){
             clearSession();
-            refreshLinks("", phoneFromVerify);
+            refreshLinks("");
             setStatus("bad", "Impossible d’ouvrir la session chauffeur.");
             return;
           }
 
-          setStatus("ok", "Code accepté. Ouverture de l’accueil DRIVER...");
-          window.location.href = buildCockpitUrl(session.slug, session.phone);
+          identifierInput.value = "";
+          pinInput.value = "";
+
+          cleanVisibleUrl();
+
+          setStatus("ok", "Code accepté. Ton espace chauffeur est ouvert.");
+          window.location.href = buildHomeUrl(session.slug);
         }catch(err){
           console.error("[DRIVER PIN] submit error", err);
           clearSession();
-          refreshLinks("", phone);
-          setStatus("bad", "Erreur pendant la vérification du PIN chauffeur.");
+          refreshLinks("");
+          setStatus("bad", "Erreur pendant la vérification du code chauffeur.");
         }finally{
           setBusy(false);
         }
       });
+
+      cleanVisibleUrl();
 
       bootstrap().catch((err) => {
         console.error("[DRIVER PIN] bootstrap error", err);
