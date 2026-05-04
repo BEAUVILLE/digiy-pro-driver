@@ -15,7 +15,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-profile-lightpatch-20260330"></script>
+  <script src="./guard.js?v=driver-security-v2-20260504"></script>
 
   <style>
     :root{
@@ -405,8 +405,8 @@
       </div>
 
       <div class="row" style="flex:0 0 auto">
-        <div class="pill" id="slugPill">identifiant : —</div>
-        <div class="pill" id="phonePill">téléphone : —</div>
+        <div class="pill" id="slugPill">compte : sécurisé</div>
+        <div class="pill" id="phonePill">session : contrôle…</div>
         <div class="pill warn" id="accessPill">accès : contrôle…</div>
       </div>
     </div>
@@ -460,12 +460,12 @@
 
       <div class="stateGrid">
         <div class="stateBox">
-          <div class="k">Identifiant actif</div>
-          <div class="v" id="stateSlug">—</div>
+          <div class="k">Compte chauffeur</div>
+          <div class="v" id="stateSlug">Espace sécurisé</div>
         </div>
         <div class="stateBox">
-          <div class="k">Téléphone chauffeur</div>
-          <div class="v" id="statePhone">—</div>
+          <div class="k">Contact interne</div>
+          <div class="v" id="statePhone">Masqué à l’écran</div>
         </div>
         <div class="stateBox">
           <div class="k">Visibilité</div>
@@ -690,6 +690,76 @@
         return normPhone(s.slice("driver-".length));
       }
 
+      function isSensitiveSlug(value){
+        return /\d{7,}/.test(String(value || ""));
+      }
+
+      function canExposeSlug(value){
+        const s = normSlug(value);
+        return !!s && !isSensitiveSlug(s);
+      }
+
+      function accountLabel(){
+        return slug ? "Espace DRIVER sécurisé" : "Espace sécurisé";
+      }
+
+      function sessionLabel(){
+        if(ACCESS_OK) return LAST_GUARD_STATE?.pin_session_ok ? "session ouverte" : "accès validé";
+        return slug || phone ? "à vérifier" : "non ouverte";
+      }
+
+      function cleanVisibleUrl(){
+        try{
+          const u = new URL(location.href);
+          let changed = false;
+
+          if(u.searchParams.has("phone")){
+            u.searchParams.delete("phone");
+            changed = true;
+          }
+
+          if(u.searchParams.has("tel")){
+            u.searchParams.delete("tel");
+            changed = true;
+          }
+
+          const urlSlug = normSlug(u.searchParams.get("slug") || "");
+          const urlIdentifiant = normSlug(u.searchParams.get("identifiant") || "");
+
+          if(urlSlug && isSensitiveSlug(urlSlug)){
+            u.searchParams.delete("slug");
+            changed = true;
+          }
+
+          if(urlIdentifiant && isSensitiveSlug(urlIdentifiant)){
+            u.searchParams.delete("identifiant");
+            changed = true;
+          }
+
+          if(changed){
+            history.replaceState({}, "", u.pathname + u.search + u.hash);
+          }
+        }catch(_){}
+      }
+
+      function safeReturnUrl(){
+        try{
+          const u = new URL(location.href);
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+
+          const urlSlug = normSlug(u.searchParams.get("slug") || "");
+          const urlIdentifiant = normSlug(u.searchParams.get("identifiant") || "");
+
+          if(urlSlug && isSensitiveSlug(urlSlug)) u.searchParams.delete("slug");
+          if(urlIdentifiant && isSensitiveSlug(urlIdentifiant)) u.searchParams.delete("identifiant");
+
+          return u.origin === location.origin ? u.pathname + u.search + u.hash : u.toString();
+        }catch(_){
+          return location.pathname;
+        }
+      }
+
       function escapeHtml(v){
         return String(v ?? "").replace(/[&<>"']/g, function(ch){
           return ({
@@ -705,13 +775,32 @@
       function buildSafeUrl(base, params){
         try{
           const u = new URL(base, location.href);
+
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+          u.searchParams.delete("identifiant");
+
           Object.entries(params || {}).forEach(([key, value]) => {
             const clean = String(value == null ? "" : value).trim();
-            if (clean) u.searchParams.set(key, clean);
+
+            if(key === "phone" || key === "tel") return;
+
+            if(key === "slug" || key === "identifiant"){
+              const s = normSlug(clean);
+              if(canExposeSlug(s)) u.searchParams.set("slug", s);
+              else u.searchParams.delete("slug");
+              return;
+            }
+
+            if(clean) u.searchParams.set(key, clean);
             else u.searchParams.delete(key);
           });
-          u.searchParams.delete("tel");
-          return u.pathname + u.search;
+
+          const finalSlug = normSlug(u.searchParams.get("slug") || "");
+          if(finalSlug && isSensitiveSlug(finalSlug)) u.searchParams.delete("slug");
+
+          if (u.origin === location.origin) return u.pathname + u.search + u.hash;
+          return u.toString();
         }catch(e){
           console.error("[DRIVER PROFILE] buildSafeUrl", e);
           return base;
@@ -720,34 +809,26 @@
 
       function pageUrl(base){
         return buildSafeUrl(base, {
-          slug: normSlug(slug),
-          phone: normPhone(phone)
+          slug: normSlug(slug)
         });
       }
 
       function syncOwnUrl(){
-        try{
-          const u = new URL(location.href);
-          if (slug) u.searchParams.set("slug", slug);
-          else u.searchParams.delete("slug");
-
-          if (phone) u.searchParams.set("phone", phone);
-          else u.searchParams.delete("phone");
-
-          u.searchParams.delete("tel");
-          history.replaceState({}, "", u.toString());
-        }catch(e){
-          console.warn("[DRIVER PROFILE] syncOwnUrl", e);
-        }
+        cleanVisibleUrl();
       }
 
       function buildPayUrl(){
+        if (LAST_GUARD_STATE?.pay_url) return LAST_GUARD_STATE.pay_url;
+
         try{
           const u = new URL("https://commencer-a-payer.digiylyfe.com/");
           u.searchParams.set("module", "DRIVER");
-          if (phone) u.searchParams.set("phone", phone);
-          if (slug) u.searchParams.set("slug", slug);
-          u.searchParams.set("return", location.href);
+
+          if (canExposeSlug(slug)) u.searchParams.set("slug", slug);
+
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+          u.searchParams.set("return", safeReturnUrl());
           return u.toString();
         }catch(_){
           return "https://commencer-a-payer.digiylyfe.com/";
@@ -978,8 +1059,8 @@
         const access = ACCESS_OK ? "accès ouvert" : "accès fermé";
         $("publishState").textContent = `${published} • profil : ${active} • ${access}`;
         $("statePublish").textContent = published;
-        $("stateSlug").textContent = slug || "—";
-        $("statePhone").textContent = displayPhone(phone);
+        $("stateSlug").textContent = accountLabel();
+        $("statePhone").textContent = "Masqué à l’écran";
 
         const extra = {
           fastHome: PAGES.dashboard,
@@ -1033,10 +1114,10 @@
         $("navQr").href = pageUrl(PAGES.qr);
         $("navPin").href = pageUrl(PAGES.pin);
 
-        $("slugPill").textContent = "identifiant : " + (slug || "—");
-        $("phonePill").textContent = "téléphone : " + displayPhone(phone);
-        $("stateSlug").textContent = slug || "—";
-        $("statePhone").textContent = displayPhone(phone);
+        $("slugPill").textContent = "compte : " + accountLabel();
+        $("phonePill").textContent = "session : " + sessionLabel();
+        $("stateSlug").textContent = accountLabel();
+        $("statePhone").textContent = "Masqué à l’écran";
       }
 
       async function loadProfile(forceGuardRefresh = false){
@@ -1107,7 +1188,7 @@
             $("titleMain").textContent = "⚙️ Je conduis — Plus";
             $("subMain").textContent = data.is_blank
               ? "Ton moule personnel est vierge. Complète-le maintenant, sans démo."
-              : "Profil réel retrouvé par téléphone. Tu peux le modifier librement.";
+              : "Profil réel retrouvé. Tu peux le modifier librement.";
 
             fillFormFromCockpit(data);
 
@@ -1464,6 +1545,8 @@
       $("btnPublish")?.addEventListener("click", () => setPublishState(true));
       $("btnUnpublish")?.addEventListener("click", () => setPublishState(false));
       $("btnReloadSession")?.addEventListener("click", reloadSession);
+
+      cleanVisibleUrl();
 
       boot().catch((e) => {
         console.error("[DRIVER PROFILE] boot error", e);
