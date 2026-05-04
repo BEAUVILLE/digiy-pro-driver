@@ -19,7 +19,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-dashboard-mobile-20260330"></script>
+  <script src="./guard.js?v=driver-security-v2-20260504"></script>
 
   <style>
     :root{
@@ -743,8 +743,8 @@
       </div>
 
       <div class="right">
-        <div class="pill" id="pillSlug">identifiant : <b>—</b></div>
-        <div class="pill" id="pillPhone">téléphone : <b>—</b></div>
+        <div class="pill" id="pillSlug">compte : <b>sécurisé</b></div>
+        <div class="pill" id="pillPhone">session : <b>contrôle…</b></div>
         <div class="pill warn" id="pillStatus">accès : <b>contrôle…</b></div>
       </div>
     </div>
@@ -971,6 +971,8 @@
           )
         : null;
 
+      const initialUrlContext = readUrlContext();
+
       let slug = "";
       let phone = "";
       let accessOk = false;
@@ -981,7 +983,15 @@
       let tripsData = [];
 
       function normSlug(v){
-        return String(v || "").trim().toLowerCase();
+        return String(v || "")
+          .trim()
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-_]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^[-_]+|[-_]+$/g, "");
       }
 
       function normPhone(v){
@@ -992,9 +1002,20 @@
         return d.length >= 9 ? d : "";
       }
 
-      function displayPhone(v){
-        const p = normPhone(v);
-        return p ? "+" + p : "—";
+      function isSensitiveSlug(v){
+        return /\d{7,}/.test(String(v || ""));
+      }
+
+      function canExposeSlug(v){
+        const s = normSlug(v);
+        return !!s && !isSensitiveSlug(s);
+      }
+
+      function displaySpace(v){
+        const s = normSlug(v);
+        if (!s) return "sécurisé";
+        if (isSensitiveSlug(s)) return "sécurisé";
+        return "chauffeur";
       }
 
       function isDriverSlug(v){
@@ -1005,6 +1026,50 @@
         const s = normSlug(v);
         if (!isDriverSlug(s)) return "";
         return normPhone(s.slice("driver-".length));
+      }
+
+      function readUrlContext(){
+        try{
+          const qs = new URLSearchParams(location.search || "");
+          return {
+            slug: normSlug(qs.get("slug") || qs.get("identifiant") || ""),
+            phone: normPhone(qs.get("phone") || qs.get("tel") || "")
+          };
+        }catch{
+          return { slug:"", phone:"" };
+        }
+      }
+
+      function cleanVisibleUrl(){
+        try{
+          const u = new URL(location.href);
+          let changed = false;
+
+          if (u.searchParams.has("phone")) {
+            u.searchParams.delete("phone");
+            changed = true;
+          }
+
+          if (u.searchParams.has("tel")) {
+            u.searchParams.delete("tel");
+            changed = true;
+          }
+
+          const s = normSlug(u.searchParams.get("slug") || "");
+          const identifiant = normSlug(u.searchParams.get("identifiant") || "");
+
+          if (s && isSensitiveSlug(s)) {
+            u.searchParams.delete("slug");
+            changed = true;
+          }
+
+          if (identifiant && isSensitiveSlug(identifiant)) {
+            u.searchParams.delete("identifiant");
+            changed = true;
+          }
+
+          if (changed) history.replaceState({}, "", u.pathname + u.search + u.hash);
+        }catch{}
       }
 
       function storageGet(key){
@@ -1022,39 +1087,63 @@
       function buildSafeUrl(base, params = {}){
         try{
           const u = new URL(String(base || "").trim(), location.href);
-          Object.entries(params).forEach(([k, v]) => {
-            if (v === null || v === undefined) return;
-            const val = String(v).trim();
+
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+
+          Object.entries(params || {}).forEach(([k, v]) => {
+            const val = String(v == null ? "" : v).trim();
             if (!val) return;
+
+            if (k === "phone" || k === "tel") return;
+
+            if (k === "slug" || k === "identifiant") {
+              const s = normSlug(val);
+              if (canExposeSlug(s)) u.searchParams.set("slug", s);
+              else {
+                u.searchParams.delete("slug");
+                u.searchParams.delete("identifiant");
+              }
+              return;
+            }
+
             u.searchParams.set(k, val);
           });
+
+          const s = normSlug(u.searchParams.get("slug") || "");
+          if (s && isSensitiveSlug(s)) u.searchParams.delete("slug");
+
           if (u.origin === location.origin) return u.pathname + u.search + u.hash;
           return u.toString();
         }catch{
-          const raw = String(base || "#");
-          const qp = new URLSearchParams();
-          Object.entries(params).forEach(([k, v]) => {
-            if (v === null || v === undefined) return;
-            const val = String(v).trim();
-            if (!val) return;
-            qp.set(k, val);
-          });
-          const tail = qp.toString();
-          return tail ? raw + (raw.includes("?") ? "&" : "?") + tail : raw;
+          return String(base || "#");
         }
       }
 
-      function withSlug(base, extra = {}){
-        return buildSafeUrl(base, { slug, phone, ...extra });
+      function withContext(base, extra = {}){
+        const params = { ...extra };
+        if (canExposeSlug(slug)) params.slug = slug;
+        return buildSafeUrl(base, params);
+      }
+
+      function buildReturnUrl(){
+        try{
+          const u = new URL(location.href);
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+          const s = normSlug(u.searchParams.get("slug") || "");
+          if (s && isSensitiveSlug(s)) u.searchParams.delete("slug");
+          return u.pathname + u.search + u.hash;
+        }catch{
+          return "./dashboard-pro.html";
+        }
       }
 
       function buildPayUrl(){
         if (lastGuardState?.pay_url) return lastGuardState.pay_url;
         return buildSafeUrl(ROUTES.pay, {
           module: MODULE,
-          slug,
-          phone,
-          return: location.href
+          return: buildReturnUrl()
         });
       }
 
@@ -1112,17 +1201,27 @@
 
       function buildDriverPayDraftUrl(draft){
         const d = draft || parseDriverNote($("driverQuickNote")?.value || "");
-        const u = new URL(ROUTES.proPay);
         const ownerPhone = phone || phoneFromDriverSlug(slug);
+        const u = new URL(ROUTES.proPay);
+
+        /*
+          Compatibilité Mon argent : PRO PAY a encore besoin de retrouver le propriétaire.
+          On garde ce passage uniquement vers PAY, pas dans les routes DRIVER.
+        */
         if (ownerPhone){
           u.searchParams.set("slug", "pay-" + ownerPhone);
           u.searchParams.set("phone", ownerPhone);
         }
+
         u.searchParams.set("fromDraft", "1");
         u.searchParams.set("intent", "quick_note");
         u.searchParams.set("source_module", "DRIVER");
-        if (slug) u.searchParams.set("source_slug", slug);
         u.searchParams.set("source_id", "driver-note-" + Date.now());
+
+        if (canExposeSlug(slug)) {
+          u.searchParams.set("source_slug", slug);
+        }
+
         if (d.amount_xof) {
           u.searchParams.set("amount", String(d.amount_xof));
           u.searchParams.set("amount_xof", String(d.amount_xof));
@@ -1264,9 +1363,7 @@
       }
 
       function resolveSlug(){
-        const qs = new URLSearchParams(location.search);
-        const fromUrl = normSlug(qs.get("slug") || "");
-        if (fromUrl) return fromUrl;
+        if (initialUrlContext.slug) return initialUrlContext.slug;
 
         const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug || "");
         if (fromGuard) return fromGuard;
@@ -1281,16 +1378,16 @@
       }
 
       function resolvePhone(){
-        const qs = new URLSearchParams(location.search);
-        const fromUrl = normPhone(qs.get("phone") || qs.get("tel") || "");
-        if (fromUrl) return fromUrl;
+        if (initialUrlContext.phone) return initialUrlContext.phone;
 
         const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone || "");
         if (fromGuard) return fromGuard;
 
         return normPhone(
+          storageGet("DIGIY_DRIVER_HUB_PHONE") ||
           storageGet("DIGIY_DRIVER_PHONE") ||
           storageGet("digiy_driver_phone") ||
+          storageGet("digiy_driver_last_phone") ||
           storageGet("DIGIY_PHONE") ||
           phoneFromDriverSlug(slug) ||
           ""
@@ -1303,12 +1400,7 @@
           if (!g) return;
 
           if (typeof g.ready === "function"){
-            let out;
-            try{
-              out = g.ready(8000);
-            }catch{
-              out = g.ready();
-            }
+            const out = g.ready({ redirect:true, preserve_validation:true });
             if (out && typeof out.then === "function") await out;
             return;
           }
@@ -1339,7 +1431,7 @@
 
         if (forceRefresh && typeof g.refresh === "function"){
           try{
-            const fresh = await g.refresh();
+            const fresh = await g.refresh({ redirect:true, preserve_validation:true });
             lastGuardState = fresh || null;
             return fresh || {};
           }catch(e){
@@ -1349,12 +1441,7 @@
 
         try{
           if (typeof g.ready === "function"){
-            let out;
-            try{
-              out = g.ready(8000);
-            }catch{
-              out = g.ready();
-            }
+            const out = g.ready({ redirect:true, preserve_validation:true });
             if (out && typeof out.then === "function") await out;
           } else if (g.ready && typeof g.ready.then === "function"){
             await g.ready;
@@ -1422,15 +1509,17 @@
       }
 
       function bindLinks(){
-        $("btnGestion").href = withSlug(ROUTES.cockpit);
-        $("btnTrajets").href = withSlug(ROUTES.trajets);
-        $("btnTrajetsInline").href = withSlug(ROUTES.trajets);
-        $("btnProfil").href = withSlug(ROUTES.profil);
-        $("btnTarifs").href = withSlug(ROUTES.tarifs);
-        $("btnQr").href = withSlug(ROUTES.qr);
-        $("btnQrBottom").href = withSlug(ROUTES.qr);
-        $("btnPin").href = withSlug(ROUTES.pin);
-        $("btnHome").href = withSlug(ROUTES.home);
+        cleanVisibleUrl();
+
+        $("btnGestion").href = withContext(ROUTES.cockpit);
+        $("btnTrajets").href = withContext(ROUTES.trajets);
+        $("btnTrajetsInline").href = withContext(ROUTES.trajets);
+        $("btnProfil").href = withContext(ROUTES.profil);
+        $("btnTarifs").href = withContext(ROUTES.tarifs);
+        $("btnQr").href = withContext(ROUTES.qr);
+        $("btnQrBottom").href = withContext(ROUTES.qr);
+        $("btnPin").href = withContext(ROUTES.pin);
+        $("btnHome").href = withContext(ROUTES.home);
         $("btnPay").href = buildPayUrl();
 
         const notePay = $("btnOpenPayNotes");
@@ -1442,11 +1531,11 @@
           navHome: ROUTES.cockpit ? "./dashboard-pro.html" : "./dashboard-pro.html",
           navTrips: ROUTES.trajets,
           navNew: ROUTES.trajets + "#newTrip",
-          navMore: ROUTES.profil
+          navMore: ROUTES.cockpit
         };
         Object.entries(navMap).forEach(([id, base]) => {
           const el = $(id);
-          if (el) el.href = withSlug(base);
+          if (el) el.href = withContext(base);
         });
         const navNotes = $("navNotes");
         if (navNotes) navNotes.href = "#driverNotes";
@@ -1461,8 +1550,8 @@
       }
 
       function renderHeader(){
-        $("pillSlug").innerHTML = `identifiant : <b>${slug || "—"}</b>`;
-        $("pillPhone").innerHTML = `téléphone : <b>${displayPhone(phone)}</b>`;
+        $("pillSlug").innerHTML = `compte : <b>${accessOk ? "sécurisé" : "à ouvrir"}</b>`;
+        $("pillPhone").innerHTML = `session : <b>${accessOk ? "ouverte" : "contrôle…"}</b>`;
       }
 
       function renderStatus(state){
@@ -1478,37 +1567,37 @@
 
         if (!slug){
           pill.className = "pill bad";
-          pill.innerHTML = "accès : <b>identifiant manquant</b>";
+          pill.innerHTML = "accès : <b>à ouvrir</b>";
           dot.className = "statusDot bad";
           eyebrowDot.style.background = "var(--danger)";
-          $("eyebrowText").textContent = "identifiant requis";
+          $("eyebrowText").textContent = "accès requis";
           $("heroTitle").textContent = "Ouvre ton accès chauffeur.";
-          $("heroLead").textContent = "Le tableau ne peut pas travailler sans identifiant chauffeur valide.";
-          $("statusMain").textContent = "Aucun identifiant chauffeur détecté.";
-          $("statusSub").textContent = "Passe par ton accès ou un lien chauffeur valide.";
+          $("heroLead").textContent = "Le tableau ne peut pas travailler sans session chauffeur valide.";
+          $("statusMain").textContent = "Aucun accès chauffeur détecté.";
+          $("statusSub").textContent = "Passe par ton code pour ouvrir ton espace.";
           $("metaPublication").textContent = "Publication : —";
           $("metaProfile").textContent = "Profil : —";
           $("metaRates").textContent = "Tarifs : —";
           $("metaZone").textContent = "Zone : —";
-          setMsg("❌ Identifiant manquant.", "bad");
+          setMsg("❌ Accès manquant.", "bad");
           return;
         }
 
         if (!isDriverSlug(slug)){
           pill.className = "pill bad";
-          pill.innerHTML = "accès : <b>identifiant invalide</b>";
+          pill.innerHTML = "accès : <b>à vérifier</b>";
           dot.className = "statusDot bad";
           eyebrowDot.style.background = "var(--danger)";
-          $("eyebrowText").textContent = "lien invalide";
-          $("heroTitle").textContent = "Le lien chauffeur n’est pas reconnu.";
-          $("heroLead").textContent = "Ouvre le module avec un identifiant propre ou repasse par l’accès.";
-          $("statusMain").textContent = "Identifiant chauffeur invalide.";
-          $("statusSub").textContent = "Le lien utilisé ne correspond pas au format attendu.";
+          $("eyebrowText").textContent = "lien à vérifier";
+          $("heroTitle").textContent = "Ton accès chauffeur doit être vérifié.";
+          $("heroLead").textContent = "Reviens par ton code pour sécuriser la session.";
+          $("statusMain").textContent = "Accès chauffeur non confirmé.";
+          $("statusSub").textContent = "Le lien utilisé ne doit pas exposer d’identifiant sensible.";
           $("metaPublication").textContent = "Publication : —";
           $("metaProfile").textContent = "Profil : —";
           $("metaRates").textContent = "Tarifs : —";
           $("metaZone").textContent = "Zone : —";
-          setMsg("❌ Identifiant invalide.", "bad");
+          setMsg("❌ Accès à vérifier.", "bad");
           return;
         }
 
@@ -1521,7 +1610,7 @@
           $("heroTitle").textContent = "Commence par ouvrir ton accès.";
           $("heroLead").textContent = "Pas de détour inutile : l’accès doit être reconnu avant de travailler.";
           $("statusMain").textContent = "Accès non ouvert pour ce chauffeur.";
-          $("statusSub").textContent = "Passe par ton accès ou l’abonnement.";
+          $("statusSub").textContent = "Passe par ton code ou l’abonnement.";
           $("metaPublication").textContent = "Publication : —";
           $("metaProfile").textContent = "Profil : —";
           $("metaRates").textContent = "Tarifs : —";
@@ -1579,28 +1668,28 @@
         let label = "🚕 Nouveau trajet";
         let hint = "action du moment";
         let desc = "Tout est en place. Ouvre maintenant l’outil trajet.";
-        let target = withSlug(ROUTES.trajets);
+        let target = withContext(ROUTES.trajets);
 
         if (!accessOk){
           label = "🔓 Ouvrir mon accès";
           hint = "premier passage";
           desc = "Avant tout, il faut ouvrir l’accès chauffeur.";
-          target = withSlug(ROUTES.pin);
+          target = withContext(ROUTES.pin);
         } else if (isBlank){
           label = "👤 Compléter mon profil";
           hint = "profil prioritaire";
           desc = "Commence par ton identité, ton véhicule et ta zone.";
-          target = withSlug(ROUTES.profil);
+          target = withContext(ROUTES.profil);
         } else if (!hasRates){
           label = "💰 Poser mes tarifs";
           hint = "tarifs prioritaires";
           desc = "Le profil existe. Maintenant, pose ta grille terrain.";
-          target = withSlug(ROUTES.tarifs);
+          target = withContext(ROUTES.tarifs);
         } else if (!published){
           label = "👤 Vérifier mon profil";
           hint = "publication à confirmer";
           desc = "Tes bases sont là. Vérifie la publication et les infos visibles.";
-          target = withSlug(ROUTES.profil);
+          target = withContext(ROUTES.profil);
         }
 
         $("actionHint").textContent = hint;
@@ -1642,7 +1731,7 @@
         const box = $("recentTripsList");
 
         if (!slug){
-          box.innerHTML = `<div class="empty">Aucun identifiant chauffeur détecté.</div>`;
+          box.innerHTML = `<div class="empty">Aucun accès chauffeur détecté.</div>`;
           return;
         }
 
@@ -1697,14 +1786,14 @@
         const box = $("notifList");
 
         if (!slug){
-          box.innerHTML = pushNotif("Aucun identifiant détecté. Ouvre le module avec un lien chauffeur valide.", "bad");
+          box.innerHTML = pushNotif("Aucun accès détecté. Ouvre le module avec ton code chauffeur.", "bad");
           return;
         }
 
         const items = [];
 
         if (!accessOk){
-          items.push(pushNotif("Accès non ouvert. Passe par ton accès ou l’abonnement.", "warn"));
+          items.push(pushNotif("Accès non ouvert. Passe par ton code ou l’abonnement.", "warn"));
         } else if (pinSessionOk){
           items.push(pushNotif("Session ouverte. La circulation interne peut rester directe.", "ok"));
         } else {
@@ -1803,6 +1892,7 @@
       }
 
       async function boot(forceRefresh = false){
+        cleanVisibleUrl();
         await waitGuardIfAny();
 
         slug = resolveSlug();
@@ -1816,6 +1906,7 @@
         accessOk = !!(state?.access_ok || state?.access);
         pinSessionOk = !!state?.pin_session_ok;
 
+        cleanVisibleUrl();
         renderHeader();
         bindLinks();
 
@@ -1844,6 +1935,7 @@
             if (window.DIGIY_GUARD?.rememberIdentity){
               try{
                 window.DIGIY_GUARD.rememberIdentity({ slug, phone });
+                cleanVisibleUrl();
               }catch{}
             }
           }
