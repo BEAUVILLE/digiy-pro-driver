@@ -16,7 +16,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js"></script>
+  <script src="./guard.js?v=driver-security-v2-20260504"></script>
 
   <link rel="canonical" href="https://pro-driver.digiylyfe.com/"/>
   <meta property="og:type" content="website"/>
@@ -1059,7 +1059,7 @@
       <a href="./tarifs.html" id="fTarifs">Mes tarifs</a>
       <a href="./pin.html" id="fPin">Mon code</a>
       <a href="https://wa.me/221771342889" target="_blank" rel="noopener">Support</a>
-      <span id="vtag">v20260314-pro-index</span>
+      <span id="vtag">v20260504-driver-index-security-v2</span>
     </div>
   </footer>
 
@@ -1111,6 +1111,17 @@
       const ua = navigator.userAgent || "";
       const device = /Android|iPhone|iPad|iPod/i.test(ua) ? "mobile" : "desktop";
 
+      function normalizeSlug(value){
+        return String(value || "")
+          .trim()
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9\-_]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^[-_]+|[-_]+$/g, "");
+      }
+
       function normPhone(p){
         if(!p) return "";
         let s = String(p).trim().replace(/\s+/g, "").replace(/[^\d+]/g, "");
@@ -1120,11 +1131,66 @@
         return s;
       }
 
+      function isSensitiveSlug(slug){
+        return /\d{7,}/.test(String(slug || ""));
+      }
+
+      function canExposeSlug(slug){
+        const clean = normalizeSlug(slug);
+        return !!clean && !isSensitiveSlug(clean);
+      }
+
+      function safeGetSession(key){
+        try{return sessionStorage.getItem(key) || "";}catch{return "";}
+      }
+
+      function safeSetSession(key,value){
+        try{sessionStorage.setItem(key, value);}catch(_){}
+      }
+
+      function safeRemoveSession(key){
+        try{sessionStorage.removeItem(key);}catch(_){}
+      }
+
+      function safeGetLocal(key){
+        try{return localStorage.getItem(key) || "";}catch{return "";}
+      }
+
+      function safeSetLocal(key,value){
+        try{localStorage.setItem(key, value);}catch(_){}
+      }
+
+      function safeRemoveLocal(key){
+        try{localStorage.removeItem(key);}catch(_){}
+      }
+
+      function cleanVisibleUrl(){
+        try{
+          const u = new URL(location.href);
+          let changed = false;
+
+          if(u.searchParams.has("phone")){
+            u.searchParams.delete("phone");
+            changed = true;
+          }
+
+          const slug = normalizeSlug(u.searchParams.get("slug") || "");
+          if(slug && isSensitiveSlug(slug)){
+            u.searchParams.delete("slug");
+            changed = true;
+          }
+
+          if(changed){
+            history.replaceState({}, "", u.pathname + u.search + u.hash);
+          }
+        }catch(_){}
+      }
+
       function getUrlParts(){
         try{
           const u = new URL(location.href);
           return {
-            slug: (u.searchParams.get("slug") || "").trim(),
+            slug: normalizeSlug(u.searchParams.get("slug") || ""),
             phone: normPhone(u.searchParams.get("phone") || "")
           };
         }catch{
@@ -1133,32 +1199,62 @@
       }
 
       function getSavedSlug(){
-        try{
-          return (
-            localStorage.getItem(DRIVER_SLUG_KEY) ||
-            localStorage.getItem(LAST_SLUG_KEY) ||
-            ""
-          ).trim();
-        }catch{
+        const sessionSlug = normalizeSlug(safeGetSession(DRIVER_SLUG_KEY) || safeGetSession(LAST_SLUG_KEY));
+        if(sessionSlug) return sessionSlug;
+
+        const localDriver = normalizeSlug(safeGetLocal(DRIVER_SLUG_KEY));
+        const localLast = normalizeSlug(safeGetLocal(LAST_SLUG_KEY));
+        const localSlug = localDriver || localLast || "";
+
+        if(localSlug && isSensitiveSlug(localSlug)){
+          safeRemoveLocal(DRIVER_SLUG_KEY);
+          safeRemoveLocal(LAST_SLUG_KEY);
           return "";
         }
+
+        return localSlug;
       }
 
       function saveSlug(slug){
-        const v = String(slug || "").trim();
+        const v = normalizeSlug(slug);
         if(!v) return;
-        try{ localStorage.setItem(DRIVER_SLUG_KEY, v); }catch(_){}
-        try{ localStorage.setItem(LAST_SLUG_KEY, v); }catch(_){}
+
+        safeSetSession(DRIVER_SLUG_KEY, v);
+        safeSetSession(LAST_SLUG_KEY, v);
+
+        if(isSensitiveSlug(v)){
+          safeRemoveLocal(DRIVER_SLUG_KEY);
+          safeRemoveLocal(LAST_SLUG_KEY);
+          return;
+        }
+
+        safeSetLocal(DRIVER_SLUG_KEY, v);
+        safeSetLocal(LAST_SLUG_KEY, v);
       }
 
       function ensureSlugInUrl(slug){
-        const v = String(slug || "").trim();
-        if(!v) return;
+        const v = normalizeSlug(slug);
         try{
           const u = new URL(location.href);
-          if(!u.searchParams.get("slug")){
-            u.searchParams.set("slug", v);
-            history.replaceState({}, "", u.toString());
+          let changed = false;
+
+          if(u.searchParams.has("phone")){
+            u.searchParams.delete("phone");
+            changed = true;
+          }
+
+          if(v && canExposeSlug(v)){
+            if(!u.searchParams.get("slug")){
+              u.searchParams.set("slug", v);
+              changed = true;
+            }
+          }else if(u.searchParams.has("slug")){
+            u.searchParams.delete("slug");
+            changed = true;
+          }
+
+          if(changed){
+            history.replaceState({}, "", u.pathname + u.search + u.hash);
           }
         }catch(_){}
       }
@@ -1166,26 +1262,33 @@
       function savePhone(phone){
         const v = normPhone(phone);
         if(!v) return;
-        try{ sessionStorage.setItem(DRIVER_PHONE_KEY, v); }catch(_){}
+
+        safeSetSession(DRIVER_PHONE_KEY, v);
+        safeSetSession("digiy_driver_phone", v);
+        safeSetSession("digiy_driver_last_phone", v);
+
+        safeRemoveLocal(DRIVER_PHONE_KEY);
+        safeRemoveLocal("digiy_driver_phone");
+        safeRemoveLocal("digiy_driver_last_phone");
+
         window.DIGIY_DRIVER_HUB_PHONE = v;
       }
 
       function getSavedPhone(){
-        try{
-          return normPhone(
-            window.DIGIY_DRIVER_HUB_PHONE ||
-            sessionStorage.getItem(DRIVER_PHONE_KEY) ||
-            ""
-          );
-        }catch{
-          return normPhone(window.DIGIY_DRIVER_HUB_PHONE || "");
-        }
+        return normPhone(
+          window.DIGIY_DRIVER_HUB_PHONE ||
+          safeGetSession(DRIVER_PHONE_KEY) ||
+          safeGetSession("digiy_driver_phone") ||
+          safeGetSession("digiy_driver_last_phone") ||
+          ""
+        );
       }
 
       function getGuardState(){
         return window.DIGIY_GUARD?.state || {
           preview: true,
           access_ok: false,
+          access: false,
           slug: "",
           phone: "",
           reason: "guard_missing"
@@ -1196,13 +1299,13 @@
         if(!window.DIGIY_GUARD || typeof window.DIGIY_GUARD.ready !== "function"){
           throw new Error("guard_absent");
         }
-        return await window.DIGIY_GUARD.ready({ redirect:false, timeout:8000 });
+        return await window.DIGIY_GUARD.ready({ redirect:false, timeout:8000, preserve_validation:true });
       }
 
       function getEffectiveSlug(){
         const st = getGuardState();
         const url = getUrlParts();
-        return String(st.slug || url.slug || getSavedSlug() || "").trim();
+        return normalizeSlug(st.slug || url.slug || getSavedSlug() || "");
       }
 
       function getEffectivePhone(){
@@ -1213,23 +1316,30 @@
 
       function withCtx(base){
         const slug = getEffectiveSlug();
-        const phone = getEffectivePhone();
 
         try{
           const u = new URL(base, location.href);
-          if(slug && !u.searchParams.get("slug")) u.searchParams.set("slug", slug);
-          if(phone && !u.searchParams.get("phone")) u.searchParams.set("phone", phone);
+
+          u.searchParams.delete("phone");
+
+          if(slug && canExposeSlug(slug) && !u.searchParams.get("slug")){
+            u.searchParams.set("slug", slug);
+          }
+
+          const existingSlug = normalizeSlug(u.searchParams.get("slug") || "");
+          if(existingSlug && isSensitiveSlug(existingSlug)){
+            u.searchParams.delete("slug");
+          }
+
           if(u.origin === location.origin) return u.pathname + u.search + u.hash;
           return u.toString();
         }catch{
-          let out = base;
-          if(slug){
-            out += (out.includes("?") ? "&" : "?") + "slug=" + encodeURIComponent(slug);
+          if(slug && canExposeSlug(slug)){
+            const qs = new URLSearchParams();
+            qs.set("slug", slug);
+            return base + (base.includes("?") ? "&" : "?") + qs.toString();
           }
-          if(phone){
-            out += (out.includes("?") ? "&" : "?") + "phone=" + encodeURIComponent(phone);
-          }
-          return out;
+          return base;
         }
       }
 
@@ -1238,18 +1348,12 @@
       }
 
       function baseMsg(extraLines){
-        const slug = getEffectiveSlug();
-        const phone = getEffectivePhone();
-
         const lines = [
           "Bonjour, je souhaite rejoindre DIGIY PRO DRIVER.",
           "Lead: " + lead,
           "Source: digiy-pro-driver-index",
           "Device: " + device
         ];
-
-        if (slug) lines.push("Slug: " + slug);
-        if (phone) lines.push("Phone: " + phone);
 
         if (Array.isArray(extraLines)) {
           lines.push(...extraLines.filter(Boolean));
@@ -1343,6 +1447,7 @@
         if (url.slug) saveSlug(url.slug);
         if (url.phone) savePhone(url.phone);
 
+        cleanVisibleUrl();
         recutRouteLinks();
         recutWhatsAppLinks();
 
@@ -1358,7 +1463,10 @@
         if (slug){
           saveSlug(slug);
           ensureSlugInUrl(slug);
+        }else{
+          cleanVisibleUrl();
         }
+
         if (phone){
           savePhone(phone);
         }
@@ -1384,7 +1492,7 @@
         const slug = getEffectiveSlug();
         const phone = getEffectivePhone();
 
-        const hasSession = !!(guardState && guardState.access_ok && (guardState.slug || guardState.phone));
+        const hasSession = !!(guardState && (guardState.access_ok || guardState.access) && (guardState.slug || guardState.phone));
         const hasKnownContext = !!(slug || phone);
         const hasJoinForm = !!document.getElementById("btnApplyNow");
 
