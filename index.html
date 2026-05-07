@@ -749,6 +749,50 @@
       box-shadow:0 20px 50px rgba(0,0,0,.42);
     }
 
+    .floating-route-nav{
+      position:fixed;
+      right:16px;
+      bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+      z-index:120;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+      flex-wrap:wrap;
+      max-width:min(760px, calc(100vw - 32px));
+      padding:8px;
+      border-radius:24px;
+      border:1px solid rgba(250,204,21,.16);
+      background:rgba(4,15,9,.70);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      box-shadow:0 18px 46px rgba(0,0,0,.34);
+    }
+
+    .floating-route-nav .floating-site-btn{
+      position:static;
+      right:auto;
+      bottom:auto;
+      min-height:44px;
+      padding:11px 14px;
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+      box-shadow:none;
+      background:rgba(4,15,9,.76);
+    }
+
+    .floating-route-nav .floating-site-btn:nth-child(2){
+      border-color:rgba(34,197,94,.30);
+      background:rgba(34,197,94,.10);
+    }
+
+    .floating-route-nav .floating-site-btn:nth-child(4){
+      border-color:rgba(250,204,21,.30);
+      background:rgba(250,204,21,.10);
+      color:var(--gold2);
+    }
+
     @media (max-width: 600px){
       .hero-stat-row{gap:20px}
       .quote-block{padding:36px 20px}
@@ -761,6 +805,25 @@
         padding:15px 16px;
         font-size:13px;
       }
+      .floating-route-nav{
+        left:12px;
+        right:12px;
+        bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+        max-width:none;
+        justify-content:center;
+        gap:6px;
+        padding:7px;
+        border-radius:22px;
+      }
+      .floating-route-nav .floating-site-btn{
+        left:auto;
+        right:auto;
+        bottom:auto;
+        flex:1 1 40%;
+        min-height:40px;
+        padding:10px 9px;
+        font-size:12px;
+      }
     }
   </style>
 </head>
@@ -768,14 +831,12 @@
 <body>
   <a href="#portail" class="skip">Aller au contenu</a>
 
-  <a
-    class="floating-site-btn"
-    href="https://digiylyfe.com/"
-    aria-label="Retour au site DIGIYLYFE"
-    title="Retour au site"
-  >
-    ← Retour au site
-  </a>
+  <nav class="floating-route-nav" aria-label="Navigation DIGIYLYFE">
+    <a class="floating-site-btn" href="https://digiylyfe.com/" aria-label="Retour au site DIGIYLYFE" title="Site DIGIYLYFE">🌍 Site</a>
+    <a class="floating-site-btn" href="https://digiy-hub.digiylyfe.com/" aria-label="Ouvrir le HUB DIGIY" title="HUB DIGIY">🧭 HUB</a>
+    <a class="floating-site-btn" href="https://tarifs.digiylyfe.com/" aria-label="Voir les tarifs DIGIYLYFE" title="Tarifs DIGIYLYFE">📦 Tarifs</a>
+    <a class="floating-site-btn" href="https://pro-espace.digiylyfe.com/" aria-label="Ouvrir l’Espace pro DIGIY" title="Espace pro DIGIY">🏢 Espace pro</a>
+  </nav>
 
   <nav class="topbar" aria-label="Navigation principale">
     <a id="brandHome" href="./index.html" class="topbar-brand" aria-label="Accueil portail DIGIY PRO DRIVER">
