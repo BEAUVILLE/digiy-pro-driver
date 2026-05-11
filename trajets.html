@@ -961,6 +961,360 @@
       font-weight:800;
       line-height:1.5;
     }
+
+    /* =========================================================
+       DIGIY DRIVER — retouche lisibilité téléphone
+       Écriture plus grande, plus grasse, fond plus lumineux.
+       Moteur JS inchangé.
+       ========================================================= */
+
+    body{
+      font-weight:700;
+      background:
+        radial-gradient(1050px 620px at 8% -10%, rgba(99,102,241,.34), transparent 62%),
+        radial-gradient(900px 560px at 100% 0%, rgba(34,197,94,.18), transparent 58%),
+        radial-gradient(700px 440px at 50% 105%, rgba(250,204,21,.10), transparent 62%),
+        linear-gradient(180deg,#14213d 0%, #101b32 48%, #0c172b 100%);
+    }
+
+    .wrap{
+      max-width:1160px;
+    }
+
+    .card{
+      background:
+        radial-gradient(520px 220px at 100% 0%, rgba(99,102,241,.13), transparent 68%),
+        linear-gradient(180deg,rgba(27,44,80,.98),rgba(18,31,56,.98));
+      border-color:rgba(255,255,255,.15);
+      box-shadow:0 22px 52px rgba(0,0,0,.34);
+    }
+
+    .hero{
+      background:
+        radial-gradient(580px 250px at 0% 0%, rgba(99,102,241,.28), transparent 70%),
+        radial-gradient(460px 240px at 100% 100%, rgba(34,197,94,.16), transparent 70%),
+        linear-gradient(180deg, rgba(30,50,90,.99), rgba(18,34,62,.99));
+      border-color:rgba(255,255,255,.16);
+    }
+
+    .brandTitle{
+      font-size:clamp(24px,5vw,32px);
+      font-weight:1000;
+    }
+
+    .brandSub{
+      font-size:15px;
+      font-weight:950;
+      color:#d8e1ff;
+    }
+
+    .pill{
+      min-height:44px;
+      font-size:14px;
+      font-weight:950;
+      background:rgba(255,255,255,.075);
+      color:#dce4ff;
+    }
+
+    .eyebrow{
+      min-height:36px;
+      padding:8px 13px;
+      font-size:13px;
+      font-weight:1000;
+      color:#f2f5ff;
+      background:rgba(255,255,255,.085);
+    }
+
+    .heroTitle{
+      font-size:clamp(34px,8vw,58px);
+      line-height:1.02;
+      font-weight:1000;
+    }
+
+    .heroLead{
+      font-size:clamp(17px,3.6vw,22px);
+      line-height:1.48;
+      font-weight:900;
+      color:#dbe4ff;
+      max-width:920px;
+    }
+
+    .btn{
+      min-height:54px;
+      border-radius:17px;
+      padding:14px 17px;
+      font-size:16px;
+      font-weight:1000;
+      border-color:rgba(255,255,255,.15);
+      background:rgba(255,255,255,.075);
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg,#6d6fff,#9b66ff);
+      box-shadow:0 16px 34px rgba(99,102,241,.34);
+    }
+
+    .driverPhoneActionBlock{
+      padding:16px;
+      border-radius:24px;
+      border-color:rgba(250,204,21,.34);
+      background:
+        radial-gradient(540px 230px at 100% 0%, rgba(250,204,21,.16), transparent 70%),
+        linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.045));
+    }
+
+    .driverPhoneActionTitle{
+      font-size:14px;
+      font-weight:1000;
+      color:#fff0a8;
+    }
+
+    .driverPhoneAction{
+      min-height:92px;
+      border-radius:22px;
+      background:rgba(255,255,255,.075);
+      border-color:rgba(255,255,255,.15);
+      padding:14px;
+    }
+
+    .driverPhoneAction.primary{
+      background:linear-gradient(135deg,#6d6fff,#9b66ff);
+    }
+
+    .driverPhoneAction.gold{
+      background:rgba(250,204,21,.16);
+      border-color:rgba(250,204,21,.34);
+    }
+
+    .driverPhoneIcon{
+      width:48px;
+      height:48px;
+      border-radius:18px;
+      font-size:22px;
+      background:rgba(255,255,255,.14);
+    }
+
+    .driverPhoneCopy strong{
+      font-size:19px;
+      font-weight:1000;
+      letter-spacing:-.01em;
+    }
+
+    .driverPhoneCopy span{
+      margin-top:6px;
+      font-size:14px;
+      font-weight:900;
+      color:#e1e7ff;
+    }
+
+    .newTripHint{
+      font-size:15px;
+      font-weight:950;
+      line-height:1.5;
+      background:rgba(99,102,241,.13);
+      border-color:rgba(99,102,241,.34);
+      color:#edf1ff;
+    }
+
+    .miniLink{
+      min-height:92px;
+      border-radius:22px;
+      background:rgba(255,255,255,.065);
+      border-color:rgba(255,255,255,.15);
+    }
+
+    .miniLink strong{
+      font-size:18px;
+      font-weight:1000;
+    }
+
+    .miniLink span{
+      font-size:14px;
+      font-weight:900;
+      color:#dce4ff;
+    }
+
+    .sectionTitle{
+      font-size:clamp(22px,4.8vw,30px);
+      font-weight:1000;
+    }
+
+    .sectionLead{
+      font-size:15px;
+      font-weight:900;
+      color:#d2dcff;
+    }
+
+    .kpi{
+      border-radius:22px;
+      background:rgba(255,255,255,.065);
+      border-color:rgba(255,255,255,.15);
+      padding:16px;
+    }
+
+    .kpiLabel{
+      font-size:14px;
+      font-weight:950;
+      color:#dbe4ff;
+    }
+
+    .kpiValue{
+      font-size:clamp(30px,7vw,42px);
+      font-weight:1000;
+    }
+
+    .kpiSub{
+      font-size:14px;
+      font-weight:900;
+      color:#d8e0ff;
+    }
+
+    .field label{
+      font-size:14px;
+      font-weight:1000;
+      color:#dbe4ff;
+    }
+
+    .field select,
+    .field input,
+    .quickInput{
+      min-height:54px;
+      border-radius:18px;
+      font-size:16px;
+      font-weight:950;
+      color:#fff;
+      background:rgba(0,0,0,.16);
+      border-color:rgba(255,255,255,.18);
+    }
+
+    .quickInput{
+      min-height:96px;
+      line-height:1.45;
+    }
+
+    .trip{
+      border-radius:22px;
+      background:rgba(255,255,255,.065);
+      border-color:rgba(255,255,255,.15);
+      padding:16px;
+    }
+
+    .tripTitle{
+      font-size:19px;
+      font-weight:1000;
+      line-height:1.28;
+    }
+
+    .metaLine{
+      font-size:14px;
+      font-weight:900;
+      color:#d9e2ff;
+    }
+
+    .tag,
+    .badge{
+      min-height:38px;
+      font-size:13px;
+      font-weight:1000;
+      background:rgba(255,255,255,.07);
+    }
+
+    .empty{
+      font-size:15px;
+      font-weight:950;
+      color:#d7e0ff;
+      background:rgba(255,255,255,.055);
+    }
+
+    .msg{
+      font-size:15px;
+      font-weight:1000;
+    }
+
+    .quickGuide strong,
+    .memoryTitle{
+      font-size:15px;
+      font-weight:1000;
+    }
+
+    .quickGuide p,
+    .memoryHelp,
+    .memoryItemMeta{
+      font-size:14px;
+      font-weight:900;
+      color:#d8e0ff;
+    }
+
+    .quickExamples button{
+      min-height:40px;
+      font-size:13px;
+      font-weight:1000;
+      padding:8px 12px;
+    }
+
+    .memoryItem{
+      border-radius:18px;
+      padding:13px;
+      background:rgba(255,255,255,.065);
+      border-color:rgba(255,255,255,.15);
+    }
+
+    .memoryItemTitle{
+      font-size:15px;
+      font-weight:1000;
+    }
+
+    .memoryItemAmount{
+      font-size:14px;
+      font-weight:1000;
+    }
+
+    .bottomNav{
+      background:rgba(14,27,51,.96);
+      border-top-color:rgba(255,255,255,.16);
+    }
+
+    .bottomNav a{
+      min-height:64px;
+      font-size:12px;
+      font-weight:1000;
+      color:rgba(238,242,255,.82);
+    }
+
+    .bottomNav .ico{
+      font-size:21px;
+    }
+
+    .bottomNav a.active{
+      background:linear-gradient(135deg,#6d6fff,#9b66ff);
+    }
+
+    @media(max-width:520px){
+      .hero{
+        padding:17px;
+      }
+
+      .heroTitle{
+        font-size:34px;
+      }
+
+      .heroLead{
+        font-size:17px;
+      }
+
+      .driverPhoneAction{
+        min-height:88px;
+      }
+
+      .kpis{
+        grid-template-columns:1fr;
+      }
+
+      .kpi{
+        padding:17px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -2656,4 +3010,5 @@
   </script>
 </body>
 </html>
+
 
