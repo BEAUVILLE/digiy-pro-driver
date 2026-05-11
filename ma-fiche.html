@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Je conduis — Ma fiche client</title>
+  <meta name="theme-color" content="#061b14"/>
+  <meta name="robots" content="noindex,nofollow"/>
+
+  <script>
+    window.DIGIY_MODULE = "DRIVER";
+    window.DIGIY_LOGIN_URL = "./pin.html";
+    window.DIGIY_SUPABASE_URL = window.DIGIY_SUPABASE_URL || "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=driver-ma-fiche-20260511"></script>
+
+  <style>
+    :root{
+      --bg:#061b14;--bg2:#0a231b;--line:rgba(255,255,255,.14);
+      --card:rgba(255,255,255,.06);--text:#eafff1;--muted:rgba(234,255,241,.76);
+      --gold:#facc15;--green:#22c55e;--red:#fb7185;--r:24px;
+      --shadow:0 18px 55px rgba(0,0,0,.42);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      min-height:100vh;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 520px at 8% -10%,rgba(34,197,94,.18),transparent 60%),
+        radial-gradient(900px 520px at 108% 0%,rgba(250,204,21,.12),transparent 55%),
+        linear-gradient(180deg,var(--bg2),var(--bg));
+      padding:16px;
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:720px;margin:0 auto;display:grid;gap:14px}
+    .hero,.card{border:1px solid var(--line);border-radius:var(--r);background:var(--card);box-shadow:var(--shadow);padding:18px}
+    .kicker{color:var(--gold);font-size:.78rem;font-weight:1000;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}
+    h1{margin:0;font-size:clamp(1.8rem,8vw,2.8rem);line-height:1.03;letter-spacing:-.04em}
+    .muted{color:var(--muted);font-weight:850;line-height:1.5;margin-top:10px}
+    .status{border-radius:18px;border:1px solid rgba(250,204,21,.28);background:rgba(250,204,21,.09);color:#fde68a;padding:12px;font-weight:950;line-height:1.45;overflow-wrap:anywhere}
+    .status.ok{border-color:rgba(34,197,94,.32);background:rgba(34,197,94,.1);color:#bbf7d0}
+    .status.bad{border-color:rgba(251,113,133,.32);background:rgba(251,113,133,.1);color:#fecaca}
+    .actions{display:grid;gap:10px;margin-top:12px}
+    .btn{min-height:56px;border-radius:17px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--text);font-weight:1000;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px}
+    .btn.primary{background:linear-gradient(135deg,var(--green),#16a34a);color:#042012;border-color:transparent}
+    .btn.gold{background:rgba(250,204,21,.13);border-color:rgba(250,204,21,.28);color:#fde68a}
+    .small{margin-top:10px;color:rgba(234,255,241,.58);font-size:.82rem;font-weight:850;line-height:1.45}
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="kicker">DIGIY DRIVER · Ma fiche client</div>
+      <h1>Ouverture de ta fiche publique…</h1>
+      <div class="muted">
+        Cette porte lit ta session chauffeur, retrouve ta carte publique Ambassadeur,
+        puis ouvre ta fiche client. Le téléphone ne reste pas dans l’adresse.
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="status" id="statusBox">Contrôle de session…</div>
+
+      <div class="actions">
+        <a class="btn primary" id="openBtn" href="#" style="display:none">🌍 Ouvrir ma fiche client</a>
+        <a class="btn gold" href="./profil-chauffeur.html">👤 Vérifier mon profil</a>
+        <a class="btn" href="./generateur-digiy-driver.html">📱 Refaire mon QR</a>
+        <a class="btn" href="./dashboard-pro.html">🏠 Retour accueil chauffeur</a>
+        <a class="btn" href="./pin.html">🔐 Repasser par le PIN</a>
+      </div>
+
+      <div class="small">
+        Si la fiche n’est pas trouvée, publie d’abord ton profil chauffeur, puis régénère le QR.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (async () => {
+      "use strict";
+
+      const PUBLIC_FICHE_BASE = "https://beauville.github.io/galerie-chauffeurs/fiche-chauffeur.html";
+      const $ = (id) => document.getElementById(id);
+      const box = $("statusBox");
+      const openBtn = $("openBtn");
+
+      function setStatus(text, type){
+        box.textContent = text;
+        box.className = "status " + (type || "");
+      }
+
+      function normPhone(value){
+        const d = String(value || "").replace(/[^\d]/g, "");
+        if(!d) return "";
+        if(d.startsWith("221") && d.length === 12) return d;
+        if(d.length === 9) return "221" + d;
+        return d;
+      }
+
+      function normName(value){
+        return String(value || "")
+          .trim()
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function values(row){
+        if(!row || typeof row !== "object") return [];
+        return Object.values(row).map(v => String(v ?? "").trim()).filter(Boolean);
+      }
+
+      function rowPhones(row){
+        return [
+          row?.phone,
+          row?.whatsapp,
+          row?.wa,
+          row?.driver_phone,
+          row?.contact_phone
+        ]
+          .concat(values(row))
+          .map(normPhone)
+          .filter(Boolean);
+      }
+
+      function rowNames(row){
+        return [
+          row?.display_name,
+          row?.driver_name,
+          row?.business_name,
+          row?.name,
+          row?.title
+        ]
+          .concat(values(row))
+          .map(normName)
+          .filter(Boolean);
+      }
+
+      function pickCardSlug(row){
+        const all = [
+          row?.slug,
+          row?.card_slug,
+          row?.public_slug,
+          row?.public_card_slug
+        ].concat(values(row));
+
+        for(const raw of all){
+          const s = String(raw || "").trim();
+
+          if(/^card-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)){
+            return s;
+          }
+
+          if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)){
+            return "card-" + s;
+          }
+        }
+
+        return "";
+      }
+
+      function stored(key){
+        try{
+          return sessionStorage.getItem(key) || localStorage.getItem(key) || "";
+        }catch(_){
+          return "";
+        }
+      }
+
+      async function waitGuard(){
+        try{
+          const g = window.DIGIY_GUARD;
+          if(!g) return {};
+
+          if(typeof g.ready === "function"){
+            const out = g.ready({ redirect:false, preserve_validation:true });
+            if(out && typeof out.then === "function") await out;
+          }else if(g.ready && typeof g.ready.then === "function"){
+            await g.ready;
+          }
+
+          if(typeof g.getSession === "function") return g.getSession() || {};
+          return g.state || {};
+        }catch(e){
+          console.warn("[ma-fiche] guard warning", e);
+          return {};
+        }
+      }
+
+      function cleanVisibleUrl(){
+        try{
+          const u = new URL(location.href);
+          ["phone","tel","wa","slug","identifiant"].forEach(k => u.searchParams.delete(k));
+          history.replaceState({}, document.title, u.pathname + u.search + u.hash);
+        }catch(_){}
+      }
+
+      function makeClient(){
+        if(window.sb) return window.sb;
+
+        if(!window.supabase || typeof window.supabase.createClient !== "function"){
+          return null;
+        }
+
+        return window.supabase.createClient(
+          window.DIGIY_SUPABASE_URL,
+          window.DIGIY_SUPABASE_ANON_KEY,
+          {
+            auth:{
+              persistSession:false,
+              autoRefreshToken:false,
+              detectSessionInUrl:false
+            }
+          }
+        );
+      }
+
+      try{
+        cleanVisibleUrl();
+
+        const sess = await waitGuard();
+        const client = makeClient();
+
+        if(!client){
+          setStatus("Connexion Supabase indisponible. Recharge la page ou repasse par le PIN.", "bad");
+          return;
+        }
+
+        const phone = normPhone(
+          sess.phone ||
+          sess.driver_phone ||
+          stored("digiy_driver_phone") ||
+          stored("digiy_driver_last_phone") ||
+          stored("DIGIY_DRIVER_PHONE") ||
+          stored("DIGIY_DRIVER_HUB_PHONE")
+        );
+
+        const name = normName(
+          sess.display_name ||
+          sess.driver_name ||
+          sess.business_name ||
+          ""
+        );
+
+        if(!phone && !name){
+          setStatus("Session chauffeur introuvable. Repasse par la porte PIN, puis reviens ici.", "bad");
+          return;
+        }
+
+        setStatus("Session trouvée. Recherche de ta fiche publique…");
+
+        const { data, error } = await client.rpc("digiy_driver_public_gallery");
+        if(error) throw error;
+
+        const rows = Array.isArray(data) ? data : [];
+        let found = null;
+
+        if(phone){
+          found = rows.find(row => rowPhones(row).includes(phone));
+        }
+
+        if(!found && name){
+          found = rows.find(row => rowNames(row).includes(name));
+        }
+
+        const cardSlug = pickCardSlug(found);
+
+        if(!cardSlug){
+          setStatus("Fiche publique non trouvée. Publie ton profil, puis régénère ton QR.", "bad");
+          return;
+        }
+
+        const target = new URL(PUBLIC_FICHE_BASE);
+        target.searchParams.set("slug", cardSlug);
+
+        openBtn.href = target.toString();
+        openBtn.style.display = "flex";
+
+        setStatus("Fiche trouvée. Ouverture…", "ok");
+
+        setTimeout(() => {
+          location.href = target.toString();
+        }, 650);
+
+      }catch(e){
+        console.error("[ma-fiche]", e);
+        setStatus("Impossible d’ouvrir la fiche pour le moment. Réessaie depuis le profil chauffeur.", "bad");
+      }
+    })();
+  </script>
+</body>
+</html>
