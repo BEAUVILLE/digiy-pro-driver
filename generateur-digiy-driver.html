@@ -4,6 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Je conduis — Mon QR</title>
+  <!-- DIGIY DRIVER QR · support route neutralisée · 2026-05-11 -->
   <meta name="theme-color" content="#061b14"/>
   <meta name="description" content="DIGIY DRIVER — générer un QR propre pour partager la bonne porte chauffeur, sans téléphone visible dans l’URL."/>
 
@@ -533,7 +534,7 @@
       "use strict";
 
       const MODULE = "DRIVER";
-      const SUPPORT_PHONE = "221771342889";
+      const SUPPORT_DRIVER_URL = "https://pro-driver.digiylyfe.com/support.html";
       const PUBLIC_DRIVER_BASE = "https://driver.digiylyfe.com/";
       const PRO_DRIVER_BASE = "https://pro-driver.digiylyfe.com/";
       const PRO_DRIVER_PIN_URL = "https://pro-driver.digiylyfe.com/pin.html";
@@ -788,8 +789,12 @@
           return PRO_DRIVER_PIN_URL;
         }
 
-        const msg = "Bonjour DIGIY, j’ai besoin d’aide pour mon espace chauffeur.";
-        return "https://wa.me/" + SUPPORT_PHONE + "?text=" + encodeURIComponent(msg);
+        /*
+          Support DIGIY :
+          pas de téléphone personnel dans le moule.
+          Le QR ouvre une porte support DRIVER dédiée.
+        */
+        return SUPPORT_DRIVER_URL;
       }
 
       function updateLabels(){
@@ -804,12 +809,12 @@
         $("qrSub").textContent =
           state.targetType === "public" ? "Fiche client • contact direct" :
           state.targetType === "pro" ? "Porte chauffeur • session/PIN" :
-          "Aide terrain • WhatsApp";
+          "Aide terrain • Support DRIVER";
 
         $("qrFooter").textContent =
           state.targetType === "public" ? "Scanne pour découvrir le chauffeur." :
           state.targetType === "pro" ? "Scanne pour ouvrir la porte chauffeur." :
-          "Scanne pour contacter le support DIGIY.";
+          "Scanne pour ouvrir le support DRIVER.";
 
         $("qrSmall").textContent = state.targetUrl;
 
