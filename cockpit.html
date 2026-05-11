@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Je conduis — Ma gestion</title>
   <meta name="theme-color" content="#14213d"/>
-  <meta name="description" content="DIGIY DRIVER — Gestion chauffeur. Profil, trajets, QR, activité et session."/>
+  <meta name="description" content="DIGIY DRIVER — Gestion chauffeur. Profil, trajets, QR, fiche client, activité et session."/>
+  <meta name="robots" content="noindex,nofollow"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -20,10 +21,9 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-security-v2-20260504"></script>
+  <script src="./guard.js?v=driver-cockpit-ma-fiche-20260511"></script>
 
   <style>
-
     :root{
       --bg:#14213d;
       --bg2:#0f1e38;
@@ -65,11 +65,7 @@
     a{color:inherit;text-decoration:none}
     button{font:inherit}
 
-    .wrap{
-      max-width:var(--max);
-      margin:0 auto;
-      padding:16px 14px 34px;
-    }
+    .wrap{max-width:var(--max);margin:0 auto;padding:16px 14px 34px}
 
     .topbar{
       display:flex;
@@ -80,80 +76,25 @@
       margin-bottom:14px;
     }
 
-    .brand{
-      display:flex;
-      gap:13px;
-      align-items:flex-start;
-      min-width:0;
-    }
-
+    .brand{display:flex;gap:13px;align-items:flex-start;min-width:0}
     .brandBadge{
-      width:58px;
-      height:58px;
-      border-radius:21px;
-      display:grid;
-      place-items:center;
-      background:rgba(255,255,255,.12);
-      border:1px solid var(--line);
-      box-shadow:var(--shadow);
-      font-size:29px;
-      flex:0 0 auto;
+      width:58px;height:58px;border-radius:21px;display:grid;place-items:center;
+      background:rgba(255,255,255,.12);border:1px solid var(--line);
+      box-shadow:var(--shadow);font-size:29px;flex:0 0 auto;
     }
+    .brandTitle{font-size:clamp(26px,4vw,38px);font-weight:1000;line-height:1.04;letter-spacing:-.035em}
+    .brandSub{margin-top:6px;color:var(--muted);font-size:16px;font-weight:900;line-height:1.35}
 
-    .brandTitle{
-      font-size:clamp(26px,4vw,38px);
-      font-weight:1000;
-      line-height:1.04;
-      letter-spacing:-.035em;
-    }
-
-    .brandSub{
-      margin-top:6px;
-      color:var(--muted);
-      font-size:16px;
-      font-weight:900;
-      line-height:1.35;
-    }
-
-    .rightPills{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-      align-items:center;
-    }
-
+    .rightPills{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
     .pill{
-      min-height:42px;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:9px 13px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.075);
-      color:var(--muted);
-      font-size:13px;
-      font-weight:950;
-      white-space:nowrap;
+      min-height:42px;display:inline-flex;align-items:center;gap:8px;padding:9px 13px;
+      border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.075);
+      color:var(--muted);font-size:13px;font-weight:950;white-space:nowrap;
     }
-
     .pill b{color:#fff;font-weight:1000}
-    .pill.ok{
-      background:rgba(34,197,94,.14);
-      border-color:rgba(34,197,94,.36);
-      color:#d9ffe8;
-    }
-    .pill.warn{
-      background:rgba(245,158,11,.14);
-      border-color:rgba(245,158,11,.34);
-      color:#ffe5bb;
-    }
-    .pill.bad{
-      background:rgba(239,68,68,.14);
-      border-color:rgba(239,68,68,.34);
-      color:#fecaca;
-    }
+    .pill.ok{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.36);color:#d9ffe8}
+    .pill.warn{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.34);color:#ffe5bb}
+    .pill.bad{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.34);color:#fecaca}
 
     .card{
       background:
@@ -189,27 +130,12 @@
     }
 
     .eyebrow{
-      display:inline-flex;
-      align-items:center;
-      gap:9px;
-      min-height:36px;
-      padding:8px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,.09);
-      border:1px solid var(--line);
-      color:var(--soft);
-      font-size:12px;
-      font-weight:1000;
-      text-transform:uppercase;
-      letter-spacing:.08em;
+      display:inline-flex;align-items:center;gap:9px;min-height:36px;padding:8px 12px;
+      border-radius:999px;background:rgba(255,255,255,.09);border:1px solid var(--line);
+      color:var(--soft);font-size:12px;font-weight:1000;text-transform:uppercase;letter-spacing:.08em;
     }
-
     .eyebrow .dot{
-      width:10px;
-      height:10px;
-      border-radius:999px;
-      background:var(--warn);
-      flex:0 0 auto;
+      width:10px;height:10px;border-radius:999px;background:var(--warn);flex:0 0 auto;
       box-shadow:0 0 14px rgba(245,158,11,.45);
     }
 
@@ -240,55 +166,19 @@
     }
 
     .btn{
-      min-height:58px;
-      border-radius:18px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.085);
-      color:var(--text);
-      padding:14px 16px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:9px;
-      cursor:pointer;
-      font-size:16px;
-      font-weight:1000;
-      transition:transform .15s ease,border-color .15s ease,background .15s ease;
-      box-shadow:0 14px 30px rgba(0,0,0,.18);
-      text-align:center;
+      min-height:58px;border-radius:18px;border:1px solid var(--line);
+      background:rgba(255,255,255,.085);color:var(--text);padding:14px 16px;
+      display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;
+      font-size:16px;font-weight:1000;transition:transform .15s ease,border-color .15s ease,background .15s ease;
+      box-shadow:0 14px 30px rgba(0,0,0,.18);text-align:center;
     }
-
     .btn:hover{transform:translateY(-1px)}
     .btn:disabled{opacity:.48;cursor:not-allowed;transform:none}
-
-    .btn.primary{
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      border-color:transparent;
-      color:#fff;
-      box-shadow:0 18px 38px rgba(109,111,255,.34);
-    }
-
-    .btn.ok{
-      background:rgba(34,197,94,.16);
-      border-color:rgba(34,197,94,.36);
-      color:#d8ffe7;
-    }
-
-    .btn.warn{
-      background:rgba(245,158,11,.16);
-      border-color:rgba(245,158,11,.34);
-      color:#ffe4b9;
-    }
-
-    .btn.gold{
-      background:rgba(250,204,21,.16);
-      border-color:rgba(250,204,21,.34);
-      color:#fff0a8;
-    }
-
-    .btn.ghost{
-      background:rgba(255,255,255,.06);
-    }
+    .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff;box-shadow:0 18px 38px rgba(109,111,255,.34)}
+    .btn.ok{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.36);color:#d8ffe7}
+    .btn.warn{background:rgba(245,158,11,.16);border-color:rgba(245,158,11,.34);color:#ffe4b9}
+    .btn.gold{background:rgba(250,204,21,.16);border-color:rgba(250,204,21,.34);color:#fff0a8}
+    .btn.ghost{background:rgba(255,255,255,.06)}
 
     .miniNav{
       display:grid;
@@ -300,397 +190,110 @@
     }
 
     .miniLink{
-      min-height:96px;
-      border-radius:22px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.075);
-      padding:15px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      gap:9px;
+      min-height:96px;border-radius:22px;border:1px solid var(--line);background:rgba(255,255,255,.075);
+      padding:15px;display:flex;flex-direction:column;justify-content:space-between;gap:9px;
       box-shadow:0 14px 30px rgba(0,0,0,.16);
     }
+    .miniLink strong{font-size:20px;font-weight:1000;line-height:1.1}
+    .miniLink span{color:var(--muted);font-size:14px;font-weight:900;line-height:1.35}
 
-    .miniLink strong{
-      font-size:20px;
-      font-weight:1000;
-      line-height:1.1;
-    }
+    .grid{display:grid;gap:14px}
+    .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .kpi{border-radius:22px;border:1px solid var(--line);background:rgba(255,255,255,.065);padding:16px}
+    .kpiLabel{color:var(--muted);font-size:14px;font-weight:950;margin-bottom:8px;line-height:1.3}
+    .kpiValue{font-size:clamp(30px,7vw,42px);font-weight:1000;line-height:1;letter-spacing:-.04em}
+    .kpiSub{margin-top:9px;color:var(--soft);font-size:13px;font-weight:900;line-height:1.35}
 
-    .miniLink span{
-      color:var(--muted);
-      font-size:14px;
-      font-weight:900;
-      line-height:1.35;
-    }
+    .sectionHead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:14px}
+    .sectionTitle{margin:0;font-size:clamp(24px,4vw,32px);font-weight:1000;letter-spacing:-.025em;line-height:1.05}
+    .sectionLead{margin-top:6px;color:var(--muted);font-size:15px;font-weight:900;line-height:1.45}
 
-    .grid{
-      display:grid;
-      gap:14px;
-    }
-
-    .kpis{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:10px;
-    }
-
-    .kpi{
-      border-radius:22px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.065);
-      padding:16px;
-    }
-
-    .kpiLabel{
-      color:var(--muted);
-      font-size:14px;
-      font-weight:950;
-      margin-bottom:8px;
-      line-height:1.3;
-    }
-
-    .kpiValue{
-      font-size:clamp(30px,7vw,42px);
-      font-weight:1000;
-      line-height:1;
-      letter-spacing:-.04em;
-    }
-
-    .kpiSub{
-      margin-top:9px;
-      color:var(--soft);
-      font-size:13px;
-      font-weight:900;
-      line-height:1.35;
-    }
-
-    .sectionHead{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:flex-start;
-      margin-bottom:14px;
-    }
-
-    .sectionTitle{
-      margin:0;
-      font-size:clamp(24px,4vw,32px);
-      font-weight:1000;
-      letter-spacing:-.025em;
-      line-height:1.05;
-    }
-
-    .sectionLead{
-      margin-top:6px;
-      color:var(--muted);
-      font-size:15px;
-      font-weight:900;
-      line-height:1.45;
-    }
-
-    .list{
-      display:grid;
-      gap:10px;
-    }
-
-    .item{
-      border-radius:22px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.07);
-      padding:16px;
-      display:grid;
-      gap:12px;
-    }
-
-    .itemTop{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
-      flex-wrap:wrap;
-    }
-
-    .itemTitle{
-      font-size:18px;
-      font-weight:1000;
-      line-height:1.3;
-    }
-
-    .itemMeta{
-      display:grid;
-      gap:7px;
-    }
-
-    .metaLine{
-      color:var(--muted);
-      font-size:14px;
-      font-weight:900;
-      line-height:1.45;
-    }
-
-    .tagRow{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
+    .list{display:grid;gap:10px}
+    .item{border-radius:22px;border:1px solid var(--line);background:rgba(255,255,255,.07);padding:16px;display:grid;gap:12px}
+    .itemTitle{font-size:18px;font-weight:1000;line-height:1.3}
+    .metaLine{color:var(--muted);font-size:14px;font-weight:900;line-height:1.45}
+    .itemTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+    .itemMeta{display:grid;gap:7px}
+    .tagRow{display:flex;gap:8px;flex-wrap:wrap}
     .tag{
-      min-height:36px;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:7px 11px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.075);
-      color:var(--soft);
-      font-size:12px;
-      font-weight:1000;
-      line-height:1.2;
+      min-height:36px;display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;
+      border:1px solid var(--line);background:rgba(255,255,255,.075);color:var(--soft);
+      font-size:12px;font-weight:1000;line-height:1.2;
     }
-
     .badge{
-      min-height:36px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:7px 11px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      font-size:12px;
-      font-weight:1000;
-      letter-spacing:.04em;
-      text-transform:uppercase;
-      white-space:nowrap;
+      min-height:36px;display:inline-flex;align-items:center;justify-content:center;padding:7px 11px;
+      border-radius:999px;border:1px solid var(--line);font-size:12px;font-weight:1000;
+      letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;
     }
+    .badge.requested{color:#e0e5ff;background:rgba(109,111,255,.16);border-color:rgba(109,111,255,.34)}
+    .badge.assigned,.badge.accepted{color:#ffe4ba;background:rgba(245,158,11,.16);border-color:rgba(245,158,11,.34)}
+    .badge.in_progress{color:#d7ffe7;background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.36)}
+    .badge.completed{color:#d7ffe7;background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.36)}
+    .badge.canceled,.badge.cancelled{color:#fecaca;background:rgba(239,68,68,.16);border-color:rgba(239,68,68,.34)}
 
-    .badge.requested{
-      color:#e0e5ff;
-      background:rgba(109,111,255,.16);
-      border-color:rgba(109,111,255,.34);
-    }
-
-    .badge.assigned,
-    .badge.accepted{
-      color:#ffe4ba;
-      background:rgba(245,158,11,.16);
-      border-color:rgba(245,158,11,.34);
-    }
-
-    .badge.in_progress{
-      color:#d7ffe7;
-      background:rgba(34,197,94,.16);
-      border-color:rgba(34,197,94,.36);
-    }
-
-    .badge.completed{
-      color:#d7ffe7;
-      background:rgba(34,197,94,.16);
-      border-color:rgba(34,197,94,.36);
-    }
-
-    .badge.canceled,
-    .badge.cancelled{
-      color:#fecaca;
-      background:rgba(239,68,68,.16);
-      border-color:rgba(239,68,68,.34);
-    }
-
-    .profileGrid{
-      display:grid;
-      gap:10px;
-    }
-
-    .fieldBox{
-      border-radius:20px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.07);
-      padding:15px;
-    }
-
-    .fieldLabel{
-      color:var(--muted);
-      font-size:13px;
-      font-weight:1000;
-      margin-bottom:7px;
-      line-height:1.3;
-    }
-
-    .fieldValue{
-      font-size:17px;
-      font-weight:1000;
-      line-height:1.45;
-      word-break:break-word;
-    }
+    .profileGrid{display:grid;gap:10px}
+    .fieldBox{border-radius:20px;border:1px solid var(--line);background:rgba(255,255,255,.07);padding:15px}
+    .fieldLabel{color:var(--muted);font-size:13px;font-weight:1000;margin-bottom:7px;line-height:1.3}
+    .fieldValue{font-size:17px;font-weight:1000;line-height:1.45;word-break:break-word}
 
     .statePill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      min-height:40px;
-      padding:8px 12px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.075);
-      color:var(--soft);
-      font-size:13px;
-      font-weight:1000;
+      display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:8px 12px;border-radius:999px;
+      border:1px solid var(--line);background:rgba(255,255,255,.075);color:var(--soft);font-size:13px;font-weight:1000;
     }
+    .statePill.blank{color:#ffe4b9;background:rgba(245,158,11,.16);border-color:rgba(245,158,11,.34)}
+    .statePill.ready{color:#d8ffe7;background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.36)}
 
-    .statePill.blank{
-      color:#ffe4b9;
-      background:rgba(245,158,11,.16);
-      border-color:rgba(245,158,11,.34);
-    }
+    .sessionList{display:grid;gap:10px}
+    .sessionItem{border-radius:20px;border:1px solid var(--line);background:rgba(255,255,255,.07);padding:15px;display:grid;gap:7px}
+    .sessionItem b{font-size:16px;font-weight:1000}
+    .sessionItem div{color:var(--muted);font-size:14px;font-weight:900;line-height:1.45}
 
-    .statePill.ready{
-      color:#d8ffe7;
-      background:rgba(34,197,94,.16);
-      border-color:rgba(34,197,94,.36);
-    }
-
-    .sessionList{
-      display:grid;
-      gap:10px;
-    }
-
-    .sessionItem{
-      border-radius:20px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.07);
-      padding:15px;
-      display:grid;
-      gap:7px;
-    }
-
-    .sessionItem b{
-      font-size:16px;
-      font-weight:1000;
-    }
-
-    .sessionItem div{
-      color:var(--muted);
-      font-size:14px;
-      font-weight:900;
-      line-height:1.45;
-    }
-
-    .footerActions{
-      display:grid;
-      gap:10px;
-    }
-
+    .footerActions{display:grid;gap:10px}
     .empty{
-      padding:17px;
-      border-radius:20px;
-      border:1px dashed rgba(255,255,255,.22);
-      color:var(--muted);
-      background:rgba(255,255,255,.055);
-      font-size:15px;
-      font-weight:900;
-      line-height:1.45;
+      padding:17px;border-radius:20px;border:1px dashed rgba(255,255,255,.22);color:var(--muted);
+      background:rgba(255,255,255,.055);font-size:15px;font-weight:900;line-height:1.45;
     }
-
-    .msg{
-      margin-top:13px;
-      font-size:15px;
-      font-weight:1000;
-      line-height:1.45;
-    }
-
-    .msg.ok{color:#86efac}
-    .msg.bad{color:#fca5a5}
-    .msg.warn{color:#fde68a}
+    .msg{margin-top:13px;font-size:15px;font-weight:1000;line-height:1.45}
+    .msg.ok{color:#86efac}.msg.bad{color:#fca5a5}.msg.warn{color:#fde68a}
 
     .toast{
-      position:fixed;
-      left:50%;
-      transform:translateX(-50%);
+      position:fixed;left:50%;transform:translateX(-50%);
       bottom:calc(var(--bottomNavH) + 12px + env(safe-area-inset-bottom,0px));
-      z-index:60;
-      max-width:92vw;
-      background:rgba(7,11,19,.96);
-      color:#fff;
-      border:1px solid rgba(255,255,255,.16);
-      border-radius:999px;
-      padding:12px 15px;
-      font-size:14px;
-      font-weight:1000;
-      display:none;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      box-shadow:var(--shadow);
+      z-index:60;max-width:92vw;background:rgba(7,11,19,.96);color:#fff;border:1px solid rgba(255,255,255,.16);
+      border-radius:999px;padding:12px 15px;font-size:14px;font-weight:1000;display:none;white-space:nowrap;
+      overflow:hidden;text-overflow:ellipsis;box-shadow:var(--shadow);
     }
 
-    .loading{
-      opacity:.76;
-      pointer-events:none;
-    }
+    .loading{opacity:.76;pointer-events:none}
 
     .bottomNav{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      z-index:99990;
+      position:fixed;left:0;right:0;bottom:0;z-index:99990;
       padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
-      background:rgba(15,30,56,.96);
-      border-top:1px solid rgba(255,255,255,.16);
-      backdrop-filter:blur(16px);
-      -webkit-backdrop-filter:blur(16px);
+      background:rgba(15,30,56,.96);border-top:1px solid rgba(255,255,255,.16);
+      backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
     }
-
-    .bottomNavInner{
-      width:min(100%,760px);
-      margin:0 auto;
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:6px;
-    }
-
+    .bottomNavInner{width:min(100%,760px);margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
     .bottomNav a{
-      min-height:64px;
-      border-radius:17px;
-      display:grid;
-      place-items:center;
-      align-content:center;
-      gap:3px;
-      color:rgba(247,249,255,.82);
-      font-size:12px;
-      font-weight:1000;
-      text-align:center;
-      border:1px solid transparent;
+      min-height:64px;border-radius:17px;display:grid;place-items:center;align-content:center;gap:3px;
+      color:rgba(247,249,255,.82);font-size:12px;font-weight:1000;text-align:center;border:1px solid transparent;
     }
-
-    .bottomNav .ico{
-      font-size:21px;
-      line-height:1;
-    }
-
+    .bottomNav .ico{font-size:21px;line-height:1}
     .bottomNav a.active{
-      color:#fff;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      border-color:rgba(109,111,255,.36);
-      box-shadow:0 14px 28px rgba(109,111,255,.24);
+      color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));
+      border-color:rgba(109,111,255,.36);box-shadow:0 14px 28px rgba(109,111,255,.24);
     }
 
     @media(min-width:760px){
-      .heroActions{grid-template-columns:repeat(4,1fr)}
+      .heroActions{grid-template-columns:repeat(5,1fr)}
       .grid{grid-template-columns:1.03fr .97fr}
       .kpis{grid-template-columns:repeat(4,1fr)}
       .profileGrid{grid-template-columns:1fr 1fr}
       .footerActions{grid-template-columns:repeat(2,1fr)}
+      .miniNav{grid-template-columns:repeat(5,1fr)}
     }
 
     @media(max-width:759px){
-      .rightPills{
-        width:100%;
-        justify-content:flex-start;
-      }
+      .rightPills{width:100%;justify-content:flex-start}
       .btn{width:100%}
     }
 
@@ -708,12 +311,11 @@
       html{scroll-behavior:auto}
       .btn{transition:none}
     }
-
   </style>
 </head>
+
 <body>
   <div class="wrap">
-
     <div class="topbar">
       <div class="brand">
         <div class="brandBadge">🦅</div>
@@ -738,13 +340,14 @@
 
       <h1 class="heroTitle" id="heroTitle">Piloter clair, sans se perdre.</h1>
       <div class="heroLead" id="heroLead">
-        Profil, trajets, session, QR et historique : tout reste lisible sur téléphone.
+        Profil, trajets, session, QR, fiche client et historique : tout reste lisible sur téléphone.
       </div>
 
       <div class="heroActions">
         <button class="btn ok" id="btnReloadTop" type="button">🔄 Actualiser</button>
         <a class="btn" id="btnDashboard" href="#">🏠 Mon activité</a>
         <a class="btn" id="btnTrajets" href="#">🚕 Mes trajets</a>
+        <a class="btn ok" id="btnMaFiche" href="#">🌍 Ma fiche client</a>
         <a class="btn gold" id="btnPay" href="#">💳 Mon abonnement</a>
       </div>
 
@@ -760,6 +363,10 @@
         <a class="miniLink" id="btnQr" href="#">
           <strong>Mon QR</strong>
           <span>Partager la bonne porte chauffeur.</span>
+        </a>
+        <a class="miniLink" id="btnMiniMaFiche" href="#">
+          <strong>Ma fiche client</strong>
+          <span>Ouvrir la fiche publique Chauffeur Ambassadeur.</span>
         </a>
         <a class="miniLink" id="btnPin" href="#">
           <strong>Mon accès</strong>
@@ -892,6 +499,7 @@
 
         <div class="footerActions" style="margin-top:12px">
           <a class="btn primary" id="btnProfilBottom" href="#">👤 Ouvrir mon profil</a>
+          <a class="btn ok" id="btnMaFicheBottom" href="#">🌍 Voir ma fiche client</a>
           <a class="btn" id="btnTarifsBottom" href="#">💰 Ouvrir mes tarifs</a>
         </div>
       </div>
@@ -923,6 +531,13 @@
             <div>
               <div class="itemTitle">📱 Mon QR</div>
               <div class="metaLine">Partager la bonne porte d’entrée.</div>
+            </div>
+          </a>
+
+          <a class="item" id="linkMaFiche" href="#">
+            <div>
+              <div class="itemTitle">🌍 Ma fiche client</div>
+              <div class="metaLine">Ouvrir la fiche publique Chauffeur Ambassadeur liée à cette session.</div>
             </div>
           </a>
 
@@ -963,7 +578,6 @@
         <div class="empty">Aucun historique chargé.</div>
       </div>
     </section>
-
   </div>
 
   <div class="toast" id="toast"></div>
@@ -977,7 +591,6 @@
       <a id="navMore" href="./profil-chauffeur.html"><span class="ico">⚙️</span><span>Plus</span></a>
     </div>
   </nav>
-
 
   <script>
     (() => {
@@ -993,6 +606,7 @@
         profil: "./profil-chauffeur.html",
         tarifs: "./tarifs.html",
         qr: "./generateur-digiy-driver.html",
+        maFiche: "./ma-fiche.html",
         pay: "https://commencer-a-payer.digiylyfe.com/"
       };
 
@@ -1033,11 +647,6 @@
         return digits;
       }
 
-      function displayPhone(v){
-        const p = normPhone(v);
-        return p ? "+" + p : "—";
-      }
-
       function isSensitiveSlug(v){
         return /\d{7,}/.test(String(v || ""));
       }
@@ -1052,27 +661,21 @@
           const u = new URL(location.href);
           let changed = false;
 
-          if(u.searchParams.has("phone")){
-            u.searchParams.delete("phone");
-            changed = true;
-          }
+          ["phone","tel","wa","identifiant"].forEach((key) => {
+            if(u.searchParams.has(key)){
+              u.searchParams.delete(key);
+              changed = true;
+            }
+          });
 
-          if(u.searchParams.has("tel")){
-            u.searchParams.delete("tel");
-            changed = true;
-          }
-
-          const currentSlug = normSlug(u.searchParams.get("slug") || u.searchParams.get("identifiant") || "");
+          const currentSlug = normSlug(u.searchParams.get("slug") || "");
           if(currentSlug && isSensitiveSlug(currentSlug)){
             u.searchParams.delete("slug");
-            u.searchParams.delete("identifiant");
             changed = true;
           }
 
-          if(changed){
-            history.replaceState({}, "", u.pathname + u.search + u.hash);
-          }
-        }catch{}
+          if(changed) history.replaceState({}, "", u.pathname + u.search + u.hash);
+        }catch(_){}
       }
 
       function safeReturnUrl(){
@@ -1080,10 +683,11 @@
           const u = new URL(location.href);
           u.searchParams.delete("phone");
           u.searchParams.delete("tel");
+          u.searchParams.delete("wa");
           const currentSlug = normSlug(u.searchParams.get("slug") || "");
           if(currentSlug && isSensitiveSlug(currentSlug)) u.searchParams.delete("slug");
-          return u.origin === location.origin ? (u.pathname + u.search + u.hash) : u.toString();
-        }catch{
+          return u.origin === location.origin ? (u.pathname + u.search + u.hash) : location.pathname;
+        }catch(_){
           return location.pathname;
         }
       }
@@ -1114,11 +718,11 @@
         try{
           const s = sessionStorage.getItem(key);
           if (s) return s;
-        }catch{}
+        }catch(_){}
         try{
           const l = localStorage.getItem(key);
           if (l) return l;
-        }catch{}
+        }catch(_){}
         return "";
       }
 
@@ -1179,9 +783,9 @@
       function buildSafeUrl(base, extra = {}){
         try{
           const u = new URL(base, location.href);
-
           u.searchParams.delete("phone");
           u.searchParams.delete("tel");
+          u.searchParams.delete("wa");
           u.searchParams.delete("identifiant");
 
           if (canExposeSlug(slug)) u.searchParams.set("slug", slug);
@@ -1189,13 +793,15 @@
 
           Object.entries(extra).forEach(([key, value]) => {
             if (value === null || value === undefined || value === "") return;
-            if (key === "phone" || key === "tel") return;
+            if (key === "phone" || key === "tel" || key === "wa") return;
+
             if (key === "slug" || key === "identifiant"){
               const safeSlug = normSlug(value);
               if (canExposeSlug(safeSlug)) u.searchParams.set("slug", safeSlug);
               else u.searchParams.delete("slug");
               return;
             }
+
             u.searchParams.set(key, value);
           });
 
@@ -1204,22 +810,8 @@
 
           if (u.origin === location.origin) return u.pathname + u.search + u.hash;
           return u.toString();
-        }catch{
-          const qp = new URLSearchParams();
-          if (canExposeSlug(slug)) qp.set("slug", slug);
-          Object.entries(extra).forEach(([key, value]) => {
-            if (value === null || value === undefined || value === "") return;
-            if (key === "phone" || key === "tel") return;
-            if (key === "slug" || key === "identifiant"){
-              const safeSlug = normSlug(value);
-              if (canExposeSlug(safeSlug)) qp.set("slug", safeSlug);
-              return;
-            }
-            qp.set(key, value);
-          });
-          const raw = String(base || "#");
-          const tail = qp.toString();
-          return tail ? raw + (raw.includes("?") ? "&" : "?") + tail : raw;
+        }catch(_){
+          return String(base || "#");
         }
       }
 
@@ -1273,7 +865,7 @@
 
       function resolvePhone(){
         const qs = new URLSearchParams(location.search);
-        const fromUrl = normPhone(qs.get("phone") || qs.get("tel") || "");
+        const fromUrl = normPhone(qs.get("phone") || qs.get("tel") || qs.get("wa") || "");
         if (fromUrl) return fromUrl;
 
         const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone || "");
@@ -1282,6 +874,8 @@
         return normPhone(
           storageGet("DIGIY_DRIVER_PHONE") ||
           storageGet("digiy_driver_phone") ||
+          storageGet("digiy_driver_last_phone") ||
+          storageGet("DIGIY_DRIVER_HUB_PHONE") ||
           storageGet("DIGIY_PHONE") ||
           phoneFromDriverSlug(slug) ||
           ""
@@ -1296,8 +890,8 @@
           if (typeof g.ready === "function"){
             let out;
             try{
-              out = g.ready(8000);
-            }catch{
+              out = g.ready({ redirect:false, preserve_validation:true });
+            }catch(_){
               out = g.ready();
             }
             if (out && typeof out.then === "function") await out;
@@ -1342,8 +936,8 @@
           if (typeof g.ready === "function"){
             let out;
             try{
-              out = g.ready(8000);
-            }catch{
+              out = g.ready({ redirect:false, preserve_validation:true });
+            }catch(_){
               out = g.ready();
             }
             if (out && typeof out.then === "function") await out;
@@ -1354,22 +948,15 @@
           console.warn("Guard state warning:", e);
         }
 
-        lastGuardState = g.state || null;
-        return g.state || {
-          ok:false,
-          access_ok:false,
-          access:false,
-          pin_session_ok:false,
-          slug:"",
-          phone:"",
-          reason:"guard_empty",
-          pay_url:buildPayUrl()
-        };
-      }
+        if(typeof g.getSession === "function"){
+          try{
+            const session = g.getSession();
+            if(session) return session;
+          }catch(_){}
+        }
 
-      function isRpcMissing(error){
-        const txt = String(error?.message || error?.details || error?.hint || "");
-        return error?.code === "PGRST202" || txt.includes("Could not find the function");
+        lastGuardState = g.state || null;
+        return g.state || {};
       }
 
       async function fetchCockpit(){
@@ -1444,14 +1031,6 @@
         return 0;
       }
 
-      function pick(obj, keys, fallback = "—"){
-        for (const k of keys){
-          const v = obj?.[k];
-          if (v !== null && v !== undefined && String(v).trim() !== "") return v;
-        }
-        return fallback;
-      }
-
       function tripAmount(trip){
         const n = Number(
           trip?.final_price_fcfa ??
@@ -1481,16 +1060,6 @@
           "Arrivée à préciser"
         );
         return `${client} • ${from} → ${to}`;
-      }
-
-      function isSameLocalDay(v){
-        if (!v) return false;
-        const d = new Date(v);
-        if (Number.isNaN(d.getTime())) return false;
-        const now = new Date();
-        return d.getFullYear() === now.getFullYear()
-          && d.getMonth() === now.getMonth()
-          && d.getDate() === now.getDate();
       }
 
       function renderHeaderState(){
@@ -1542,24 +1111,30 @@
         $("heroTitle").textContent = cockpitData?.public_label
           ? `${cockpitData.public_label} — ma gestion`
           : "Ma gestion chauffeur";
-        $("heroLead").textContent = "Le cockpit garde la profondeur utile : profil, session, trajets actifs, historique.";
+        $("heroLead").textContent = "Profil, trajets, session, QR et fiche client : le coffre ouvre maintenant la bonne façade publique.";
         dot.style.background = pinSessionOk ? "var(--warn)" : "var(--ok)";
       }
 
       function bindLinks(){
         $("btnDashboard").href = withSlug(ROUTES.dashboard);
         $("btnTrajets").href = withSlug(ROUTES.trajets);
+        $("btnMaFiche").href = withSlug(ROUTES.maFiche);
+        $("btnPay").href = buildPayUrl();
+
         $("btnProfil").href = withSlug(ROUTES.profil);
         $("btnTarifs").href = withSlug(ROUTES.tarifs);
         $("btnQr").href = withSlug(ROUTES.qr);
+        $("btnMiniMaFiche").href = withSlug(ROUTES.maFiche);
         $("btnPin").href = withSlug(ROUTES.pin);
 
         $("btnProfilBottom").href = withSlug(ROUTES.profil);
+        $("btnMaFicheBottom").href = withSlug(ROUTES.maFiche);
         $("btnTarifsBottom").href = withSlug(ROUTES.tarifs);
 
         $("linkDashboard").href = withSlug(ROUTES.dashboard);
         $("linkTrajets").href = withSlug(ROUTES.trajets);
         $("linkQr").href = withSlug(ROUTES.qr);
+        $("linkMaFiche").href = withSlug(ROUTES.maFiche);
         $("linkHome").href = withSlug(ROUTES.home);
 
         if ($("navHome")) $("navHome").href = withSlug(ROUTES.dashboard);
@@ -1603,19 +1178,21 @@
         const p = cockpitData?.profile || {};
         const vehicle = [
           humanValue(p.vehicle_type, ""),
-          humanValue(p.vehicle_label, ""),
-          humanValue(p.vehicle_plate, "")
+          humanValue(p.vehicle_brand || p.vehicle_label, ""),
+          humanValue(p.vehicle_model, ""),
+          humanValue(p.vehicle_year, ""),
+          humanValue(p.vehicle_color, "")
         ].filter(Boolean).join(" • ");
 
-        $("pBusinessName").textContent = humanValue(p.business_name);
+        $("pBusinessName").textContent = humanValue(p.business_name || p.display_name);
         $("pDriverName").textContent = humanValue(p.driver_name);
         $("pCity").textContent = humanValue(p.city);
-        $("pZones").textContent = humanValue(p.zones);
+        $("pZones").textContent = humanValue(p.zones_text || p.zones);
         $("pVehicle").textContent = humanValue(vehicle, "À compléter");
         $("pWhatsapp").textContent = humanValue(p.whatsapp ? "Contact enregistré" : "", phone ? "Identifiants cachés" : "À compléter");
-        $("pDescription").textContent = humanValue(p.description);
+        $("pDescription").textContent = humanValue(p.description || p.bio);
 
-        if (cockpitData?.is_blank){
+        if (cockpitData?.is_blank || !Object.keys(p).length){
           $("profileState").className = "statePill blank";
           $("profileState").textContent = "Profil à compléter";
           $("profileHint").textContent = "L’espace est prêt. Commence par poser l’identité terrain du chauffeur.";
@@ -1730,6 +1307,11 @@
         }).join("");
       }
 
+      function isRpcMissing(error){
+        const txt = String(error?.message || error?.details || error?.hint || "");
+        return error?.code === "PGRST202" || txt.includes("Could not find the function");
+      }
+
       async function rpcWithFallback(functionNames, rideId, driverPhone){
         if (!sb) throw new Error("supabase_absent");
 
@@ -1751,9 +1333,7 @@
             const { data, error } = await sb.rpc(fn, args);
             if (!error) return data;
             lastError = error;
-            if (!isRpcMissing(error) && !String(error?.message || "").includes("function")){
-              continue;
-            }
+            if (isRpcMissing(error)) break;
           }
         }
 
@@ -1823,10 +1403,9 @@
         $("btnReloadTop")?.addEventListener("click", () => boot(true));
         $("btnCheckAccess")?.addEventListener("click", () => boot(true));
         $("btnRecoverAccess")?.addEventListener("click", () => { location.href = withSlug(ROUTES.pin); });
-        $("btnPay")?.addEventListener("click", () => { location.href = buildPayUrl(); });
+        $("btnPay")?.addEventListener("click", (e) => { e.preventDefault(); location.href = buildPayUrl(); });
         $("btnReloadActive")?.addEventListener("click", () => boot(true));
         $("btnReloadRecent")?.addEventListener("click", () => boot(true));
-
         $("activeList")?.addEventListener("click", onRideAction);
 
         document.addEventListener("visibilitychange", () => {
@@ -1838,6 +1417,7 @@
 
       async function boot(forceRefresh = false){
         if (isLoading) return;
+
         cleanVisibleUrl();
         isLoading = true;
         document.body.classList.add("loading");
@@ -1851,7 +1431,7 @@
 
           slug = normSlug(state?.slug || resolveSlug());
           phone = normPhone(state?.phone || resolvePhone() || phoneFromDriverSlug(slug));
-          accessOk = !!(state?.access_ok || state?.access);
+          accessOk = !!(state?.access_ok || state?.access || state?.pin_session_ok);
           pinSessionOk = !!state?.pin_session_ok;
 
           cleanVisibleUrl();
@@ -1875,9 +1455,7 @@
             if (cockpitData?.phone){
               phone = normPhone(cockpitData.phone || phone);
               if (window.DIGIY_GUARD?.rememberIdentity){
-                try{
-                  window.DIGIY_GUARD.rememberIdentity({ slug, phone });
-                }catch{}
+                try{ window.DIGIY_GUARD.rememberIdentity({ slug, phone }); }catch(_){}
               }
               cleanVisibleUrl();
             }
@@ -1885,6 +1463,7 @@
             allTrips = await fetchTrips();
           }
 
+          bindLinks();
           renderHeaderState();
           renderProfile();
           renderStats();
@@ -1901,7 +1480,7 @@
           } else if (cockpitData?.is_blank){
             setMsg("✅ Espace prêt. Tu peux maintenant compléter ton profil.", "ok");
           } else {
-            setMsg("✅ Gestion chauffeur synchronisée.", "ok");
+            setMsg("✅ Gestion chauffeur synchronisée. Ta fiche client est accessible.", "ok");
           }
 
           if (refreshTimer){
