@@ -415,6 +415,114 @@
       transition:width .22s linear;
     }
 
+
+    .noticeHeaderLine{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+
+    .noticeLevel{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:38px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(96,165,250,.34);
+      background:rgba(96,165,250,.14);
+      color:#dbeafe;
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+
+    .noticeMap{
+      display:grid;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    @media(min-width:860px){
+      .noticeMap{grid-template-columns:repeat(5,1fr)}
+    }
+
+    .noticeMapItem{
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(4,18,13,.22);
+      border-radius:21px;
+      padding:14px;
+      min-height:146px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .noticeMapItem .num{
+      width:32px;
+      height:32px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      background:rgba(250,204,21,.14);
+      border:1px solid rgba(250,204,21,.30);
+      color:#fff0a8;
+      font-size:14px;
+      font-weight:1000;
+    }
+
+    .noticeMapItem b{
+      display:block;
+      font-size:17px;
+      font-weight:1000;
+      line-height:1.16;
+    }
+
+    .noticeMapItem span{
+      display:block;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:900;
+      line-height:1.38;
+    }
+
+    .noticeDoctrine{
+      margin-top:14px;
+      border-radius:22px;
+      border:1px solid rgba(34,197,94,.28);
+      background:rgba(34,197,94,.10);
+      padding:15px;
+      color:rgba(243,255,247,.94);
+      font-size:16px;
+      font-weight:950;
+      line-height:1.5;
+    }
+
+    .noticeDoctrine strong{
+      color:#bbf7d0;
+      font-weight:1000;
+    }
+
+    .noticeMiniText{
+      margin-top:10px;
+      color:rgba(243,255,247,.74);
+      font-size:14px;
+      font-weight:900;
+      line-height:1.45;
+    }
+
+    .noticeActions .btn{
+      flex:0 0 auto;
+    }
+
+    @media(max-width:720px){
+      .noticeActions .btn{width:100%}
+      .noticeMapItem{min-height:auto}
+    }
+
     .bottomNav{
       position:fixed;
       left:0;
@@ -507,24 +615,63 @@
     </section>
 
     <section class="card noticeAudio" id="noticeDriver">
-      <div class="noticeTop">
+      <div class="noticeHeaderLine">
         <div>
-          <div class="noticeBadge">🎧 Notice courte</div>
-          <h2 style="margin-top:10px">3 gestes, puis tu travailles.</h2>
+          <div class="noticeBadge">🎧 Notice d’initiation</div>
+          <h2 style="margin-top:10px">Comprendre le logiciel avant de cliquer partout.</h2>
           <div class="noticeText">
-            Ouvre ton accès. Va aux trajets. Garde tes notes. Le reste reste rangé dans Plus.
+            Ce module DRIVER n’est pas une simple page. C’est un petit logiciel composé de plusieurs fichiers :
+            une entrée, un accueil de travail, les trajets, les notes, le profil, les tarifs, le QR et l’accès sécurisé.
+            La notice sert à comprendre la logique, pas à faire joli.
           </div>
+        </div>
+        <div class="noticeLevel">niveau pro terrain</div>
+      </div>
+
+      <div class="noticeMap">
+        <div class="noticeMapItem">
+          <div class="num">1</div>
+          <b>Accès</b>
+          <span>PIN et session ouvrent le coffre. Les identifiants restent cachés, surtout le téléphone.</span>
+        </div>
+
+        <div class="noticeMapItem">
+          <div class="num">2</div>
+          <b>Accueil</b>
+          <span>Index et dashboard orientent le chauffeur vers les bons gestes, sans surcharge.</span>
+        </div>
+
+        <div class="noticeMapItem">
+          <div class="num">3</div>
+          <b>Trajets</b>
+          <span>Lire les courses, accepter, démarrer, terminer, puis garder la trace utile.</span>
+        </div>
+
+        <div class="noticeMapItem">
+          <div class="num">4</div>
+          <b>Notes → Argent</b>
+          <span>Une phrase terrain prépare une trace : course, carburant, avance, client qui doit.</span>
+        </div>
+
+        <div class="noticeMapItem">
+          <div class="num">5</div>
+          <b>Plus</b>
+          <span>Profil, tarifs, QR et réglages restent rangés ici pour ne pas alourdir le cockpit.</span>
         </div>
       </div>
 
-      <div class="noticeSteps">
-        <div class="noticeStep"><b>1. Accès</b><span>PIN si la session est fermée.</span></div>
-        <div class="noticeStep"><b>2. Trajets</b><span>Lire, accepter, démarrer, terminer.</span></div>
-        <div class="noticeStep"><b>3. Notes</b><span>Course, carburant, client qui doit.</span></div>
+      <div class="noticeDoctrine">
+        <strong>Doctrine :</strong> le pro n’apprend pas 1800 lignes de code. Il apprend le chemin du logiciel :
+        quelle page sert à quoi, quel bouton déclenche quel geste, et où va l’information.
+      </div>
+
+      <div class="noticeMiniText">
+        Cette notice rassure le chauffeur qui veut comprendre l’outil. Elle explique le rail sans ouvrir le moteur technique.
       </div>
 
       <div class="noticeActions">
-        <button class="btn gold" id="btnNoticeAudio" type="button">🎧 Écouter</button>
+        <button class="btn gold" id="btnNoticeAudio" type="button">🎧 Écouter la notice</button>
+        <button class="btn blue" id="btnNoticeReplay" type="button">🔁 Réécouter</button>
         <button class="btn danger" id="btnNoticeStop" type="button">⏹ Stop</button>
       </div>
 
@@ -823,10 +970,11 @@
     (() => {
       "use strict";
 
-      const TEXT = "Notice chauffeur. Trois gestes. Un, ouvre ton accès si la session est fermée. Deux, va aux trajets pour travailler. Trois, utilise les notes pour garder une trace. Le reste est rangé dans Plus.";
+      const TEXT = 'Notice d’initiation DIGIY DRIVER. Ce module n’est pas une simple page. C’est un petit logiciel composé de plusieurs portes. Première porte : l’accès. Le PIN ouvre la session et protège les identifiants, surtout le téléphone. Deuxième porte : l’accueil. L’index et le dashboard servent à orienter le chauffeur sans le noyer. Troisième porte : les trajets. Ici on lit les courses, on accepte, on démarre, on termine. Quatrième porte : les notes rapides. Une phrase terrain prépare une trace : course encaissée, carburant, réparation, avance ou client qui doit. Cinquième porte : Plus. Le profil, les tarifs, le QR et les réglages restent rangés là pour ne pas alourdir le cockpit. La logique est simple : le pro ne doit pas apprendre mille huit cents lignes de code. Il doit comprendre le chemin du logiciel : quelle page sert à quoi, quel bouton déclenche quel geste, et où va l’information. DIGIY guide le travail, mais le chauffeur garde la main.';
 
       const btnPlay = document.getElementById("btnNoticeAudio");
       const btnStop = document.getElementById("btnNoticeStop");
+      const btnReplay = document.getElementById("btnNoticeReplay");
       const progress = document.getElementById("noticeAudioProgress");
 
       let playing = false;
@@ -848,7 +996,7 @@
         clearInterval(timer);
         timer = null;
         playing = false;
-        if(btnPlay) btnPlay.textContent = "🎧 Écouter";
+        if(btnPlay) btnPlay.textContent = "🎧 Écouter la notice";
         if(progress) progress.style.width = "0%";
       }
 
@@ -900,6 +1048,7 @@
 
       if(btnPlay) btnPlay.addEventListener("click", play);
       if(btnStop) btnStop.addEventListener("click", stop);
+      if(btnReplay) btnReplay.addEventListener("click", play);
 
       if(window.speechSynthesis && typeof window.speechSynthesis.onvoiceschanged !== "undefined"){
         window.speechSynthesis.onvoiceschanged = pickVoice;
@@ -912,3 +1061,4 @@
 
 </body>
 </html>
+
