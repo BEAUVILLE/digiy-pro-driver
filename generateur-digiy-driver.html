@@ -536,6 +536,7 @@
       const SUPPORT_PHONE = "221771342889";
       const PUBLIC_DRIVER_BASE = "https://driver.digiylyfe.com/";
       const PRO_DRIVER_BASE = "https://pro-driver.digiylyfe.com/";
+      const PRO_DRIVER_PIN_URL = "https://pro-driver.digiylyfe.com/pin.html";
       const SITE_HOME = "https://digiylyfe.com/";
 
       const PAGES = {
@@ -779,7 +780,12 @@
         }
 
         if(state.targetType === "pro"){
-          return absoluteUrl(new URL("pin.html", PRO_DRIVER_BASE).toString());
+          /*
+            Correction ciblée DRIVER QR :
+            la porte chauffeur ne doit jamais retomber sur le fallback du site général.
+            Elle ouvre toujours la porte PIN PRO, sans téléphone ni slug dans l’URL.
+          */
+          return PRO_DRIVER_PIN_URL;
         }
 
         const msg = "Bonjour DIGIY, j’ai besoin d’aide pour mon espace chauffeur.";
@@ -1006,6 +1012,17 @@
 
         document.querySelectorAll('input[name="targetType"]').forEach(input => {
           input.addEventListener("change", renderQr);
+        });
+
+        document.querySelectorAll(".target").forEach(card => {
+          card.addEventListener("click", () => {
+            const input = card.querySelector('input[name="targetType"]');
+            if(!input) return;
+            if(!input.checked){
+              input.checked = true;
+            }
+            renderQr();
+          });
         });
 
         $("btnRefresh").addEventListener("click", renderQr);
