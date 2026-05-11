@@ -401,6 +401,90 @@
     @media(max-width:520px){
       .fastLinks{grid-template-columns:1fr 1fr}
     }
+
+    .phoneActionBlock{
+      margin-top:14px;
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(244,201,93,.22);
+      background:
+        radial-gradient(circle at top right, rgba(244,201,93,.11), transparent 36%),
+        rgba(255,255,255,.035);
+    }
+
+    .phoneActionTitle{
+      color:var(--gold);
+      font-size:.82rem;
+      font-weight:950;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      margin-bottom:9px;
+    }
+
+    .phoneActionGrid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .phoneActionBtn{
+      min-height:68px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.055);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px;
+      font-weight:950;
+      text-align:left;
+    }
+
+    .phoneActionBtn.primary{
+      grid-column:1/-1;
+      background:linear-gradient(135deg, var(--green), var(--green2));
+      border-color:transparent;
+      color:#ffffff;
+      box-shadow:0 14px 26px rgba(13,143,85,.22);
+    }
+
+    .phoneActionIcon{
+      width:38px;
+      height:38px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,.10);
+      flex:0 0 auto;
+      font-size:18px;
+    }
+
+    .phoneActionCopy strong{
+      display:block;
+      font-size:1rem;
+      line-height:1.08;
+    }
+
+    .phoneActionCopy span{
+      display:block;
+      margin-top:4px;
+      color:rgba(238,251,244,.76);
+      font-size:.78rem;
+      line-height:1.22;
+      font-weight:800;
+    }
+
+    @media(max-width:420px){
+      h1{font-size:1.75rem}
+      .sub{font-size:1.02rem;font-weight:760}
+      .securityNote{font-size:.95rem}
+      .phoneActionGrid{grid-template-columns:1fr}
+      .phoneActionBtn.primary{grid-column:auto}
+      .phoneActionBtn{min-height:72px}
+      .linkBtn{font-size:1rem;min-height:54px}
+      input{font-size:1.08rem}
+    }
   </style>
 </head>
 <body>
@@ -420,6 +504,32 @@
           </p>
           <div class="securityNote">
             🔐 Les identifiants sensibles ne sont pas affichés. Le système peut reconnaître ton espace, mais l’écran ne l’expose pas.
+          </div>
+
+          <div class="phoneActionBlock" aria-label="Actions rapides téléphone">
+            <div class="phoneActionTitle">Lecture téléphone · boutons directs</div>
+            <div class="phoneActionGrid">
+              <a class="phoneActionBtn primary" id="phoneGoDashboard" href="./dashboard-pro.html">
+                <span class="phoneActionIcon">🏠</span>
+                <span class="phoneActionCopy"><strong>Accueil chauffeur</strong><span>Voir l’activité et repartir vite.</span></span>
+              </a>
+              <a class="phoneActionBtn" id="phoneGoTrips" href="./trajets.html">
+                <span class="phoneActionIcon">📋</span>
+                <span class="phoneActionCopy"><strong>Trajets</strong><span>Lire les courses.</span></span>
+              </a>
+              <a class="phoneActionBtn" id="phoneGoNew" href="./trajets.html#newTrip">
+                <span class="phoneActionIcon">➕</span>
+                <span class="phoneActionCopy"><strong>Nouveau</strong><span>Créer un trajet.</span></span>
+              </a>
+              <a class="phoneActionBtn" id="phoneGoNotes" href="./trajets.html#quickDriverNote">
+                <span class="phoneActionIcon">✍️</span>
+                <span class="phoneActionCopy"><strong>Notes</strong><span>Carburant, péage, client.</span></span>
+              </a>
+              <a class="phoneActionBtn" id="phoneGoMore" href="./cockpit.html">
+                <span class="phoneActionIcon">⚙️</span>
+                <span class="phoneActionCopy"><strong>Plus</strong><span>Profil, tarifs, QR.</span></span>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -546,6 +656,12 @@
       const fastTrips = $("fastTrips");
       const fastNotes = $("fastNotes");
       const fastNew = $("fastNew");
+
+      const phoneGoDashboard = $("phoneGoDashboard");
+      const phoneGoTrips = $("phoneGoTrips");
+      const phoneGoNew = $("phoneGoNew");
+      const phoneGoNotes = $("phoneGoNotes");
+      const phoneGoMore = $("phoneGoMore");
 
       const SUPABASE_URL = window.DIGIY_SUPABASE_URL || "";
       const SUPABASE_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON || "";
@@ -774,6 +890,12 @@
         if (fastTrips) fastTrips.href = buildPageUrl(PAGES.trajets, cleanSlug);
         if (fastNotes) fastNotes.href = buildPageUrl(PAGES.trajets, cleanSlug) + "#quickDriverNote";
         if (fastNew) fastNew.href = buildPageUrl(PAGES.trajets, cleanSlug) + "#newTrip";
+
+        if (phoneGoDashboard) phoneGoDashboard.href = buildPageUrl(PAGES.dashboard, cleanSlug);
+        if (phoneGoTrips) phoneGoTrips.href = buildPageUrl(PAGES.trajets, cleanSlug);
+        if (phoneGoNew) phoneGoNew.href = buildPageUrl(PAGES.trajets, cleanSlug) + "#newTrip";
+        if (phoneGoNotes) phoneGoNotes.href = buildPageUrl(PAGES.trajets, cleanSlug) + "#quickDriverNote";
+        if (phoneGoMore) phoneGoMore.href = buildPageUrl(PAGES.cockpit, cleanSlug);
 
         ["bottomHome","bottomTrips","bottomNew","bottomNotes","bottomMore"].forEach(function(id){
           const el = document.getElementById(id);
