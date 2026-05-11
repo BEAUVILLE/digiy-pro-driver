@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Je conduis — Accueil</title>
-  <meta name="theme-color" content="#09121f"/>
-  <meta name="description" content="Je conduis — Accueil mobile : trajets, nouveau trajet, notes rapides, tarifs et accès."/>
+  <title>Je conduis — Mon activité</title>
+  <meta name="theme-color" content="#123b2d"/>
+  <meta name="description" content="DIGIY DRIVER — accueil de travail chauffeur : trajets, notes rapides, profil, tarifs, QR et accès sécurisé."/>
+  <meta name="robots" content="noindex,nofollow"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -16,614 +17,369 @@
     window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
     window.DIGIY_MODULE = "DRIVER";
+    window.DIGIY_LOGIN_URL = "./pin.html";
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-security-v2-20260504"></script>
+  <script src="./guard.js?v=driver-dashboard-coffre-20260511"></script>
 
   <style>
     :root{
-      --bg:#09121f;
-      --bg2:#0d1830;
-      --card:#121d38;
-      --card2:#162343;
-      --line:rgba(255,255,255,.10);
-      --line-strong:rgba(255,255,255,.16);
-      --text:#eef2ff;
-      --muted:#aeb8da;
-      --soft:#c9d2f1;
-      --ok:#22c55e;
-      --warn:#f59e0b;
-      --danger:#ef4444;
-      --accent:#6366f1;
-      --accent-2:#8b5cf6;
+      --bg:#123b2d;
+      --bg2:#0b241b;
+      --card:#1f5a43;
+      --card2:#174735;
+      --line:rgba(255,255,255,.18);
+      --line2:rgba(255,255,255,.26);
+      --text:#f3fff7;
+      --muted:rgba(243,255,247,.82);
+      --soft:rgba(243,255,247,.66);
+      --green:#22c55e;
+      --green2:#16a34a;
       --gold:#facc15;
-      --shadow:0 18px 45px rgba(0,0,0,.35);
-      --radius:20px;
-      --max:1100px;
-      --pad:16px;
+      --warn:#f59e0b;
+      --red:#fb7185;
+      --blue:#60a5fa;
+      --shadow:0 22px 58px rgba(0,0,0,.34);
+      --r:28px;
+      --max:1120px;
+      --bottomNavH:86px;
     }
 
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
+
     body{
       margin:0;
-      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(1000px 600px at 15% -10%, rgba(99,102,241,.25), transparent 65%),
-        radial-gradient(900px 520px at 100% 0%, rgba(34,197,94,.12), transparent 55%),
-        linear-gradient(180deg, #09121f 0%, #0b1325 100%);
       min-height:100vh;
+      color:var(--text);
+      font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(900px 520px at 8% -10%, rgba(34,197,94,.28), transparent 62%),
+        radial-gradient(760px 440px at 105% 0%, rgba(250,204,21,.16), transparent 58%),
+        linear-gradient(180deg,var(--bg),var(--bg2) 68%,#071811 100%);
+      padding:16px 16px calc(var(--bottomNavH) + env(safe-area-inset-bottom,0px) + 18px);
     }
 
     a{color:inherit;text-decoration:none}
-    button{font:inherit}
-    .wrap{max-width:var(--max);margin:0 auto;padding:14px 14px calc(104px + env(safe-area-inset-bottom,0px))}
+    button{font:inherit;cursor:pointer}
 
-    .topbar{
+    .wrap{
+      width:min(var(--max),100%);
+      margin:0 auto;
+      display:grid;
+      gap:14px;
+    }
+
+    .hero,.card{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:
+        radial-gradient(700px 260px at 100% 0%, rgba(250,204,21,.10), transparent 72%),
+        linear-gradient(180deg,rgba(31,90,67,.96),rgba(20,67,49,.96));
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .hero{
+      padding:20px;
+      position:relative;
+      display:grid;
+      gap:18px;
+    }
+
+    .hero:after{
+      content:"🚕";
+      position:absolute;
+      right:10px;
+      bottom:-20px;
+      font-size:138px;
+      opacity:.075;
+      transform:rotate(-10deg);
+      pointer-events:none;
+    }
+
+    .topline{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
       gap:12px;
       flex-wrap:wrap;
-      margin-bottom:12px;
+      position:relative;
+      z-index:1;
     }
 
     .brand{
       display:flex;
-      align-items:flex-start;
+      align-items:center;
       gap:12px;
       min-width:0;
     }
 
-    .brandBadge{
-      width:44px;
-      height:44px;
-      border-radius:14px;
+    .mark{
+      width:54px;
+      height:54px;
+      border-radius:20px;
       display:grid;
       place-items:center;
-      font-size:22px;
-      background:rgba(99,102,241,.16);
-      border:1px solid var(--line);
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      font-size:27px;
+      box-shadow:0 14px 30px rgba(0,0,0,.18);
       flex:0 0 auto;
-      box-shadow:var(--shadow);
+    }
+
+    .eyebrow{
+      color:#fff0a8;
+      font-size:12px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      font-weight:1000;
+      margin-bottom:4px;
     }
 
     .brandTitle{
-      font-size:20px;
-      font-weight:900;
-      letter-spacing:.01em;
-      line-height:1.1;
+      font-size:22px;
+      font-weight:1000;
+      line-height:1.05;
+      letter-spacing:-.02em;
     }
 
-    .brandSub{
-      margin-top:4px;
-      color:var(--muted);
-      font-size:12px;
-      font-weight:800;
-      line-height:1.4;
-    }
-
-    .right{
+    .statusPills{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
       justify-content:flex-end;
-      align-items:center;
+      position:relative;
+      z-index:1;
     }
 
     .pill{
+      min-height:42px;
       display:inline-flex;
       align-items:center;
+      justify-content:center;
       gap:8px;
-      min-height:38px;
-      padding:8px 12px;
+      padding:9px 13px;
       border-radius:999px;
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
       color:var(--muted);
-      font-size:12px;
-      font-weight:800;
+      font-size:14px;
+      font-weight:1000;
       white-space:nowrap;
     }
 
-    .pill b{
-      color:var(--text);
+    .pill.ok{color:#bbf7d0;border-color:rgba(34,197,94,.40);background:rgba(34,197,94,.14)}
+    .pill.warn{color:#fde68a;border-color:rgba(245,158,11,.40);background:rgba(245,158,11,.14)}
+    .pill.bad{color:#fecaca;border-color:rgba(251,113,133,.40);background:rgba(251,113,133,.14)}
+    .pill.blue{color:#dbeafe;border-color:rgba(96,165,250,.38);background:rgba(96,165,250,.14)}
+
+    .copy{
+      position:relative;
+      z-index:1;
+      max-width:860px;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(40px,8vw,68px);
+      line-height:.94;
+      letter-spacing:-.06em;
+      font-weight:1000;
+    }
+
+    .lead{
+      margin-top:14px;
+      max-width:790px;
+      color:var(--muted);
+      font-size:clamp(18px,3.5vw,23px);
+      line-height:1.38;
       font-weight:900;
     }
 
-    .pill.ok{
-      background:rgba(34,197,94,.10);
-      border-color:rgba(34,197,94,.30);
-      color:#c7f9d8;
-    }
-
-    .pill.warn{
-      background:rgba(245,158,11,.10);
-      border-color:rgba(245,158,11,.28);
-      color:#ffe3b3;
-    }
-
-    .pill.bad{
-      background:rgba(239,68,68,.10);
-      border-color:rgba(239,68,68,.28);
-      color:#fecaca;
+    .mainActions{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-top:4px;
+      position:relative;
+      z-index:1;
     }
 
     .btn{
-      min-height:46px;
-      border:none;
-      border-radius:14px;
-      padding:12px 14px;
+      min-height:66px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.09);
+      color:var(--text);
+      padding:14px 16px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:8px;
-      cursor:pointer;
-      font-weight:900;
-      background:rgba(255,255,255,.06);
-      color:var(--text);
-      border:1px solid var(--line);
-      transition:transform .15s ease, border-color .15s ease, background .15s ease;
+      gap:10px;
+      text-align:center;
+      font-size:17px;
+      font-weight:1000;
+      box-shadow:0 14px 30px rgba(0,0,0,.18);
+      transition:.15s ease;
     }
 
     .btn:hover{transform:translateY(-1px)}
-    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
 
     .btn.primary{
-      background:linear-gradient(135deg, var(--accent), var(--accent-2));
+      background:linear-gradient(135deg,var(--green),var(--green2));
+      color:#042012;
       border-color:transparent;
-      color:white;
-      box-shadow:0 14px 28px rgba(99,102,241,.28);
-    }
-
-    .btn.ok{
-      background:rgba(34,197,94,.14);
-      border-color:rgba(34,197,94,.32);
-      color:#d7ffe6;
+      box-shadow:0 18px 38px rgba(34,197,94,.28);
     }
 
     .btn.gold{
-      background:rgba(250,204,21,.12);
-      border-color:rgba(250,204,21,.24);
-      color:#fde68a;
+      background:linear-gradient(135deg,var(--gold),var(--warn));
+      color:#241300;
+      border-color:transparent;
+      box-shadow:0 18px 38px rgba(250,204,21,.20);
     }
 
-    .btn.ghost{
-      background:transparent;
+    .btn.blue{
+      background:rgba(96,165,250,.17);
+      color:#dbeafe;
+      border-color:rgba(96,165,250,.34);
     }
 
-    .shell{
-      display:grid;
-      gap:12px;
+    .btn.danger{
+      background:rgba(251,113,133,.16);
+      color:#fecaca;
+      border-color:rgba(251,113,133,.34);
     }
 
-    .hero{
-      display:grid;
-      gap:12px;
-    }
-
-    .card{
-      background:linear-gradient(180deg, rgba(18,29,56,.96), rgba(14,24,45,.95));
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:var(--pad);
-    }
-
-    .heroCard{
-      padding:16px;
-      border-radius:24px;
-      background:
-        radial-gradient(500px 220px at 0% 0%, rgba(99,102,241,.20), transparent 70%),
-        radial-gradient(420px 220px at 100% 100%, rgba(34,197,94,.10), transparent 70%),
-        linear-gradient(180deg, rgba(18,29,56,.98), rgba(12,21,38,.98));
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow:var(--shadow);
-    }
-
-    .eyebrow{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      min-height:30px;
-      padding:6px 10px;
-      border-radius:999px;
-      background:rgba(255,255,255,.06);
-      border:1px solid var(--line);
-      color:var(--soft);
-      font-size:11px;
-      font-weight:900;
-      text-transform:uppercase;
-      letter-spacing:.06em;
-    }
-
-    .eyebrow .dot{
-      width:8px;
-      height:8px;
-      border-radius:999px;
-      background:var(--warn);
-    }
-
-    .heroTitle{
-      margin:14px 0 6px 0;
-      font-size:28px;
-      line-height:1.05;
-      font-weight:900;
-      letter-spacing:-.02em;
-    }
-
-    .heroLead{
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.55;
-      font-weight:700;
-      max-width:760px;
-    }
-
-    .heroAction{
-      margin-top:16px;
-      display:grid;
-      gap:12px;
-    }
-
-    .heroActionMain{
-      display:grid;
-      gap:10px;
-      align-items:center;
-    }
-
-    .actionHint{
-      color:var(--soft);
-      font-size:12px;
-      font-weight:900;
-      text-transform:uppercase;
-      letter-spacing:.05em;
-    }
-
-    .actionText{
-      font-size:20px;
-      font-weight:900;
-      line-height:1.15;
-    }
-
-    .actionDesc{
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.5;
-      font-weight:700;
-    }
-
-    .heroButtons{
-      display:grid;
-      gap:10px;
-      grid-template-columns:1fr;
-    }
-
-    .quickNav{
-      display:grid;
-      gap:10px;
-      grid-template-columns:repeat(2,1fr);
-      margin-top:14px;
-    }
-
-    .quickLink{
-      min-height:76px;
-      border-radius:18px;
-      padding:12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      gap:8px;
-    }
-
-    .quickLink strong{
-      font-size:14px;
-      font-weight:900;
-      line-height:1.2;
-    }
-
-    .quickLink span{
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.35;
-      font-weight:700;
-    }
+    .btn.ghost{background:rgba(255,255,255,.055)}
 
     .grid{
       display:grid;
-      gap:12px;
+      gap:14px;
     }
 
-    .kpis{
-      display:grid;
-      gap:10px;
-      grid-template-columns:repeat(2,1fr);
+    @media(min-width:920px){
+      .grid{grid-template-columns:1.08fr .92fr}
+      .mainActions{grid-template-columns:repeat(4,minmax(0,1fr))}
     }
 
-    .kpi{
-      border-radius:18px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.035);
-      padding:14px;
+    .card{
+      padding:18px;
     }
 
-    .kpiLabel{
+    h2{
+      margin:0 0 8px;
+      font-size:clamp(26px,5vw,38px);
+      line-height:1.02;
+      letter-spacing:-.04em;
+      font-weight:1000;
+    }
+
+    h3{
+      margin:0 0 7px;
+      font-size:22px;
+      line-height:1.08;
+      letter-spacing:-.03em;
+      font-weight:1000;
+    }
+
+    .muted{
       color:var(--muted);
-      font-size:12px;
-      font-weight:800;
-      margin-bottom:6px;
-      line-height:1.3;
-    }
-
-    .kpiValue{
-      font-size:24px;
-      font-weight:950;
-      line-height:1;
-      letter-spacing:-.02em;
-    }
-
-    .kpiSub{
-      margin-top:8px;
-      color:var(--soft);
-      font-size:12px;
-      font-weight:700;
-      line-height:1.35;
-    }
-
-    .sectionHead{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:12px;
-    }
-
-    .sectionTitle{
-      margin:0;
       font-size:16px;
       font-weight:900;
-      letter-spacing:.01em;
-    }
-
-    .sectionLead{
-      margin-top:4px;
-      color:var(--muted);
-      font-size:12px;
-      font-weight:700;
       line-height:1.45;
     }
 
-    .statusBlock{
+    .taskList,.statList{
       display:grid;
       gap:10px;
+      margin-top:14px;
     }
 
-    .statusLine{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-    }
-
-    .statusDot{
-      width:11px;
-      height:11px;
-      border-radius:999px;
-      background:var(--warn);
-      margin-top:5px;
-      flex:0 0 auto;
-    }
-
-    .statusDot.ok{background:var(--ok)}
-    .statusDot.bad{background:var(--danger)}
-
-    .statusMain{
-      font-weight:900;
-      line-height:1.35;
-      font-size:15px;
-    }
-
-    .statusSub{
-      color:var(--muted);
-      font-size:12px;
-      font-weight:700;
-      line-height:1.45;
-      margin-top:4px;
-    }
-
-    .meta{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:2px;
-    }
-
-    .metaTag{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      min-height:34px;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      color:var(--soft);
-      font-size:12px;
-      font-weight:800;
-      line-height:1.2;
-    }
-
-    .list{
-      display:grid;
-      gap:10px;
-    }
-
-    .item{
-      border-radius:18px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.035);
-      padding:14px;
-      display:grid;
-      gap:10px;
-    }
-
-    .itemTop{
+    .task,.statBox{
       display:flex;
       justify-content:space-between;
-      gap:10px;
-      align-items:flex-start;
-      flex-wrap:wrap;
+      align-items:center;
+      gap:12px;
+      padding:15px;
+      border-radius:21px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(4,18,13,.22);
     }
 
-    .itemTitle{
-      font-size:15px;
+    .task b,.statBox b{
+      display:block;
+      font-size:18px;
+      font-weight:1000;
+      line-height:1.15;
+      margin-bottom:4px;
+    }
+
+    .task span,.statBox span{
+      display:block;
+      color:var(--muted);
+      font-size:14px;
       font-weight:900;
       line-height:1.35;
     }
 
-    .itemMeta{
-      color:var(--muted);
-      font-size:12px;
-      font-weight:700;
-      line-height:1.45;
-      display:grid;
-      gap:4px;
-    }
-
-    .badge{
+    .tag{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-height:32px;
-      padding:6px 10px;
+      min-height:36px;
+      padding:8px 11px;
       border-radius:999px;
-      font-size:11px;
-      font-weight:950;
-      text-transform:uppercase;
-      letter-spacing:.05em;
-      border:1px solid var(--line);
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.08);
+      font-size:12px;
+      font-weight:1000;
+      white-space:nowrap;
+      color:#fff0a8;
+    }
+
+    .statNumber{
+      font-size:30px;
+      font-weight:1000;
+      color:#fff0a8;
+      line-height:1;
       white-space:nowrap;
     }
 
-    .badge.ok{
-      color:#d7ffe6;
-      background:rgba(34,197,94,.12);
-      border-color:rgba(34,197,94,.30);
+    .notice{
+      border-color:rgba(96,165,250,.30);
+      background:
+        radial-gradient(640px 260px at 100% 0%, rgba(96,165,250,.16), transparent 70%),
+        linear-gradient(180deg,rgba(31,90,67,.96),rgba(20,67,49,.96));
     }
 
-    .badge.warn{
-      color:#ffe4b8;
-      background:rgba(245,158,11,.12);
-      border-color:rgba(245,158,11,.28);
+    .noticeBox{
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(4,18,13,.22);
+      border-radius:22px;
+      padding:15px;
+      margin-top:14px;
+      font-size:16px;
+      color:rgba(243,255,247,.92);
+      font-weight:950;
+      line-height:1.5;
     }
 
-    .badge.bad{
-      color:#fecaca;
-      background:rgba(239,68,68,.12);
-      border-color:rgba(239,68,68,.28);
-    }
+    .noticeBox strong{color:#bbf7d0;font-weight:1000}
 
-    .badge.info{
-      color:#d7ddff;
-      background:rgba(99,102,241,.12);
-      border-color:rgba(99,102,241,.28);
-    }
-
-    .notif{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:flex-start;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.035);
-      padding:12px;
-    }
-
-    .notifText{
-      font-size:13px;
-      font-weight:800;
-      line-height:1.45;
-    }
-
-    .empty{
-      padding:14px;
-      border-radius:16px;
-      border:1px dashed rgba(255,255,255,.16);
-      color:var(--muted);
-      background:rgba(255,255,255,.03);
-      font-size:13px;
-      font-weight:800;
-      line-height:1.45;
-    }
-
-    .footerActions{
-      display:grid;
-      gap:10px;
-    }
-
-    .msg{
+    .stateLine{
       margin-top:12px;
-      font-size:13px;
-      font-weight:900;
-      line-height:1.4;
+      padding:13px;
+      border-radius:19px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(4,18,13,.22);
+      color:var(--muted);
+      font-size:15px;
+      font-weight:950;
+      line-height:1.45;
     }
-
-    .msg.ok{color:#86efac}
-    .msg.bad{color:#fca5a5}
-    .msg.warn{color:#fde68a}
-
-    @media(min-width:760px){
-      .heroAction{
-        grid-template-columns:1.2fr .8fr;
-      }
-      .heroButtons{
-        align-content:start;
-      }
-      .grid{
-        grid-template-columns:1.05fr .95fr;
-      }
-      .kpis{
-        grid-template-columns:repeat(4,1fr);
-      }
-      .footerActions{
-        grid-template-columns:repeat(2,1fr);
-      }
-    }
-
-    @media(max-width:759px){
-      .right{
-        width:100%;
-        justify-content:flex-start;
-      }
-      .pill{
-        max-width:100%;
-      }
-      .btn{
-        width:100%;
-      }
-      .quickNav{
-        grid-template-columns:1fr 1fr;
-      }
-    }
-
-    @media(max-width:520px){
-      .wrap{padding:12px 12px calc(104px + env(safe-area-inset-bottom,0px))}
-      .heroTitle{font-size:24px}
-      .quickNav{grid-template-columns:1fr}
-      .kpis{grid-template-columns:1fr 1fr}
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      html{scroll-behavior:auto}
-      .btn{transition:none}
-    }
-
-    #driverNotes{scroll-margin-top:96px}
 
     .bottomNav{
       position:fixed;
@@ -632,11 +388,12 @@
       bottom:0;
       z-index:99990;
       padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
-      background:rgba(9,18,31,.94);
-      border-top:1px solid rgba(255,255,255,.10);
+      background:rgba(9,35,26,.96);
+      border-top:1px solid rgba(255,255,255,.16);
       backdrop-filter:blur(16px);
       -webkit-backdrop-filter:blur(16px);
     }
+
     .bottomNavInner{
       width:min(100%,760px);
       margin:0 auto;
@@ -644,715 +401,158 @@
       grid-template-columns:repeat(5,1fr);
       gap:6px;
     }
+
     .bottomNav a{
-      min-height:58px;
-      border-radius:16px;
+      min-height:64px;
+      border-radius:17px;
       display:grid;
       place-items:center;
       align-content:center;
       gap:3px;
-      color:rgba(238,242,255,.70);
-      font-size:11px;
-      font-weight:950;
+      color:rgba(243,255,247,.78);
+      font-size:12px;
+      font-weight:1000;
       text-align:center;
       border:1px solid transparent;
       text-decoration:none;
     }
-    .bottomNav .ico{font-size:18px;line-height:1}
-    .bottomNav a.active{
-      color:#fff;
-      background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      border-color:rgba(99,102,241,.32);
-      box-shadow:0 12px 26px rgba(99,102,241,.22);
-    }
 
-    .driverNotesBox{
-      border-color:rgba(250,204,21,.22);
-      background:
-        radial-gradient(520px 220px at 100% 0%, rgba(250,204,21,.10), transparent 70%),
-        linear-gradient(180deg, rgba(18,29,56,.96), rgba(14,24,45,.95));
-    }
-
-    .noteExamples{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:12px;
-    }
-    .noteChip{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.045);
-      color:var(--text);
-      border-radius:999px;
-      padding:9px 11px;
-      font-size:12px;
-      font-weight:900;
-      cursor:pointer;
-    }
-    .noteChip:hover{
-      border-color:rgba(250,204,21,.28);
-      color:#fde68a;
-    }
-    .noteInput{
-      width:100%;
-      min-height:96px;
-      resize:vertical;
-      margin-top:12px;
-      padding:14px;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.05);
-      color:var(--text);
-      outline:none;
-      font:inherit;
-      font-size:15px;
-      font-weight:800;
-      line-height:1.5;
-    }
-    .noteDraft{
-      display:none;
-      margin-top:12px;
-      padding:12px;
-      border-radius:16px;
-      border:1px solid rgba(34,197,94,.28);
-      background:rgba(34,197,94,.08);
-      color:#d7ffe6;
-      font-size:13px;
-      font-weight:800;
-      line-height:1.55;
-    }
-
-    @media(max-width:600px){
-      #digiy-audio-btn{
-        bottom:86px !important;
-      }
-    }
-
-
-    /* ============================================================
-       DIGIY DRIVER — couture dashboard-pro mobile
-       Lecture plus grande, fond plus lumineux, gros boutons d'action.
-       Moteur JS conservé.
-       ============================================================ */
-
-    body{
-      font-weight:750;
-      background:
-        radial-gradient(1050px 640px at 8% -10%, rgba(99,102,241,.36), transparent 62%),
-        radial-gradient(940px 560px at 100% 0%, rgba(34,197,94,.18), transparent 58%),
-        radial-gradient(700px 440px at 50% 108%, rgba(250,204,21,.10), transparent 62%),
-        linear-gradient(180deg,#14213d 0%, #101b32 48%, #0c172b 100%);
-    }
-
-    .wrap{
-      max-width:1160px;
-    }
-
-    .card,
-    .heroCard{
-      background:
-        radial-gradient(540px 230px at 100% 0%, rgba(99,102,241,.13), transparent 68%),
-        linear-gradient(180deg,rgba(27,44,80,.98),rgba(18,31,56,.98));
-      border-color:rgba(255,255,255,.15);
-      box-shadow:0 22px 54px rgba(0,0,0,.34);
-    }
-
-    .heroCard{
-      background:
-        radial-gradient(620px 280px at 0% 0%, rgba(99,102,241,.30), transparent 70%),
-        radial-gradient(520px 260px at 100% 100%, rgba(34,197,94,.17), transparent 70%),
-        linear-gradient(180deg, rgba(32,54,96,.99), rgba(18,35,64,.99));
-    }
-
-    .brandTitle{
-      font-size:clamp(24px,5vw,34px);
-      font-weight:1000;
-    }
-
-    .brandSub{
-      font-size:15px;
-      font-weight:950;
-      color:#dbe4ff;
-    }
-
-    .pill{
-      min-height:44px;
-      font-size:14px;
-      font-weight:950;
-      background:rgba(255,255,255,.075);
-      color:#dce4ff;
-      border-color:rgba(255,255,255,.15);
-    }
-
-    .eyebrow{
-      min-height:38px;
-      padding:8px 13px;
-      font-size:13px;
-      font-weight:1000;
-      color:#f4f7ff;
-      background:rgba(255,255,255,.09);
-      border-color:rgba(255,255,255,.16);
-    }
-
-    .heroTitle{
-      font-size:clamp(36px,8vw,60px);
-      line-height:1.01;
-      font-weight:1000;
-    }
-
-    .heroLead{
-      font-size:clamp(17px,3.7vw,23px);
-      line-height:1.48;
-      font-weight:900;
-      color:#dfe7ff;
-      max-width:920px;
-    }
-
-    .actionHint{
-      font-size:14px;
-      font-weight:1000;
-      color:#fff0a8;
-    }
-
-    .actionText{
-      font-size:clamp(25px,5vw,38px);
-      font-weight:1000;
-      color:#fff;
-    }
-
-    .actionDesc{
-      font-size:16px;
-      font-weight:900;
-      color:#dce4ff;
-    }
-
-    .btn{
-      min-height:56px;
-      border-radius:18px;
-      padding:14px 17px;
-      font-size:16px;
-      font-weight:1000;
-      border-color:rgba(255,255,255,.16);
-      background:rgba(255,255,255,.075);
-    }
-
-    .btn.primary{
-      background:linear-gradient(135deg,#6d6fff,#9b66ff);
-      box-shadow:0 16px 34px rgba(99,102,241,.34);
-    }
-
-    .driverBigActions{
-      margin-top:18px;
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:10px;
-      padding:14px;
-      border-radius:26px;
-      border:1px solid rgba(250,204,21,.30);
-      background:
-        radial-gradient(620px 260px at 100% 0%, rgba(250,204,21,.15), transparent 70%),
-        linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.045));
-    }
-
-    .driverBigAction{
-      min-height:104px;
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:14px;
-      border-radius:23px;
-      border:1px solid rgba(255,255,255,.15);
-      background:rgba(255,255,255,.075);
-      box-shadow:0 14px 30px rgba(0,0,0,.18);
-    }
-
-    .driverBigAction.primary{
-      background:linear-gradient(135deg,#6d6fff,#9b66ff);
-      border-color:transparent;
-    }
-
-    .driverBigAction.gold{
-      background:rgba(250,204,21,.16);
-      border-color:rgba(250,204,21,.34);
-    }
-
-    .driverBigAction.money{
-      background:rgba(34,197,94,.15);
-      border-color:rgba(34,197,94,.34);
-    }
-
-    .driverBigIcon{
-      width:52px;
-      height:52px;
-      border-radius:19px;
-      display:grid;
-      place-items:center;
-      flex:0 0 auto;
-      font-size:24px;
-      background:rgba(255,255,255,.14);
-      border:1px solid rgba(255,255,255,.16);
-    }
-
-    .driverBigText{
-      display:grid;
-      gap:5px;
-      min-width:0;
-    }
-
-    .driverBigText strong{
-      font-size:20px;
-      line-height:1.05;
-      font-weight:1000;
-      color:#fff;
-    }
-
-    .driverBigText em{
-      font-style:normal;
-      font-size:14px;
-      line-height:1.25;
-      font-weight:900;
-      color:#e2e8ff;
-    }
-
-    .quickLink{
-      min-height:94px;
-      border-radius:23px;
-      background:rgba(255,255,255,.065);
-      border-color:rgba(255,255,255,.15);
-    }
-
-    .quickLink strong{
-      font-size:18px;
-      font-weight:1000;
-    }
-
-    .quickLink span{
-      font-size:14px;
-      font-weight:900;
-      color:#dce4ff;
-    }
-
-    .sectionTitle{
-      font-size:clamp(22px,4.8vw,30px);
-      font-weight:1000;
-    }
-
-    .sectionLead{
-      font-size:15px;
-      font-weight:900;
-      color:#d4ddff;
-    }
-
-    .kpi{
-      border-radius:23px;
-      background:rgba(255,255,255,.065);
-      border-color:rgba(255,255,255,.15);
-      padding:17px;
-    }
-
-    .kpiLabel{
-      font-size:14px;
-      font-weight:950;
-      color:#dbe4ff;
-    }
-
-    .kpiValue{
-      font-size:clamp(30px,7vw,44px);
-      font-weight:1000;
-    }
-
-    .kpiSub{
-      font-size:14px;
-      font-weight:900;
-      color:#d8e0ff;
-    }
-
-    .statusMain,
-    .itemTitle,
-    .notifText{
-      font-size:17px;
-      font-weight:1000;
-    }
-
-    .statusSub,
-    .itemMeta,
-    .empty{
-      font-size:15px;
-      font-weight:900;
-      color:#d8e0ff;
-    }
-
-    .metaTag,
-    .badge{
-      min-height:38px;
-      font-size:13px;
-      font-weight:1000;
-      background:rgba(255,255,255,.07);
-    }
-
-    .item,
-    .notif{
-      border-radius:22px;
-      background:rgba(255,255,255,.065);
-      border-color:rgba(255,255,255,.15);
-      padding:16px;
-    }
-
-    .driverNotesBox{
-      background:
-        radial-gradient(620px 260px at 100% 0%, rgba(250,204,21,.15), transparent 70%),
-        linear-gradient(180deg,rgba(27,44,80,.98),rgba(18,31,56,.98));
-      border-color:rgba(250,204,21,.28);
-    }
-
-    .noteInput{
-      min-height:116px;
-      border-radius:20px;
-      font-size:17px;
-      font-weight:950;
-      color:#fff;
-      background:rgba(0,0,0,.16);
-      border-color:rgba(255,255,255,.18);
-      line-height:1.48;
-    }
-
-    .noteChip{
-      min-height:42px;
-      padding:9px 13px;
-      font-size:14px;
-      font-weight:1000;
-    }
-
-    .noteDraft{
-      font-size:15px;
-      font-weight:900;
-    }
-
-    .bottomNav{
-      background:rgba(14,27,51,.96);
-      border-top-color:rgba(255,255,255,.16);
-    }
-
-    .bottomNav a{
-      min-height:64px;
-      font-size:12px;
-      font-weight:1000;
-      color:rgba(238,242,255,.82);
-    }
-
-    .bottomNav .ico{
-      font-size:21px;
-    }
+    .bottomNav .ico{font-size:21px;line-height:1}
 
     .bottomNav a.active{
-      background:linear-gradient(135deg,#6d6fff,#9b66ff);
+      color:#042012;
+      background:linear-gradient(135deg,var(--gold),var(--green));
+      border-color:rgba(250,204,21,.36);
+      box-shadow:0 14px 28px rgba(34,197,94,.24);
     }
 
-    #digiy-audio-btn{
-      bottom:calc(92px + env(safe-area-inset-bottom,0px)) !important;
-      font-size:16px !important;
-      padding:15px 22px !important;
+    @media(max-width:680px){
+      body{padding:12px 10px calc(var(--bottomNavH) + env(safe-area-inset-bottom,0px) + 14px)}
+      .hero,.card{padding:16px}
+      .topline{display:grid}
+      .statusPills{justify-content:flex-start}
+      .mainActions{grid-template-columns:1fr}
+      .btn{width:100%;min-height:62px}
+      h1{font-size:40px}
+      .task,.statBox{align-items:flex-start;flex-direction:column}
+      .statNumber{font-size:28px}
     }
 
-    @media(max-width:760px){
-      .driverBigActions{
-        grid-template-columns:1fr 1fr;
-      }
-
-      .driverBigAction{
-        min-height:96px;
-        align-items:flex-start;
-        flex-direction:column;
-      }
-
-      .driverBigIcon{
-        width:48px;
-        height:48px;
-      }
-
-      .driverBigText strong{
-        font-size:19px;
-      }
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      .btn{transition:none}
     }
-
-    @media(max-width:520px){
-      .heroTitle{
-        font-size:36px;
-      }
-
-      .heroLead{
-        font-size:17px;
-      }
-
-      .kpis{
-        grid-template-columns:1fr;
-      }
-
-      .driverBigActions{
-        padding:12px;
-      }
-    }
-
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-
-    <div class="topbar">
-      <div class="brand">
-        <div class="brandBadge">🦅</div>
-        <div>
-          <div class="brandTitle" id="brandTitle">Je conduis</div>
-          <div class="brandSub" id="brandSub">Accueil · trajets · notes · argent</div>
-        </div>
-      </div>
-
-      <div class="right">
-        <div class="pill" id="pillSlug">compte : <b>sécurisé</b></div>
-        <div class="pill" id="pillPhone">session : <b>contrôle…</b></div>
-        <div class="pill warn" id="pillStatus">accès : <b>contrôle…</b></div>
-      </div>
-    </div>
-
-    <div class="shell">
-
-      <section class="heroCard">
-        <div class="eyebrow">
-          <span class="dot" id="eyebrowDot"></span>
-          <span id="eyebrowText">accueil chauffeur</span>
-        </div>
-
-        <h1 class="heroTitle" id="heroTitle">Ta route, sous le pouce.</h1>
-        <div class="heroLead" id="heroLead">
-          En deux secondes : voir les trajets, lancer une course, écrire une note, garder l’argent lisible.
-        </div>
-
-        <div class="heroAction">
-          <div class="heroActionMain">
-            <div class="actionHint" id="actionHint">action du moment</div>
-            <div class="actionText" id="actionText">Nouveau trajet</div>
-            <div class="actionDesc" id="actionDesc">Quand tout est prêt, on pousse vers l’outil trajet.</div>
-            <button class="btn primary" id="btnPrimaryAction" type="button">🚕 Nouveau trajet</button>
-            <div class="msg" id="msgStatus">Prêt.</div>
-          </div>
-
-          <div class="heroButtons">
-            <button class="btn ok" id="btnRefresh" type="button">🔄 Vérifier mon activité</button>
-            <a class="btn" id="btnTrajets" href="#">📋 Mes trajets</a>
-            <a class="btn" id="btnProfil" href="#">👤 Mon profil</a>
-            <a class="btn" id="btnTarifs" href="#">💰 Mes tarifs</a>
-            <a class="btn" id="btnQr" href="#">📱 Mon QR</a>
-            <a class="btn gold" id="btnPay" href="#">💳 Mon abonnement</a>
-          </div>
-        </div>
-
-
-        <div class="driverBigActions" aria-label="Actions rapides chauffeur">
-          <a class="driverBigAction primary" id="bigTrips" href="./trajets.html">
-            <span class="driverBigIcon">📋</span>
-            <span class="driverBigText">
-              <strong>Trajets</strong>
-              <em>Voir et agir</em>
-            </span>
-          </a>
-
-          <a class="driverBigAction" id="bigNew" href="./trajets.html#newTrip">
-            <span class="driverBigIcon">➕</span>
-            <span class="driverBigText">
-              <strong>Nouveau</strong>
-              <em>Créer / reprendre</em>
-            </span>
-          </a>
-
-          <a class="driverBigAction gold" id="bigNotes" href="#driverNotes">
-            <span class="driverBigIcon">✍️</span>
-            <span class="driverBigText">
-              <strong>Notes</strong>
-              <em>Course, carburant</em>
-            </span>
-          </a>
-
-          <a class="driverBigAction money" id="bigPay" href="https://pro-pay.digiylyfe.com/admin.html">
-            <span class="driverBigIcon">💰</span>
-            <span class="driverBigText">
-              <strong>Mon argent</strong>
-              <em>Entrées / dépenses</em>
-            </span>
-          </a>
-
-          <a class="driverBigAction" id="bigProfil" href="./profil-chauffeur.html">
-            <span class="driverBigIcon">👤</span>
-            <span class="driverBigText">
-              <strong>Profil</strong>
-              <em>Identité chauffeur</em>
-            </span>
-          </a>
-
-          <a class="driverBigAction" id="bigMore" href="./cockpit.html">
-            <span class="driverBigIcon">⚙️</span>
-            <span class="driverBigText">
-              <strong>Plus</strong>
-              <em>Gestion avancée</em>
-            </span>
-          </a>
-        </div>
-
-        <div class="quickNav">
-          <a class="quickLink" id="btnGestion" href="#">
-            <strong>Plus</strong>
-            <span>Profil, tarifs, QR et outils secondaires.</span>
-          </a>
-          <a class="quickLink" id="btnPin" href="#">
-            <strong>Accès</strong>
-            <span>Revenir par le code si la session se ferme.</span>
-          </a>
-          <a class="quickLink" id="btnHome" href="#">
-            <strong>Façade</strong>
-            <span>Ce que le client découvre.</span>
-          </a>
-          <a class="quickLink" id="btnSupport" href="#">
-            <strong>Support</strong>
-            <span>WhatsApp direct si le terrain coince.</span>
-          </a>
-        </div>
-      </section>
-
-      <section class="grid">
-        <div class="card">
-          <div class="sectionHead">
-            <div>
-              <h2 class="sectionTitle">Ce qui demande attention</h2>
-              <div class="sectionLead">Courses, entrées et signaux utiles.</div>
-            </div>
-          </div>
-
-          <div class="kpis">
-            <div class="kpi">
-              <div class="kpiLabel">En cours maintenant</div>
-              <div class="kpiValue" id="kpiActiveNow">0</div>
-              <div class="kpiSub" id="kpiActiveNowSub">Courses ouvertes</div>
-            </div>
-
-            <div class="kpi">
-              <div class="kpiLabel">Terminées aujourd’hui</div>
-              <div class="kpiValue" id="kpiDoneToday">0</div>
-              <div class="kpiSub" id="kpiDoneTodaySub">Activité du jour</div>
-            </div>
-
-            <div class="kpi">
-              <div class="kpiLabel">Terminées sur 7 jours</div>
-              <div class="kpiValue" id="kpiDone7d">0</div>
-              <div class="kpiSub" id="kpiDone7dSub">Semaine en cours</div>
-            </div>
-
-            <div class="kpi">
-              <div class="kpiLabel">Entrées sur 30 jours</div>
-              <div class="kpiValue" id="kpiMoney30d">0 FCFA</div>
-              <div class="kpiSub" id="kpiMoney30dSub">Courses terminées</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="sectionHead">
-            <div>
-              <h2 class="sectionTitle">Statut</h2>
-              <div class="sectionLead">Accès, profil, publication et grille terrain.</div>
-            </div>
-          </div>
-
-          <div class="statusBlock">
-            <div class="statusLine">
-              <div class="statusDot" id="statusDot"></div>
-              <div>
-                <div class="statusMain" id="statusMain">Chargement…</div>
-                <div class="statusSub" id="statusSub">Lecture en cours.</div>
-              </div>
-            </div>
-
-            <div class="meta">
-              <div class="metaTag" id="metaPublication">Publication : —</div>
-              <div class="metaTag" id="metaProfile">Profil : —</div>
-              <div class="metaTag" id="metaRates">Tarifs : —</div>
-              <div class="metaTag" id="metaZone">Zone : —</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="card driverNotesBox" id="driverNotes">
-        <div class="sectionHead">
+  <main class="wrap">
+    <section class="hero">
+      <div class="topline">
+        <div class="brand">
+          <div class="mark">🚕</div>
           <div>
-            <h2 class="sectionTitle">Notes rapides</h2>
-            <div class="sectionLead">Carburant, péage, lavage, réparation, client qui doit — une phrase suffit pour nourrir Mon argent.</div>
-          </div>
-          <a class="btn gold" id="btnOpenPayNotes" href="#">💰 Voir Mon argent</a>
-        </div>
-
-        <textarea class="noteInput" id="driverQuickNote" placeholder="Ex : Carburant 10000 cash"></textarea>
-
-        <div class="noteExamples">
-          <button class="noteChip" type="button">Course 28000 cash</button>
-          <button class="noteChip" type="button">Carburant 10000 cash</button>
-          <button class="noteChip" type="button">Lavage 2000</button>
-          <button class="noteChip" type="button">Péage 1000 wave</button>
-          <button class="noteChip" type="button">Client doit 3000</button>
-          <button class="noteChip" type="button">Réparation pneu 5000</button>
-        </div>
-
-        <div class="heroButtons" style="margin-top:12px">
-          <button class="btn primary" id="btnPrepareDriverNote" type="button">Préparer la note</button>
-          <a class="btn gold" id="btnSendDriverNotePay" href="#">Envoyer vers Mon argent</a>
-        </div>
-
-        <div class="noteDraft" id="driverNoteDraft"></div>
-      </section>
-
-      <section class="grid">
-        <div class="card">
-          <div class="sectionHead">
-            <div>
-              <h2 class="sectionTitle">Trajets récents</h2>
-              <div class="sectionLead">Lecture rapide avant d’ouvrir la liste complète.</div>
-            </div>
-            <a class="btn ghost" id="btnTrajetsInline" href="#">Voir les trajets</a>
-          </div>
-
-          <div class="list" id="recentTripsList">
-            <div class="empty">Lecture en cours…</div>
+            <div class="eyebrow">JE CONDUIS</div>
+            <div class="brandTitle">Mon activité</div>
           </div>
         </div>
 
-        <div class="card">
-          <div class="sectionHead">
-            <div>
-              <h2 class="sectionTitle">À surveiller</h2>
-              <div class="sectionLead">Profil, tarifs, courses ouvertes et visibilité.</div>
-            </div>
-          </div>
+        <div class="statusPills">
+          <div class="pill warn" id="pillAccess">session : contrôle…</div>
+          <div class="pill blue" id="pillProfile">profil : lecture…</div>
+        </div>
+      </div>
 
-          <div class="list" id="notifList">
-            <div class="empty">Lecture en cours…</div>
-          </div>
+      <div class="copy">
+        <h1 id="heroTitle">Ton tableau de bord chauffeur.</h1>
+        <div class="lead" id="heroLead">
+          Un accueil de travail : trajets, notes rapides, profil, tarifs et QR. Le cockpit lourd reste derrière.
+        </div>
+      </div>
 
-          <div class="footerActions" style="margin-top:12px">
-            <a class="btn" id="btnQrBottom" href="#">📱 Partager mon QR</a>
-            <a class="btn" id="btnSupportBottom" href="#">💬 Parler au support</a>
-          </div>
+      <div class="mainActions">
+        <a class="btn gold" id="btnTrips" href="./trajets.html">📋 Mes trajets</a>
+        <a class="btn primary" id="btnNotes" href="./trajets.html#quickDriverNote">✍️ Note rapide</a>
+        <a class="btn blue" id="btnPlus" href="./profil-chauffeur.html">⚙️ Plus</a>
+        <a class="btn" id="btnPin" href="./pin.html">🔐 Accès</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <section class="card">
+        <h2>À faire maintenant</h2>
+        <div class="muted">Des portes directes pour travailler sans chercher.</div>
+
+        <div class="taskList" id="taskList">
+          <a class="task" id="taskTrips" href="./trajets.html">
+            <div><b>Voir les trajets</b><span>Lire les demandes, accepter, démarrer, terminer.</span></div>
+            <div class="tag">TRAVAIL</div>
+          </a>
+
+          <a class="task" id="taskNotes" href="./trajets.html#quickDriverNote">
+            <div><b>Écrire une note</b><span>Course, carburant, réparation, avance, client qui doit.</span></div>
+            <div class="tag">TRACE</div>
+          </a>
+
+          <a class="task" id="taskRates" href="./tarifs.html">
+            <div><b>Vérifier les tarifs</b><span>Garder une grille claire avant de parler prix.</span></div>
+            <div class="tag">PRIX</div>
+          </a>
+
+          <a class="task" id="taskQr" href="./generateur-digiy-driver.html">
+            <div><b>Partager le QR</b><span>Donner la bonne porte chauffeur au client.</span></div>
+            <div class="tag">QR</div>
+          </a>
         </div>
       </section>
 
-    </div>
-  </div>
+      <section class="card">
+        <h2>Lecture rapide</h2>
+        <div class="muted">L’écran dit juste ce qui aide. Le détail reste dans les pages métier.</div>
 
+        <div class="statList">
+          <div class="statBox">
+            <div><b>Trajets à lire</b><span>Demandes et courses ouvertes.</span></div>
+            <div class="statNumber" id="statOpenTrips">—</div>
+          </div>
+
+          <div class="statBox">
+            <div><b>Profil chauffeur</b><span>Identité, zone et visibilité.</span></div>
+            <div class="tag" id="statProfile">protégé</div>
+          </div>
+
+          <div class="statBox">
+            <div><b>Compte</b><span>Identifiants cachés à l’écran.</span></div>
+            <div class="tag" id="statSecure">coffre</div>
+          </div>
+        </div>
+
+        <div class="stateLine" id="stateLine">
+          Lecture de la session DRIVER…
+        </div>
+      </section>
+    </section>
+
+    <section class="card notice">
+      <h2>Rappel logiciel</h2>
+      <div class="muted">
+        Dashboard = accueil de travail. Trajets = opérations. Plus = réglages. Tarifs = prix. QR = partage.
+      </div>
+
+      <div class="noticeBox">
+        <strong>Règle simple :</strong> le chauffeur ne doit pas chercher dans 1800 lignes.
+        Il doit savoir où cliquer, quel geste faire, et où l’information part.
+      </div>
+    </section>
+  </main>
 
   <nav class="bottomNav" aria-label="Navigation DRIVER">
     <div class="bottomNavInner">
-      <a class="active" id="navHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
-      <a id="navTrips" href="./trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
-      <a id="navNew" href="./trajets.html#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
-      <a id="navNotes" href="#driverNotes"><span class="ico">✍️</span><span>Notes</span></a>
-      <a id="navMore" href="./profil-chauffeur.html"><span class="ico">⚙️</span><span>Plus</span></a>
+      <a class="active" id="bottomHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
+      <a id="bottomTrips" href="./trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
+      <a id="bottomNew" href="./trajets.html#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
+      <a id="bottomNotes" href="./trajets.html#quickDriverNote"><span class="ico">✍️</span><span>Notes</span></a>
+      <a id="bottomMore" href="./profil-chauffeur.html"><span class="ico">⚙️</span><span>Plus</span></a>
     </div>
   </nav>
 
@@ -1360,78 +560,49 @@
     (() => {
       "use strict";
 
-      const MODULE = "DRIVER";
-      const SUPPORT_WA =
-        "https://wa.me/221771342889?text=" +
-        encodeURIComponent("Salut DIGIY DRIVER, j'ai besoin d'aide sur mon accueil chauffeur.");
-
       const ROUTES = {
-        home: "./index.html",
-        pin: "./pin.html",
-        cockpit: "./cockpit.html",
-        trajets: "./trajets.html",
-        profil: "./profil-chauffeur.html",
-        tarifs: "./tarifs.html",
-        qr: "./generateur-digiy-driver.html",
-        pay: "https://commencer-a-payer.digiylyfe.com/",
-        proPay: "https://pro-pay.digiylyfe.com/admin.html"
+        dashboard:"./dashboard-pro.html",
+        trips:"./trajets.html",
+        profile:"./profil-chauffeur.html",
+        rates:"./tarifs.html",
+        pin:"./pin.html",
+        qr:"./generateur-digiy-driver.html",
+        cockpit:"./cockpit.html"
       };
 
       const $ = (id) => document.getElementById(id);
 
-      const sb = window.supabase?.createClient
-        ? window.supabase.createClient(
-            window.DIGIY_SUPABASE_URL,
-            window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON,
-            { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false } }
-          )
-        : null;
+      let state = {
+        slug:"",
+        phone:"",
+        access:false,
+        access_ok:false,
+        pin_session_ok:false,
+        reason:"boot"
+      };
 
-      const initialUrlContext = readUrlContext();
-
-      let slug = "";
-      let phone = "";
-      let accessOk = false;
-      let pinSessionOk = false;
-      let lastGuardState = null;
-      let cockpitData = null;
-      let ratesData = [];
-      let tripsData = [];
+      let sb = null;
 
       function normSlug(v){
         return String(v || "")
           .trim()
           .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/\s+/g, "-")
-          .replace(/[^a-z0-9-_]/g, "")
-          .replace(/-+/g, "-")
-          .replace(/^[-_]+|[-_]+$/g, "");
+          .replace(/\s+/g,"-")
+          .replace(/[^a-z0-9-]/g,"")
+          .replace(/-+/g,"-")
+          .replace(/^-|-$/g,"");
       }
 
       function normPhone(v){
-        const d = String(v || "").replace(/[^\d]/g, "");
-        if (!d) return "";
-        if (d.startsWith("221") && d.length === 12) return d;
-        if (d.length === 9) return "221" + d;
+        const d = String(v || "").replace(/[^\d]/g,"");
+        if(!d) return "";
+        if(d.startsWith("221") && d.length === 12) return d;
+        if(d.length === 9) return "221" + d;
         return d.length >= 9 ? d : "";
       }
 
       function isSensitiveSlug(v){
         return /\d{7,}/.test(String(v || ""));
-      }
-
-      function canExposeSlug(v){
-        const s = normSlug(v);
-        return !!s && !isSensitiveSlug(s);
-      }
-
-      function displaySpace(v){
-        const s = normSlug(v);
-        if (!s) return "sécurisé";
-        if (isSensitiveSlug(s)) return "sécurisé";
-        return "chauffeur";
       }
 
       function isDriverSlug(v){
@@ -1440,1276 +611,279 @@
 
       function phoneFromDriverSlug(v){
         const s = normSlug(v);
-        if (!isDriverSlug(s)) return "";
-        return normPhone(s.slice("driver-".length));
+        if(!isDriverSlug(s)) return "";
+        return normPhone(s.replace("driver-",""));
       }
 
-      function readUrlContext(){
+      function canExposeSlug(v){
+        const s = normSlug(v);
+        return !!s && !isSensitiveSlug(s);
+      }
+
+      function storageGet(key){
         try{
-          const qs = new URLSearchParams(location.search || "");
-          return {
-            slug: normSlug(qs.get("slug") || qs.get("identifiant") || ""),
-            phone: normPhone(qs.get("phone") || qs.get("tel") || "")
-          };
-        }catch{
-          return { slug:"", phone:"" };
+          return sessionStorage.getItem(key) || localStorage.getItem(key) || "";
+        }catch(_){
+          return "";
         }
+      }
+
+      function rememberIdentity(slug, phone){
+        const s = normSlug(slug);
+        const p = normPhone(phone);
+
+        try{
+          if(s){
+            sessionStorage.setItem("digiy_driver_slug", s);
+            sessionStorage.setItem("digiy_driver_last_slug", s);
+            localStorage.setItem("digiy_driver_last_slug", s);
+            localStorage.setItem("DIGIY_SLUG", s);
+          }
+          if(p){
+            sessionStorage.setItem("digiy_driver_phone", p);
+            sessionStorage.setItem("DIGIY_DRIVER_PHONE", p);
+            localStorage.setItem("digiy_driver_phone", p);
+            localStorage.setItem("DIGIY_DRIVER_PHONE", p);
+          }
+        }catch(_){}
       }
 
       function cleanVisibleUrl(){
         try{
           const u = new URL(location.href);
+          const sensitive = [
+            "phone","tel","p_phone","owner_phone","checkout_phone","subscription_phone",
+            "slug","identifiant","driver_slug","module","from"
+          ];
           let changed = false;
 
-          if (u.searchParams.has("phone")) {
-            u.searchParams.delete("phone");
-            changed = true;
-          }
+          sensitive.forEach((key) => {
+            if(!u.searchParams.has(key)) return;
 
-          if (u.searchParams.has("tel")) {
-            u.searchParams.delete("tel");
-            changed = true;
-          }
+            const val = u.searchParams.get(key) || "";
 
-          const s = normSlug(u.searchParams.get("slug") || "");
-          const identifiant = normSlug(u.searchParams.get("identifiant") || "");
-
-          if (s && isSensitiveSlug(s)) {
-            u.searchParams.delete("slug");
-            changed = true;
-          }
-
-          if (identifiant && isSensitiveSlug(identifiant)) {
-            u.searchParams.delete("identifiant");
-            changed = true;
-          }
-
-          if (changed) history.replaceState({}, "", u.pathname + u.search + u.hash);
-        }catch{}
-      }
-
-      function storageGet(key){
-        try{
-          const s = sessionStorage.getItem(key);
-          if (s) return s;
-        }catch{}
-        try{
-          const l = localStorage.getItem(key);
-          if (l) return l;
-        }catch{}
-        return "";
-      }
-
-      function buildSafeUrl(base, params = {}){
-        try{
-          const u = new URL(String(base || "").trim(), location.href);
-
-          u.searchParams.delete("phone");
-          u.searchParams.delete("tel");
-
-          Object.entries(params || {}).forEach(([k, v]) => {
-            const val = String(v == null ? "" : v).trim();
-            if (!val) return;
-
-            if (k === "phone" || k === "tel") return;
-
-            if (k === "slug" || k === "identifiant") {
+            if(key === "slug" || key === "identifiant" || key === "driver_slug"){
               const s = normSlug(val);
-              if (canExposeSlug(s)) u.searchParams.set("slug", s);
-              else {
-                u.searchParams.delete("slug");
-                u.searchParams.delete("identifiant");
-              }
-              return;
+              if(s) rememberIdentity(s, "");
             }
 
-            u.searchParams.set(k, val);
+            if(["phone","tel","p_phone","owner_phone","checkout_phone","subscription_phone"].includes(key)){
+              const p = normPhone(val);
+              if(p) rememberIdentity("", p);
+            }
+
+            u.searchParams.delete(key);
+            changed = true;
           });
 
-          const s = normSlug(u.searchParams.get("slug") || "");
-          if (s && isSensitiveSlug(s)) u.searchParams.delete("slug");
-
-          if (u.origin === location.origin) return u.pathname + u.search + u.hash;
-          return u.toString();
-        }catch{
-          return String(base || "#");
-        }
+          if(changed){
+            history.replaceState({}, document.title, u.pathname + u.search + u.hash);
+          }
+        }catch(_){}
       }
 
-      function withContext(base, extra = {}){
-        const params = { ...extra };
-        if (canExposeSlug(slug)) params.slug = slug;
-        return buildSafeUrl(base, params);
-      }
-
-      function buildReturnUrl(){
-        try{
-          const u = new URL(location.href);
-          u.searchParams.delete("phone");
-          u.searchParams.delete("tel");
-          const s = normSlug(u.searchParams.get("slug") || "");
-          if (s && isSensitiveSlug(s)) u.searchParams.delete("slug");
-          return u.pathname + u.search + u.hash;
-        }catch{
-          return "./dashboard-pro.html";
-        }
-      }
-
-      function buildPayUrl(){
-        if (lastGuardState?.pay_url) return lastGuardState.pay_url;
-        return buildSafeUrl(ROUTES.pay, {
-          module: MODULE,
-          return: buildReturnUrl()
-        });
-      }
-
-      function parseDriverNote(text){
-        const sentence = String(text || "").trim().replace(/\s+/g, " ");
-        const lower = sentence.toLowerCase();
-        const amountMatch = sentence.match(/(\d[\d\s.,]*)\s*(f|fcfa|xof)?/i);
-        const amount = amountMatch ? Number(String(amountMatch[1]).replace(/[^\d]/g, "")) || 0 : 0;
-
-        let channel = "other";
-        if (/\bwave\b/.test(lower)) channel = "wave";
-        else if (/\b(cash|espèces|especes|liquide)\b/.test(lower)) channel = "cash";
-        else if (/\b(orange money|om)\b/.test(lower)) channel = "orange_money";
-        else if (/\b(banque|virement)\b/.test(lower)) channel = "bank";
-
-        let direction = "out";
-        let kind = "expense";
-        let category = "other";
-        let label = "Note chauffeur";
-
-        if (/\b(course|trajet|client payé|client paye|recette)\b/.test(lower)){
-          direction = "in";
-          kind = "sale";
-          category = "ride_income";
-          label = "Recette chauffeur";
-        } else if (/\b(carburant|essence|gasoil|diesel)\b/.test(lower)){
-          category = "fuel";
-          label = "Carburant";
-        } else if (/\b(lavage|nettoyage)\b/.test(lower)){
-          category = "cleaning";
-          label = "Lavage véhicule";
-        } else if (/\b(péage|peage)\b/.test(lower)){
-          category = "toll";
-          label = "Péage";
-        } else if (/\b(réparation|reparation|pneu|garage|huile)\b/.test(lower)){
-          category = "repair";
-          label = "Réparation véhicule";
-        } else if (/\b(client)\b.*\b(doit|reste)\b|\b(doit|reste)\b/.test(lower)){
-          direction = "out";
-          kind = "other";
-          category = "client_debt";
-          label = "Client doit";
-        }
-
-        return {
-          sentence,
-          amount_xof: amount,
-          channel,
-          direction,
-          kind,
-          category,
-          label
-        };
-      }
-
-      function buildDriverPayDraftUrl(draft){
-        const d = draft || parseDriverNote($("driverQuickNote")?.value || "");
-        const ownerPhone = phone || phoneFromDriverSlug(slug);
-        const u = new URL(ROUTES.proPay);
-
-        /*
-          Compatibilité Mon argent : PRO PAY a encore besoin de retrouver le propriétaire.
-          On garde ce passage uniquement vers PAY, pas dans les routes DRIVER.
-        */
-        if (ownerPhone){
-          u.searchParams.set("slug", "pay-" + ownerPhone);
-          u.searchParams.set("phone", ownerPhone);
-        }
-
-        u.searchParams.set("fromDraft", "1");
-        u.searchParams.set("intent", "quick_note");
-        u.searchParams.set("source_module", "DRIVER");
-        u.searchParams.set("source_id", "driver-note-" + Date.now());
-
-        if (canExposeSlug(slug)) {
-          u.searchParams.set("source_slug", slug);
-        }
-
-        if (d.amount_xof) {
-          u.searchParams.set("amount", String(d.amount_xof));
-          u.searchParams.set("amount_xof", String(d.amount_xof));
-        }
-        u.searchParams.set("channel", d.channel || "other");
-        u.searchParams.set("scope", "pro");
-        u.searchParams.set("movement_date", new Date().toISOString().slice(0,10));
-        u.searchParams.set("direction", d.direction || "out");
-        u.searchParams.set("kind", d.kind || "expense");
-        u.searchParams.set("category", d.category || "other");
-        u.searchParams.set("label", d.label || "Note chauffeur");
-        u.searchParams.set("note", d.sentence || "");
-        return u.toString();
-      }
-
-      function phoneVariants(v){
-        const digits = normPhone(v);
-        const out = new Set();
-        if (!digits) return [];
-        out.add(digits);
-        out.add("+" + digits);
-        if (digits.startsWith("221") && digits.length === 12){
-          out.add(digits.slice(3));
-          out.add("+221" + digits.slice(3));
-        }
-        return Array.from(out).filter(Boolean);
-      }
-
-      function isRpcMissing(error){
-        const txt = String(error?.message || error?.details || error?.hint || "");
-        return error?.code === "PGRST202" || txt.includes("Could not find the function");
-      }
-
-      function humanValue(v, fallback = "—"){
-        if (v === null || v === undefined) return fallback;
-        if (Array.isArray(v)){
-          const clean = v.map(x => String(x || "").trim()).filter(Boolean).join(" • ");
-          return clean || fallback;
-        }
-        if (typeof v === "object"){
-          const clean = Object.values(v).map(x => String(x || "").trim()).filter(Boolean).join(" • ");
-          return clean || fallback;
-        }
-        const s = String(v).trim();
-        return s || fallback;
-      }
-
-      function money(v){
-        const n = Number(v || 0);
-        return Number.isFinite(n) ? n.toLocaleString("fr-FR") + " FCFA" : "0 FCFA";
-      }
-
-      function fmtDate(v){
-        if (!v) return "—";
-        const d = new Date(v);
-        if (Number.isNaN(d.getTime())) return "—";
-        return d.toLocaleString("fr-FR", {
-          day:"2-digit",
-          month:"2-digit",
-          year:"2-digit",
-          hour:"2-digit",
-          minute:"2-digit"
-        });
-      }
-
-      function isSameLocalDay(v){
-        if (!v) return false;
-        const d = new Date(v);
-        if (Number.isNaN(d.getTime())) return false;
-        const now = new Date();
-        return d.getFullYear() === now.getFullYear()
-          && d.getMonth() === now.getMonth()
-          && d.getDate() === now.getDate();
-      }
-
-      function inLastDays(v, days){
-        if (!v) return false;
-        const t = new Date(v).getTime();
-        if (!Number.isFinite(t)) return false;
-        const diff = Date.now() - t;
-        return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
-      }
-
-      function tripStatus(trip){
-        return String(trip?.status || "").trim().toLowerCase();
-      }
-
-      function tripAmount(trip){
-        const n = Number(trip?.final_price_fcfa || trip?.price_fcfa || trip?.amount_fcfa || 0);
-        return Number.isFinite(n) ? n : 0;
-      }
-
-      function tripWhen(trip){
-        return trip?.completed_at || trip?.updated_at || trip?.started_at || trip?.created_at || null;
-      }
-
-      function completedTripsOnly(rows){
-        return rows.filter(r => tripStatus(r) === "completed");
-      }
-
-      function activeTripsOnly(rows){
-        return rows.filter(r => ["assigned","accepted","in_progress","ongoing","pending"].includes(tripStatus(r)));
-      }
-
-      function tripTitle(trip){
-        const from = humanValue(
-          trip?.pickup_label || trip?.from_label || trip?.origin_label || trip?.departure_label || trip?.from,
-          ""
-        );
-        const to = humanValue(
-          trip?.dropoff_label || trip?.to_label || trip?.destination_label || trip?.arrival_label || trip?.to,
-          ""
-        );
-        if (from && to) return from + " → " + to;
-        if (to) return "Vers " + to;
-        if (from) return "Départ " + from;
-        return humanValue(trip?.label || trip?.trip_label || trip?.description || "Course chauffeur");
-      }
-
-      function tripClient(trip){
-        return humanValue(
-          trip?.client_name || trip?.customer_name || trip?.passenger_name || trip?.contact_name,
-          "Client non précisé"
-        );
-      }
-
-      function badgeForStatus(status){
-        if (["completed"].includes(status)) return { cls:"ok", label:"terminée" };
-        if (["assigned","accepted","pending"].includes(status)) return { cls:"warn", label:"assignée" };
-        if (["in_progress","ongoing"].includes(status)) return { cls:"info", label:"en cours" };
-        if (["cancelled","canceled"].includes(status)) return { cls:"bad", label:"annulée" };
-        return { cls:"info", label: status || "course" };
-      }
-
-      function setMsg(text, type){
-        const el = $("msgStatus");
-        el.textContent = text;
-        el.className = "msg " + (type || "");
-      }
-
-      function resolveSlug(){
-        if (initialUrlContext.slug) return initialUrlContext.slug;
-
-        const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug || "");
-        if (fromGuard) return fromGuard;
-
-        return normSlug(
-          storageGet("digiy_driver_slug") ||
-          storageGet("digiy_driver_last_slug") ||
-          storageGet("digiy_last_slug") ||
-          storageGet("DIGIY_SLUG") ||
-          ""
-        );
-      }
-
-      function resolvePhone(){
-        if (initialUrlContext.phone) return initialUrlContext.phone;
-
-        const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone || "");
-        if (fromGuard) return fromGuard;
-
-        return normPhone(
-          storageGet("DIGIY_DRIVER_HUB_PHONE") ||
-          storageGet("DIGIY_DRIVER_PHONE") ||
-          storageGet("digiy_driver_phone") ||
-          storageGet("digiy_driver_last_phone") ||
-          storageGet("DIGIY_PHONE") ||
-          phoneFromDriverSlug(slug) ||
-          ""
-        );
-      }
-
-      async function waitGuardIfAny(){
+      async function waitGuard(){
         try{
           const g = window.DIGIY_GUARD;
-          if (!g) return;
+          if(!g) return null;
 
-          if (typeof g.ready === "function"){
-            const out = g.ready({ redirect:true, preserve_validation:true });
-            if (out && typeof out.then === "function") await out;
-            return;
-          }
-
-          if (g.ready && typeof g.ready.then === "function"){
+          if(typeof g.ready === "function"){
+            const out = g.ready({ redirect:false, preserve_validation:true });
+            if(out && typeof out.then === "function") await out;
+          } else if(g.ready && typeof g.ready.then === "function"){
             await g.ready;
           }
+
+          if(typeof g.getSession === "function") return g.getSession();
+          return g.state || null;
         }catch(e){
-          console.warn("Guard ready warning:", e);
-        }
-      }
-
-      async function getGuardState(forceRefresh = false){
-        const g = window.DIGIY_GUARD;
-
-        if (!g){
-          return {
-            ok:false,
-            access_ok:false,
-            access:false,
-            pin_session_ok:false,
-            slug:"",
-            phone:"",
-            reason:"guard_missing",
-            pay_url:buildPayUrl()
-          };
-        }
-
-        if (forceRefresh && typeof g.refresh === "function"){
-          try{
-            const fresh = await g.refresh({ redirect:true, preserve_validation:true });
-            lastGuardState = fresh || null;
-            return fresh || {};
-          }catch(e){
-            console.warn("Guard refresh warning:", e);
-          }
-        }
-
-        try{
-          if (typeof g.ready === "function"){
-            const out = g.ready({ redirect:true, preserve_validation:true });
-            if (out && typeof out.then === "function") await out;
-          } else if (g.ready && typeof g.ready.then === "function"){
-            await g.ready;
-          }
-        }catch(e){
-          console.warn("Guard state warning:", e);
-        }
-
-        lastGuardState = g.state || null;
-        return g.state || {
-          ok:false,
-          access_ok:false,
-          access:false,
-          pin_session_ok:false,
-          slug:"",
-          phone:"",
-          reason:"guard_empty",
-          pay_url:buildPayUrl()
-        };
-      }
-
-      async function fetchCockpit(){
-        if (!sb || !slug) return null;
-        try{
-          const { data, error } = await sb.rpc("digiy_driver_get_cockpit_by_slug", { p_slug: slug });
-          if (error) throw error;
-          return data || null;
-        }catch(e){
-          console.warn("dashboard cockpit warning:", e);
+          console.warn("[DIGIY DRIVER DASHBOARD] guard warning", e);
           return null;
         }
       }
 
-      async function fetchRates(){
-        if (!sb || !slug) return [];
+      function buildSafeUrl(base, hash){
         try{
-          const { data, error } = await sb.rpc("driver_list_rates_by_slug", { p_slug: slug });
-          if (error){
-            if (isRpcMissing(error)) return [];
-            throw error;
+          const u = new URL(base, location.href);
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+
+          if(canExposeSlug(state.slug)){
+            u.searchParams.set("slug", state.slug);
+          } else {
+            u.searchParams.delete("slug");
           }
-          return Array.isArray(data) ? data : [];
-        }catch(e){
-          console.warn("dashboard rates warning:", e);
-          return [];
+
+          if(hash) u.hash = hash;
+
+          if(u.origin === location.origin) return u.pathname + u.search + u.hash;
+          return u.toString();
+        }catch(_){
+          return base + (hash || "");
         }
       }
 
-      async function fetchTrips(){
-        if (!sb || !phone) return [];
-        try{
-          const variants = phoneVariants(phone);
-          if (!variants.length) return [];
-          const { data, error } = await sb
-            .from("digiy_driver_trips")
-            .select("*")
-            .in("driver_phone", variants)
-            .order("created_at", { ascending:false });
-          if (error) throw error;
-          return Array.isArray(data) ? data : [];
-        }catch(e){
-          console.warn("dashboard trips warning:", e);
-          return [];
-        }
-      }
-
-      function bindLinks(){
-        cleanVisibleUrl();
-
-        $("btnGestion").href = withContext(ROUTES.cockpit);
-        $("btnTrajets").href = withContext(ROUTES.trajets);
-        $("btnTrajetsInline").href = withContext(ROUTES.trajets);
-        $("btnProfil").href = withContext(ROUTES.profil);
-        $("btnTarifs").href = withContext(ROUTES.tarifs);
-        $("btnQr").href = withContext(ROUTES.qr);
-        $("btnQrBottom").href = withContext(ROUTES.qr);
-        $("btnPin").href = withContext(ROUTES.pin);
-        $("btnHome").href = withContext(ROUTES.home);
-        $("btnPay").href = buildPayUrl();
-
-        const notePay = $("btnOpenPayNotes");
-        if (notePay) notePay.href = buildDriverPayDraftUrl(null);
-        const sendPay = $("btnSendDriverNotePay");
-        if (sendPay) sendPay.href = buildDriverPayDraftUrl(null);
-
-        const bigMap = {
-          bigTrips: ROUTES.trajets,
-          bigNew: ROUTES.trajets + "#newTrip",
-          bigProfil: ROUTES.profil,
-          bigMore: ROUTES.cockpit
+      function updateLinks(){
+        const map = {
+          btnTrips:[ROUTES.trips,""],
+          btnNotes:[ROUTES.trips,"#quickDriverNote"],
+          btnPlus:[ROUTES.profile,""],
+          btnPin:[ROUTES.pin,""],
+          taskTrips:[ROUTES.trips,""],
+          taskNotes:[ROUTES.trips,"#quickDriverNote"],
+          taskRates:[ROUTES.rates,""],
+          taskQr:[ROUTES.qr,""],
+          bottomHome:[ROUTES.dashboard,""],
+          bottomTrips:[ROUTES.trips,""],
+          bottomNew:[ROUTES.trips,"#newTrip"],
+          bottomNotes:[ROUTES.trips,"#quickDriverNote"],
+          bottomMore:[ROUTES.profile,""]
         };
 
-        Object.entries(bigMap).forEach(([id, base]) => {
+        Object.entries(map).forEach(([id, parts]) => {
           const el = $(id);
-          if (el) el.href = withContext(base);
+          if(el) el.href = buildSafeUrl(parts[0], parts[1]);
         });
-
-        const bigNotes = $("bigNotes");
-        if (bigNotes) bigNotes.href = "#driverNotes";
-
-        const bigPay = $("bigPay");
-        if (bigPay) bigPay.href = ROUTES.proPay;
-
-        const navMap = {
-          navHome: ROUTES.cockpit ? "./dashboard-pro.html" : "./dashboard-pro.html",
-          navTrips: ROUTES.trajets,
-          navNew: ROUTES.trajets + "#newTrip",
-          navMore: ROUTES.cockpit
-        };
-        Object.entries(navMap).forEach(([id, base]) => {
-          const el = $(id);
-          if (el) el.href = withContext(base);
-        });
-        const navNotes = $("navNotes");
-        if (navNotes) navNotes.href = "#driverNotes";
-
-        $("btnSupport").href = SUPPORT_WA;
-        $("btnSupport").target = "_blank";
-        $("btnSupport").rel = "noopener";
-
-        $("btnSupportBottom").href = SUPPORT_WA;
-        $("btnSupportBottom").target = "_blank";
-        $("btnSupportBottom").rel = "noopener";
       }
 
-      function renderHeader(){
-        $("pillSlug").innerHTML = `compte : <b>${accessOk ? "sécurisé" : "à ouvrir"}</b>`;
-        $("pillPhone").innerHTML = `session : <b>${accessOk ? "ouverte" : "contrôle…"}</b>`;
-      }
+      function setAccessVisual(){
+        const pill = $("pillAccess");
+        const profilePill = $("pillProfile");
+        const heroLead = $("heroLead");
+        const stateLine = $("stateLine");
 
-      function renderStatus(state){
-        const pill = $("pillStatus");
-        const dot = $("statusDot");
-        const eyebrowDot = $("eyebrowDot");
-        const viaPin = !!state?.pin_session_ok;
-        const profile = cockpitData?.profile || {};
-        const isBlank = !!cockpitData?.is_blank;
-        const published = !!profile?.is_published;
-        const zone = humanValue(profile?.city || profile?.zones, "—");
-        const ratesCount = Array.isArray(ratesData) ? ratesData.length : 0;
-
-        if (!slug){
+        if(!state.slug){
           pill.className = "pill bad";
-          pill.innerHTML = "accès : <b>à ouvrir</b>";
-          dot.className = "statusDot bad";
-          eyebrowDot.style.background = "var(--danger)";
-          $("eyebrowText").textContent = "accès requis";
-          $("heroTitle").textContent = "Ouvre ton accès chauffeur.";
-          $("heroLead").textContent = "Le tableau ne peut pas travailler sans session chauffeur valide.";
-          $("statusMain").textContent = "Aucun accès chauffeur détecté.";
-          $("statusSub").textContent = "Passe par ton code pour ouvrir ton espace.";
-          $("metaPublication").textContent = "Publication : —";
-          $("metaProfile").textContent = "Profil : —";
-          $("metaRates").textContent = "Tarifs : —";
-          $("metaZone").textContent = "Zone : —";
-          setMsg("❌ Accès manquant.", "bad");
+          pill.textContent = "session : à ouvrir";
+          profilePill.className = "pill bad";
+          profilePill.textContent = "profil : non reconnu";
+          heroLead.textContent = "Aucun compte chauffeur reconnu ici. Ouvre ton accès, puis reviens travailler proprement.";
+          stateLine.textContent = "Aucun identifiant DRIVER détecté. Les vraies données restent protégées.";
           return;
         }
 
-        if (!isDriverSlug(slug)){
-          pill.className = "pill bad";
-          pill.innerHTML = "accès : <b>à vérifier</b>";
-          dot.className = "statusDot bad";
-          eyebrowDot.style.background = "var(--danger)";
-          $("eyebrowText").textContent = "lien à vérifier";
-          $("heroTitle").textContent = "Ton accès chauffeur doit être vérifié.";
-          $("heroLead").textContent = "Reviens par ton code pour sécuriser la session.";
-          $("statusMain").textContent = "Accès chauffeur non confirmé.";
-          $("statusSub").textContent = "Le lien utilisé ne doit pas exposer d’identifiant sensible.";
-          $("metaPublication").textContent = "Publication : —";
-          $("metaProfile").textContent = "Profil : —";
-          $("metaRates").textContent = "Tarifs : —";
-          $("metaZone").textContent = "Zone : —";
-          setMsg("❌ Accès à vérifier.", "bad");
+        if(state.access_ok || state.access){
+          pill.className = state.pin_session_ok ? "pill warn" : "pill ok";
+          pill.textContent = state.pin_session_ok ? "session : ouverte" : "session : active";
+          profilePill.className = "pill ok";
+          profilePill.textContent = "profil : reconnu";
+          heroLead.textContent = "Ton espace chauffeur est reconnu. Va directement aux trajets, notes rapides, profil, tarifs ou QR.";
+          stateLine.textContent = "Accès ouvert. Les identifiants restent cachés, les pages métier gardent le travail.";
           return;
         }
 
-        if (!accessOk){
-          pill.className = "pill bad";
-          pill.innerHTML = "accès : <b>fermé</b>";
-          dot.className = "statusDot bad";
-          eyebrowDot.style.background = "var(--danger)";
-          $("eyebrowText").textContent = "accès requis";
-          $("heroTitle").textContent = "Commence par ouvrir ton accès.";
-          $("heroLead").textContent = "Pas de détour inutile : l’accès doit être reconnu avant de travailler.";
-          $("statusMain").textContent = "Accès non ouvert pour ce chauffeur.";
-          $("statusSub").textContent = "Passe par ton code ou l’abonnement.";
-          $("metaPublication").textContent = "Publication : —";
-          $("metaProfile").textContent = "Profil : —";
-          $("metaRates").textContent = "Tarifs : —";
-          $("metaZone").textContent = "Zone : —";
-          setMsg("⚠️ Accès non valide.", "bad");
-          return;
-        }
-
-        pill.className = viaPin ? "pill warn" : "pill ok";
-        pill.innerHTML = `accès : <b>${viaPin ? "session ouverte" : "abonnement actif"}</b>`;
-        dot.className = viaPin ? "statusDot" : "statusDot ok";
-        eyebrowDot.style.background = viaPin ? "var(--warn)" : "var(--ok)";
-        $("eyebrowText").textContent = viaPin ? "session ouverte" : "activité disponible";
-
-        if (isBlank){
-          $("heroTitle").textContent = "Ton espace chauffeur est prêt.";
-          $("heroLead").textContent = "Le bon geste maintenant, c’est de compléter ton profil pour personnaliser ton activité.";
-          $("statusMain").textContent = "Profil encore à compléter.";
-          $("statusSub").textContent = "Le chauffeur est bien reconnu, mais son identité terrain reste à poser.";
-        } else {
-          const publicLabel = humanValue(cockpitData?.public_label || profile?.business_name || profile?.driver_name, "Je conduis");
-          $("heroTitle").textContent = publicLabel;
-          $("heroLead").textContent = "Lecture claire, décisions rapides, profondeur rangée derrière.";
-          $("statusMain").textContent = viaPin
-            ? "Session ouverte. Tu peux travailler maintenant."
-            : "Abonnement actif. Tu peux travailler maintenant.";
-          $("statusSub").textContent = published
-            ? "Profil publié et données chauffeur chargées."
-            : "Données chauffeur chargées. Publication à vérifier si besoin.";
-        }
-
-        $("metaPublication").textContent = "Publication : " + (published ? "Publiée" : "Masquée");
-        $("metaProfile").textContent = "Profil : " + (isBlank ? "À compléter" : "Chargé");
-        $("metaRates").textContent = "Tarifs : " + (ratesCount ? `${ratesCount} actif(s)` : "Aucun");
-        $("metaZone").textContent = "Zone : " + zone;
-
-        if (cockpitData?.public_label){
-          $("brandTitle").textContent = cockpitData.public_label;
-        } else {
-          $("brandTitle").textContent = "Je conduis";
-        }
-
-        $("brandSub").textContent = isBlank
-          ? "Mobile d’abord — commence par poser ton profil."
-          : "Accueil · trajets · notes · argent";
-
-        setMsg("✅ Tableau mobile synchronisé.", "ok");
+        pill.className = "pill warn";
+        pill.textContent = "session : protégée";
+        profilePill.className = "pill warn";
+        profilePill.textContent = "profil : à ouvrir";
+        heroLead.textContent = "Compte reconnu, mais session fermée. Reprends ton PIN pour ouvrir les vraies données chauffeur.";
+        stateLine.textContent = "Compte repéré, accès fermé. Passe par le PIN pour charger l’activité.";
       }
 
-      function renderAction(){
-        const isBlank = !!cockpitData?.is_blank;
-        const published = !!cockpitData?.profile?.is_published;
-        const hasRates = Array.isArray(ratesData) && ratesData.length > 0;
-
-        let label = "🚕 Nouveau trajet";
-        let hint = "action du moment";
-        let desc = "Tout est en place. Ouvre maintenant l’outil trajet.";
-        let target = withContext(ROUTES.trajets);
-
-        if (!accessOk){
-          label = "🔓 Ouvrir mon accès";
-          hint = "premier passage";
-          desc = "Avant tout, il faut ouvrir l’accès chauffeur.";
-          target = withContext(ROUTES.pin);
-        } else if (isBlank){
-          label = "👤 Compléter mon profil";
-          hint = "profil prioritaire";
-          desc = "Commence par ton identité, ton véhicule et ta zone.";
-          target = withContext(ROUTES.profil);
-        } else if (!hasRates){
-          label = "💰 Poser mes tarifs";
-          hint = "tarifs prioritaires";
-          desc = "Le profil existe. Maintenant, pose ta grille terrain.";
-          target = withContext(ROUTES.tarifs);
-        } else if (!published){
-          label = "👤 Vérifier mon profil";
-          hint = "publication à confirmer";
-          desc = "Tes bases sont là. Vérifie la publication et les infos visibles.";
-          target = withContext(ROUTES.profil);
+      function getClient(){
+        if(sb) return sb;
+        if(!window.supabase || !window.DIGIY_SUPABASE_URL || !(window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON)){
+          return null;
         }
 
-        $("actionHint").textContent = hint;
-        $("actionText").textContent = label.replace(/^.[^\s]*\s/, "");
-        $("actionDesc").textContent = desc;
-        $("btnPrimaryAction").textContent = label;
-        $("btnPrimaryAction").onclick = () => { location.href = target; };
-      }
-
-      function renderKpis(){
-        const completed = completedTripsOnly(tripsData);
-        const active = activeTripsOnly(tripsData);
-
-        const todayDone = completed.filter(t => isSameLocalDay(tripWhen(t)));
-        const rows7d = completed.filter(t => inLastDays(tripWhen(t), 7));
-        const rows30d = completed.filter(t => inLastDays(tripWhen(t), 30));
-        const money30d = rows30d.reduce((sum, t) => sum + tripAmount(t), 0);
-
-        $("kpiActiveNow").textContent = String(active.length);
-        $("kpiDoneToday").textContent = String(todayDone.length);
-        $("kpiDone7d").textContent = String(rows7d.length);
-        $("kpiMoney30d").textContent = money(money30d);
-
-        $("kpiActiveNowSub").textContent = active.length
-          ? "Courses encore ouvertes"
-          : "Aucune course ouverte";
-        $("kpiDoneTodaySub").textContent = todayDone.length
-          ? "Courses terminées aujourd’hui"
-          : "Aucune course terminée aujourd’hui";
-        $("kpiDone7dSub").textContent = rows7d.length
-          ? "Historique utile sur 7 jours"
-          : "Semaine encore vide";
-        $("kpiMoney30dSub").textContent = rows30d.length
-          ? rows30d.length + " course(s) terminée(s)"
-          : "Aucune entrée lue";
-      }
-
-      function renderRecentTrips(){
-        const box = $("recentTripsList");
-
-        if (!slug){
-          box.innerHTML = `<div class="empty">Aucun accès chauffeur détecté.</div>`;
-          return;
-        }
-
-        if (!accessOk){
-          box.innerHTML = `<div class="empty">Accès non ouvert pour le moment.</div>`;
-          return;
-        }
-
-        if (!Array.isArray(tripsData) || !tripsData.length){
-          box.innerHTML = `<div class="empty">Aucune course trouvée pour ce chauffeur.</div>`;
-          return;
-        }
-
-        const rows = tripsData.slice(0, 6);
-
-        box.innerHTML = rows.map((trip) => {
-          const status = tripStatus(trip);
-          const badge = badgeForStatus(status);
-          const when = fmtDate(tripWhen(trip));
-          const amount = tripAmount(trip);
-          const client = tripClient(trip);
-          return `
-            <div class="item">
-              <div class="itemTop">
-                <div>
-                  <div class="itemTitle">${escapeHtml(tripTitle(trip))}</div>
-                  <div class="itemMeta">
-                    <div>${escapeHtml(client)}</div>
-                    <div>${escapeHtml(when)}</div>
-                    <div>${escapeHtml(amount ? money(amount) : "Montant non précisé")}</div>
-                  </div>
-                </div>
-                <div class="badge ${badge.cls}">${escapeHtml(badge.label)}</div>
-              </div>
-            </div>
-          `;
-        }).join("");
-      }
-
-      function pushNotif(text, type){
-        const cls = type === "ok" ? "ok" : type === "warn" ? "warn" : type === "bad" ? "bad" : "info";
-        const label = cls === "ok" ? "OK" : cls === "warn" ? "À voir" : cls === "bad" ? "Bloqué" : "Info";
-        return `
-          <div class="notif">
-            <div class="notifText">${escapeHtml(text)}</div>
-            <div class="badge ${cls}">${escapeHtml(label)}</div>
-          </div>
-        `;
-      }
-
-      function renderNotifs(){
-        const box = $("notifList");
-
-        if (!slug){
-          box.innerHTML = pushNotif("Aucun accès détecté. Ouvre le module avec ton code chauffeur.", "bad");
-          return;
-        }
-
-        const items = [];
-
-        if (!accessOk){
-          items.push(pushNotif("Accès non ouvert. Passe par ton code ou l’abonnement.", "warn"));
-        } else if (pinSessionOk){
-          items.push(pushNotif("Session ouverte. La circulation interne peut rester directe.", "ok"));
-        } else {
-          items.push(pushNotif("Abonnement reconnu. Le chauffeur peut travailler normalement.", "ok"));
-        }
-
-        if (cockpitData?.is_blank){
-          items.push(pushNotif("Le profil chauffeur est encore vide. Il faut commencer par l’identité terrain.", "warn"));
-        } else if (cockpitData?.profile?.is_published){
-          items.push(pushNotif("Le profil chauffeur est publié.", "ok"));
-        } else {
-          items.push(pushNotif("Le profil existe mais reste masqué. Vérifie la publication si besoin.", "info"));
-        }
-
-        if (!ratesData.length){
-          items.push(pushNotif("Aucun tarif actif détecté. Pose la grille terrain du chauffeur.", "warn"));
-        } else {
-          items.push(pushNotif(`${ratesData.length} tarif(s) actif(s) détecté(s).`, "ok"));
-        }
-
-        const active = activeTripsOnly(tripsData);
-        const completed = completedTripsOnly(tripsData);
-
-        if (active.length){
-          items.push(pushNotif(`${active.length} course(s) encore ouverte(s).`, "info"));
-        } else {
-          items.push(pushNotif("Aucune course ouverte pour le moment.", "info"));
-        }
-
-        if (completed.length){
-          items.push(pushNotif(`${completed.length} course(s) terminée(s) lue(s) sur l’historique disponible.`, "ok"));
-        } else {
-          items.push(pushNotif("Aucune course terminée récente détectée.", "info"));
-        }
-
-        if (accessOk){
-          items.push(pushNotif("Le QR chauffeur est prêt pour partager la bonne porte terrain.", "info"));
-        }
-
-        box.innerHTML = items.join("");
-      }
-
-      function escapeHtml(str){
-        return String(str || "")
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#039;");
-      }
-
-      function digiyDriverDashboardAudio(){
-        const hour = new Date().getHours();
-        const isBlank = !!cockpitData?.is_blank;
-        const hasRates = Array.isArray(ratesData) && ratesData.length > 0;
-        const published = !!cockpitData?.profile?.is_published;
-        const activeTrips = activeTripsOnly(tripsData).length;
-        const completedToday = completedTripsOnly(tripsData).filter(t => isSameLocalDay(tripWhen(t))).length;
-
-        if (!accessOk) {
-          return "Commence par ouvrir ton accès chauffeur pour continuer.";
-        }
-
-        if (isBlank) {
-          return "Commence par compléter ton profil pour poser ton accueil chauffeur.";
-        }
-
-        if (!hasRates) {
-          return "Ajoute tes tarifs pour pouvoir travailler correctement sur le terrain.";
-        }
-
-        if (!published) {
-          return "Vérifie ton profil chauffeur avant de reprendre la route.";
-        }
-
-        if (activeTrips > 0) {
-          return "Tu as des courses encore ouvertes. Reprends ton activité ou vérifie tes trajets.";
-        }
-
-        if (hour < 12) {
-          return "Bonjour. Tu peux démarrer ta journée avec un nouveau trajet.";
-        }
-
-        if (hour >= 18) {
-          if (completedToday > 0) {
-            return "Tu peux vérifier tes courses et voir ce qui est rentré aujourd’hui.";
-          }
-          return "Tu peux revoir ton activité du jour et préparer la suite.";
-        }
-
-        return "Tu peux lancer un nouveau trajet ou consulter ton activité.";
-      }
-
-      function refreshDriverAudioText(){
-        window.DIGIY_DRIVER_DASHBOARD_AUDIO_TEXT = digiyDriverDashboardAudio();
-      }
-
-      async function boot(forceRefresh = false){
-        cleanVisibleUrl();
-        await waitGuardIfAny();
-
-        slug = resolveSlug();
-        phone = resolvePhone();
-
-        const state = await getGuardState(forceRefresh);
-        lastGuardState = state || null;
-
-        slug = normSlug(state?.slug || slug);
-        phone = normPhone(state?.phone || phone || phoneFromDriverSlug(slug));
-        accessOk = !!(state?.access_ok || state?.access);
-        pinSessionOk = !!state?.pin_session_ok;
-
-        cleanVisibleUrl();
-        renderHeader();
-        bindLinks();
-
-        if (!sb){
-          $("pillStatus").className = "pill bad";
-          $("pillStatus").innerHTML = "accès : <b>connexion absente</b>";
-          $("statusDot").className = "statusDot bad";
-          $("statusMain").textContent = "Connexion indisponible.";
-          $("statusSub").textContent = "Le tableau ne peut pas lire les données.";
-          $("recentTripsList").innerHTML = `<div class="empty">Client Supabase absent.</div>`;
-          $("notifList").innerHTML = pushNotif("Client Supabase absent.", "bad");
-          $("kpiMoney30d").textContent = "0 FCFA";
-          setMsg("❌ Connexion indisponible.", "bad");
-          refreshDriverAudioText();
-          return;
-        }
-
-        if (accessOk){
-          cockpitData = await fetchCockpit();
-          ratesData = await fetchRates();
-          tripsData = await fetchTrips();
-
-          if (cockpitData?.phone){
-            phone = normPhone(cockpitData.phone || phone);
-            renderHeader();
-            if (window.DIGIY_GUARD?.rememberIdentity){
-              try{
-                window.DIGIY_GUARD.rememberIdentity({ slug, phone });
-                cleanVisibleUrl();
-              }catch{}
-            }
-          }
-        } else {
-          cockpitData = null;
-          ratesData = [];
-          tripsData = [];
-        }
-
-        renderStatus(state);
-        renderAction();
-        renderKpis();
-        renderRecentTrips();
-        renderNotifs();
-        refreshDriverAudioText();
-      }
-
-      $("btnRefresh")?.addEventListener("click", () => boot(true));
-
-      document.querySelectorAll(".noteChip").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const input = $("driverQuickNote");
-          if (input) input.value = btn.textContent.trim();
-          const draftBox = $("driverNoteDraft");
-          if (draftBox) draftBox.style.display = "none";
-        });
-      });
-
-      $("btnPrepareDriverNote")?.addEventListener("click", () => {
-        const input = $("driverQuickNote");
-        const draftBox = $("driverNoteDraft");
-        if (!input || !draftBox) return;
-        const draft = parseDriverNote(input.value);
-        if (!draft.sentence){
-          draftBox.style.display = "block";
-          draftBox.innerHTML = "Écris une phrase simple : course, carburant, lavage, péage, réparation ou client qui doit.";
-          return;
-        }
-        draftBox.style.display = "block";
-        draftBox.innerHTML = `
-          <strong>${escapeHtml(draft.label)}</strong><br>
-          ${escapeHtml(draft.direction)} · ${escapeHtml(draft.kind)} · ${escapeHtml(draft.channel)} · ${escapeHtml(draft.category)}<br>
-          ${draft.amount_xof ? escapeHtml(money(draft.amount_xof)) : "Montant à préciser"}<br>
-          ${escapeHtml(draft.sentence)}
-        `;
-        const pay = $("btnSendDriverNotePay");
-        if (pay) pay.href = buildDriverPayDraftUrl(draft);
-      });
-
-      boot(false);
-    })();
-  </script>
-
-  <!-- ============================================================
-       DIGIY AUDIO — DRIVER DASHBOARD
-       ============================================================ -->
-
-  <script>
-    window.DIGIY_AUDIO_CONFIG = {
-      label: "Écouter",
-      stopLabel: "Arrêter",
-      text: window.DIGIY_DRIVER_DASHBOARD_AUDIO_TEXT || "Tu peux lancer un nouveau trajet ou consulter ton activité.",
-      buttonBg: "linear-gradient(135deg,#d4af37,#b78b34)",
-      buttonColor: "#111827",
-      bottom: "24px",
-      left: "24px",
-      rate: 0.82,
-      pitch: 1,
-      volume: 1,
-      zIndex: 99999,
-      shadow: "0 10px 30px rgba(0,0,0,.26)"
-    };
-  </script>
-
-  <style>
-    #digiy-audio-btn{
-      position:fixed;
-      display:inline-flex;
-      align-items:center;
-      gap:12px;
-      padding:16px 26px;
-      border:none;
-      border-radius:999px;
-      cursor:pointer;
-      font-family:'Outfit',sans-serif;
-      font-weight:900;
-      font-size:17px;
-      line-height:1;
-      -webkit-tap-highlight-color:transparent;
-      user-select:none;
-      transition:transform .18s ease,box-shadow .18s ease,opacity .18s ease;
-      z-index:99999;
-    }
-    #digiy-audio-btn:hover{transform:translateY(-2px)}
-    #digiy-audio-btn:active{transform:scale(.97)}
-    #digiy-audio-btn:disabled{opacity:.65;cursor:not-allowed}
-    #digiy-audio-btn .digiy-audio-ico{
-      font-size:18px;
-      line-height:1;
-    }
-    #digiy-audio-progress-wrap{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      height:3px;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .25s ease;
-      z-index:99998;
-    }
-    #digiy-audio-progress{
-      width:0%;
-      height:100%;
-      transition:width .18s linear;
-    }
-
-    @media (max-width:600px){
-      #digiy-audio-btn{
-        left:12px !important;
-        right:12px !important;
-        bottom:86px !important;
-        justify-content:center;
-        font-size:16px;
-        padding:15px 18px;
-        gap:11px;
-      }
-      #digiy-audio-btn .digiy-audio-ico{
-        font-size:17px;
-      }
-    }
-  </style>
-
-  <button id="digiy-audio-btn" type="button" aria-label="Écouter">
-    <span class="digiy-audio-ico">&#9654;</span>
-    <span class="digiy-audio-lbl">Écouter</span>
-  </button>
-
-  <div id="digiy-audio-progress-wrap" aria-hidden="true">
-    <div id="digiy-audio-progress"></div>
-  </div>
-
-  <script>
-    (function(){
-      var cfg = window.DIGIY_AUDIO_CONFIG || {};
-
-      var config = {
-        label: cfg.label || "Écouter DIGIY",
-        stopLabel: cfg.stopLabel || "Arrêter",
-        text: cfg.text || "Bienvenue sur DIGIYLYFE.",
-        buttonBg: cfg.buttonBg || "linear-gradient(135deg,#d4af37,#b78b34)",
-        buttonColor: cfg.buttonColor || "#111827",
-        bottom: cfg.bottom || "24px",
-        left: cfg.left || "24px",
-        right: cfg.right || null,
-        rate: typeof cfg.rate === "number" ? cfg.rate : 0.82,
-        pitch: typeof cfg.pitch === "number" ? cfg.pitch : 1,
-        volume: typeof cfg.volume === "number" ? cfg.volume : 1,
-        zIndex: cfg.zIndex || 99999,
-        shadow: cfg.shadow || "0 8px 28px rgba(0,0,0,.24)"
-      };
-
-      var btn = document.getElementById("digiy-audio-btn");
-      var lbl = btn ? btn.querySelector(".digiy-audio-lbl") : null;
-      var ico = btn ? btn.querySelector(".digiy-audio-ico") : null;
-      var progressWrap = document.getElementById("digiy-audio-progress-wrap");
-      var progressBar = document.getElementById("digiy-audio-progress");
-
-      if (!btn || !lbl || !ico || !progressWrap || !progressBar) return;
-
-      btn.style.bottom = config.bottom;
-      btn.style.left = config.left ? config.left : "auto";
-      btn.style.right = config.right ? config.right : "auto";
-      btn.style.background = config.buttonBg;
-      btn.style.color = config.buttonColor;
-      btn.style.boxShadow = config.shadow;
-      btn.style.zIndex = String(config.zIndex);
-
-      progressWrap.style.background = "rgba(212,175,55,.2)";
-      progressBar.style.background = "linear-gradient(90deg,#d4af37,#b78b34)";
-
-      if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
-        btn.style.display = "none";
-        return;
-      }
-
-      var synth = window.speechSynthesis;
-      var utterance = null;
-      var playing = false;
-      var timer = null;
-      var launchId = 0;
-
-      function currentAudioText(){
-        return window.DIGIY_DRIVER_DASHBOARD_AUDIO_TEXT || config.text;
-      }
-
-      function getFrenchVoice(){
-        var voices = synth.getVoices() || [];
-        if (!voices.length) return null;
-
-        return (
-          voices.find(function(v){ return /fr[-_]?FR/i.test(v.lang) && /google/i.test(v.name); }) ||
-          voices.find(function(v){ return /fr[-_]?FR/i.test(v.lang); }) ||
-          voices.find(function(v){ return /^fr/i.test(v.lang); }) ||
-          null
+        sb = window.supabase.createClient(
+          window.DIGIY_SUPABASE_URL,
+          window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON,
+          { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false } }
         );
+        return sb;
       }
 
-      function setIdle(){
-        playing = false;
-        ico.innerHTML = "&#9654;";
-        lbl.textContent = config.label;
-        btn.setAttribute("aria-label", config.label);
-        clearInterval(timer);
-        timer = null;
-        progressWrap.style.opacity = "0";
-        progressBar.style.width = "0%";
-      }
-
-      function setPlaying(){
-        playing = true;
-        ico.innerHTML = "&#9632;";
-        lbl.textContent = config.stopLabel;
-        btn.setAttribute("aria-label", config.stopLabel);
-      }
-
-      function stop(){
-        clearInterval(timer);
-        timer = null;
-        try { synth.cancel(); } catch(e){}
-        utterance = null;
-        setIdle();
-      }
-
-      function startProgress(text, currentId){
-        var words = (text.trim().match(/\S+/g) || []).length;
-        var estimatedDuration = Math.max(2500, words * 520);
-        var elapsed = 0;
-
-        clearInterval(timer);
-        progressBar.style.width = "0%";
-        progressWrap.style.opacity = "1";
-
-        timer = setInterval(function(){
-          if (!playing || currentId !== launchId) {
-            clearInterval(timer);
-            timer = null;
-            return;
-          }
-          elapsed += 150;
-          var pct = Math.min((elapsed / estimatedDuration) * 100, 97);
-          progressBar.style.width = pct + "%";
-        }, 150);
-      }
-
-      function launch(){
-        launchId += 1;
-        var currentId = launchId;
-        var smartText = currentAudioText();
-
-        try { synth.cancel(); } catch(e){}
-
-        utterance = new SpeechSynthesisUtterance(smartText);
-        utterance.lang = "fr-FR";
-        utterance.rate = config.rate;
-        utterance.pitch = config.pitch;
-        utterance.volume = config.volume;
-
-        var voice = getFrenchVoice();
-        if (voice) utterance.voice = voice;
-
-        utterance.onstart = function(){
-          if (currentId !== launchId) return;
-          setPlaying();
-          startProgress(smartText, currentId);
-        };
-
-        utterance.onend = function(){
-          if (currentId !== launchId) return;
-          clearInterval(timer);
-          timer = null;
-          progressBar.style.width = "100%";
-          setTimeout(function(){
-            if (currentId === launchId) setIdle();
-          }, 250);
-        };
-
-        utterance.onerror = function(){
-          if (currentId !== launchId) return;
-          stop();
-        };
-
-        synth.speak(utterance);
-      }
-
-      function play(){
-        if (playing) return;
-
-        if (synth.speaking || synth.pending) {
-          try { synth.cancel(); } catch(e){}
+      function phoneVariants(v){
+        const p = normPhone(v);
+        if(!p) return [];
+        const out = new Set([p, "+" + p]);
+        if(p.startsWith("221") && p.length === 12){
+          out.add(p.slice(3));
+          out.add("+221" + p.slice(3));
         }
+        return Array.from(out);
+      }
 
-        var voices = synth.getVoices();
-        if (voices && voices.length) {
-          launch();
+      async function loadOpenTrips(){
+        const client = getClient();
+        const p = normPhone(state.phone || phoneFromDriverSlug(state.slug));
+        if(!client || !p || !(state.access_ok || state.access)){
+          $("statOpenTrips").textContent = "—";
           return;
         }
 
-        var launched = false;
+        try{
+          const { data, error } = await client
+            .from("digiy_driver_trips")
+            .select("id,status,driver_phone")
+            .in("driver_phone", phoneVariants(p))
+            .in("status", ["requested","assigned","accepted","ongoing","in_progress"]);
 
-        function handleVoicesChanged(){
-          if (launched) return;
-          launched = true;
-          synth.removeEventListener("voiceschanged", handleVoicesChanged);
-          launch();
+          if(error) throw error;
+
+          const rows = Array.isArray(data) ? data : [];
+          $("statOpenTrips").textContent = String(rows.length);
+        }catch(e){
+          console.warn("[DIGIY DRIVER DASHBOARD] trips count warning", e);
+          $("statOpenTrips").textContent = "—";
         }
-
-        synth.addEventListener("voiceschanged", handleVoicesChanged);
-
-        setTimeout(function(){
-          if (launched) return;
-          launched = true;
-          synth.removeEventListener("voiceschanged", handleVoicesChanged);
-          launch();
-        }, 700);
       }
 
-      btn.addEventListener("click", function(){
-        if (playing) stop();
-        else play();
-      });
+      function resolveStateFromStorage(){
+        state.slug = normSlug(
+          state.slug ||
+          storageGet("digiy_driver_slug") ||
+          storageGet("digiy_driver_last_slug") ||
+          storageGet("DIGIY_SLUG") ||
+          ""
+        );
 
-      window.addEventListener("beforeunload", stop);
+        state.phone = normPhone(
+          state.phone ||
+          storageGet("digiy_driver_phone") ||
+          storageGet("DIGIY_DRIVER_PHONE") ||
+          phoneFromDriverSlug(state.slug) ||
+          ""
+        );
 
-      document.addEventListener("visibilitychange", function(){
-        if (document.hidden && playing) stop();
-      });
+        if(!state.access && !state.access_ok){
+          const flags = [
+            storageGet("digiy_driver_pin_access"),
+            storageGet("digiy_driver_access_ok"),
+            storageGet("digiy_driver_has_access"),
+            storageGet("DIGIY_DRIVER_ACCESS_OK")
+          ].map(v => String(v || "").toLowerCase());
 
-      setIdle();
+          if(flags.some(v => ["true","1","yes","ok"].includes(v))){
+            state.access = true;
+            state.access_ok = true;
+          }
+        }
+      }
+
+      async function boot(){
+        cleanVisibleUrl();
+
+        const guardState = await waitGuard();
+        state = Object.assign(state, guardState || {});
+
+        resolveStateFromStorage();
+        rememberIdentity(state.slug, state.phone);
+
+        cleanVisibleUrl();
+        updateLinks();
+        setAccessVisual();
+
+        $("statProfile").textContent = state.slug ? ((state.access_ok || state.access) ? "reconnu" : "protégé") : "absent";
+        $("statSecure").textContent = "coffre";
+
+        await loadOpenTrips();
+      }
+
+      boot();
     })();
   </script>
 </body>
 </html>
+
