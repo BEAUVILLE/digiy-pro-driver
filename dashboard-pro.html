@@ -728,6 +728,371 @@
       }
     }
 
+
+    /* ============================================================
+       DIGIY DRIVER — couture dashboard-pro mobile
+       Lecture plus grande, fond plus lumineux, gros boutons d'action.
+       Moteur JS conservé.
+       ============================================================ */
+
+    body{
+      font-weight:750;
+      background:
+        radial-gradient(1050px 640px at 8% -10%, rgba(99,102,241,.36), transparent 62%),
+        radial-gradient(940px 560px at 100% 0%, rgba(34,197,94,.18), transparent 58%),
+        radial-gradient(700px 440px at 50% 108%, rgba(250,204,21,.10), transparent 62%),
+        linear-gradient(180deg,#14213d 0%, #101b32 48%, #0c172b 100%);
+    }
+
+    .wrap{
+      max-width:1160px;
+    }
+
+    .card,
+    .heroCard{
+      background:
+        radial-gradient(540px 230px at 100% 0%, rgba(99,102,241,.13), transparent 68%),
+        linear-gradient(180deg,rgba(27,44,80,.98),rgba(18,31,56,.98));
+      border-color:rgba(255,255,255,.15);
+      box-shadow:0 22px 54px rgba(0,0,0,.34);
+    }
+
+    .heroCard{
+      background:
+        radial-gradient(620px 280px at 0% 0%, rgba(99,102,241,.30), transparent 70%),
+        radial-gradient(520px 260px at 100% 100%, rgba(34,197,94,.17), transparent 70%),
+        linear-gradient(180deg, rgba(32,54,96,.99), rgba(18,35,64,.99));
+    }
+
+    .brandTitle{
+      font-size:clamp(24px,5vw,34px);
+      font-weight:1000;
+    }
+
+    .brandSub{
+      font-size:15px;
+      font-weight:950;
+      color:#dbe4ff;
+    }
+
+    .pill{
+      min-height:44px;
+      font-size:14px;
+      font-weight:950;
+      background:rgba(255,255,255,.075);
+      color:#dce4ff;
+      border-color:rgba(255,255,255,.15);
+    }
+
+    .eyebrow{
+      min-height:38px;
+      padding:8px 13px;
+      font-size:13px;
+      font-weight:1000;
+      color:#f4f7ff;
+      background:rgba(255,255,255,.09);
+      border-color:rgba(255,255,255,.16);
+    }
+
+    .heroTitle{
+      font-size:clamp(36px,8vw,60px);
+      line-height:1.01;
+      font-weight:1000;
+    }
+
+    .heroLead{
+      font-size:clamp(17px,3.7vw,23px);
+      line-height:1.48;
+      font-weight:900;
+      color:#dfe7ff;
+      max-width:920px;
+    }
+
+    .actionHint{
+      font-size:14px;
+      font-weight:1000;
+      color:#fff0a8;
+    }
+
+    .actionText{
+      font-size:clamp(25px,5vw,38px);
+      font-weight:1000;
+      color:#fff;
+    }
+
+    .actionDesc{
+      font-size:16px;
+      font-weight:900;
+      color:#dce4ff;
+    }
+
+    .btn{
+      min-height:56px;
+      border-radius:18px;
+      padding:14px 17px;
+      font-size:16px;
+      font-weight:1000;
+      border-color:rgba(255,255,255,.16);
+      background:rgba(255,255,255,.075);
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg,#6d6fff,#9b66ff);
+      box-shadow:0 16px 34px rgba(99,102,241,.34);
+    }
+
+    .driverBigActions{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      padding:14px;
+      border-radius:26px;
+      border:1px solid rgba(250,204,21,.30);
+      background:
+        radial-gradient(620px 260px at 100% 0%, rgba(250,204,21,.15), transparent 70%),
+        linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.045));
+    }
+
+    .driverBigAction{
+      min-height:104px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px;
+      border-radius:23px;
+      border:1px solid rgba(255,255,255,.15);
+      background:rgba(255,255,255,.075);
+      box-shadow:0 14px 30px rgba(0,0,0,.18);
+    }
+
+    .driverBigAction.primary{
+      background:linear-gradient(135deg,#6d6fff,#9b66ff);
+      border-color:transparent;
+    }
+
+    .driverBigAction.gold{
+      background:rgba(250,204,21,.16);
+      border-color:rgba(250,204,21,.34);
+    }
+
+    .driverBigAction.money{
+      background:rgba(34,197,94,.15);
+      border-color:rgba(34,197,94,.34);
+    }
+
+    .driverBigIcon{
+      width:52px;
+      height:52px;
+      border-radius:19px;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      font-size:24px;
+      background:rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.16);
+    }
+
+    .driverBigText{
+      display:grid;
+      gap:5px;
+      min-width:0;
+    }
+
+    .driverBigText strong{
+      font-size:20px;
+      line-height:1.05;
+      font-weight:1000;
+      color:#fff;
+    }
+
+    .driverBigText em{
+      font-style:normal;
+      font-size:14px;
+      line-height:1.25;
+      font-weight:900;
+      color:#e2e8ff;
+    }
+
+    .quickLink{
+      min-height:94px;
+      border-radius:23px;
+      background:rgba(255,255,255,.065);
+      border-color:rgba(255,255,255,.15);
+    }
+
+    .quickLink strong{
+      font-size:18px;
+      font-weight:1000;
+    }
+
+    .quickLink span{
+      font-size:14px;
+      font-weight:900;
+      color:#dce4ff;
+    }
+
+    .sectionTitle{
+      font-size:clamp(22px,4.8vw,30px);
+      font-weight:1000;
+    }
+
+    .sectionLead{
+      font-size:15px;
+      font-weight:900;
+      color:#d4ddff;
+    }
+
+    .kpi{
+      border-radius:23px;
+      background:rgba(255,255,255,.065);
+      border-color:rgba(255,255,255,.15);
+      padding:17px;
+    }
+
+    .kpiLabel{
+      font-size:14px;
+      font-weight:950;
+      color:#dbe4ff;
+    }
+
+    .kpiValue{
+      font-size:clamp(30px,7vw,44px);
+      font-weight:1000;
+    }
+
+    .kpiSub{
+      font-size:14px;
+      font-weight:900;
+      color:#d8e0ff;
+    }
+
+    .statusMain,
+    .itemTitle,
+    .notifText{
+      font-size:17px;
+      font-weight:1000;
+    }
+
+    .statusSub,
+    .itemMeta,
+    .empty{
+      font-size:15px;
+      font-weight:900;
+      color:#d8e0ff;
+    }
+
+    .metaTag,
+    .badge{
+      min-height:38px;
+      font-size:13px;
+      font-weight:1000;
+      background:rgba(255,255,255,.07);
+    }
+
+    .item,
+    .notif{
+      border-radius:22px;
+      background:rgba(255,255,255,.065);
+      border-color:rgba(255,255,255,.15);
+      padding:16px;
+    }
+
+    .driverNotesBox{
+      background:
+        radial-gradient(620px 260px at 100% 0%, rgba(250,204,21,.15), transparent 70%),
+        linear-gradient(180deg,rgba(27,44,80,.98),rgba(18,31,56,.98));
+      border-color:rgba(250,204,21,.28);
+    }
+
+    .noteInput{
+      min-height:116px;
+      border-radius:20px;
+      font-size:17px;
+      font-weight:950;
+      color:#fff;
+      background:rgba(0,0,0,.16);
+      border-color:rgba(255,255,255,.18);
+      line-height:1.48;
+    }
+
+    .noteChip{
+      min-height:42px;
+      padding:9px 13px;
+      font-size:14px;
+      font-weight:1000;
+    }
+
+    .noteDraft{
+      font-size:15px;
+      font-weight:900;
+    }
+
+    .bottomNav{
+      background:rgba(14,27,51,.96);
+      border-top-color:rgba(255,255,255,.16);
+    }
+
+    .bottomNav a{
+      min-height:64px;
+      font-size:12px;
+      font-weight:1000;
+      color:rgba(238,242,255,.82);
+    }
+
+    .bottomNav .ico{
+      font-size:21px;
+    }
+
+    .bottomNav a.active{
+      background:linear-gradient(135deg,#6d6fff,#9b66ff);
+    }
+
+    #digiy-audio-btn{
+      bottom:calc(92px + env(safe-area-inset-bottom,0px)) !important;
+      font-size:16px !important;
+      padding:15px 22px !important;
+    }
+
+    @media(max-width:760px){
+      .driverBigActions{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .driverBigAction{
+        min-height:96px;
+        align-items:flex-start;
+        flex-direction:column;
+      }
+
+      .driverBigIcon{
+        width:48px;
+        height:48px;
+      }
+
+      .driverBigText strong{
+        font-size:19px;
+      }
+    }
+
+    @media(max-width:520px){
+      .heroTitle{
+        font-size:36px;
+      }
+
+      .heroLead{
+        font-size:17px;
+      }
+
+      .kpis{
+        grid-template-columns:1fr;
+      }
+
+      .driverBigActions{
+        padding:12px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -779,6 +1144,57 @@
             <a class="btn" id="btnQr" href="#">📱 Mon QR</a>
             <a class="btn gold" id="btnPay" href="#">💳 Mon abonnement</a>
           </div>
+        </div>
+
+
+        <div class="driverBigActions" aria-label="Actions rapides chauffeur">
+          <a class="driverBigAction primary" id="bigTrips" href="./trajets.html">
+            <span class="driverBigIcon">📋</span>
+            <span class="driverBigText">
+              <strong>Trajets</strong>
+              <em>Voir et agir</em>
+            </span>
+          </a>
+
+          <a class="driverBigAction" id="bigNew" href="./trajets.html#newTrip">
+            <span class="driverBigIcon">➕</span>
+            <span class="driverBigText">
+              <strong>Nouveau</strong>
+              <em>Créer / reprendre</em>
+            </span>
+          </a>
+
+          <a class="driverBigAction gold" id="bigNotes" href="#driverNotes">
+            <span class="driverBigIcon">✍️</span>
+            <span class="driverBigText">
+              <strong>Notes</strong>
+              <em>Course, carburant</em>
+            </span>
+          </a>
+
+          <a class="driverBigAction money" id="bigPay" href="https://pro-pay.digiylyfe.com/admin.html">
+            <span class="driverBigIcon">💰</span>
+            <span class="driverBigText">
+              <strong>Mon argent</strong>
+              <em>Entrées / dépenses</em>
+            </span>
+          </a>
+
+          <a class="driverBigAction" id="bigProfil" href="./profil-chauffeur.html">
+            <span class="driverBigIcon">👤</span>
+            <span class="driverBigText">
+              <strong>Profil</strong>
+              <em>Identité chauffeur</em>
+            </span>
+          </a>
+
+          <a class="driverBigAction" id="bigMore" href="./cockpit.html">
+            <span class="driverBigIcon">⚙️</span>
+            <span class="driverBigText">
+              <strong>Plus</strong>
+              <em>Gestion avancée</em>
+            </span>
+          </a>
         </div>
 
         <div class="quickNav">
@@ -1526,6 +1942,24 @@
         if (notePay) notePay.href = buildDriverPayDraftUrl(null);
         const sendPay = $("btnSendDriverNotePay");
         if (sendPay) sendPay.href = buildDriverPayDraftUrl(null);
+
+        const bigMap = {
+          bigTrips: ROUTES.trajets,
+          bigNew: ROUTES.trajets + "#newTrip",
+          bigProfil: ROUTES.profil,
+          bigMore: ROUTES.cockpit
+        };
+
+        Object.entries(bigMap).forEach(([id, base]) => {
+          const el = $(id);
+          if (el) el.href = withContext(base);
+        });
+
+        const bigNotes = $("bigNotes");
+        if (bigNotes) bigNotes.href = "#driverNotes";
+
+        const bigPay = $("bigPay");
+        if (bigPay) bigPay.href = ROUTES.proPay;
 
         const navMap = {
           navHome: ROUTES.cockpit ? "./dashboard-pro.html" : "./dashboard-pro.html",
