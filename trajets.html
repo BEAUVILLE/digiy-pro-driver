@@ -263,6 +263,86 @@
       background:transparent;
     }
 
+    .driverPhoneActionBlock{
+      margin-top:14px;
+      padding:14px;
+      border-radius:20px;
+      border:1px solid rgba(250,204,21,.24);
+      background:
+        radial-gradient(420px 170px at 100% 0%, rgba(250,204,21,.10), transparent 70%),
+        rgba(255,255,255,.045);
+      box-shadow:0 14px 30px rgba(0,0,0,.18);
+    }
+
+    .driverPhoneActionTitle{
+      color:#fde68a;
+      font-size:12px;
+      font-weight:950;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+
+    .driverPhoneActionGrid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .driverPhoneAction{
+      min-height:76px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.055);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px;
+      font-weight:950;
+      text-align:left;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .driverPhoneAction.primary{
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      border-color:transparent;
+      color:#fff;
+      box-shadow:0 14px 30px rgba(99,102,241,.26);
+    }
+
+    .driverPhoneAction.gold{
+      background:rgba(250,204,21,.12);
+      border-color:rgba(250,204,21,.24);
+      color:#fde68a;
+    }
+
+    .driverPhoneIcon{
+      width:40px;
+      height:40px;
+      border-radius:15px;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,.10);
+      flex:0 0 auto;
+      font-size:19px;
+    }
+
+    .driverPhoneCopy strong{
+      display:block;
+      font-size:15px;
+      line-height:1.05;
+    }
+
+    .driverPhoneCopy span{
+      display:block;
+      margin-top:5px;
+      color:rgba(238,242,255,.72);
+      font-size:12px;
+      line-height:1.22;
+      font-weight:800;
+    }
+
     .miniNav{
       display:grid;
       grid-template-columns:repeat(2,1fr);
@@ -528,7 +608,6 @@
     .msg.bad{color:#fca5a5}
     .msg.warn{color:#fde68a}
 
-
     .quickNote{
       border:1px solid rgba(250,204,21,.24);
       background:
@@ -621,7 +700,6 @@
 
     .quickDraft strong{color:#fff}
 
-
     .memoryBox{
       margin-top:12px;
       padding:12px;
@@ -708,7 +786,6 @@
       line-height:1.45;
     }
 
-
     .memoryPayAction{
       margin-top:6px;
       display:inline-flex;
@@ -774,6 +851,20 @@
       .toolbar{grid-template-columns:1fr 1fr 1fr}
     }
 
+    @media(max-width:760px){
+      .driverPhoneActionGrid{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .driverPhoneAction.primary{
+        grid-column:1/-1;
+      }
+
+      .driverPhoneAction{
+        min-height:78px;
+      }
+    }
+
     @media(max-width:759px){
       .rightPills{
         width:100%;
@@ -787,6 +878,24 @@
       .heroTitle{font-size:24px}
       .miniNav{grid-template-columns:1fr}
       .kpis{grid-template-columns:1fr 1fr}
+    }
+
+    @media(max-width:420px){
+      .driverPhoneActionGrid{
+        grid-template-columns:1fr;
+      }
+
+      .driverPhoneAction{
+        min-height:74px;
+      }
+
+      .driverPhoneCopy strong{
+        font-size:16px;
+      }
+
+      .driverPhoneCopy span{
+        font-size:13px;
+      }
     }
 
     @media (prefers-reduced-motion: reduce){
@@ -852,7 +961,6 @@
       font-weight:800;
       line-height:1.5;
     }
-
   </style>
 </head>
 <body>
@@ -889,6 +997,59 @@
         <button class="btn primary" id="btnReload" type="button">🔄 Recharger mes trajets</button>
         <a class="btn" id="btnDashboard" href="#">🏠 Accueil</a>
         <a class="btn" id="btnCockpit" href="#">⚙️ Plus</a>
+      </div>
+
+      <div class="driverPhoneActionBlock" aria-label="Actions rapides chauffeur">
+        <div class="driverPhoneActionTitle">Lecture téléphone · gestes directs</div>
+        <div class="driverPhoneActionGrid">
+          <a class="driverPhoneAction primary" id="phoneGoDashboard" href="./dashboard-pro.html">
+            <span class="driverPhoneIcon">🏠</span>
+            <span class="driverPhoneCopy">
+              <strong>Accueil</strong>
+              <span>Voir l’activité chauffeur.</span>
+            </span>
+          </a>
+
+          <a class="driverPhoneAction" id="phoneGoTrips" href="#tripList">
+            <span class="driverPhoneIcon">📋</span>
+            <span class="driverPhoneCopy">
+              <strong>Trajets</strong>
+              <span>Lire les courses.</span>
+            </span>
+          </a>
+
+          <a class="driverPhoneAction" id="phoneGoNew" href="#newTrip">
+            <span class="driverPhoneIcon">➕</span>
+            <span class="driverPhoneCopy">
+              <strong>Nouveau</strong>
+              <span>Créer ou préparer.</span>
+            </span>
+          </a>
+
+          <a class="driverPhoneAction gold" id="phoneGoNotes" href="#quickDriverNote">
+            <span class="driverPhoneIcon">✍️</span>
+            <span class="driverPhoneCopy">
+              <strong>Notes</strong>
+              <span>Carburant, course, client.</span>
+            </span>
+          </a>
+
+          <a class="driverPhoneAction" id="phoneGoMoney" href="https://pro-pay.digiylyfe.com/admin.html">
+            <span class="driverPhoneIcon">💰</span>
+            <span class="driverPhoneCopy">
+              <strong>Mon argent</strong>
+              <span>Voir les traces utiles.</span>
+            </span>
+          </a>
+
+          <a class="driverPhoneAction" id="phoneGoMore" href="./cockpit.html">
+            <span class="driverPhoneIcon">⚙️</span>
+            <span class="driverPhoneCopy">
+              <strong>Plus</strong>
+              <span>Profil, tarifs, QR.</span>
+            </span>
+          </a>
+        </div>
       </div>
 
       <div class="newTripHint" id="newTrip">
@@ -967,7 +1128,6 @@
       </div>
     </section>
 
-
     <section class="card quickNote" id="quickDriverNote">
       <div class="sectionHead">
         <div>
@@ -1011,7 +1171,6 @@
         </div>
       </div>
     </section>
-
 
     <section class="card">
       <div class="sectionHead">
@@ -1064,7 +1223,6 @@
   </div>
 
   <div class="toast" id="toast"></div>
-
 
   <nav class="bottomNav" aria-label="Navigation DRIVER">
     <div class="bottomNavInner">
@@ -1762,6 +1920,20 @@
         $("btnQr").href = withSlug(ROUTES.qr);
         $("btnPin").href = withSlug(ROUTES.pin);
 
+        const phoneGoDashboard = $("phoneGoDashboard");
+        const phoneGoTrips = $("phoneGoTrips");
+        const phoneGoNew = $("phoneGoNew");
+        const phoneGoNotes = $("phoneGoNotes");
+        const phoneGoMoney = $("phoneGoMoney");
+        const phoneGoMore = $("phoneGoMore");
+
+        if(phoneGoDashboard) phoneGoDashboard.href = withSlug(ROUTES.dashboard);
+        if(phoneGoTrips) phoneGoTrips.href = "#tripList";
+        if(phoneGoNew) phoneGoNew.href = "#newTrip";
+        if(phoneGoNotes) phoneGoNotes.href = "#quickDriverNote";
+        if(phoneGoMoney) phoneGoMoney.href = buildSafeUrl(ROUTES.proPay, { return: safeReturnUrl() });
+        if(phoneGoMore) phoneGoMore.href = withSlug(ROUTES.cockpit);
+
         const navHome = $("navHome");
         const navTrips = $("navTrips");
         const navNew = $("navNew");
@@ -2008,7 +2180,6 @@
         }
       }
 
-
       function extractQuickAmount(text){
         const m = String(text || "").replace(/\s+/g, " ").match(/(\d[\d\s.,]*)\s*(f|fcfa|xof)?/i);
         if(!m) return 0;
@@ -2134,7 +2305,6 @@
         }
       }
 
-
       function quickMemoryKey(){
         return slug ? `digiy_driver_quick_memory:${slug}` : "digiy_driver_quick_memory";
       }
@@ -2170,7 +2340,6 @@
         writeQuickMemory(list);
         renderQuickMemory();
       }
-
 
       function isQuickFinancialNote(item){
         const type = String(item?.type || "").toLowerCase();
@@ -2217,12 +2386,7 @@
       }
 
       function buildPayFromQuickUrl(item){
-        const p = normPhone(phone || phoneFromDriverSlug(slug));
-        const paySlug = paySlugFromDriverPhone();
         const qs = new URLSearchParams();
-
-        if(paySlug) qs.set("slug", paySlug);
-        if(p) qs.set("phone", p);
 
         qs.set("fromDraft", "1");
         qs.set("direction", payDirectionFromQuick(item));
@@ -2233,7 +2397,6 @@
         qs.set("channel", item?.channel && item.channel !== "manual" ? String(item.channel) : "other");
         qs.set("category", payCategoryFromQuick(item));
         qs.set("source_module", "DRIVER");
-        if(slug && canExposeSlug(slug)) qs.set("source_slug", slug);
         qs.set("source_id", item?.memory_id || ("driver-note-" + Date.now()));
         qs.set("label", payLabelFromQuick(item));
         qs.set("note", String(item?.sentence || "").trim());
@@ -2493,3 +2656,4 @@
   </script>
 </body>
 </html>
+
