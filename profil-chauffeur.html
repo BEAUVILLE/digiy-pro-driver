@@ -4,7 +4,11 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Je conduis — Plus</title>
-  <meta name="theme-color" content="#061b14"/>
+  <meta name="theme-color" content="#123b2d"/>
+  <meta name="description" content="DIGIY DRIVER — Plus chauffeur : profil, visibilité, tarifs, QR, accès et portes utiles."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -18,72 +22,129 @@
   <script src="./guard.js?v=driver-security-v2-20260504"></script>
 
   <style>
+
     :root{
-      --bg:#061b14;
-      --card:#0b2a1f;
-      --line:rgba(255,255,255,.12);
-      --text:#eafff1;
-      --muted:rgba(234,255,241,.72);
+      --bg:#123b2d;
+      --bg2:#0b241b;
+      --card:#1f5a43;
+      --card2:#174735;
+      --line:rgba(255,255,255,.18);
+      --line2:rgba(255,255,255,.26);
+      --text:#f3fff7;
+      --muted:rgba(243,255,247,.84);
       --primary:#22c55e;
+      --primary2:#16a34a;
       --gold:#facc15;
       --warn:#f59e0b;
       --danger:#ef4444;
       --blue:#60a5fa;
-      --shadow:0 18px 55px rgba(0,0,0,.42);
-      --r:18px;
+      --shadow:0 22px 58px rgba(0,0,0,.34);
+      --r:26px;
       --max:1100px;
+      --bottomNavH:86px;
     }
 
     *{box-sizing:border-box}
 
+    html{scroll-behavior:smooth}
+
     body{
       margin:0;
-      padding:16px 16px calc(104px + env(safe-area-inset-bottom,0px));
-      background:var(--bg);
+      padding:16px 16px calc(var(--bottomNavH) + env(safe-area-inset-bottom,0px) + 20px);
+      background:
+        radial-gradient(900px 520px at 8% -10%, rgba(34,197,94,.28), transparent 62%),
+        radial-gradient(760px 440px at 105% 0%, rgba(250,204,21,.16), transparent 58%),
+        linear-gradient(180deg,var(--bg),var(--bg2) 68%,#071811 100%);
       color:var(--text);
       font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      min-height:100vh;
     }
 
     a{color:inherit;text-decoration:none}
+    button,input,textarea{font:inherit}
 
-    .wrap{max-width:var(--max);margin:auto}
+    .wrap{
+      max-width:var(--max);
+      margin:auto;
+    }
 
     .top,.card{
       border:1px solid var(--line);
       border-radius:var(--r);
-      background:rgba(255,255,255,.05);
+      background:
+        radial-gradient(700px 260px at 100% 0%, rgba(250,204,21,.10), transparent 72%),
+        linear-gradient(180deg,rgba(31,90,67,.96),rgba(20,67,49,.96));
       box-shadow:var(--shadow);
     }
 
     .top{
-      padding:14px;
+      padding:18px;
       display:flex;
       justify-content:space-between;
-      gap:12px;
+      gap:14px;
       flex-wrap:wrap;
+      align-items:flex-start;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .top:after{
+      content:"🚕";
+      position:absolute;
+      right:14px;
+      bottom:-14px;
+      font-size:118px;
+      opacity:.075;
+      transform:rotate(-10deg);
+      pointer-events:none;
     }
 
     .card{
-      padding:14px;
+      padding:18px;
       margin-top:14px;
     }
 
-    h1,h2,h3{margin:0 0 10px}
-    .muted{color:var(--muted);font-size:13px;font-weight:800}
-    .small{font-size:12px}
-
-    .pill{
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.18);
-      font-weight:900;
-      white-space:nowrap;
+    h1,h2,h3{
+      margin:0 0 10px;
+      font-weight:1000;
+      letter-spacing:-.035em;
+      line-height:1.04;
     }
 
-    .pill.ok{border-color:rgba(34,197,94,.35);color:#bbf7d0}
-    .pill.warn{border-color:rgba(245,158,11,.35);color:#fde68a}
-    .pill.bad{border-color:rgba(239,68,68,.35);color:#fecaca}
+    h1{
+      font-size:clamp(34px,7vw,54px);
+      max-width:840px;
+    }
+
+    h2{
+      font-size:clamp(25px,4.8vw,34px);
+    }
+
+    .muted{
+      color:var(--muted);
+      font-size:16px;
+      font-weight:900;
+      line-height:1.45;
+    }
+
+    .small{font-size:14px}
+
+    .pill{
+      min-height:44px;
+      padding:10px 13px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.08);
+      font-size:14px;
+      font-weight:1000;
+      white-space:nowrap;
+      color:var(--muted);
+      box-shadow:0 10px 24px rgba(0,0,0,.16);
+    }
+
+    .pill.ok{border-color:rgba(34,197,94,.40);color:#bbf7d0;background:rgba(34,197,94,.14)}
+    .pill.warn{border-color:rgba(245,158,11,.40);color:#fde68a;background:rgba(245,158,11,.14)}
+    .pill.bad{border-color:rgba(239,68,68,.40);color:#fecaca;background:rgba(239,68,68,.14)}
 
     .row{
       display:flex;
@@ -104,15 +165,25 @@
 
     .in, textarea{
       width:100%;
-      padding:12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.12);
+      padding:15px;
+      border-radius:18px;
+      border:1px solid var(--line2);
+      background:rgba(4,18,13,.22);
       color:var(--text);
-      font-size:15px;
-      font-weight:900;
+      font-size:17px;
+      font-weight:1000;
       outline:none;
       font-family:inherit;
+    }
+
+    .in::placeholder, textarea::placeholder{
+      color:rgba(243,255,247,.58);
+    }
+
+    .in:focus, textarea:focus{
+      border-color:rgba(34,197,94,.52);
+      box-shadow:0 0 0 4px rgba(34,197,94,.12);
+      background:rgba(4,18,13,.28);
     }
 
     .in:disabled, textarea:disabled{
@@ -121,49 +192,56 @@
     }
 
     textarea{
-      min-height:96px;
+      min-height:112px;
       resize:vertical;
+      line-height:1.45;
     }
 
     .btn{
       border:1px solid var(--line);
-      background:rgba(255,255,255,.07);
+      background:rgba(255,255,255,.09);
       color:var(--text);
-      padding:10px 12px;
-      border-radius:14px;
-      font-weight:900;
+      padding:14px 16px;
+      border-radius:18px;
+      font-size:16px;
+      font-weight:1000;
       cursor:pointer;
-      min-height:44px;
+      min-height:58px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:8px;
+      gap:9px;
       transition:.15s ease;
       font-family:inherit;
+      text-align:center;
+      box-shadow:0 14px 28px rgba(0,0,0,.16);
     }
 
     .btn:hover{transform:translateY(-1px)}
 
     .btn.primary{
-      background:var(--primary);
+      background:linear-gradient(135deg,var(--primary),var(--primary2));
       color:#042012;
       border-color:transparent;
+      box-shadow:0 16px 34px rgba(34,197,94,.26);
     }
 
     .btn.gold{
-      background:rgba(250,204,21,.12);
-      color:var(--gold);
+      background:rgba(250,204,21,.16);
+      color:#fff0a8;
+      border-color:rgba(250,204,21,.34);
     }
 
     .btn.warn{
-      background:rgba(245,158,11,.15);
+      background:rgba(245,158,11,.16);
       color:#fde68a;
+      border-color:rgba(245,158,11,.34);
     }
 
     .btn.blue{
-      background:rgba(96,165,250,.14);
+      background:rgba(96,165,250,.17);
       color:#dbeafe;
-      border-color:rgba(96,165,250,.28);
+      border-color:rgba(96,165,250,.34);
     }
 
     .btn:disabled{
@@ -173,8 +251,10 @@
     }
 
     .msg{
-      margin-top:10px;
-      font-weight:900;
+      margin-top:12px;
+      font-size:15px;
+      font-weight:1000;
+      line-height:1.45;
     }
 
     .msg.ok{color:#86efac}
@@ -192,10 +272,15 @@
       justify-content:space-between;
       gap:12px;
       align-items:center;
-      padding:12px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
+      padding:15px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(4,18,13,.22);
+    }
+
+    .item b{
+      font-size:17px;
+      font-weight:1000;
     }
 
     .actions{
@@ -208,67 +293,82 @@
       display:flex;
       gap:16px;
       flex-wrap:wrap;
-      margin-top:10px;
+      margin-top:12px;
     }
 
     label.ck{
       display:flex;
-      gap:8px;
+      gap:9px;
       align-items:center;
-      font-weight:900;
+      font-size:16px;
+      font-weight:1000;
+      color:var(--text);
+    }
+
+    label.ck input{
+      width:20px;
+      height:20px;
+      accent-color:var(--primary);
     }
 
     .empty{
-      padding:14px;
-      border-radius:16px;
-      border:1px dashed rgba(255,255,255,.16);
+      padding:17px;
+      border-radius:20px;
+      border:1px dashed rgba(255,255,255,.22);
       color:var(--muted);
-      font-weight:800;
-      background:rgba(255,255,255,.03);
+      font-size:15px;
+      font-weight:900;
+      background:rgba(255,255,255,.055);
+      line-height:1.45;
     }
 
     .nav{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
-      margin-top:10px;
+      margin-top:12px;
+      position:relative;
+      z-index:1;
     }
 
     .nav .btn{
       flex:0 0 auto;
+      min-height:52px;
     }
 
     .quickNav{
       display:grid;
       gap:10px;
-      margin-top:12px;
+      margin-top:14px;
     }
 
     @media(min-width:760px){
-      .quickNav{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+      .quickNav{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
     }
 
     .navbox{
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:16px;
-      padding:12px;
-      background:rgba(0,0,0,.16);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:22px;
+      padding:15px;
+      background:rgba(4,18,13,.22);
       display:flex;
       flex-direction:column;
-      gap:8px;
-      min-height:118px;
+      gap:10px;
+      min-height:142px;
+      box-shadow:0 14px 28px rgba(0,0,0,.16);
     }
 
     .navbox .title{
-      font-size:15px;
+      font-size:20px;
       font-weight:1000;
+      line-height:1.12;
     }
 
     .navbox .desc{
       color:var(--muted);
-      font-size:12px;
-      font-weight:800;
-      line-height:1.45;
+      font-size:14px;
+      font-weight:900;
+      line-height:1.42;
     }
 
     .navbox .go{
@@ -276,18 +376,18 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      padding:10px 12px;
-      min-height:42px;
-      border-radius:12px;
-      font-weight:900;
+      padding:12px;
+      min-height:48px;
+      border-radius:16px;
+      font-weight:1000;
       border:1px solid var(--line);
-      background:rgba(255,255,255,.07);
+      background:rgba(255,255,255,.09);
     }
 
     .stateGrid{
       display:grid;
       gap:10px;
-      margin-top:12px;
+      margin-top:14px;
     }
 
     @media(min-width:760px){
@@ -295,29 +395,24 @@
     }
 
     .stateBox{
-      padding:12px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
+      padding:15px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(4,18,13,.22);
     }
 
     .stateBox .k{
-      font-size:12px;
+      font-size:13px;
       color:var(--muted);
-      font-weight:800;
-      margin-bottom:6px;
+      font-weight:1000;
+      margin-bottom:7px;
     }
 
     .stateBox .v{
-      font-size:14px;
+      font-size:17px;
       font-weight:1000;
-      line-height:1.45;
+      line-height:1.42;
       word-break:break-word;
-    }
-
-    @media (max-width:720px){
-      body{padding:12px 12px calc(104px + env(safe-area-inset-bottom,0px))}
-      .top,.card{padding:12px}
     }
 
     #profileForm, #visibilityBlock, #ratesBlock{scroll-margin-top:96px}
@@ -329,11 +424,12 @@
       bottom:0;
       z-index:99990;
       padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
-      background:rgba(6,27,20,.94);
-      border-top:1px solid rgba(255,255,255,.10);
+      background:rgba(9,35,26,.96);
+      border-top:1px solid rgba(255,255,255,.16);
       backdrop-filter:blur(16px);
       -webkit-backdrop-filter:blur(16px);
     }
+
     .bottomNavInner{
       width:min(100%,760px);
       margin:0 auto;
@@ -341,37 +437,61 @@
       grid-template-columns:repeat(5,1fr);
       gap:6px;
     }
+
     .bottomNav a{
-      min-height:58px;
-      border-radius:16px;
+      min-height:64px;
+      border-radius:17px;
       display:grid;
       place-items:center;
       align-content:center;
       gap:3px;
-      color:rgba(234,255,241,.70);
-      font-size:11px;
-      font-weight:950;
+      color:rgba(243,255,247,.78);
+      font-size:12px;
+      font-weight:1000;
       text-align:center;
       border:1px solid transparent;
       text-decoration:none;
     }
-    .bottomNav .ico{font-size:18px;line-height:1}
+
+    .bottomNav .ico{font-size:21px;line-height:1}
+
     .bottomNav a.active{
       color:#042012;
       background:linear-gradient(135deg,var(--gold),var(--primary));
-      border-color:rgba(250,204,21,.28);
-      box-shadow:0 12px 26px rgba(34,197,94,.18);
+      border-color:rgba(250,204,21,.36);
+      box-shadow:0 14px 28px rgba(34,197,94,.24);
     }
 
     .plusFastRow{
       display:grid;
       grid-template-columns:repeat(4,minmax(0,1fr));
       gap:10px;
-      margin-top:12px;
+      margin-top:15px;
+      position:relative;
+      z-index:1;
     }
+
     @media(max-width:720px){
+      body{padding:12px 10px calc(var(--bottomNavH) + env(safe-area-inset-bottom,0px) + 14px)}
+      .top,.card{padding:16px}
       .plusFastRow{grid-template-columns:1fr 1fr}
       .nav{display:none}
+      h1{font-size:36px}
+      h2{font-size:27px}
+      .muted{font-size:16px}
+      .item{align-items:flex-start;flex-direction:column}
+      .actions,.actions .btn{width:100%}
+    }
+
+    @media(max-width:420px){
+      .plusFastRow{grid-template-columns:1fr}
+      .row>*{flex:1 1 100%}
+      .bottomNav a{font-size:11px}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      .btn{transition:none}
     }
 
   </style>
@@ -382,7 +502,7 @@
     <div class="top">
       <div>
         <h1 id="titleMain">⚙️ Je conduis — Plus</h1>
-        <div class="muted" id="subMain">Ici, tu ranges le profil chauffeur, la visibilité, les tarifs et les accès utiles. Sans démo.</div>
+        <div class="muted" id="subMain">Profil, visibilité, tarifs, QR et accès utiles : tout doit se lire vite sur téléphone. Sans démo.</div>
 
         <div class="plusFastRow">
           <a class="btn blue" id="fastHome" href="#">🏠 Accueil</a>
@@ -413,7 +533,7 @@
 
     <div class="card">
       <h2>Plus chauffeur</h2>
-      <div class="muted">Profil, tarifs, QR, accès et portes secondaires restent rangés ici.</div>
+      <div class="muted">Les portes utiles restent ici : profil, tarifs, QR, accès et retour vers l’activité.</div>
 
       <div class="quickNav">
         <div class="navbox">
