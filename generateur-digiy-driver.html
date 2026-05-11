@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Je conduis — Mon QR</title>
-  <!-- DIGIY DRIVER QR · support + fiche publique galerie-chauffeurs · 2026-05-11 -->
+  <!-- DIGIY DRIVER QR · support + fiche publique galerie-chauffeurs + lookup public gallery · 2026-05-11 -->
   <meta name="theme-color" content="#061b14"/>
   <meta name="description" content="DIGIY DRIVER — générer un QR propre pour partager la bonne porte chauffeur, sans téléphone visible dans l’URL."/>
 
@@ -790,6 +790,136 @@
         return null;
       }
 
+
+      function rowValues(row){
+        if(!row || typeof row !== "object") return [];
+        return Object.values(row).map(v => String(v ?? "").trim()).filter(Boolean);
+      }
+
+      function pickPublicCardSlug(row){
+        const direct = [
+          row?.card_slug,
+          row?.public_card_slug,
+          row?.public_slug,
+          row?.slug,
+          row?.card
+        ].map(safeText).filter(Boolean);
+
+        const vals = rowValues(row);
+        const all = direct.concat(vals);
+
+        for(const raw of all){
+          const s = safeText(raw);
+          if(/^card-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)){
+            return s;
+          }
+        }
+
+        for(const raw of all){
+          const s = safeText(raw);
+          if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)){
+            return "card-" + s;
+          }
+        }
+
+        return "";
+      }
+
+      function rowPhones(row){
+        const direct = [
+          row?.phone,
+          row?.whatsapp,
+          row?.wa,
+          row?.driver_phone,
+          row?.contact_phone
+        ];
+
+        return direct
+          .concat(rowValues(row))
+          .map(normPhone)
+          .filter(Boolean);
+      }
+
+      function normName(v){
+        return String(v || "")
+          .trim()
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function rowNames(row){
+        return [
+          row?.display_name,
+          row?.driver_name,
+          row?.business_name,
+          row?.name,
+          row?.title
+        ]
+          .concat(rowValues(row))
+          .map(normName)
+          .filter(Boolean);
+      }
+
+      async function publicUrlFromGallery(profile){
+        const client = await getSb();
+        if(!client) return "";
+
+        try{
+          const { data, error } = await client.rpc("digiy_driver_public_gallery");
+          if(error) throw error;
+
+          const rows = Array.isArray(data) ? data : [];
+          if(!rows.length) return "";
+
+          const p = profile || {};
+          const targetPhones = [
+            state.phone,
+            p.whatsapp,
+            p.phone,
+            p.driver_phone,
+            p.contact_phone
+          ].map(normPhone).filter(Boolean);
+
+          const targetNames = [
+            p.display_name,
+            p.driver_name,
+            p.business_name
+          ].map(normName).filter(Boolean);
+
+          let found = null;
+
+          if(targetPhones.length){
+            found = rows.find(row => {
+              const phones = rowPhones(row);
+              return phones.some(ph => targetPhones.includes(ph));
+            });
+          }
+
+          if(!found && targetNames.length){
+            found = rows.find(row => {
+              const names = rowNames(row);
+              return names.some(n => targetNames.includes(n));
+            });
+          }
+
+          if(!found) return "";
+
+          const cardSlug = pickPublicCardSlug(found);
+          if(!cardSlug) return "";
+
+          const u = new URL(PUBLIC_DRIVER_PROFILE_URL);
+          u.searchParams.set("slug", cardSlug);
+          return u.toString();
+        }catch(e){
+          console.warn("[DRIVER QR] galerie publique non chargée:", e?.message || e);
+          return "";
+        }
+      }
+
       function chooseTarget(){
         const selected = document.querySelector('input[name="targetType"]:checked');
         state.targetType = selected ? selected.value : "public";
@@ -882,7 +1012,7 @@
           await drawQr(state.targetUrl);
           const kind = state.targetType === "public" && !state.publicUrl ? "warn" : "ok";
           const txt = state.targetType === "public" && !state.publicUrl
-            ? "⚠️ Fiche publique chauffeur non trouvée. Le QR pointe vers DIGIYLYFE tant qu’un slug public propre n’est pas disponible."
+            ? "⚠️ Fiche publique chauffeur non trouvée dans la galerie. Le QR pointe vers DIGIYLYFE tant qu’une carte publique propre n’est pas disponible."
             : "✅ QR généré sans téléphone visible ni identifiant sensible.";
           setNotice(txt, kind);
         }catch(e){
@@ -1030,6 +1160,10 @@
 
         const profile = await loadProfile();
         state.publicUrl = publicUrlFromProfile(profile);
+
+        if(!state.publicUrl){
+          state.publicUrl = await publicUrlFromGallery(profile);
+        }
 
         if(!state.access_ok){
           setNotice("⚠️ Session non ouverte. Le QR peut générer une porte propre, mais les infos chauffeur restent limitées.", "warn");
