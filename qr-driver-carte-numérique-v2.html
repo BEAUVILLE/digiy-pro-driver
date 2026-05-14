@@ -1,0 +1,1070 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#061b14"/>
+  <title>DIGIY DRIVER — Carte numérique chauffeur</title>
+  <meta name="description" content="Carte de visite numérique DIGIY DRIVER : QR, fiche publique galerie, contact direct, 0% commission."/>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --bg:#061b14;
+      --bg2:#0a2a20;
+      --card:#102b21;
+      --line:rgba(255,255,255,.14);
+      --text:#eafff1;
+      --muted:rgba(234,255,241,.76);
+      --soft:rgba(234,255,241,.60);
+      --green:#22c55e;
+      --green2:#16a34a;
+      --gold:#facc15;
+      --gold2:#f59e0b;
+      --blue:#60a5fa;
+      --red:#fb7185;
+      --shadow:0 22px 64px rgba(0,0,0,.42);
+      --r:28px;
+      --max:1080px;
+      --bottom:82px;
+      --font:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      min-height:100vh;
+      color:var(--text);
+      font-family:var(--font);
+      background:
+        radial-gradient(900px 520px at 8% -10%,rgba(34,197,94,.22),transparent 62%),
+        radial-gradient(900px 520px at 112% 2%,rgba(250,204,21,.16),transparent 58%),
+        radial-gradient(720px 460px at 88% 100%,rgba(96,165,250,.10),transparent 62%),
+        linear-gradient(180deg,#071c15,var(--bg) 70%,#030b08);
+      padding:14px 14px calc(var(--bottom) + env(safe-area-inset-bottom,0px) + 18px);
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button,input{font:inherit}
+
+    .wrap{max-width:var(--max);margin:0 auto;display:grid;gap:14px}
+
+    .topbar,.hero,.panel,.network{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:
+        radial-gradient(680px 240px at 100% 0%,rgba(250,204,21,.09),transparent 70%),
+        linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.030));
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .topbar{
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .topbrand{display:flex;align-items:center;gap:10px;min-width:0}
+    .toplogo{
+      width:46px;height:46px;border-radius:17px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,rgba(250,204,21,.22),rgba(34,197,94,.18));
+      border:1px solid rgba(250,204,21,.26);
+      font-size:23px;
+      flex:0 0 auto;
+    }
+    .topname{font-weight:1000;color:#fff7cc;letter-spacing:.06em;text-transform:uppercase;font-size:13px}
+    .topsub{color:var(--muted);font-size:13px;font-weight:850;margin-top:2px}
+
+    .back{
+      min-height:42px;
+      padding:10px 13px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.26);
+      background:rgba(250,204,21,.10);
+      color:#fde68a;
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      font-weight:1000;
+      font-size:13px;
+    }
+
+    .hero{padding:18px;position:relative}
+    .hero:after{
+      content:"";
+      position:absolute;right:-90px;top:-90px;
+      width:260px;height:260px;border-radius:999px;
+      background:rgba(250,204,21,.08);
+      pointer-events:none;
+    }
+
+    .heroGrid{
+      position:relative;z-index:1;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+    }
+    @media(min-width:920px){.heroGrid{grid-template-columns:.95fr 1.05fr;align-items:center}}
+
+    .kicker{
+      color:var(--gold);
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      margin-bottom:8px;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(36px,7vw,68px);
+      line-height:.96;
+      letter-spacing:-.065em;
+      font-weight:1000;
+    }
+
+    .lead{
+      margin-top:12px;
+      max-width:760px;
+      color:var(--muted);
+      font-size:clamp(17px,3vw,22px);
+      line-height:1.42;
+      font-weight:900;
+    }
+
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+    .chip{
+      min-height:40px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      color:var(--muted);
+      font-size:13px;
+      font-weight:1000;
+      display:inline-flex;align-items:center;gap:7px;
+    }
+    .chip.ok{color:#bbf7d0;border-color:rgba(34,197,94,.34);background:rgba(34,197,94,.10)}
+    .chip.gold{color:#fde68a;border-color:rgba(250,204,21,.34);background:rgba(250,204,21,.10)}
+
+    .mainGrid{display:grid;gap:14px}
+    @media(min-width:920px){.mainGrid{grid-template-columns:1.03fr .97fr}}
+
+    .panel{padding:16px}
+
+    .digitalCard{
+      position:relative;
+      border-radius:32px;
+      border:1px solid rgba(250,204,21,.32);
+      background:
+        radial-gradient(500px 220px at 20% 0%,rgba(250,204,21,.16),transparent 65%),
+        radial-gradient(420px 220px at 100% 18%,rgba(34,197,94,.16),transparent 65%),
+        linear-gradient(145deg,#071711,#0b2d22 54%,#04110d);
+      box-shadow:0 24px 70px rgba(0,0,0,.48);
+      padding:18px;
+      overflow:hidden;
+      min-height:590px;
+      display:grid;
+      gap:14px;
+      align-content:start;
+    }
+
+    .digitalCard:before{
+      content:"";
+      position:absolute;inset:14px;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,.10);
+      pointer-events:none;
+    }
+
+    .cardHeader,.identity,.qrStage,.cardFooter{position:relative;z-index:1}
+
+    .cardHeader{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+    }
+
+    .cardBrand{
+      display:flex;align-items:center;gap:10px;min-width:0;
+    }
+
+    .infinity{
+      width:52px;height:52px;border-radius:19px;
+      display:grid;place-items:center;
+      background:rgba(250,204,21,.14);
+      border:1px solid rgba(250,204,21,.34);
+      color:#facc15;
+      font-size:30px;
+      font-weight:1000;
+      flex:0 0 auto;
+    }
+
+    .cardSmall{
+      color:rgba(234,255,241,.68);
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+    }
+    .cardTitle{
+      margin-top:2px;
+      color:#fff7cc;
+      font-size:20px;
+      line-height:1.05;
+      font-weight:1000;
+    }
+
+    .cardBadge{
+      padding:9px 11px;
+      border-radius:999px;
+      color:#bbf7d0;
+      background:rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.32);
+      font-size:12px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+
+    .identity{
+      display:grid;
+      grid-template-columns:auto 1fr;
+      gap:14px;
+      align-items:center;
+      padding:14px;
+      border-radius:24px;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+    }
+
+    .avatar{
+      width:82px;height:82px;border-radius:28px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,#facc15,#22c55e);
+      color:#05130e;
+      font-size:25px;
+      font-weight:1000;
+      box-shadow:0 16px 34px rgba(34,197,94,.22);
+      overflow:hidden;
+    }
+
+    .driverName{
+      font-size:clamp(25px,5vw,38px);
+      line-height:1.02;
+      letter-spacing:-.045em;
+      font-weight:1000;
+    }
+
+    .driverRole{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.35;
+      font-weight:900;
+    }
+
+    .infoPills{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .infoPill{
+      padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.055);
+      color:#eafff1;
+      font-size:12px;font-weight:950;
+      max-width:100%;
+    }
+
+    .qrStage{
+      display:grid;
+      place-items:center;
+      padding:18px;
+      border-radius:28px;
+      background:#fff;
+      color:#0f172a;
+      text-align:center;
+      box-shadow:inset 0 0 0 1px rgba(15,23,42,.08);
+    }
+
+    .qrImg{
+      width:min(310px,100%);
+      height:auto;
+      display:block;
+      border-radius:18px;
+      background:#fff;
+      padding:10px;
+      border:1px solid rgba(15,23,42,.10);
+    }
+
+    .qrLabel{
+      margin-top:10px;
+      color:#0f172a;
+      font-weight:1000;
+      font-size:16px;
+      line-height:1.25;
+    }
+
+    .qrHelp{
+      margin-top:3px;
+      color:#475569;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .cardFooter{
+      display:grid;
+      gap:10px;
+    }
+
+    .slogan{
+      padding:12px 14px;
+      border-radius:20px;
+      border:1px solid rgba(250,204,21,.24);
+      background:rgba(250,204,21,.10);
+      color:#fde68a;
+      font-size:15px;
+      line-height:1.42;
+      font-weight:950;
+      text-align:center;
+    }
+
+    .publicLink{
+      padding:12px 14px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.18);
+      color:#dbeafe;
+      font-size:13px;
+      line-height:1.45;
+      font-weight:850;
+      word-break:break-word;
+    }
+
+    .actions{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .btn{
+      min-height:58px;
+      padding:13px 14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      cursor:pointer;
+      font-weight:1000;
+      font-size:16px;
+      text-align:center;
+      transition:.15s ease;
+      box-shadow:0 14px 28px rgba(0,0,0,.16);
+    }
+
+    .btn:hover:not(:disabled){transform:translateY(-1px)}
+    .btn:disabled{opacity:.58;cursor:not-allowed;transform:none}
+    .btn.green{background:linear-gradient(135deg,var(--green),var(--green2));color:#042012;border-color:transparent}
+    .btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#241300;border-color:transparent}
+    .btn.blue{background:rgba(96,165,250,.16);border-color:rgba(96,165,250,.32);color:#dbeafe}
+    .btn.ghost{background:rgba(255,255,255,.065)}
+    .btn.full{grid-column:1/-1}
+
+    .urlBox{
+      margin-top:12px;
+      padding:13px 14px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
+    }
+    .urlLabel{
+      color:#fde68a;
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+    .urlText{
+      color:#dbeafe;
+      font-size:14px;
+      line-height:1.45;
+      font-weight:850;
+      word-break:break-word;
+    }
+
+    .notice{
+      margin-top:12px;
+      padding:13px 14px;
+      border-radius:20px;
+      border:1px solid rgba(250,204,21,.26);
+      background:rgba(250,204,21,.08);
+      color:#fde68a;
+      font-size:15px;
+      line-height:1.45;
+      font-weight:950;
+      white-space:pre-wrap;
+    }
+    .notice.ok{border-color:rgba(34,197,94,.32);background:rgba(34,197,94,.10);color:#bbf7d0}
+    .notice.bad{border-color:rgba(251,113,133,.32);background:rgba(251,113,133,.10);color:#fecaca}
+
+    .network{padding:16px}
+    .network h2{margin:0;font-size:clamp(25px,4vw,36px);line-height:1.05;letter-spacing:-.04em}
+    .network p{margin:8px 0 0;color:var(--muted);font-size:16px;line-height:1.55;font-weight:850}
+    .networkGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+    @media(min-width:760px){.networkGrid{grid-template-columns:repeat(4,1fr)}}
+    .networkItem{
+      min-height:96px;
+      padding:14px;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.11);
+      background:rgba(0,0,0,.16);
+      display:grid;
+      align-content:center;
+      gap:4px;
+    }
+    .networkItem strong{font-size:25px}
+    .networkItem span{color:var(--muted);font-size:13px;line-height:1.35;font-weight:900}
+
+    .bottomNav{
+      position:fixed;
+      left:0;right:0;bottom:0;z-index:70;
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+      background:linear-gradient(180deg,rgba(6,27,20,0),rgba(6,27,20,.96) 28%);
+    }
+    .bottomInner{
+      max-width:760px;margin:0 auto;
+      display:grid;grid-template-columns:repeat(5,1fr);gap:6px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(6,27,20,.94);
+      backdrop-filter:blur(10px);
+      border-radius:22px;
+      padding:7px;
+      box-shadow:0 16px 44px rgba(0,0,0,.38);
+    }
+    .navItem{
+      min-height:58px;
+      border-radius:16px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+      color:rgba(234,255,241,.76);
+      font-size:11px;
+      font-weight:1000;
+      border:1px solid transparent;
+      text-align:center;
+    }
+    .navItem strong{font-size:19px;line-height:1}
+    .navItem.active{
+      color:#13200d;
+      background:linear-gradient(135deg,var(--gold),var(--green));
+      border-color:rgba(250,204,21,.24);
+    }
+
+    @media(max-width:680px){
+      body{padding-left:10px;padding-right:10px}
+      .topbar,.hero,.panel,.network{border-radius:22px}
+      .hero,.panel,.network{padding:15px}
+      .actions{grid-template-columns:1fr}
+      .identity{grid-template-columns:1fr;text-align:center;justify-items:center}
+      .infoPills{justify-content:center}
+      .digitalCard{min-height:auto;border-radius:26px;padding:15px}
+      .cardHeader{display:grid}
+      .cardBadge{width:max-content}
+      .networkGrid{grid-template-columns:1fr 1fr}
+      .back{width:100%}
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div class="topbrand">
+      <div class="toplogo">🚕</div>
+      <div>
+        <div class="topname">DIGIY DRIVER</div>
+        <div class="topsub">Carte numérique · QR · fiche publique</div>
+      </div>
+    </div>
+    <a id="btnBack" class="back" href="./dashboard-pro.html">← Retour espace chauffeur</a>
+  </header>
+
+  <section class="hero">
+    <div class="heroGrid">
+      <div>
+        <div class="kicker">DIGIY DRIVER · Carte de visite numérique</div>
+        <h1>La carte qui donne de la prestance au chauffeur.</h1>
+        <div class="lead">
+          Un lien, un QR, une fiche publique et une présence propre à partager :
+          famille, amis, clients, hôtels, villas, réseaux sociaux et terrain.
+        </div>
+        <div class="chips">
+          <span class="chip ok">✅ Fiche publique</span>
+          <span class="chip gold">🔳 QR terrain</span>
+          <span class="chip">💬 Contact direct</span>
+          <span class="chip">0% commission</span>
+        </div>
+      </div>
+
+      <div class="networkItem">
+        <strong>❄️</strong>
+        <span>Une carte circule. Un métier devient visible. Le réseau grandit quartier par quartier.</span>
+      </div>
+    </div>
+  </section>
+
+  <main class="mainGrid">
+    <section class="panel">
+      <div class="digitalCard" id="digitalCard">
+        <div class="cardHeader">
+          <div class="cardBrand">
+            <div class="infinity">∞</div>
+            <div>
+              <div class="cardSmall">Carte officielle</div>
+              <div class="cardTitle">DIGIY DRIVER</div>
+            </div>
+          </div>
+          <div class="cardBadge">0% commission</div>
+        </div>
+
+        <div class="identity">
+          <div class="avatar" id="avatar">DR</div>
+          <div>
+            <div class="driverName" id="driverName">Chauffeur DIGIY</div>
+            <div class="driverRole" id="driverRole">Chauffeur privé · fiche publique galerie</div>
+            <div class="infoPills">
+              <span class="infoPill" id="pillVille">Zone : —</span>
+              <span class="infoPill" id="pillVehicule">Véhicule : —</span>
+            </div>
+          </div>
+        </div>
+
+        <a class="qrStage" id="qrAnchor" href="#" target="_blank" rel="noopener" aria-label="Ouvrir la fiche publique chauffeur">
+          <img id="qrImg" class="qrImg" alt="QR carte numérique DIGIY DRIVER"/>
+          <div class="qrLabel">Scanne ma carte chauffeur</div>
+          <div class="qrHelp">Fiche publique · WhatsApp direct · demande de course</div>
+        </a>
+
+        <div class="cardFooter">
+          <div class="slogan">Un QR dans la main. Un métier dans la lumière. Le terrain garde la main.</div>
+          <div class="publicLink" id="publicLink">Lien public en préparation…</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="kicker">Actions terrain</div>
+      <h2 style="margin:0;font-size:clamp(28px,5vw,42px);line-height:1.02;letter-spacing:-.045em">Partager la carte</h2>
+      <p style="margin:10px 0 0;color:var(--muted);font-size:16px;line-height:1.55;font-weight:850">
+        Le chauffeur peut envoyer sa carte par WhatsApp, la publier en statut, la poser sur TikTok,
+        l’imprimer ou l’afficher dans une voiture, une boutique, un hôtel ou une villa.
+      </p>
+
+      <div class="actions">
+        <button class="btn green" id="btnOpen" type="button">↗️ Ouvrir la fiche</button>
+        <button class="btn gold" id="btnCopy" type="button">📋 Copier le lien</button>
+        <button class="btn blue" id="btnWhatsapp" type="button">📲 Partager WhatsApp</button>
+        <button class="btn ghost" id="btnDownloadQr" type="button">⬇️ Télécharger QR</button>
+        <button class="btn ghost" id="btnSticker" type="button">🟩 Sticker XL</button>
+        <button class="btn gold full" id="btnDownloadCard" type="button">🎴 Télécharger la carte PNG</button>
+      </div>
+
+      <div class="urlBox">
+        <div class="urlLabel">Lien ouvert par le QR</div>
+        <div class="urlText" id="urlText">Préparation…</div>
+      </div>
+
+      <div class="notice" id="notice">Préparation de la carte numérique…</div>
+    </section>
+  </main>
+
+  <section class="network">
+    <h2>Réseau numérique des pros du terrain</h2>
+    <p>
+      Cette carte n’est pas seulement un QR. C’est la première pierre d’un réseau :
+      chaque chauffeur peut être partagé, recommandé, retrouvé et contacté directement.
+    </p>
+    <div class="networkGrid">
+      <div class="networkItem"><strong>👨‍👩‍👧</strong><span>Famille & amis</span></div>
+      <div class="networkItem"><strong>💬</strong><span>WhatsApp & statuts</span></div>
+      <div class="networkItem"><strong>🎥</strong><span>TikTok & YouTube</span></div>
+      <div class="networkItem"><strong>🏘️</strong><span>Quartier & terrain</span></div>
+    </div>
+  </section>
+</div>
+
+<nav class="bottomNav" aria-label="Navigation DRIVER">
+  <div class="bottomInner">
+    <a class="navItem" href="./dashboard-pro.html"><strong>🏠</strong><span>Accueil</span></a>
+    <a class="navItem" href="./trajets.html"><strong>📋</strong><span>Trajets</span></a>
+    <a class="navItem" href="./profil-chauffeur.html"><strong>⚙️</strong><span>Plus</span></a>
+    <a class="navItem active" href="./qr.html"><strong>🔳</strong><span>Carte</span></a>
+    <a class="navItem" href="./pin.html"><strong>🔐</strong><span>PIN</span></a>
+  </div>
+</nav>
+
+<script>
+(function(){
+  "use strict";
+
+  const DRIVER_PUBLIC_HOME = "https://galerie-chauffeurs.digiylyfe.com/";
+  const DRIVER_PUBLIC_FICHE = "https://galerie-chauffeurs.digiylyfe.com/fiche-chauffeur.html";
+
+  const BAD_TARGET_PARTS = [
+    "pro-driver.digiylyfe.com",
+    "pin.html",
+    "go-pin.html",
+    "cockpit.html",
+    "dashboard-pro.html",
+    "profil-chauffeur.html",
+    "trajets.html",
+    "tarifs.html",
+    "support.html",
+    "generateur-digiy-driver.html",
+    "qr.html"
+  ];
+
+  const qs = new URLSearchParams(location.search);
+  const $ = (id) => document.getElementById(id);
+
+  const els = {
+    btnBack:$("btnBack"),
+    avatar:$("avatar"),
+    driverName:$("driverName"),
+    driverRole:$("driverRole"),
+    pillVille:$("pillVille"),
+    pillVehicule:$("pillVehicule"),
+    qrImg:$("qrImg"),
+    qrAnchor:$("qrAnchor"),
+    publicLink:$("publicLink"),
+    urlText:$("urlText"),
+    notice:$("notice"),
+    btnOpen:$("btnOpen"),
+    btnCopy:$("btnCopy"),
+    btnWhatsapp:$("btnWhatsapp"),
+    btnDownloadQr:$("btnDownloadQr"),
+    btnSticker:$("btnSticker"),
+    btnDownloadCard:$("btnDownloadCard")
+  };
+
+  const State = {
+    slug:"",
+    targetUrl:"",
+    qrNormal:"",
+    qrXL:"",
+    cardPNG:"",
+    driverName:"Chauffeur DIGIY",
+    ville:"Zone à préciser",
+    vehicule:"Chauffeur",
+    busy:false
+  };
+
+  function normSlug(v){
+    return String(v || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+      .trim().toLowerCase()
+      .replace(/[^a-z0-9\-_]+/g,"-")
+      .replace(/-+/g,"-")
+      .replace(/^-|-$/g,"");
+  }
+
+  function safe(v, fallback){
+    const s = String(v || "").trim();
+    return s || fallback;
+  }
+
+  function initials(name){
+    const s = safe(name,"DR");
+    return s.split(/\s+/).slice(0,2).map(x => (x[0] || "").toUpperCase()).join("") || "DR";
+  }
+
+  function getLS(keys){
+    for(const k of keys){
+      try{
+        const v = sessionStorage.getItem(k) || localStorage.getItem(k);
+        if(v && String(v).trim()) return String(v).trim();
+      }catch(_){}
+    }
+    return "";
+  }
+
+  function isBadTarget(url){
+    const s = String(url || "").toLowerCase();
+    return BAD_TARGET_PARTS.some(part => s.includes(part.toLowerCase()));
+  }
+
+  function cleanPublicUrl(raw){
+    const value = String(raw || "").trim();
+    if(!value) return "";
+
+    try{
+      const u = new URL(value, location.href);
+
+      [
+        "phone","tel","wa","whatsapp","p_phone","owner_phone",
+        "pin","pin4","token","session_token","module","from","return"
+      ].forEach(k => u.searchParams.delete(k));
+
+      if(isBadTarget(u.toString())) return "";
+
+      return u.toString();
+    }catch(_){
+      return "";
+    }
+  }
+
+  function buildPublicFicheUrl(slug){
+    const s = normSlug(slug);
+    if(!s) return DRIVER_PUBLIC_HOME;
+
+    const u = new URL(DRIVER_PUBLIC_FICHE);
+    u.searchParams.set("slug", s);
+    return u.toString();
+  }
+
+  function setBusy(on){
+    State.busy = !!on;
+    ["btnOpen","btnCopy","btnWhatsapp","btnDownloadQr","btnSticker","btnDownloadCard"].forEach(id => {
+      const el = els[id];
+      if(el) el.disabled = !!on;
+    });
+  }
+
+  function note(msg, cls){
+    els.notice.className = "notice " + (cls || "");
+    els.notice.textContent = msg || "";
+  }
+
+  async function copyText(value){
+    if(navigator.clipboard?.writeText){
+      return navigator.clipboard.writeText(value);
+    }
+
+    const ta = document.createElement("textarea");
+    ta.value = value;
+    ta.setAttribute("readonly","");
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+
+    const ok = document.execCommand("copy");
+    ta.remove();
+
+    if(!ok) throw new Error("copy_failed");
+  }
+
+  function makeQrDataUrl(value, size){
+    return new Promise((resolve, reject) => {
+      if(!window.QRCode?.toDataURL){
+        reject(new Error("QRCode lib missing"));
+        return;
+      }
+
+      window.QRCode.toDataURL(value, {
+        width:size,
+        margin:1,
+        errorCorrectionLevel:"M",
+        color:{dark:"#111827", light:"#FFFFFF"}
+      }, (err, dataUrl) => err ? reject(err) : resolve(dataUrl));
+    });
+  }
+
+  function fallbackQrApi(size){
+    const u = new URL("https://api.qrserver.com/v1/create-qr-code/");
+    u.searchParams.set("size", `${size}x${size}`);
+    u.searchParams.set("margin", "16");
+    u.searchParams.set("data", State.targetUrl);
+    return u.toString();
+  }
+
+  function loadImage(src){
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("image_load_failed"));
+      img.src = src;
+    });
+  }
+
+  function roundRect(ctx,x,y,w,h,r){
+    const rr = Math.min(r,w/2,h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr,y);
+    ctx.arcTo(x+w,y,x+w,y+h,rr);
+    ctx.arcTo(x+w,y+h,x,y+h,rr);
+    ctx.arcTo(x,y+h,x,y,rr);
+    ctx.arcTo(x,y,x+w,y,rr);
+    ctx.closePath();
+  }
+
+  function download(dataUrl, filename){
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  async function makeCardPng(qrDataUrl){
+    const qr = await loadImage(qrDataUrl);
+
+    const W = 1080;
+    const H = 1560;
+    const c = document.createElement("canvas");
+    c.width = W;
+    c.height = H;
+    const ctx = c.getContext("2d");
+
+    const grad = ctx.createLinearGradient(0,0,W,H);
+    grad.addColorStop(0,"#020617");
+    grad.addColorStop(.42,"#064e3b");
+    grad.addColorStop(1,"#061b14");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+
+    ctx.fillStyle = "rgba(250,204,21,.16)";
+    ctx.beginPath();
+    ctx.arc(160,120,260,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(34,197,94,.14)";
+    ctx.beginPath();
+    ctx.arc(1030,1360,340,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(250,204,21,.45)";
+    ctx.lineWidth = 4;
+    roundRect(ctx,54,54,W-108,H-108,54);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(255,255,255,.055)";
+    roundRect(ctx,78,78,W-156,H-156,44);
+    ctx.fill();
+
+    ctx.textAlign = "center";
+
+    ctx.fillStyle = "#fff7cc";
+    ctx.font = "900 64px Outfit, system-ui, Arial";
+    ctx.fillText("DIGIY DRIVER", W/2, 180);
+
+    ctx.fillStyle = "rgba(234,255,241,.78)";
+    ctx.font = "800 32px Outfit, system-ui, Arial";
+    ctx.fillText("Carte numérique chauffeur • 0% commission", W/2, 228);
+
+    ctx.fillStyle = "#facc15";
+    ctx.font = "900 76px Outfit, system-ui, Arial";
+    wrapCanvasText(ctx, State.driverName, W/2, 350, 820, 86);
+
+    ctx.fillStyle = "rgba(234,255,241,.86)";
+    ctx.font = "800 38px Outfit, system-ui, Arial";
+    ctx.fillText(State.vehicule + " · " + State.ville, W/2, 475);
+
+    const qrSize = 620;
+    const qx = (W - qrSize) / 2;
+    const qy = 560;
+
+    ctx.fillStyle = "#ffffff";
+    roundRect(ctx, qx - 38, qy - 38, qrSize + 76, qrSize + 76, 44);
+    ctx.fill();
+
+    ctx.drawImage(qr, qx, qy, qrSize, qrSize);
+
+    ctx.fillStyle = "#facc15";
+    ctx.font = "900 46px Outfit, system-ui, Arial";
+    ctx.fillText("Scanne ma carte chauffeur", W/2, 1275);
+
+    ctx.fillStyle = "rgba(234,255,241,.82)";
+    ctx.font = "800 30px Outfit, system-ui, Arial";
+    ctx.fillText("Fiche publique • WhatsApp direct • Demande de course", W/2, 1322);
+
+    ctx.fillStyle = "rgba(203,213,225,.70)";
+    ctx.font = "700 24px Outfit, system-ui, Arial";
+    ctx.fillText("Le terrain garde la main · Powered by DIGIYLYFE", W/2, 1450);
+
+    return c.toDataURL("image/png");
+  }
+
+  function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight){
+    const words = String(text || "").split(/\s+/);
+    let line = "";
+    let yy = y;
+    for(let i=0;i<words.length;i++){
+      const test = line ? line + " " + words[i] : words[i];
+      if(ctx.measureText(test).width > maxWidth && line){
+        ctx.fillText(line, x, yy);
+        line = words[i];
+        yy += lineHeight;
+      }else{
+        line = test;
+      }
+    }
+    if(line) ctx.fillText(line, x, yy);
+  }
+
+  function shareWhatsapp(){
+    const text = [
+      "Voici ma carte chauffeur DIGIY DRIVER :",
+      State.targetUrl,
+      "",
+      "Contact direct · 0% commission · Le terrain garde la main."
+    ].join("\n");
+
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+  }
+
+  function syncUI(){
+    els.driverName.textContent = State.driverName;
+    els.driverRole.textContent = "Chauffeur privé · fiche publique galerie";
+    els.avatar.textContent = initials(State.driverName);
+    els.pillVille.textContent = "Zone : " + State.ville;
+    els.pillVehicule.textContent = "Véhicule : " + State.vehicule;
+    els.qrAnchor.href = State.targetUrl || "#";
+    els.publicLink.textContent = State.targetUrl || "Lien public en préparation…";
+    els.urlText.textContent = State.targetUrl || "Préparation…";
+
+    try{
+      const backRaw = qs.get("back") || "./dashboard-pro.html";
+      els.btnBack.href = new URL(backRaw, location.href).toString();
+    }catch(_){
+      els.btnBack.href = "./dashboard-pro.html";
+    }
+  }
+
+  async function boot(){
+    State.slug = normSlug(
+      qs.get("slug") ||
+      qs.get("card") ||
+      qs.get("identifiant") ||
+      getLS([
+        "DIGIY_DRIVER_PUBLIC_SLUG",
+        "DIGIY_DRIVER_CARD_SLUG",
+        "DIGIY_DRIVER_LAST_SLUG",
+        "DIGIY_DRIVER_SLUG",
+        "DIGIY_LAST_SLUG"
+      ])
+    );
+
+    State.driverName = safe(
+      qs.get("driver") ||
+      qs.get("name") ||
+      qs.get("title") ||
+      getLS(["DIGIY_DRIVER_NAME", "DIGIY_DRIVER_BUSINESS_NAME"]),
+      "Chauffeur DIGIY"
+    );
+
+    State.ville = safe(
+      qs.get("ville") ||
+      qs.get("city") ||
+      qs.get("zone") ||
+      getLS(["DIGIY_DRIVER_CITY", "DIGIY_DRIVER_VILLE"]),
+      "Zone à préciser"
+    );
+
+    State.vehicule = safe(
+      qs.get("vehicule") ||
+      qs.get("vehicle") ||
+      getLS(["DIGIY_DRIVER_VEHICLE", "DIGIY_DRIVER_VEHICLE_LABEL"]),
+      "Chauffeur"
+    );
+
+    const rawTarget =
+      qs.get("url") ||
+      qs.get("target") ||
+      getLS(["DIGIY_DRIVER_PUBLIC_URL", "DIGIY_PUBLIC_DRIVER_URL"]);
+
+    State.targetUrl = cleanPublicUrl(rawTarget) || buildPublicFicheUrl(State.slug);
+
+    syncUI();
+
+    if(State.targetUrl === DRIVER_PUBLIC_HOME){
+      note("⚠️ Aucun slug public trouvé. La carte pointe vers la galerie chauffeur. Pour une fiche précise, ouvre QR avec ?slug=card-...", "");
+    }else{
+      note("⏳ Préparation de la carte numérique chauffeur…", "");
+    }
+
+    setBusy(true);
+
+    try{
+      State.qrNormal = await makeQrDataUrl(State.targetUrl, 620);
+      State.qrXL = await makeQrDataUrl(State.targetUrl, 1100);
+      els.qrImg.src = State.qrNormal;
+      State.cardPNG = await makeCardPng(State.qrNormal);
+
+      note("✅ Carte numérique prête. Elle ouvre la fiche publique galerie chauffeur, pas l’espace PRO.", "ok");
+    }catch(e){
+      console.warn(e);
+      State.qrNormal = fallbackQrApi(620);
+      State.qrXL = fallbackQrApi(1100);
+      els.qrImg.src = State.qrNormal;
+      note("✅ QR prêt avec générateur externe. Le lien public reste correct.", "ok");
+    }finally{
+      setBusy(false);
+    }
+
+    els.btnOpen.onclick = () => window.open(State.targetUrl, "_blank", "noopener");
+
+    els.btnCopy.onclick = async () => {
+      try{
+        await copyText(State.targetUrl);
+        note("✅ Lien public copié.", "ok");
+      }catch(_){
+        window.prompt("Copie le lien :", State.targetUrl);
+      }
+    };
+
+    els.btnWhatsapp.onclick = () => shareWhatsapp();
+
+    els.btnDownloadQr.onclick = () => {
+      if(!State.qrNormal) return note("❌ QR non prêt.", "bad");
+      download(State.qrNormal, "DIGIY_QR_DRIVER_" + (normSlug(State.driverName) || "chauffeur") + ".png");
+      note("⬇️ QR téléchargé.", "ok");
+    };
+
+    els.btnSticker.onclick = () => {
+      if(!State.qrXL) return note("❌ Sticker non prêt.", "bad");
+      download(State.qrXL, "DIGIY_STICKER_XL_DRIVER_" + (normSlug(State.driverName) || "chauffeur") + ".png");
+      note("⬇️ Sticker XL téléchargé.", "ok");
+    };
+
+    els.btnDownloadCard.onclick = async () => {
+      try{
+        if(!State.cardPNG && State.qrNormal && !State.qrNormal.startsWith("http")){
+          State.cardPNG = await makeCardPng(State.qrNormal);
+        }
+
+        if(!State.cardPNG){
+          note("⚠️ Carte PNG non disponible avec ce générateur. Télécharge le QR simple.", "");
+          return;
+        }
+
+        download(State.cardPNG, "DIGIY_CARTE_NUMERIQUE_DRIVER_" + (normSlug(State.driverName) || "chauffeur") + ".png");
+        note("🎴 Carte numérique téléchargée.", "ok");
+      }catch(e){
+        console.warn(e);
+        note("⚠️ Téléchargement carte bloqué. Télécharge le QR simple.", "");
+      }
+    };
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", boot);
+  }else{
+    boot();
+  }
+})();
+</script>
+</body>
+</html>
