@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#061b14"/>
-  <title>DIGIY DRIVER — QR fiche chauffeur</title>
+  <title>DIGIY DRIVER — Carte numérique chauffeur</title>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -245,9 +245,9 @@
 
   <div class="wrap">
     <div class="hero">
-      <div class="kicker">DIGIY DRIVER · QR fiche</div>
-      <h1 id="titleBox">QR fiche chauffeur</h1>
-      <p id="subBox">Un QR propre pour faire circuler la fiche chauffeur : WhatsApp, carte, affiche, vitrine, hôtel, villa ou client direct.</p>
+      <div class="kicker">DIGIY DRIVER · Carte numérique</div>
+      <h1 id="titleBox">Carte numérique chauffeur</h1>
+      <p id="subBox">Une carte de visite digitale pour partager le chauffeur : QR, lien public, WhatsApp, famille, clients, réseaux et terrain.</p>
     </div>
 
     <div class="card">
@@ -270,272 +270,374 @@
 
       <div class="qrbox">
         <a id="qrAnchor" href="#" target="_blank" rel="noopener">
-          <img id="qrImg" class="qrImg" alt="QR DIGIY DRIVER fiche chauffeur"/>
+          <img id="qrImg" class="qrImg" alt="QR carte numérique DIGIY DRIVER"/>
         </a>
       </div>
 
       <div class="label" id="urlBox">Lien : —</div>
       <div class="note warn" id="note"></div>
-      <div class="mini" id="dbg">QR public · fiche chauffeur · DIGIY DRIVER · téléphone non affiché dans l’URL</div>
+      <div class="mini" id="dbg">Carte numérique · fiche publique galerie · DIGIY DRIVER · téléphone non affiché dans l’URL</div>
     </div>
   </div>
 
   <script>
-    (async function(){
-      "use strict";
+(function(){
+  "use strict";
 
-      function normSlug(v){
-        return String(v || "")
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g,"")
-          .trim()
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g,"-")
-          .replace(/-+/g,"-")
-          .replace(/^-|-$/g,"");
-      }
+  /*
+    DIGIY DRIVER — CARTE DE VISITE NUMÉRIQUE CHAUFFEUR
+    Cette page reste côté PRO.
+    Elle génère une carte / QR partageable.
+    Le QR ouvre la fiche publique galerie-chauffeurs.
+    Jamais cockpit, jamais PIN, jamais téléphone dans l’URL.
+  */
 
-      function safe(v, fallback){
-        const s = String(v || "").trim();
-        return s || fallback;
-      }
+  const DRIVER_PUBLIC_HOME = "https://galerie-chauffeurs.digiylyfe.com/";
+  const DRIVER_PUBLIC_FICHE = "https://galerie-chauffeurs.digiylyfe.com/fiche-chauffeur.html";
 
-      function getLS(keys){
-        for(const k of keys){
-          try{
-            const v = localStorage.getItem(k);
-            if(v && String(v).trim()) return String(v).trim();
-          }catch(_){}
-        }
-        return "";
-      }
+  const BAD_TARGET_PARTS = [
+    "pro-driver.digiylyfe.com",
+    "pin.html",
+    "go-pin.html",
+    "cockpit.html",
+    "dashboard-pro.html",
+    "profil-chauffeur.html",
+    "trajets.html",
+    "tarifs.html",
+    "support.html",
+    "generateur-digiy-driver.html",
+    "qr.html"
+  ];
 
-      const qs = new URLSearchParams(location.search);
+  const CLEAN_KEYS = [
+    "phone","tel","wa","whatsapp","p_phone","owner_phone","driver_phone",
+    "pin","pin4","token","session_token","module","from","return","back"
+  ];
 
-      const slug = normSlug(
-        qs.get("slug") ||
-        getLS([
-          "DIGIY_DRIVER_LAST_SLUG",
-          "DIGIY_DRIVER_SLUG",
-          "DIGIY_LAST_SLUG"
-        ])
-      );
+  const qs = new URLSearchParams(location.search);
+  const $ = (id) => document.getElementById(id);
 
-      let targetUrl =
-        qs.get("url") ||
-        getLS([
-          "DIGIY_DRIVER_PUBLIC_URL",
-          "DIGIY_PUBLIC_DRIVER_URL"
-        ]);
+  const qrImg = $("qrImg");
+  const qrAnchor = $("qrAnchor");
+  const urlBox = $("urlBox");
+  const noteEl = $("note");
+  const titleBox = $("titleBox");
+  const subBox = $("subBox");
+  const pillDriver = $("pillDriver");
+  const pillVille = $("pillVille");
+  const pillVehicule = $("pillVehicule");
+  const btnCopy = $("btnCopy");
+  const btnShare = $("btnShare");
+  const btnOpen = $("btnOpen");
+  const btnDownload = $("btnDownload");
+  const btnSticker = $("btnSticker");
+  const btnBack = $("btnBack");
 
-      const title = safe(
-        qs.get("title") ||
-        qs.get("name") ||
-        getLS(["DIGIY_DRIVER_NAME", "DIGIY_DRIVER_BUSINESS_NAME"]),
-        "Fiche chauffeur DIGIYLYFE"
-      );
+  let qrNormalDataUrl = "";
+  let qrXLDataUrl = "";
+  let targetUrl = "";
 
-      const driverName = safe(
-        qs.get("driver") ||
-        qs.get("name") ||
-        getLS(["DIGIY_DRIVER_NAME"]),
-        title
-      );
+  function normSlug(v){
+    return String(v || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9\-_]+/g,"-")
+      .replace(/-+/g,"-")
+      .replace(/^-|-$/g,"");
+  }
 
-      const ville = safe(
-        qs.get("ville") ||
-        qs.get("city") ||
-        getLS(["DIGIY_DRIVER_CITY", "DIGIY_DRIVER_VILLE"]),
-        "Zone à préciser"
-      );
+  function safe(v, fallback){
+    const s = String(v || "").trim();
+    return s || fallback;
+  }
 
-      const zones = safe(
-        qs.get("zones") ||
-        qs.get("zone") ||
-        getLS(["DIGIY_DRIVER_ZONES", "DIGIY_DRIVER_ZONE"]),
-        ville
-      );
-
-      const vehicule = safe(
-        qs.get("vehicule") ||
-        qs.get("vehicle") ||
-        getLS(["DIGIY_DRIVER_VEHICLE", "DIGIY_DRIVER_VEHICLE_LABEL"]),
-        "Chauffeur"
-      );
-
-      if(!targetUrl && slug){
-        const u = new URL("./fiche.html", location.href);
-        u.searchParams.set("slug", slug);
-        targetUrl = u.toString();
-      }
-
-      if(!targetUrl){
-        targetUrl = new URL("./index.html", location.href).toString();
-      }
-
+  function getStore(keys){
+    for(const k of keys){
       try{
-        targetUrl = new URL(targetUrl, location.href).toString();
-      }catch(_){
-        targetUrl = new URL("./index.html", location.href).toString();
-      }
-
-      const backRaw = qs.get("back") || "./dashboard-pro.html";
-      let backUrl = "./dashboard-pro.html";
-
-      try{
-        backUrl = new URL(backRaw, location.href).toString();
+        const v = sessionStorage.getItem(k) || localStorage.getItem(k);
+        if(v && String(v).trim()) return String(v).trim();
       }catch(_){}
+    }
+    return "";
+  }
 
-      const qrImg = document.getElementById("qrImg");
-      const qrAnchor = document.getElementById("qrAnchor");
-      const urlBox = document.getElementById("urlBox");
-      const noteEl = document.getElementById("note");
-      const titleBox = document.getElementById("titleBox");
-      const subBox = document.getElementById("subBox");
-      const pillDriver = document.getElementById("pillDriver");
-      const pillVille = document.getElementById("pillVille");
-      const pillVehicule = document.getElementById("pillVehicule");
+  function isSensitiveSlug(slug){
+    return /\d{7,}/.test(String(slug || ""));
+  }
 
-      const btnCopy = document.getElementById("btnCopy");
-      const btnShare = document.getElementById("btnShare");
-      const btnOpen = document.getElementById("btnOpen");
-      const btnDownload = document.getElementById("btnDownload");
-      const btnSticker = document.getElementById("btnSticker");
-      const btnBack = document.getElementById("btnBack");
+  function canExposeSlug(slug){
+    const s = normSlug(slug);
+    return !!s && !isSensitiveSlug(s);
+  }
 
-      let qrNormalDataUrl = "";
-      let qrXLDataUrl = "";
+  function isBadTarget(url){
+    const s = String(url || "").toLowerCase();
+    return BAD_TARGET_PARTS.some(part => s.includes(part.toLowerCase()));
+  }
 
-      titleBox.textContent = title;
-      subBox.textContent = `${driverName} · ${vehicule} · ${zones}. QR prêt à partager ou imprimer.`;
-      pillDriver.textContent = "chauffeur : " + driverName;
-      pillVille.textContent = "zone : " + zones;
-      pillVehicule.textContent = "véhicule : " + vehicule;
+  function cleanPublicUrl(raw){
+    const value = String(raw || "").trim();
+    if(!value) return "";
 
-      qrAnchor.href = targetUrl;
-      urlBox.textContent = "Lien : " + targetUrl;
-      btnBack.href = backUrl;
+    try{
+      const u = new URL(value, location.href);
+      CLEAN_KEYS.forEach(k => u.searchParams.delete(k));
 
-      function note(msg, type){
-        noteEl.className = "note " + (type || "warn");
-        noteEl.textContent = msg || "";
-        noteEl.style.display = msg ? "block" : "none";
+      const s = normSlug(u.searchParams.get("slug") || u.searchParams.get("identifiant") || "");
+      if(s && isSensitiveSlug(s)){
+        u.searchParams.delete("slug");
+        u.searchParams.delete("identifiant");
       }
 
-      function setBusy(on){
-        [btnCopy,btnShare,btnOpen,btnDownload,btnSticker].forEach(b => b.disabled = !!on);
+      if(isBadTarget(u.toString())) return "";
+      return u.toString();
+    }catch(_){
+      return "";
+    }
+  }
+
+  function buildPublicFicheUrl(slug){
+    const s = normSlug(slug);
+
+    if(!canExposeSlug(s)){
+      return DRIVER_PUBLIC_HOME;
+    }
+
+    const u = new URL(DRIVER_PUBLIC_FICHE);
+    u.searchParams.set("slug", s);
+    return u.toString();
+  }
+
+  function note(msg, type){
+    noteEl.className = "note " + (type || "warn");
+    noteEl.textContent = msg || "";
+    noteEl.style.display = msg ? "block" : "none";
+  }
+
+  function setBusy(on){
+    [btnCopy, btnShare, btnOpen, btnDownload, btnSticker].forEach(b => {
+      if(b) b.disabled = !!on;
+    });
+  }
+
+  async function copyText(value){
+    if(navigator.clipboard?.writeText){
+      return navigator.clipboard.writeText(value);
+    }
+
+    const ta = document.createElement("textarea");
+    ta.value = value;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+
+    const ok = document.execCommand("copy");
+    ta.remove();
+
+    if(!ok) throw new Error("copy_failed");
+  }
+
+  function directDownload(dataUrl, filename){
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function makeQrDataUrl(value, size){
+    return new Promise((resolve, reject) => {
+      if(!window.QRCode?.toDataURL){
+        reject(new Error("QRCode lib missing"));
+        return;
       }
 
-      async function copyText(value){
-        if(navigator.clipboard?.writeText){
-          return navigator.clipboard.writeText(value);
+      window.QRCode.toDataURL(value, {
+        width: size,
+        margin: 1,
+        errorCorrectionLevel: "M",
+        color: { dark:"#111827", light:"#FFFFFF" }
+      }, (err, dataUrl) => err ? reject(err) : resolve(dataUrl));
+    });
+  }
+
+  function fallbackQrApi(size){
+    const u = new URL("https://api.qrserver.com/v1/create-qr-code/");
+    u.searchParams.set("size", `${size}x${size}`);
+    u.searchParams.set("margin", "16");
+    u.searchParams.set("data", targetUrl);
+    return u.toString();
+  }
+
+  function shareWhatsApp(){
+    const text = [
+      "Voici ma carte chauffeur DIGIY DRIVER :",
+      targetUrl,
+      "",
+      "Contact direct · 0% commission · Le terrain garde la main."
+    ].join("\n");
+
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+  }
+
+  function cleanVisibleUrl(){
+    try{
+      const u = new URL(location.href);
+      let changed = false;
+
+      CLEAN_KEYS.forEach(k => {
+        if(u.searchParams.has(k)){
+          u.searchParams.delete(k);
+          changed = true;
         }
+      });
 
-        const ta = document.createElement("textarea");
-        ta.value = value;
-        ta.setAttribute("readonly", "");
-        ta.style.position = "fixed";
-        ta.style.left = "-9999px";
-        document.body.appendChild(ta);
-        ta.select();
-
-        const ok = document.execCommand("copy");
-        ta.remove();
-
-        if(!ok) throw new Error("copy_failed");
+      const s = normSlug(u.searchParams.get("slug") || u.searchParams.get("identifiant") || "");
+      if(s && isSensitiveSlug(s)){
+        u.searchParams.delete("slug");
+        u.searchParams.delete("identifiant");
+        changed = true;
       }
 
-      function directDownload(dataUrl, filename){
-        const a = document.createElement("a");
-        a.href = dataUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+      if(changed){
+        history.replaceState({}, "", u.pathname + u.search + u.hash);
       }
+    }catch(_){}
+  }
 
-      function makeQrDataUrl(value, size){
-        return new Promise((resolve, reject) => {
-          if(!window.QRCode?.toDataURL){
-            reject(new Error("QRCode lib missing"));
-            return;
-          }
+  async function boot(){
+    cleanVisibleUrl();
 
-          window.QRCode.toDataURL(value, {
-            width:size,
-            margin:1,
-            errorCorrectionLevel:"M",
-            color:{dark:"#111827", light:"#FFFFFF"}
-          }, (err, dataUrl) => err ? reject(err) : resolve(dataUrl));
-        });
-      }
+    const slug = normSlug(
+      qs.get("slug") ||
+      qs.get("card") ||
+      qs.get("identifiant") ||
+      getStore([
+        "DIGIY_DRIVER_PUBLIC_SLUG",
+        "DIGIY_DRIVER_CARD_SLUG",
+        "DIGIY_DRIVER_LAST_PUBLIC_SLUG",
+        "DIGIY_DRIVER_LAST_SLUG",
+        "DIGIY_DRIVER_SLUG",
+        "digiy_driver_public_slug",
+        "digiy_driver_card_slug",
+        "digiy_driver_last_slug",
+        "DIGIY_LAST_SLUG",
+        "digiy_last_slug"
+      ])
+    );
 
-      function fallbackQrApi(size){
-        const u = new URL("https://api.qrserver.com/v1/create-qr-code/");
-        u.searchParams.set("size", `${size}x${size}`);
-        u.searchParams.set("margin", "16");
-        u.searchParams.set("data", targetUrl);
-        return u.toString();
-      }
+    const title = safe(
+      qs.get("title") ||
+      qs.get("name") ||
+      getStore(["DIGIY_DRIVER_NAME", "DIGIY_DRIVER_BUSINESS_NAME", "digiy_driver_name"]),
+      "Carte numérique chauffeur"
+    );
 
-      setBusy(true);
-      note("⏳ Préparation du QR DRIVER…", "warn");
+    const driverName = safe(
+      qs.get("driver") ||
+      qs.get("name") ||
+      getStore(["DIGIY_DRIVER_NAME", "digiy_driver_name"]),
+      title
+    );
 
+    const ville = safe(
+      qs.get("ville") ||
+      qs.get("city") ||
+      qs.get("zone") ||
+      getStore(["DIGIY_DRIVER_CITY", "DIGIY_DRIVER_VILLE", "digiy_driver_city"]),
+      "Zone à préciser"
+    );
+
+    const vehicule = safe(
+      qs.get("vehicule") ||
+      qs.get("vehicle") ||
+      getStore(["DIGIY_DRIVER_VEHICLE", "DIGIY_DRIVER_VEHICLE_LABEL", "digiy_driver_vehicle"]),
+      "Chauffeur"
+    );
+
+    const rawTarget =
+      qs.get("url") ||
+      qs.get("target") ||
+      getStore([
+        "DIGIY_DRIVER_PUBLIC_URL",
+        "DIGIY_PUBLIC_DRIVER_URL",
+        "digiy_driver_public_url"
+      ]);
+
+    targetUrl = cleanPublicUrl(rawTarget) || buildPublicFicheUrl(slug);
+
+    const backRaw = qs.get("back") || "./dashboard-pro.html";
+    try{
+      btnBack.href = new URL(backRaw, location.href).toString();
+    }catch(_){
+      btnBack.href = "./dashboard-pro.html";
+    }
+
+    titleBox.textContent = "Carte numérique chauffeur";
+    subBox.textContent = `${driverName} · ${vehicule} · ${ville}. QR prêt à partager, envoyer ou imprimer.`;
+    pillDriver.textContent = "chauffeur : " + driverName;
+    pillVille.textContent = "zone : " + ville;
+    pillVehicule.textContent = "véhicule : " + vehicule;
+
+    qrAnchor.href = targetUrl;
+    urlBox.textContent = "Lien : " + targetUrl;
+    btnShare.textContent = "📲 Partager WhatsApp";
+
+    if(targetUrl === DRIVER_PUBLIC_HOME){
+      note("⚠️ Aucun slug public propre trouvé. La carte pointe vers la galerie chauffeur. Pour une fiche précise, ouvre QR avec ?slug=card-...", "warn");
+    }else{
+      note("⏳ Préparation de la carte numérique chauffeur…", "warn");
+    }
+
+    setBusy(true);
+
+    try{
+      qrNormalDataUrl = await makeQrDataUrl(targetUrl, 560);
+      qrXLDataUrl = await makeQrDataUrl(targetUrl, 980);
+      qrImg.src = qrNormalDataUrl;
+      note("✅ Carte numérique prête. Elle ouvre la fiche publique galerie chauffeur, pas l’espace PRO.", "ok");
+    }catch(e){
+      console.warn(e);
+      qrNormalDataUrl = fallbackQrApi(560);
+      qrXLDataUrl = fallbackQrApi(980);
+      qrImg.src = qrNormalDataUrl;
+      note("✅ Carte numérique prête avec générateur externe. Teste au téléphone avant impression.", "ok");
+    }finally{
+      setBusy(false);
+    }
+
+    btnCopy.onclick = async () => {
       try{
-        qrNormalDataUrl = await makeQrDataUrl(targetUrl, 560);
-        qrXLDataUrl = await makeQrDataUrl(targetUrl, 980);
-        qrImg.src = qrNormalDataUrl;
-        note("✅ QR DRIVER prêt. Teste-le au téléphone avant impression.", "ok");
-      }catch(e){
-        console.warn(e);
-        qrNormalDataUrl = fallbackQrApi(560);
-        qrXLDataUrl = fallbackQrApi(980);
-        qrImg.src = qrNormalDataUrl;
-        note("✅ QR DRIVER prêt avec générateur externe.", "ok");
-      }finally{
-        setBusy(false);
+        await copyText(targetUrl);
+        note("✅ Lien public copié.", "ok");
+      }catch(_){
+        window.prompt("Copie le lien :", targetUrl);
       }
+    };
 
-      btnCopy.onclick = async () => {
-        try{
-          await copyText(targetUrl);
-          note("✅ Lien copié.", "ok");
-        }catch(_){
-          window.prompt("Copie le lien :", targetUrl);
-        }
-      };
+    btnShare.onclick = () => shareWhatsApp();
+    btnOpen.onclick = () => window.open(targetUrl, "_blank", "noopener");
 
-      btnShare.onclick = async () => {
-        try{
-          if(navigator.share){
-            await navigator.share({
-              title,
-              text:`${driverName} · ${vehicule} · ${zones}`,
-              url:targetUrl
-            });
-            return;
-          }
-        }catch(_){}
+    btnDownload.onclick = () => {
+      if(!qrNormalDataUrl) return note("❌ QR non prêt.", "bad");
+      directDownload(qrNormalDataUrl, `DIGIY_CARTE_DRIVER_${normSlug(driverName) || "chauffeur"}.png`);
+      note("⬇️ Téléchargement lancé.", "ok");
+    };
 
-        btnCopy.click();
-      };
+    btnSticker.onclick = () => {
+      if(!qrXLDataUrl) return note("❌ Sticker non prêt.", "bad");
+      directDownload(qrXLDataUrl, `DIGIY_STICKER_XL_DRIVER_${normSlug(driverName) || "chauffeur"}.png`);
+      note("⬇️ Sticker XL téléchargé.", "ok");
+    };
+  }
 
-      btnOpen.onclick = () => window.open(targetUrl, "_blank", "noopener");
-
-      btnDownload.onclick = () => {
-        if(!qrNormalDataUrl) return note("❌ QR non prêt.", "bad");
-        const name = normSlug(driverName || slug || "driver");
-        directDownload(qrNormalDataUrl, `DIGIY_QR_DRIVER_${name || "fiche"}.png`);
-        note("⬇️ Téléchargement lancé.", "ok");
-      };
-
-      btnSticker.onclick = () => {
-        if(!qrXLDataUrl) return note("❌ Sticker non prêt.", "bad");
-        const name = normSlug(driverName || slug || "driver");
-        directDownload(qrXLDataUrl, `DIGIY_STICKER_XL_DRIVER_${name || "fiche"}.png`);
-        note("⬇️ Sticker XL téléchargé.", "ok");
-      };
-    })();
-  </script>
+  boot();
+})();
+</script>
 </body>
 </html>
