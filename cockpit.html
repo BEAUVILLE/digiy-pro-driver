@@ -107,6 +107,51 @@
       margin-bottom:14px;
     }
 
+    /* ── DIGIY PAY upsell ───────────────────────────────────── */
+    .payUpsellCard{
+      border:2px solid rgba(250,204,21,.45);
+      background:
+        radial-gradient(circle at right top,rgba(250,204,21,.14),transparent 36%),
+        radial-gradient(circle at left bottom,rgba(34,197,94,.10),transparent 30%),
+        linear-gradient(160deg,rgba(36,59,104,.97),rgba(25,43,78,.97));
+      border-radius:var(--radius);
+      box-shadow:0 0 0 1px rgba(250,204,21,.10),var(--shadow);
+      padding:18px;
+      margin-bottom:14px;
+    }
+    .payUpsellBadge{
+      display:inline-flex;align-items:center;gap:7px;
+      padding:6px 12px;border-radius:999px;
+      border:1px solid rgba(250,204,21,.45);
+      background:rgba(250,204,21,.12);
+      color:#fef3c7;font-size:12px;font-weight:1000;
+      letter-spacing:.06em;text-transform:uppercase;
+      margin-bottom:10px;
+    }
+    .payUpsellTitle{
+      font-size:18px;font-weight:1000;color:#fff8dc;
+      line-height:1.25;margin-bottom:6px;
+    }
+    .payUpsellLead{
+      font-size:14px;color:rgba(243,255,247,.72);
+      font-weight:900;line-height:1.5;margin-bottom:12px;
+    }
+    .payUpsellPrice{
+      display:inline-flex;align-items:baseline;gap:6px;
+      padding:8px 14px;border-radius:999px;
+      border:1px solid rgba(250,204,21,.35);
+      background:rgba(250,204,21,.08);
+      color:#fef3c7;font-size:14px;font-weight:1000;
+      margin-bottom:14px;
+    }
+    .payUpsellPrice strong{font-size:20px;color:#facc15;}
+    .btn.payUpsellBtn{
+      background:linear-gradient(135deg,#facc15,#f59e0b);
+      color:#1a1200;border:none;font-weight:1000;
+      box-shadow:0 10px 24px rgba(250,204,21,.22);
+    }
+    .btn.payUpsellBtn:hover{filter:brightness(1.06);}
+
     .hero{
       padding:21px;
       border-radius:30px;
@@ -547,8 +592,30 @@
               <div class="metaLine">Retour vers la façade publique sans casser le rail.</div>
             </div>
           </a>
+
+          <a class="item" id="linkMonArgent" href="#">
+            <div>
+              <div class="itemTitle">💰 Mon Argent PAY</div>
+              <div class="metaLine">Activer le pilotage financier voix — 4 900 F / mois.</div>
+            </div>
+          </a>
         </div>
       </div>
+    </section>
+
+    <section class="payUpsellCard">
+      <div class="payUpsellBadge">✦ Nouveau · Mon Argent PAY</div>
+      <div class="payUpsellTitle">💰 Pilote tes courses à la voix</div>
+      <div class="payUpsellLead">
+        Tu dictes "Course Wave 35 000" — DIGIY prépare, toi tu valides.
+        Tes entrées, dépenses, carburant et net du mois : tout lu proprement sans cahier.
+      </div>
+      <div class="payUpsellPrice">
+        À partir de <strong>4 900 F</strong> · 9 € / mois
+      </div>
+      <a class="btn payUpsellBtn" id="btnMonArgent" href="#">
+        💰 Activer Mon Argent — Starter
+      </a>
     </section>
 
     <section class="card" id="activeBlock">
@@ -817,6 +884,17 @@
 
       function withSlug(base, extra = {}){
         return buildSafeUrl(base, extra);
+      }
+
+      function buildPayUpsellUrl(){
+        const base = ROUTES.pay;
+        const u = new URL(base);
+        u.searchParams.set("module", "PAY");
+        u.searchParams.set("plan", "9A");
+        u.searchParams.set("from", "driver");
+        if (canExposeSlug(slug)) u.searchParams.set("slug", slug);
+        u.searchParams.set("return", safeReturnUrl());
+        return u.toString();
       }
 
       function buildPayUrl(){
@@ -1120,6 +1198,8 @@
         $("btnTrajets").href = withSlug(ROUTES.trajets);
         $("btnMaFiche").href = withSlug(ROUTES.maFiche);
         $("btnPay").href = buildPayUrl();
+        if ($("btnMonArgent")) $("btnMonArgent").href = buildPayUpsellUrl();
+        if ($("linkMonArgent")) $("linkMonArgent").href = buildPayUpsellUrl();
 
         $("btnProfil").href = withSlug(ROUTES.profil);
         $("btnTarifs").href = withSlug(ROUTES.tarifs);
@@ -1512,3 +1592,4 @@
   </script>
 </body>
 </html>
+
