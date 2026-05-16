@@ -776,7 +776,7 @@
           btnTrips:[ROUTES.trips,""],
           btnNotes:[ROUTES.trips,"#quickDriverNote"],
           btnPlus:[ROUTES.profile,""],
-          btnPin:[ROUTES.pin,""],
+          // btnPin géré séparément — pas de slug dans l'URL pin
           taskTrips:[ROUTES.trips,""],
           taskNotes:[ROUTES.trips,"#quickDriverNote"],
           taskRates:[ROUTES.rates,""],
@@ -792,6 +792,10 @@
           const el = $(id);
           if(el) el.href = buildSafeUrl(parts[0], parts[1]);
         });
+
+        // btnPin — URL propre sans slug ni paramètres
+        const pinBtn = $("btnPin");
+        if(pinBtn) pinBtn.href = ROUTES.pin;
       }
 
       function setAccessVisual(){
@@ -976,6 +980,7 @@
   </script>
 </body>
 </html>
+
 
 
 
