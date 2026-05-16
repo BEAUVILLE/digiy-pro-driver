@@ -886,6 +886,41 @@
         return buildSafeUrl(base, extra);
       }
 
+      // ── Vérif accès PAY via Supabase ──────────────────────────
+      async function checkPayAccess(phoneDigits){
+        if(!sb || !phoneDigits) return false;
+        try{
+          const { data, error } = await sb.rpc('digiy_check_module_access', {
+            p_phone:  phoneDigits,
+            p_module: 'PAY'
+          });
+          if(error) return false;
+          return data === true;
+        }catch(_){ return false; }
+      }
+
+      const PAY_COCKPIT_URL = 'https://pay.digiylyfe.com/cockpit.html';
+
+      function applyPayAccess(hasPayAccess){
+        const upsellCard  = document.querySelector('.payUpsellCard');
+        const btnMonArgent = $('btnMonArgent');
+        const linkMonArgent = $('linkMonArgent');
+
+        if(hasPayAccess){
+          // PAY actif → carte upsell cachée, bouton pointe sur cockpit PAY
+          if(upsellCard) upsellCard.style.display = 'none';
+          const payUrl = PAY_COCKPIT_URL + (slug ? '?slug=' + encodeURIComponent(slug) : '');
+          if(btnMonArgent){ btnMonArgent.href = payUrl; btnMonArgent.textContent = '💰 Ouvrir Mon Argent'; }
+          if(linkMonArgent){ linkMonArgent.href = payUrl; linkMonArgent.querySelector('.metaLine').textContent = 'Ouvrir le cockpit Mon Argent PAY.'; }
+        } else {
+          // PAY non actif → carte upsell visible
+          if(upsellCard) upsellCard.style.display = '';
+          const upsellUrl = buildPayUpsellUrl();
+          if(btnMonArgent) btnMonArgent.href = upsellUrl;
+          if(linkMonArgent) linkMonArgent.href = upsellUrl;
+        }
+      }
+
       function buildPayUpsellUrl(){
         const base = ROUTES.pay;
         const u = new URL(base);
@@ -1200,6 +1235,9 @@
         $("btnPay").href = buildPayUrl();
         if ($("btnMonArgent")) $("btnMonArgent").href = buildPayUpsellUrl();
         if ($("linkMonArgent")) $("linkMonArgent").href = buildPayUpsellUrl();
+
+        // Vérif PAY async — affichage selon abonnement actif
+        checkPayAccess(phone).then(applyPayAccess);
 
         $("btnProfil").href = withSlug(ROUTES.profil);
         $("btnTarifs").href = withSlug(ROUTES.tarifs);
@@ -1592,4 +1630,5 @@
   </script>
 </body>
 </html>
+
 
