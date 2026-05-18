@@ -7,6 +7,7 @@
   <meta name="theme-color" content="#123b2d"/>
   <meta name="description" content="DIGIY DRIVER — accueil de travail chauffeur : trajets, notes rapides, profil, tarifs, QR et accès sécurisé."/>
   <meta name="robots" content="noindex,nofollow"/>
+  <meta name="digiy-build" content="driver-dashboard-voice-alerts-20260518"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -477,6 +478,97 @@
       html{scroll-behavior:auto}
       .btn{transition:none}
     }
+
+    /* =========================================================
+       DIGIY DRIVER — ALERTES VOCALES MÉTIER
+       Le moteur vient du modèle LOC, mais la parole reste chauffeur.
+       ========================================================= */
+    .voiceBox{
+      border:1px solid rgba(250,204,21,.28);
+      border-radius:var(--r);
+      background:
+        radial-gradient(640px 250px at 0% 0%, rgba(250,204,21,.16), transparent 68%),
+        radial-gradient(560px 240px at 100% 0%, rgba(34,197,94,.12), transparent 70%),
+        linear-gradient(180deg,rgba(31,90,67,.96),rgba(20,67,49,.96));
+      box-shadow:var(--shadow);
+      padding:17px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    .voiceText{
+      min-width:240px;
+      flex:1 1 340px;
+    }
+
+    .voiceTitle{
+      color:#fff0a8;
+      font-size:20px;
+      line-height:1.15;
+      font-weight:1000;
+      letter-spacing:-.02em;
+    }
+
+    .voiceSub{
+      margin-top:5px;
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.42;
+      font-weight:900;
+    }
+
+    #voiceStatus{
+      margin-top:10px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      min-height:34px;
+      padding:7px 11px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(4,18,13,.22);
+      color:rgba(243,255,247,.86);
+      font-size:13px;
+      font-weight:1000;
+    }
+
+    #btnVoiceAlerts{
+      flex:0 1 310px;
+      min-width:250px;
+      background:linear-gradient(135deg,var(--gold),var(--green));
+      color:#042012;
+      border-color:transparent;
+      box-shadow:0 18px 38px rgba(250,204,21,.16);
+    }
+
+    .voiceMiniActions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .voiceMiniActions .miniVoiceBtn{
+      min-height:40px;
+      padding:9px 11px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.15);
+      background:rgba(255,255,255,.07);
+      color:rgba(243,255,247,.92);
+      font-size:13px;
+      font-weight:1000;
+      box-shadow:none;
+    }
+
+    @media(max-width:680px){
+      .voiceBox{padding:15px}
+      #btnVoiceAlerts{width:100%;min-width:0;min-height:62px}
+      .voiceMiniActions .miniVoiceBtn{flex:1 1 100%;min-height:48px}
+    }
+
   </style>
 </head>
 
@@ -512,6 +604,24 @@
         <a class="btn" id="btnPin" href="./pin.html">🔐 Accès</a>
       </div>
     </section>
+
+
+    <section class="voiceBox" id="voiceBox" aria-label="Alertes vocales DIGIY DRIVER">
+      <div class="voiceText">
+        <div class="voiceTitle">🔔 Alertes vocales DIGIY DRIVER</div>
+        <div class="voiceSub">
+          DIGIY parle chauffeur : nouvelle demande de course, trajet à confirmer, action à suivre.
+          Le pro garde les yeux sur la route, l’écran reste simple.
+        </div>
+        <span id="voiceStatus">Voix non activée</span>
+        <div class="voiceMiniActions" aria-label="Tests rapides voix DRIVER">
+          <button class="miniVoiceBtn" id="btnVoiceTestRequest" type="button">🚕 Tester “Nouvelle course”</button>
+          <button class="miniVoiceBtn" id="btnVoiceTestConfirm" type="button">✅ Tester “Trajet à confirmer”</button>
+        </div>
+      </div>
+      <button class="btn" id="btnVoiceAlerts" type="button">🔔 Activer les alertes vocales</button>
+    </section>
+
 
     <section class="payUpsellCard" id="payUpsellSection" style="display:none;">
       <div class="payUpsellBadge">✦ Nouveau · Mon Argent PAY</div>
@@ -862,6 +972,7 @@
         const p = normPhone(state.phone || phoneFromDriverSlug(state.slug));
         if(!client || !p || !(state.access_ok || state.access)){
           $("statOpenTrips").textContent = "—";
+          if(voiceEnabled()) setVoiceStatus("Voix activée · session protégée", "warn");
           return;
         }
 
@@ -876,6 +987,7 @@
 
           const rows = Array.isArray(data) ? data : [];
           $("statOpenTrips").textContent = String(rows.length);
+          announceDriverTrips(rows.length);
         }catch(e){
           console.warn("[DIGIY DRIVER DASHBOARD] trips count warning", e);
           $("statOpenTrips").textContent = "—";
@@ -913,6 +1025,166 @@
           }
         }
       }
+
+
+      // ── Alertes vocales DRIVER ───────────────────────────────
+      const DRIVER_VOICE_KEY = "DIGIY_DRIVER_VOICE_ENABLED";
+      const DRIVER_VOICE_LAST_KEY = "DIGIY_DRIVER_LAST_VOICE_SIGNATURE";
+
+      function localGet(key){
+        try{ return localStorage.getItem(key) || ""; }catch(_){ return ""; }
+      }
+
+      function localSet(key, value){
+        try{ localStorage.setItem(key, String(value)); }catch(_){}
+      }
+
+      function voiceEnabled(){
+        return localGet(DRIVER_VOICE_KEY) === "1";
+      }
+
+      function voiceAvailable(){
+        return typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+      }
+
+      function setVoiceStatus(text, mode){
+        const el = $("voiceStatus");
+        if(!el) return;
+        el.textContent = text;
+        el.style.borderColor = mode === "ok" ? "rgba(34,197,94,.40)" : mode === "warn" ? "rgba(250,204,21,.40)" : "rgba(255,255,255,.16)";
+        el.style.color = mode === "ok" ? "#bbf7d0" : mode === "warn" ? "#fde68a" : "rgba(243,255,247,.86)";
+      }
+
+      function speakDriver(text, force){
+        const phrase = String(text || "").trim();
+        if(!phrase) return false;
+
+        if(!voiceAvailable()){
+          setVoiceStatus("Voix indisponible sur ce navigateur", "warn");
+          return false;
+        }
+
+        if(!force && !voiceEnabled()){
+          setVoiceStatus("Voix non activée", "warn");
+          return false;
+        }
+
+        try{
+          window.speechSynthesis.cancel();
+
+          const utterance = new SpeechSynthesisUtterance(phrase);
+          utterance.lang = "fr-FR";
+          utterance.rate = 0.88;
+          utterance.pitch = 1.02;
+          utterance.volume = 1;
+
+          const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+          const preferred =
+            voices.find(v => /fr[-_]?FR/i.test(v.lang || "") && /male|homme|thomas|paul|daniel/i.test(v.name || "")) ||
+            voices.find(v => /fr/i.test(v.lang || "")) ||
+            voices[0];
+
+          if(preferred) utterance.voice = preferred;
+
+          utterance.onstart = () => setVoiceStatus("DIGIY parle…", "ok");
+          utterance.onend = () => setVoiceStatus("Voix activée", "ok");
+          utterance.onerror = () => setVoiceStatus("Voix bloquée par le navigateur", "warn");
+
+          window.speechSynthesis.speak(utterance);
+          return true;
+        }catch(e){
+          console.warn("[DIGIY DRIVER VOICE] speak warning", e);
+          setVoiceStatus("Voix bloquée par le navigateur", "warn");
+          return false;
+        }
+      }
+
+      function driverVoiceMessage(openCount){
+        const count = Number(openCount || 0);
+
+        if(!state.slug){
+          return "Aucun compte chauffeur reconnu. Ouvre ton accès avec ton code.";
+        }
+
+        if(!(state.access_ok || state.access)){
+          return "Espace chauffeur protégé. Entre avec ton code pour lire les trajets.";
+        }
+
+        if(count > 1){
+          return count + " demandes de course à vérifier. Regarde tes trajets.";
+        }
+
+        if(count === 1){
+          return "Nouvelle demande de course à traiter. Trajet à confirmer.";
+        }
+
+        return "Aucun nouveau trajet à confirmer pour le moment. Ton tableau de bord chauffeur est prêt.";
+      }
+
+      function announceDriverTrips(openCount){
+        if(!voiceEnabled()) return;
+
+        const count = Number(openCount || 0);
+        if(count <= 0){
+          setVoiceStatus("Voix activée · aucun trajet nouveau", "ok");
+          return;
+        }
+
+        const signature = [
+          "driver",
+          state.slug || state.phone || "unknown",
+          "openTrips",
+          count
+        ].join("|");
+
+        if(localGet(DRIVER_VOICE_LAST_KEY) === signature){
+          setVoiceStatus("Voix activée · déjà annoncé", "ok");
+          return;
+        }
+
+        localSet(DRIVER_VOICE_LAST_KEY, signature);
+        speakDriver(driverVoiceMessage(count), false);
+      }
+
+      function initDriverVoice(){
+        const btn = $("btnVoiceAlerts");
+        const testRequest = $("btnVoiceTestRequest");
+        const testConfirm = $("btnVoiceTestConfirm");
+
+        if(!voiceAvailable()){
+          setVoiceStatus("Voix indisponible sur ce navigateur", "warn");
+        }else if(voiceEnabled()){
+          setVoiceStatus("Voix activée", "ok");
+        }else{
+          setVoiceStatus("Voix non activée", "warn");
+        }
+
+        if(btn){
+          btn.textContent = voiceEnabled() ? "🔊 Alertes vocales activées" : "🔔 Activer les alertes vocales";
+          btn.addEventListener("click", () => {
+            localSet(DRIVER_VOICE_KEY, "1");
+            btn.textContent = "🔊 Alertes vocales activées";
+            speakDriver("Alertes vocales DRIVER activées. DIGIY annoncera les nouvelles demandes de course et les trajets à confirmer.", true);
+          });
+        }
+
+        if(testRequest){
+          testRequest.addEventListener("click", () => {
+            localSet(DRIVER_VOICE_KEY, "1");
+            speakDriver("Nouvelle demande de course à traiter.", true);
+            if(btn) btn.textContent = "🔊 Alertes vocales activées";
+          });
+        }
+
+        if(testConfirm){
+          testConfirm.addEventListener("click", () => {
+            localSet(DRIVER_VOICE_KEY, "1");
+            speakDriver("Trajet à confirmer. Vérifie la course avant de démarrer.", true);
+            if(btn) btn.textContent = "🔊 Alertes vocales activées";
+          });
+        }
+      }
+
 
       // ── PAY upsell ────────────────────────────────────────────
       const PAY_COCKPIT_URL = "https://pay.digiylyfe.com/cockpit.html";
@@ -968,6 +1240,7 @@
         cleanVisibleUrl();
         updateLinks();
         setAccessVisual();
+        initDriverVoice();
 
         $("statProfile").textContent = state.slug ? ((state.access_ok || state.access) ? "reconnu" : "protégé") : "absent";
         $("statSecure").textContent = "coffre";
@@ -980,6 +1253,11 @@
   </script>
 </body>
 </html>
+
+
+
+
+
 
 
 
