@@ -328,6 +328,104 @@
       border-color:rgba(109,111,255,.36);box-shadow:0 14px 28px rgba(109,111,255,.24);
     }
 
+
+    /* ── DIGIY DRIVER — ALERTES VOCALES MÉTIER ─────────────── */
+    .voiceAlertCard{
+      border:2px solid rgba(250,204,21,.38);
+      background:
+        radial-gradient(620px 240px at 0% 0%, rgba(250,204,21,.16), transparent 70%),
+        radial-gradient(520px 240px at 100% 100%, rgba(34,197,94,.12), transparent 72%),
+        linear-gradient(180deg,rgba(36,59,104,.98),rgba(25,43,78,.98));
+    }
+
+    .voiceAlertTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .voiceAlertKicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      min-height:34px;
+      padding:7px 11px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.36);
+      background:rgba(250,204,21,.12);
+      color:#fff0a8;
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      margin-bottom:9px;
+    }
+
+    .voiceAlertTitle{
+      margin:0;
+      color:#fff8dc;
+      font-size:clamp(24px,4vw,32px);
+      line-height:1.06;
+      letter-spacing:-.03em;
+      font-weight:1000;
+    }
+
+    .voiceAlertLead{
+      margin-top:7px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.48;
+      font-weight:900;
+      max-width:760px;
+    }
+
+    .voiceAlertState{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      min-height:42px;
+      padding:9px 13px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.075);
+      color:var(--muted);
+      font-size:13px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+
+    .voiceAlertState.on{
+      border-color:rgba(34,197,94,.38);
+      background:rgba(34,197,94,.15);
+      color:#d9ffe8;
+    }
+
+    .voiceAlertState.off{
+      border-color:rgba(245,158,11,.38);
+      background:rgba(245,158,11,.14);
+      color:#ffe4b9;
+    }
+
+    .voiceAlertActions{
+      display:grid;
+      grid-template-columns:1.2fr 1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .voiceAlertActions .btn{
+      min-height:56px;
+      box-shadow:0 12px 24px rgba(0,0,0,.16);
+    }
+
+    @media(max-width:759px){
+      .voiceAlertActions{grid-template-columns:1fr}
+      .voiceAlertState{width:100%;justify-content:center}
+    }
+
     @media(min-width:760px){
       .heroActions{grid-template-columns:repeat(5,1fr)}
       .grid{grid-template-columns:1.03fr .97fr}
@@ -420,6 +518,26 @@
       </div>
 
       <div class="msg" id="msgStatus">Prêt.</div>
+    </section>
+
+    <section class="card voiceAlertCard" id="driverVoiceBox" aria-label="Alertes vocales DIGIY DRIVER">
+      <div class="voiceAlertTop">
+        <div>
+          <div class="voiceAlertKicker">🔔 Alertes vocales DRIVER</div>
+          <h2 class="voiceAlertTitle">DIGIY parle quand une course demande attention.</h2>
+          <div class="voiceAlertLead">
+            Ici, la voix reste métier chauffeur : nouvelle demande de course, trajet à confirmer, course en cours.
+            Le chauffeur clique, DIGIY annonce, le terrain garde la main.
+          </div>
+        </div>
+        <div class="voiceAlertState off" id="driverVoiceStatus">Voix non activée</div>
+      </div>
+
+      <div class="voiceAlertActions">
+        <button class="btn gold" id="btnDriverVoiceToggle" type="button">🔔 Activer les alertes</button>
+        <button class="btn ok" id="btnDriverVoiceTrip" type="button">🚕 Tester nouvelle course</button>
+        <button class="btn warn" id="btnDriverVoiceConfirm" type="button">✅ Tester trajet à confirmer</button>
+      </div>
     </section>
 
     <section class="grid">
@@ -1518,6 +1636,7 @@
       }
 
       function bindUi(){
+        bindDriverVoiceUi();
         $("btnReloadTop")?.addEventListener("click", () => boot(true));
         $("btnCheckAccess")?.addEventListener("click", () => boot(true));
         $("btnRecoverAccess")?.addEventListener("click", () => { location.href = withSlug(ROUTES.pin); });
@@ -1587,6 +1706,7 @@
           renderStats();
           renderActiveTrips();
           renderRecentTrips();
+          evaluateDriverVoiceAlerts(false);
           $("sessionSync").textContent = new Date().toLocaleString("fr-FR");
 
           if (!slug){
@@ -1630,5 +1750,8 @@
   </script>
 </body>
 </html>
+
+
+
 
 
