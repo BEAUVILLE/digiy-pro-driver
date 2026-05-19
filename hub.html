@@ -387,7 +387,238 @@ hr{
   .audioCoachActions{grid-template-columns:1fr}
 }
 
-  </style>
+  
+/* =========================================================
+   DIGIY DRIVER V4.4 — TYPOGRAPHIE TERRAIN
+   Plus grand, plus gras, plus lisible sur téléphone.
+   Moteur inchangé.
+   ========================================================= */
+
+html{
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+
+body{
+  font-weight:800;
+  letter-spacing:-.005em;
+}
+
+.pageHeader{
+  min-height:58px;
+}
+
+.headerBtn,
+.headerTitle{
+  min-height:42px;
+  font-size:15px;
+  font-weight:1000;
+  padding:9px 12px;
+}
+
+.eyebrow{
+  font-size:13px !important;
+  font-weight:1000 !important;
+  letter-spacing:.12em;
+}
+
+h1{
+  font-size:clamp(42px,10vw,72px) !important;
+  line-height:.94 !important;
+  font-weight:1000 !important;
+  letter-spacing:-.06em !important;
+}
+
+h2{
+  font-size:clamp(30px,7vw,42px) !important;
+  line-height:1 !important;
+  font-weight:1000 !important;
+  letter-spacing:-.045em !important;
+}
+
+h3{
+  font-size:clamp(24px,5.6vw,32px) !important;
+  line-height:1.05 !important;
+  font-weight:1000 !important;
+}
+
+.lead,
+.muted,
+.heroLead,
+.brandSub,
+.meta,
+.tripLine,
+.audioCoachText{
+  font-size:clamp(18px,4.4vw,23px) !important;
+  line-height:1.42 !important;
+  font-weight:950 !important;
+}
+
+.small,
+.kpi .sub,
+.kpiSub,
+.hint,
+.msg,
+.empty,
+.audioCoachHint{
+  font-size:16px !important;
+  line-height:1.45 !important;
+  font-weight:950 !important;
+}
+
+.pill,
+.badge,
+.tag,
+.chip,
+.headerBtn,
+.headerTitle{
+  font-size:15px !important;
+  font-weight:1000 !important;
+}
+
+.btn,
+.door,
+.navbtn,
+.driverPhoneAction,
+.audioCoachActions button{
+  min-height:64px !important;
+  font-size:18px !important;
+  font-weight:1000 !important;
+  border-radius:20px !important;
+}
+
+.door b,
+.tripTitle,
+.fareName,
+.fareTitle,
+.fieldValue,
+.memoryItemTitle,
+.driverPhoneCopy strong{
+  font-size:clamp(21px,5vw,28px) !important;
+  line-height:1.12 !important;
+  font-weight:1000 !important;
+}
+
+.door span,
+.driverPhoneCopy span,
+.memoryItemMeta,
+.quickGuide p,
+.sectionLead{
+  font-size:17px !important;
+  line-height:1.4 !important;
+  font-weight:950 !important;
+}
+
+.kpi{
+  min-height:142px;
+  padding:18px !important;
+}
+
+.kpi .label,
+.kpiLabel{
+  font-size:17px !important;
+  font-weight:1000 !important;
+}
+
+.kpi .num,
+.kpiValue,
+.statNumber{
+  font-size:clamp(44px,11vw,62px) !important;
+  font-weight:1000 !important;
+  line-height:.9 !important;
+}
+
+input,
+textarea,
+select{
+  min-height:60px !important;
+  font-size:18px !important;
+  font-weight:1000 !important;
+  line-height:1.35 !important;
+}
+
+textarea{
+  min-height:118px !important;
+}
+
+label{
+  font-size:17px !important;
+  font-weight:1000 !important;
+}
+
+.trip,
+.fareCard,
+.card,
+.hero{
+  padding:18px !important;
+}
+
+.audioCoachFab{
+  min-height:58px !important;
+  min-width:58px !important;
+  font-size:16px !important;
+  font-weight:1000 !important;
+}
+
+.audioCoachTitle{
+  font-size:30px !important;
+  font-weight:1000 !important;
+}
+
+@media(max-width:560px){
+  .wrap{
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+
+  .pageHeader{
+    min-height:56px;
+  }
+
+  .headerBtn,
+  .headerTitle{
+    min-height:40px;
+    font-size:14px !important;
+    padding:8px 10px;
+  }
+
+  h1{
+    font-size:42px !important;
+  }
+
+  h2{
+    font-size:31px !important;
+  }
+
+  .lead,
+  .muted,
+  .heroLead,
+  .meta,
+  .tripLine{
+    font-size:18px !important;
+  }
+
+  .btn,
+  .door,
+  .navbtn,
+  .driverPhoneAction{
+    min-height:66px !important;
+    font-size:18px !important;
+  }
+
+  .grid2,
+  .kpiGrid{
+    grid-template-columns:1fr !important;
+  }
+
+  .kpi .num,
+  .kpiValue,
+  .statNumber{
+    font-size:50px !important;
+  }
+}
+
+</style>
 </head>
 
 <body>
@@ -396,16 +627,16 @@ hr{
 window.DIGIY_AUDIO_SCRIPT = {
   title: 'Les portes DRIVER.',
   text: 'Le hub n’est pas une page de travail. C’est un couloir propre : tu choisis une porte, puis tu fais une seule chose.',
-  speak: 'Tu es dans les portes DRIVER. Ce n’est pas une page de travail. C’est un couloir clair. Choisis Mon activité, Mes trajets, Ma session, Mes alertes, Mon profil, Mes tarifs, Mon QR, Ma fiche, Mon accès ou Mon argent.'
+  speak: 'Tu es dans les portes DRIVER. Ce n’est pas une page de travail. C’est un couloir clair. Choisis Portes DRIVER, Mes trajets, Ma session, Mes alertes, Mon profil, Mes tarifs, Mon QR, Ma fiche, Mon accès ou Mon argent.'
 };
 </script>
 
 
 <header class="pageHeader">
   <div class="headerInner">
-    <a class="headerBtn left" href="./dashboard-pro.html">← activité</a>
+    <a class="headerBtn left" href="./hub.html">← portes</a>
     <div class="headerTitle">PORTES DRIVER</div>
-    <a class="headerBtn right" id="goDashboard" data-audio="Ouvre Mon activité : ici tu vois seulement ce qui demande attention maintenant." href="#">🏠 activité</a>
+    <a class="headerBtn right" id="goDashboard" data-audio="Ouvre Portes DRIVER : ici tu vois seulement ce qui demande attention maintenant." href="#">☰ portes</a>
   </div>
 </header>
 
@@ -413,14 +644,13 @@ window.DIGIY_AUDIO_SCRIPT = {
   <section class="hero">
     <img class="logo" src="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png" alt="DIGIY — L’écosystème direct des métiers pro"/>
     <div class="eyebrow">Répertoire pur</div>
-    <h1>Choisis une porte.</h1>
-    <p class="lead">Pas de contenu lourd ici. Juste les accès. Le chauffeur ne doit pas chercher.</p>
+    <h1>Choisis le bon geste.</h1>
+    <p class="lead">Pas de dashboard en plus. Ici, tu choisis directement la bonne pièce. Le chauffeur ne doit pas chercher.</p>
     <div class="row"><span class="pill" id="sessionPill">session…</span></div>
   </section>
 
   <section class="doorGrid">
-    <a class="door" id="goDashboard" data-audio="Ouvre Mon activité : ici tu vois seulement ce qui demande attention maintenant." href="./dashboard-pro.html"><b>🏠 Mon activité</b><span>Voir seulement l’état immédiat.</span></a>
-    <a class="door" id="goTrajets" data-audio="Ouvre Mes trajets : ici tu lis, acceptes, démarres ou termines une course." href="./trajets.html"><b>📋 Mes trajets</b><span>Lire, accepter, démarrer, terminer.</span></a>
+<a class="door" id="goTrajets" data-audio="Ouvre Mes trajets : ici tu lis, acceptes, démarres ou termines une course." href="./trajets.html"><b>📋 Mes trajets</b><span>Lire, accepter, démarrer, terminer.</span></a>
     <a class="door" id="goSession" data-audio="Ouvre Ma session : ici tu vérifies seulement ton accès." href="./session.html"><b>🔐 Ma session</b><span>Vérifier l’accès sans mélanger le reste.</span></a>
     <a class="door" id="goAlertes" data-audio="Ouvre Mes alertes : voix, messages et lecteur DIGIY." href="./alertes.html"><b>🔔 Mes alertes</b><span>Voix, message, lecteur DIGIY.</span></a>
     <a class="door" id="goProfil" data-audio="Ouvre Mon profil : identité chauffeur, zone et visibilité." href="./profil-chauffeur.html"><b>👤 Mon profil</b><span>Identité, zone, visibilité.</span></a>
@@ -434,7 +664,7 @@ window.DIGIY_AUDIO_SCRIPT = {
 <script>
 const ROUTES = {
   index:"./index.html",
-  dashboard:"./dashboard-pro.html",
+  dashboard:"./hub.html",
   hub:"./hub.html",
   session:"./session.html",
   alertes:"./alertes.html",
@@ -682,5 +912,6 @@ paintSessionPill();
 
 </body>
 </html>
+
 
 
