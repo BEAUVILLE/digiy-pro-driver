@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#13824d"/>
 <meta name="description" content="DIGIY DRIVER — Atelier tarifs : grille terrain, aperçu client, brouillon local."/>
 <meta name="robots" content="noindex,nofollow"/>
-<meta name="digiy-build" content="driver-tarifs-edition-v5-20260519"/>
+<meta name="digiy-build" content="driver-tarifs-edition-v5-moule-grand-gras-sans-tel-20260519"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -21,7 +21,7 @@
   window.DIGIY_LOGIN_URL         = "./pin.html";
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./guard.js?v=driver-tarifs-edition-v5-20260519"></script>
+<script src="./guard.js?v=driver-tarifs-edition-v5-moule-grand-gras-sans-tel-20260519"></script>
 
 <style>
 /* ══ VARIABLES ══ */
@@ -349,6 +349,49 @@ textarea{min-height:100px;resize:vertical}
   background:rgba(196,151,63,.22);border:1px solid rgba(196,151,63,.42);
   color:var(--gold);font-size:9px;font-weight:1000;
   letter-spacing:.06em;text-transform:uppercase;vertical-align:middle;
+}
+
+
+/* ══ LISIBILITÉ MOULE — texte plus grand, plus gras ══ */
+body{font-size:17px;font-weight:900}
+.headerBtn,.headerTitle{font-size:15px;font-weight:1000}
+.eyebrow{font-size:13px;font-weight:1000}
+.heroSub{font-size:18px;font-weight:1000;line-height:1.48}
+.pill{font-size:14px;font-weight:1000}
+.kpi .label{font-size:13px;font-weight:1000}
+.kpi .value{font-size:27px;font-weight:1000}
+#kpiSlug{font-size:16px!important;font-weight:1000!important}
+h2{font-size:clamp(25px,5.3vw,34px);font-weight:1000}
+h3{font-size:clamp(21px,4.2vw,27px);font-weight:1000}
+.muted{font-size:17px;font-weight:1000;line-height:1.55}
+.small{font-size:15px;font-weight:1000;line-height:1.45}
+label{font-size:17px;font-weight:1000}
+input,textarea,select{font-size:18px;font-weight:1000;min-height:58px}
+textarea{min-height:116px}
+.btn{font-size:17px;font-weight:1000;min-height:56px}
+.fareTitle{font-size:17px;font-weight:1000}
+.chip{font-size:12px;font-weight:1000}
+.prefix span{font-size:14px;font-weight:1000}
+.prefix input{min-height:54px}
+.toast,.disabledNote{font-size:16px;font-weight:1000;line-height:1.55}
+.pAvatar{width:58px;height:58px;font-size:20px;font-weight:1000}
+.pName{font-size:22px;font-weight:1000}
+.pMeta{font-size:16px;font-weight:1000}
+.pBadge{font-size:14px;font-weight:1000}
+.tarifLine{font-size:17px;font-weight:1000}
+.summaryBox pre{font-size:17px;font-weight:1000;line-height:1.62}
+.wlbl{font-size:11.5px;font-weight:1000}
+.ovTitle{font-size:25px;font-weight:1000}
+.ovSub{font-size:13px;font-weight:1000}
+.ovLbl{font-size:16px;font-weight:1000}
+.ovSublbl{font-size:13px;font-weight:1000;line-height:1.3}
+.payBadge{font-size:10px;font-weight:1000}
+@media(max-width:520px){
+  body{font-size:17px}
+  .headerBtn,.headerTitle{font-size:14px;padding:7px 10px}
+  .card{padding:18px 16px}
+  .btn{font-size:17px}
+  input,textarea,select{font-size:18px}
 }
 
 /* ══ RESPONSIVE ══ */
@@ -1091,13 +1134,18 @@ textarea{min-height:100px;resize:vertical}
 })();
 </script>
 
-<!-- ══ MASQUAGE TÉLÉPHONE — intact ══ -->
+<!-- ══ MASQUAGE TÉLÉPHONE — renforcé pour moule générique ══ -->
 <script>
 (function(){
   function maskPhoneText(){
     const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
     const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
-    nodes.forEach(function(n){n.nodeValue=String(n.nodeValue||"").replace(/\+?\s*221[\s.-]*(7[05678])[\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}/g,"Contact masqué").replace(/\b7[05678][\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}\b/g,"Contact masqué")});
+    nodes.forEach(function(n){
+      n.nodeValue=String(n.nodeValue||"")
+        .replace(/\+?\s*221[\s.-]*(7[05678])[\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}/g,"Contact masqué")
+        .replace(/\b7[05678][\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}\b/g,"Contact masqué")
+        .replace(/\b(phone|tel|tél|telephone|téléphone)\s*[:=]\s*\+?\d[\d\s.-]{6,}\d/gi,"Contact masqué");
+    });
   }
   document.addEventListener("DOMContentLoaded",maskPhoneText);
   setTimeout(maskPhoneText,300);
@@ -1107,4 +1155,5 @@ textarea{min-height:100px;resize:vertical}
 
 </body>
 </html>
+
 
