@@ -917,7 +917,7 @@
               <div class="pTop">
                 <div class="pAvatar" id="pAvatar">DR</div>
                 <div>
-                  <p class="pName" id="pName">Chauffeur</p>
+                  <p class="pName" id="pName">Mon espace chauffeur</p>
                   <p class="pMeta" id="pMeta">Ville • Zones</p>
                 </div>
               </div>
@@ -1311,9 +1311,9 @@
 
       function deriveNameFromSlug(slug){
         const s = normSlug(slug);
-        if (!s) return "Chauffeur";
+        if (!s) return "Mon espace chauffeur";
         const tail = s.replace(/^driver-/, "");
-        if (/^\d+$/.test(tail)) return "Chauffeur " + tail.slice(-4);
+        if (/^\d+$/.test(tail)) return "Mon espace chauffeur";
         return tail.replace(/-/g, " ").replace(/\b\w/g, m => m.toUpperCase());
       }
 
