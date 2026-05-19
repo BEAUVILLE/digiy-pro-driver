@@ -1,0 +1,1802 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Je conduis — Tarifs</title>
+  <meta name="theme-color" content="#123b2d"/>
+  <meta name="description" content="DIGIY DRIVER — Tarifs chauffeur : grille terrain, aperçu client, WhatsApp et brouillon local sécurisé."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "DRIVER";
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=driver-security-v2-20260504"></script>
+
+  <style>
+
+    :root{
+      --bg:#123b2d;
+      --bg2:#0b241b;
+      --card:#1f5a43;
+      --card2:#174735;
+      --line:rgba(255,255,255,.18);
+      --line2:rgba(255,255,255,.26);
+      --text:#f3fff7;
+      --muted:rgba(243,255,247,.84);
+      --green:#22c55e;
+      --green2:#16a34a;
+      --gold:#facc15;
+      --warn:#f59e0b;
+      --red:#fb7185;
+      --blue:#60a5fa;
+      --shadow:0 22px 58px rgba(0,0,0,.34);
+      --r:26px;
+      --max:1180px;
+      --bottomNavH:86px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      color:var(--text);
+      font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(900px 520px at 8% -10%, rgba(34,197,94,.28), transparent 62%),
+        radial-gradient(760px 440px at 105% 0%, rgba(250,204,21,.16), transparent 58%),
+        linear-gradient(180deg,var(--bg),var(--bg2) 68%,#071811 100%);
+      padding:16px 16px calc(var(--bottomNavH) + env(safe-area-inset-bottom,0px) + 20px);
+      min-height:100vh;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+
+    .wrap{
+      max-width:var(--max);
+      margin:auto;
+    }
+
+    .top{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      padding:18px;
+      background:
+        radial-gradient(700px 260px at 100% 0%, rgba(250,204,21,.11), transparent 72%),
+        linear-gradient(180deg,rgba(31,90,67,.96),rgba(20,67,49,.96));
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .top:after{
+      content:"💰";
+      position:absolute;
+      right:14px;
+      bottom:-18px;
+      font-size:118px;
+      opacity:.075;
+      transform:rotate(-10deg);
+      pointer-events:none;
+    }
+
+    h1,h2,h3{
+      margin:0 0 10px 0;
+      font-weight:1000;
+      letter-spacing:-.035em;
+      line-height:1.04;
+    }
+
+    h1{
+      font-size:clamp(34px,7vw,54px);
+      max-width:860px;
+    }
+
+    h2{
+      font-size:clamp(25px,4.8vw,34px);
+    }
+
+    h3{
+      font-size:clamp(20px,3.5vw,25px);
+    }
+
+    p{margin:0}
+
+    .muted{
+      color:var(--muted);
+      font-weight:900;
+      font-size:16px;
+      line-height:1.48;
+    }
+
+    .small{font-size:14px}
+
+    .pillRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+      justify-content:flex-end;
+      flex:0 0 auto;
+      position:relative;
+      z-index:1;
+    }
+
+    .pill{
+      min-height:44px;
+      padding:10px 13px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.08);
+      font-size:14px;
+      font-weight:1000;
+      white-space:nowrap;
+      color:var(--muted);
+      box-shadow:0 10px 24px rgba(0,0,0,.16);
+    }
+
+    .pill.ok{border-color:rgba(34,197,94,.40);color:#bbf7d0;background:rgba(34,197,94,.14)}
+    .pill.warn{border-color:rgba(245,158,11,.40);color:#fde68a;background:rgba(245,158,11,.14)}
+    .pill.bad{border-color:rgba(251,113,133,.40);color:#fecaca;background:rgba(251,113,133,.14)}
+
+    .stack{
+      display:grid;
+      gap:14px;
+      margin-top:14px;
+    }
+
+    .grid{
+      display:grid;
+      gap:14px;
+      grid-template-columns:1.1fr .9fr;
+    }
+
+    @media(max-width:980px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:
+        radial-gradient(700px 260px at 100% 0%, rgba(250,204,21,.08), transparent 72%),
+        linear-gradient(180deg,rgba(31,90,67,.96),rgba(20,67,49,.96));
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:stretch;
+    }
+
+    .row > *{flex:1}
+
+    .navbox{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:22px;
+      padding:15px;
+      background:rgba(4,18,13,.22);
+      box-shadow:0 14px 28px rgba(0,0,0,.16);
+    }
+
+    .navtitle{
+      font-size:14px;
+      color:var(--muted);
+      font-weight:1000;
+      letter-spacing:.04em;
+      margin-bottom:12px;
+      text-transform:uppercase;
+    }
+
+    .navgrid{
+      display:grid;
+      gap:9px;
+      grid-template-columns:repeat(2,1fr);
+    }
+
+    @media(min-width:760px){
+      .navgrid{grid-template-columns:repeat(4,1fr)}
+    }
+
+    .navbtn,
+    .btn{
+      min-height:58px;
+      padding:14px 16px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.09);
+      color:var(--text);
+      font-size:16px;
+      font-weight:1000;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      cursor:pointer;
+      text-align:center;
+      transition:.15s ease;
+      text-decoration:none;
+      box-shadow:0 14px 28px rgba(0,0,0,.16);
+    }
+
+    .navbtn:hover,
+    .btn:hover{transform:translateY(-1px)}
+
+    .navbtn.active{
+      background:rgba(250,204,21,.16);
+      border-color:rgba(250,204,21,.34);
+      color:#fff0a8;
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg,var(--green),var(--green2));
+      color:#042012;
+      border-color:transparent;
+      box-shadow:0 16px 34px rgba(34,197,94,.26);
+    }
+
+    .btn.gold{
+      background:linear-gradient(135deg,var(--gold),var(--warn));
+      color:#241300;
+      border-color:transparent;
+      box-shadow:0 16px 34px rgba(250,204,21,.20);
+    }
+
+    .btn.warn{
+      background:rgba(245,158,11,.16);
+      color:#fde68a;
+      border-color:rgba(245,158,11,.34);
+    }
+
+    .btn.danger{
+      background:rgba(251,113,133,.16);
+      color:#fecaca;
+      border-color:rgba(251,113,133,.34);
+    }
+
+    .btn.ghost{background:rgba(255,255,255,.055)}
+
+    label{
+      display:block;
+      font-size:15px;
+      font-weight:1000;
+      color:rgba(243,255,247,.94);
+      margin:12px 0 7px;
+    }
+
+    input, textarea{
+      width:100%;
+      padding:15px;
+      border-radius:18px;
+      border:1px solid var(--line2);
+      background:rgba(4,18,13,.22);
+      color:var(--text);
+      outline:none;
+      font-size:17px;
+      font-weight:1000;
+      font-family:inherit;
+    }
+
+    input::placeholder, textarea::placeholder{
+      color:rgba(243,255,247,.58);
+    }
+
+    input:focus, textarea:focus{
+      border-color:rgba(34,197,94,.52);
+      box-shadow:0 0 0 4px rgba(34,197,94,.12);
+      background:rgba(4,18,13,.28);
+    }
+
+    input[type="number"]{appearance:textfield}
+
+    input:disabled, textarea:disabled{
+      opacity:.75;
+      cursor:not-allowed;
+    }
+
+    textarea{
+      min-height:112px;
+      resize:vertical;
+      line-height:1.5;
+    }
+
+    .hint{
+      font-size:14px;
+      color:rgba(243,255,247,.72);
+      line-height:1.45;
+      margin-top:7px;
+      font-weight:900;
+    }
+
+    .hr{
+      height:1px;
+      background:rgba(255,255,255,.16);
+      margin:18px 0;
+    }
+
+    .kpis{
+      display:grid;
+      gap:10px;
+      grid-template-columns:repeat(4,1fr);
+      margin-top:14px;
+    }
+
+    @media(max-width:760px){
+      .kpis{grid-template-columns:repeat(2,1fr)}
+    }
+
+    @media(max-width:520px){
+      .kpis{grid-template-columns:1fr}
+    }
+
+    .kpi{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:20px;
+      padding:15px;
+      background:rgba(4,18,13,.22);
+      box-shadow:0 12px 24px rgba(0,0,0,.13);
+    }
+
+    .kpi .label{
+      color:var(--muted);
+      font-size:14px;
+      font-weight:1000;
+      margin-bottom:7px;
+    }
+
+    .kpi .value{
+      font-size:27px;
+      font-weight:1000;
+      line-height:1;
+      color:#fff;
+    }
+
+    .fareGrid{
+      display:grid;
+      gap:10px;
+      grid-template-columns:repeat(2,1fr);
+    }
+
+    @media(max-width:760px){
+      .fareGrid{grid-template-columns:1fr}
+    }
+
+    .fareBox{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:22px;
+      padding:15px;
+      background:rgba(4,18,13,.22);
+      box-shadow:0 12px 24px rgba(0,0,0,.13);
+    }
+
+    .fareTop{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+
+    .fareTitle{
+      font-size:18px;
+      font-weight:1000;
+      line-height:1.18;
+    }
+
+    .prefix{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .prefix span{
+      white-space:nowrap;
+      font-weight:1000;
+      color:#fff0a8;
+      font-size:14px;
+    }
+
+    .extras{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .extraItem{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:22px;
+      padding:15px;
+      background:rgba(4,18,13,.22);
+    }
+
+    .extraHead{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.08);
+      color:rgba(243,255,247,.94);
+      font-size:13px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+
+    .list{
+      display:grid;
+      gap:12px;
+    }
+
+    .previewCard{
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(4,18,13,.22);
+      border-radius:24px;
+      padding:16px;
+      box-shadow:0 14px 28px rgba(0,0,0,.16);
+    }
+
+    .pTop{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .pAvatar{
+      width:58px;
+      height:58px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      background:rgba(250,204,21,.16);
+      border:1px solid rgba(250,204,21,.34);
+      font-size:20px;
+      font-weight:1000;
+      overflow:hidden;
+      flex:0 0 auto;
+      color:#fff0a8;
+    }
+
+    .pAvatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .pName{
+      margin:0;
+      font-weight:1000;
+      font-size:22px;
+      line-height:1.12;
+    }
+
+    .pMeta{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-weight:900;
+      font-size:15px;
+      line-height:1.45;
+    }
+
+    .pBadges{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .pBadge{
+      font-size:13px;
+      font-weight:1000;
+      padding:8px 11px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);
+      color:rgba(243,255,247,.94);
+    }
+
+    .tarifList{
+      display:grid;
+      gap:9px;
+      margin-top:14px;
+    }
+
+    .tarifLine{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:13px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      font-size:16px;
+      font-weight:1000;
+      line-height:1.3;
+    }
+
+    .tarifLine .name{
+      color:rgba(243,255,247,.94);
+    }
+
+    .tarifLine .amount{
+      white-space:nowrap;
+      color:#fde68a;
+    }
+
+    .summaryBox{
+      margin-top:14px;
+      padding:15px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(4,18,13,.26);
+    }
+
+    .summaryBox pre{
+      margin:0;
+      white-space:pre-wrap;
+      word-break:break-word;
+      font:inherit;
+      font-size:16px;
+      line-height:1.6;
+      color:rgba(243,255,247,.94);
+      font-weight:900;
+    }
+
+    .toast{
+      margin-top:14px;
+      padding:13px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(4,18,13,.26);
+      color:rgba(243,255,247,.94);
+      font-size:15px;
+      font-weight:1000;
+      display:none;
+      line-height:1.4;
+    }
+
+    .toast.ok{border-color:rgba(34,197,94,.34);background:rgba(34,197,94,.14)}
+    .toast.bad{border-color:rgba(251,113,133,.34);background:rgba(251,113,133,.14)}
+    .toast.warn{border-color:rgba(250,204,21,.34);background:rgba(250,204,21,.14)}
+
+    .disabledNote{
+      margin-top:12px;
+      padding:13px;
+      border-radius:18px;
+      border:1px solid rgba(250,204,21,.28);
+      background:rgba(250,204,21,.10);
+      color:rgba(243,255,247,.94);
+      font-size:15px;
+      font-weight:1000;
+      display:none;
+      line-height:1.45;
+    }
+
+    #tarifsForm, #tarifsPreview{scroll-margin-top:96px}
+
+    .bottomNav{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:99990;
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+      background:rgba(9,35,26,.96);
+      border-top:1px solid rgba(255,255,255,.16);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+
+    .bottomNavInner{
+      width:min(100%,760px);
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+    }
+
+    .bottomNav a{
+      min-height:64px;
+      border-radius:17px;
+      display:grid;
+      place-items:center;
+      align-content:center;
+      gap:3px;
+      color:rgba(243,255,247,.78);
+      font-size:12px;
+      font-weight:1000;
+      text-align:center;
+      border:1px solid transparent;
+      text-decoration:none;
+    }
+
+    .bottomNav .ico{font-size:21px;line-height:1}
+
+    .bottomNav a.active{
+      color:#042012;
+      background:linear-gradient(135deg,var(--gold),var(--green));
+      border-color:rgba(250,204,21,.36);
+      box-shadow:0 14px 28px rgba(34,197,94,.24);
+    }
+
+    .tarifsFastRow{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-top:15px;
+      position:relative;
+      z-index:1;
+    }
+
+    @media(max-width:720px){
+      body{padding:12px 10px calc(var(--bottomNavH) + env(safe-area-inset-bottom,0px) + 14px)}
+      .top,.card{padding:16px}
+      .tarifsFastRow{grid-template-columns:1fr 1fr}
+      .navbox{display:none}
+      h1{font-size:36px}
+      h2{font-size:27px}
+      h3{font-size:22px}
+      .muted{font-size:16px}
+      .row > *{flex:1 1 100%}
+      .row .btn{width:100%}
+      .tarifLine{align-items:flex-start;flex-direction:column}
+    }
+
+    @media(max-width:420px){
+      .tarifsFastRow{grid-template-columns:1fr}
+      .bottomNav a{font-size:11px}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      .btn,.navbtn{transition:none}
+    }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="top">
+      <div>
+        <h1>💰 Je conduis — Tarifs</h1>
+        <div class="muted" id="topSub">
+          Lecture claire des prix terrain. Tes tarifs restent rangés ici, sans exposer tes identifiants.
+        </div>
+
+        <div class="tarifsFastRow">
+          <a class="btn" id="fastHome" href="./dashboard-pro.html">🏠 Accueil</a>
+          <a class="btn" id="fastTrips" href="./trajets.html">📋 Trajets</a>
+          <a class="btn primary" id="fastProfile" href="./profil-chauffeur.html">👤 Profil</a>
+          <a class="btn gold" id="fastTarifs" href="#tarifsForm">💰 Tarifs</a>
+        </div>
+      </div>
+
+      <div class="pillRow">
+        <div class="pill" id="slugPill">compte : sécurisé</div>
+        <div class="pill" id="phonePill">contact : masqué</div>
+        <div class="pill warn" id="accessPill">session : contrôle…</div>
+      </div>
+    </div>
+
+    <div class="stack">
+
+      <div class="navbox">
+        <div class="navtitle">Plus chauffeur</div>
+        <div class="navgrid">
+          <a class="navbtn" id="navDashboard" href="./dashboard-pro.html">🏠 Accueil</a>
+          <a class="navbtn" id="navCockpit" href="./cockpit.html">⚙️ Plus</a>
+          <a class="navbtn" id="navProfil" href="./profil-chauffeur.html">👤 Profil</a>
+          <a class="navbtn active" id="navTarifs" href="./tarifs.html">💰 Tarifs</a>
+          <a class="navbtn" id="navPin" href="./pin.html">🔐 Accès</a>
+          <a class="navbtn" id="navHome" href="./index.html">🌍 Façade</a>
+          <a class="navbtn" id="navQr" href="./generateur-digiy-driver.html">📱 Mon QR</a>
+          <button class="navbtn" id="btnPay" type="button">💳 Mon abonnement</button>
+        </div>
+      </div>
+
+      <div class="grid">
+
+        <div class="card" id="tarifsForm">
+          <div class="row">
+            <div>
+              <h2>Tarifs chauffeur</h2>
+              <div class="muted">
+                Pose ici les prix que tu veux montrer au client. Le brouillon reste lié au compte chauffeur reconnu, sans l’afficher.
+              </div>
+            </div>
+            <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <button class="btn" id="btnLoadProfile" type="button">↻ Charger mon profil</button>
+              <button class="btn primary" id="btnSaveDraft" type="button">💾 Enregistrer brouillon</button>
+              <button class="btn danger" id="btnResetDraft" type="button">🧹 Effacer brouillon</button>
+            </div>
+          </div>
+
+          <div class="kpis">
+            <div class="kpi">
+              <div class="label">Tarifs actifs</div>
+              <div class="value" id="kpiCount">0</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Prix mini</div>
+              <div class="value" id="kpiMin">—</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Prix maxi</div>
+              <div class="value" id="kpiMax">—</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Compte</div>
+              <div class="value" id="kpiSlug" style="font-size:14px;line-height:1.35">—</div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="row">
+            <div>
+              <label>Nom affiché</label>
+              <input id="f_display_name" placeholder="Ex : Lamine"/>
+            </div>
+            <div>
+              <label>Ville</label>
+              <input id="f_city" placeholder="Ex : Saly / Dakar"/>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>WhatsApp</label>
+              <input id="f_whatsapp" placeholder="22177xxxxxxx"/>
+              <div class="hint">Ce numéro sert seulement au résumé client si tu veux l’afficher.</div>
+            </div>
+            <div>
+              <label>Zones</label>
+              <input id="f_zones" placeholder="Saly, Petite Côte, Dakar, AIBD"/>
+            </div>
+          </div>
+
+          <label>Note terrain</label>
+          <textarea id="f_note" placeholder="Ex : Prix de jour, bagages légers inclus, nuit et attente selon contexte…"></textarea>
+
+          <div class="hr"></div>
+
+          <h3>Tarifs principaux</h3>
+
+          <div class="fareGrid">
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Saly → Dakar</div>
+                <div class="chip">trajet</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_saly_dakar" type="number" min="0" placeholder="Ex : 35000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Saly → AIBD</div>
+                <div class="chip">trajet</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_saly_aibd" type="number" min="0" placeholder="Ex : 25000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Saly → Ngaparou</div>
+                <div class="chip">trajet</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_saly_ngaparou" type="number" min="0" placeholder="Ex : 5000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Saly → Somone</div>
+                <div class="chip">trajet</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_saly_somone" type="number" min="0" placeholder="Ex : 7000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Saly → Mbour</div>
+                <div class="chip">trajet</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_saly_mbour" type="number" min="0" placeholder="Ex : 5000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Mise à dispo 4h</div>
+                <div class="chip">service</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_dispo_4h" type="number" min="0" placeholder="Ex : 30000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Mise à dispo journée</div>
+                <div class="chip">service</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_dispo_day" type="number" min="0" placeholder="Ex : 60000"/>
+              </div>
+            </div>
+
+            <div class="fareBox">
+              <div class="fareTop">
+                <div class="fareTitle">Attente / heure</div>
+                <div class="chip">option</div>
+              </div>
+              <div class="prefix">
+                <span>FCFA</span>
+                <input id="fare_wait_hour" type="number" min="0" placeholder="Ex : 5000"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="row">
+            <div>
+              <h3>Tarifs libres</h3>
+              <div class="muted">Ajoute tes autres courses : AIBD retour, Popenguine, Dakar nuit, etc.</div>
+            </div>
+            <div style="flex:0 0 auto">
+              <button class="btn gold" id="btnAddExtra" type="button">➕ Ajouter une ligne</button>
+            </div>
+          </div>
+
+          <div class="extras" id="extrasList"></div>
+
+          <div id="toast" class="toast"></div>
+          <div id="disabledNote" class="disabledNote">
+            ℹ️ Ici on garde un brouillon local lié au compte reconnu. Pas de fausse écriture SQL inventée sur un rail tarifaire non prouvé.
+          </div>
+        </div>
+
+        <div class="list">
+
+          <div class="card" id="tarifsPreview">
+            <div class="row">
+              <div>
+                <h2>Aperçu client</h2>
+                <div class="muted">Lecture simple pour le client avant WhatsApp.</div>
+              </div>
+              <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn" id="btnCopyPublic" type="button">📋 Copier résumé</button>
+                <button class="btn gold" id="btnCopyWhatsApp" type="button">💬 Copier WhatsApp</button>
+              </div>
+            </div>
+
+            <div class="previewCard">
+              <div class="pTop">
+                <div class="pAvatar" id="pAvatar">DR</div>
+                <div>
+                  <p class="pName" id="pName">Chauffeur</p>
+                  <p class="pMeta" id="pMeta">Ville • Zones</p>
+                </div>
+              </div>
+
+              <div class="pBadges" id="pBadges"></div>
+
+              <div class="tarifList" id="previewTarifs">
+                <div class="tarifLine">
+                  <div class="name">Aucun tarif posé</div>
+                  <div class="amount">—</div>
+                </div>
+              </div>
+
+              <div class="summaryBox">
+                <pre id="publicSummary">Aucun résumé pour l’instant.</pre>
+              </div>
+
+              <div class="row" style="margin-top:12px">
+                <a class="btn ghost" id="btnBackCockpit" href="./cockpit.html">⬅️ Revenir</a>
+                <a class="btn" id="btnGoProfile" href="./profil-chauffeur.html">👤 Profil</a>
+                <a class="btn ghost" id="btnGoQr" href="./generateur-digiy-driver.html">📱 Mon QR</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Envoyer au client</h2>
+            <div class="muted">Tu peux copier le texte ou ouvrir WhatsApp si le numéro est prêt.</div>
+
+            <div class="row" style="margin-top:12px">
+              <button class="btn primary" id="btnOpenWhatsApp" type="button">🟢 Ouvrir WhatsApp</button>
+              <button class="btn warn" id="btnShareText" type="button">📨 Copier texte client</button>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="muted small">
+              Astuce terrain : une grille claire vaut mieux qu’un catalogue flou.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <nav class="bottomNav" aria-label="Navigation DRIVER">
+    <div class="bottomNavInner">
+      <a id="bottomHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
+      <a id="bottomTrips" href="./trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
+      <a id="bottomNew" href="./trajets.html#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
+      <a id="bottomNotes" href="./trajets.html#quickDriverNote"><span class="ico">✍️</span><span>Notes</span></a>
+      <a class="active" id="bottomMore" href="./profil-chauffeur.html"><span class="ico">⚙️</span><span>Plus</span></a>
+    </div>
+  </nav>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const TABLE = "digiy_driver_public_profiles";
+      const MODULE = "DRIVER";
+      const PAY_HOME = "https://commencer-a-payer.digiylyfe.com/";
+      const DASHBOARD_PAGE = "./dashboard-pro.html";
+      const COCKPIT_PAGE = "./cockpit.html";
+      const PROFILE_PAGE = "./profil-chauffeur.html";
+      const RATES_PAGE = "./tarifs.html";
+      const PIN_PAGE = "./pin.html";
+      const HOME_PAGE = "./index.html";
+      const QR_PAGE = "./generateur-digiy-driver.html";
+
+      const $ = (id) => document.getElementById(id);
+
+      const sb = window.supabase?.createClient
+        ? window.supabase.createClient(
+            window.DIGIY_SUPABASE_URL,
+            window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON,
+            { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false } }
+          )
+        : null;
+
+      const ACCESS = {
+        slug:"",
+        phone:"",
+        preview:true,
+        access_ok:false,
+        reason:"preview",
+        pay_url:"",
+        profile:null
+      };
+
+      let extras = [];
+
+      function normSlug(v){
+        return String(v || "").trim().toLowerCase();
+      }
+
+      function phoneDigits(v){
+        return String(v || "").replace(/[^\d]/g, "");
+      }
+
+      function normPhone(v){
+        const digits = phoneDigits(v);
+        if (!digits) return "";
+        if (digits.startsWith("221") && digits.length === 12) return digits;
+        if (digits.length === 9) return "221" + digits;
+        return digits;
+      }
+
+      function displayPhone(v){
+        const p = normPhone(v);
+        return p ? "+" + p : "—";
+      }
+
+      function isDriverSlug(v){
+        return /^driver-\d{12}$/.test(normSlug(v));
+      }
+
+      function phoneFromDriverSlug(v){
+        const s = normSlug(v);
+        return isDriverSlug(s) ? normPhone(s.slice("driver-".length)) : "";
+      }
+
+      function isSensitiveSlug(v){
+        return /\d{7,}/.test(String(v || ""));
+      }
+
+      function canExposeSlug(v){
+        const s = normSlug(v);
+        return !!s && !isSensitiveSlug(s);
+      }
+
+      function cleanVisibleUrl(){
+        try{
+          const u = new URL(location.href);
+          let changed = false;
+
+          if (u.searchParams.has("phone")){
+            u.searchParams.delete("phone");
+            changed = true;
+          }
+
+          if (u.searchParams.has("tel")){
+            u.searchParams.delete("tel");
+            changed = true;
+          }
+
+          const urlSlug = normSlug(u.searchParams.get("slug") || "");
+          if (urlSlug && isSensitiveSlug(urlSlug)){
+            u.searchParams.delete("slug");
+            changed = true;
+          }
+
+          if (changed){
+            history.replaceState({}, "", u.pathname + u.search + u.hash);
+          }
+        }catch(_){}
+      }
+
+      function sanitizeReturnUrl(){
+        try{
+          const u = new URL(location.href);
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+          const s = normSlug(u.searchParams.get("slug") || "");
+          if (s && isSensitiveSlug(s)) u.searchParams.delete("slug");
+          return u.pathname + u.search + u.hash;
+        }catch(_){
+          return location.pathname;
+        }
+      }
+
+      function accountLabel(){
+        return ACCESS.access_ok ? "compte : sécurisé" : (ACCESS.slug ? "compte : reconnu" : "compte : à vérifier");
+      }
+
+      function buildSafeUrl(base, params){
+        try{
+          const u = new URL(base, location.href);
+
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+
+          Object.entries(params || {}).forEach(([key, value]) => {
+            const clean = String(value == null ? "" : value).trim();
+
+            if (key === "phone" || key === "tel") return;
+
+            if (key === "slug" || key === "identifiant"){
+              const s = normSlug(clean);
+              if (canExposeSlug(s)) u.searchParams.set("slug", s);
+              else u.searchParams.delete("slug");
+              return;
+            }
+
+            if (clean) u.searchParams.set(key, clean);
+            else u.searchParams.delete(key);
+          });
+
+          const currentSlug = normSlug(u.searchParams.get("slug") || "");
+          if (currentSlug && isSensitiveSlug(currentSlug)){
+            u.searchParams.delete("slug");
+          }
+
+          if (u.origin === location.origin) return u.pathname + u.search + u.hash;
+          return u.toString();
+        }catch(e){
+          console.error("[DIGIY DRIVER TARIFS] buildSafeUrl", e);
+          return base;
+        }
+      }
+
+      function pageUrl(base, slug, phone){
+        return buildSafeUrl(base, {
+          slug: normSlug(slug),
+          phone: normPhone(phone)
+        });
+      }
+
+      function buildPayUrl(){
+        try{
+          if (ACCESS.pay_url) return ACCESS.pay_url;
+
+          const u = new URL(PAY_HOME);
+          u.searchParams.set("module", MODULE);
+
+          if (canExposeSlug(ACCESS.slug)){
+            u.searchParams.set("slug", ACCESS.slug);
+          }
+
+          u.searchParams.delete("phone");
+          u.searchParams.delete("tel");
+          u.searchParams.set("return", sanitizeReturnUrl());
+
+          return u.toString();
+        }catch(_){
+          return PAY_HOME;
+        }
+      }
+
+      function storageKey(){
+        return "digiy_driver_tarifs_" + (ACCESS.slug || "preview");
+      }
+
+      function setToast(text, kind){
+        const el = $("toast");
+        el.className = "toast " + (kind || "");
+        el.textContent = text;
+        el.style.display = text ? "block" : "none";
+      }
+
+      function setAccessPill(mode, text){
+        const pill = $("accessPill");
+        pill.className = "pill " + mode;
+        pill.textContent = "session : " + text;
+      }
+
+      function setTopSub(text){
+        $("topSub").textContent = text;
+      }
+
+      function money(v){
+        const n = Number(v || 0);
+        if (!Number.isFinite(n) || n <= 0) return "—";
+        return n.toLocaleString("fr-FR") + " F CFA";
+      }
+
+      function initialsFromName(v){
+        const words = String(v || "").trim().split(/\s+/).filter(Boolean).slice(0,2);
+        if (!words.length) return "DR";
+        return words.map(w => w[0]?.toUpperCase() || "").join("");
+      }
+
+      function csvToArray(v){
+        return String(v || "")
+          .split(",")
+          .map(x => x.trim())
+          .filter(Boolean);
+      }
+
+      function arrayToCsv(v){
+        return Array.isArray(v) ? v.join(", ") : "";
+      }
+
+      function copyText(text){
+        if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        let ok = false;
+        try{ ok = document.execCommand("copy"); }catch(_){}
+        ta.remove();
+        if (!ok) throw new Error("copy_failed");
+        return Promise.resolve();
+      }
+
+      function currentData(){
+        return {
+          display_name: $("f_display_name").value.trim(),
+          city: $("f_city").value.trim(),
+          whatsapp: normPhone($("f_whatsapp").value.trim()),
+          zones: csvToArray($("f_zones").value),
+          note: $("f_note").value.trim(),
+          fares: {
+            saly_dakar: Number($("fare_saly_dakar").value || 0),
+            saly_aibd: Number($("fare_saly_aibd").value || 0),
+            saly_ngaparou: Number($("fare_saly_ngaparou").value || 0),
+            saly_somone: Number($("fare_saly_somone").value || 0),
+            saly_mbour: Number($("fare_saly_mbour").value || 0),
+            dispo_4h: Number($("fare_dispo_4h").value || 0),
+            dispo_day: Number($("fare_dispo_day").value || 0),
+            wait_hour: Number($("fare_wait_hour").value || 0)
+          },
+          extras: extras.map(x => ({
+            label: String(x.label || "").trim(),
+            amount: Number(x.amount || 0),
+            note: String(x.note || "").trim()
+          })).filter(x => x.label && x.amount > 0)
+        };
+      }
+
+      function loadIntoForm(data){
+        $("f_display_name").value = data?.display_name || "";
+        $("f_city").value = data?.city || "";
+        $("f_whatsapp").value = data?.whatsapp || "";
+        $("f_zones").value = arrayToCsv(data?.zones);
+        $("f_note").value = data?.note || "";
+
+        const fares = data?.fares || {};
+        $("fare_saly_dakar").value = fares.saly_dakar || "";
+        $("fare_saly_aibd").value = fares.saly_aibd || "";
+        $("fare_saly_ngaparou").value = fares.saly_ngaparou || "";
+        $("fare_saly_somone").value = fares.saly_somone || "";
+        $("fare_saly_mbour").value = fares.saly_mbour || "";
+        $("fare_dispo_4h").value = fares.dispo_4h || "";
+        $("fare_dispo_day").value = fares.dispo_day || "";
+        $("fare_wait_hour").value = fares.wait_hour || "";
+
+        extras = Array.isArray(data?.extras) ? data.extras.map(x => ({
+          label: String(x.label || ""),
+          amount: Number(x.amount || 0),
+          note: String(x.note || "")
+        })) : [];
+
+        renderExtras();
+        refreshPreview();
+      }
+
+      function saveDraft(){
+        const data = currentData();
+        try{
+          localStorage.setItem(storageKey(), JSON.stringify(data));
+          setToast("💾 Brouillon tarifs enregistré sur ce compte.", "ok");
+          refreshPreview();
+        }catch(e){
+          console.error(e);
+          setToast("❌ Impossible d’enregistrer le brouillon local.", "bad");
+        }
+      }
+
+      function resetDraft(){
+        try{
+          localStorage.removeItem(storageKey());
+        }catch(_){}
+        loadIntoForm({
+          display_name: ACCESS.profile?.display_name || deriveNameFromSlug(ACCESS.slug),
+          city: ACCESS.profile?.city || "",
+          whatsapp: ACCESS.profile?.whatsapp || "",
+          zones: ACCESS.profile?.zones || [],
+          note: "",
+          fares: {},
+          extras: []
+        });
+        setToast("🧹 Brouillon effacé pour ce compte.", "warn");
+      }
+
+      function readDraft(){
+        try{
+          const raw = localStorage.getItem(storageKey());
+          return raw ? JSON.parse(raw) : null;
+        }catch(_){
+          return null;
+        }
+      }
+
+      function deriveNameFromSlug(slug){
+        const s = normSlug(slug);
+        if (!s) return "Chauffeur";
+        const tail = s.replace(/^driver-/, "");
+        if (/^\d+$/.test(tail)) return "Chauffeur " + tail.slice(-4);
+        return tail.replace(/-/g, " ").replace(/\b\w/g, m => m.toUpperCase());
+      }
+
+      function fareEntries(data){
+        const f = data?.fares || {};
+        const rows = [
+          ["Saly → Dakar", f.saly_dakar],
+          ["Saly → AIBD", f.saly_aibd],
+          ["Saly → Ngaparou", f.saly_ngaparou],
+          ["Saly → Somone", f.saly_somone],
+          ["Saly → Mbour", f.saly_mbour],
+          ["Mise à dispo 4h", f.dispo_4h],
+          ["Mise à dispo journée", f.dispo_day],
+          ["Attente / heure", f.wait_hour]
+        ];
+
+        const extraRows = (data?.extras || []).map(x => [x.label, x.amount, x.note]);
+        return rows
+          .filter(([, amount]) => Number(amount || 0) > 0)
+          .map(([label, amount]) => ({ label, amount:Number(amount || 0), note:"" }))
+          .concat(
+            extraRows
+              .filter(([, amount]) => Number(amount || 0) > 0)
+              .map(([label, amount, note]) => ({ label, amount:Number(amount || 0), note:note || "" }))
+          );
+      }
+
+      function buildSummary(data){
+        const displayName = data.display_name || deriveNameFromSlug(ACCESS.slug);
+        const city = data.city || "Sénégal";
+        const zones = (data.zones || []).length ? data.zones.join(", ") : "Zones à confirmer";
+        const wa = data.whatsapp || "";
+        const fares = fareEntries(data);
+
+        let txt = `🚖 ${displayName}\n`;
+        txt += `📍 ${city} — ${zones}\n`;
+
+        if (fares.length){
+          txt += `\n💰 Tarifs :\n`;
+          fares.forEach(item => {
+            txt += `• ${item.label} : ${money(item.amount)}\n`;
+          });
+        } else {
+          txt += `\n💰 Tarifs sur demande.\n`;
+        }
+
+        if (data.note){
+          txt += `\n📝 ${data.note}\n`;
+        }
+
+        if (wa){
+          txt += `\nWhatsApp : +${wa}`;
+        }
+
+        return txt.trim();
+      }
+
+      function setAvatar(profile){
+        const avatar = $("pAvatar");
+        const photo = String(profile?.photo_url || "").trim();
+
+        if (photo){
+          avatar.innerHTML = `<img src="${escapeAttr(photo)}" alt="Photo chauffeur"/>`;
+        } else {
+          avatar.textContent = initialsFromName(
+            currentData().display_name || deriveNameFromSlug(ACCESS.slug)
+          );
+        }
+      }
+
+      function refreshPreview(){
+        const data = currentData();
+        const entries = fareEntries(data);
+
+        $("pName").textContent = data.display_name || deriveNameFromSlug(ACCESS.slug);
+        $("pMeta").textContent =
+          [data.city || "Ville à compléter", (data.zones || []).length ? data.zones.join(" • ") : "Zones à compléter"].join(" • ");
+
+        setAvatar(ACCESS.profile);
+
+        const badges = [];
+        if (data.city) badges.push(data.city);
+        if ((data.zones || []).length) badges.push((data.zones || []).length + " zone(s)");
+        if (data.whatsapp) badges.push("WhatsApp OK");
+        if (entries.length) badges.push(entries.length + " tarif(s)");
+
+        $("pBadges").innerHTML = badges.length
+          ? badges.map(x => `<span class="pBadge">${escapeHtml(x)}</span>`).join("")
+          : `<span class="pBadge">Profil en préparation</span>`;
+
+        const box = $("previewTarifs");
+        if (!entries.length){
+          box.innerHTML = `
+            <div class="tarifLine">
+              <div class="name">Aucun tarif posé</div>
+              <div class="amount">—</div>
+            </div>
+          `;
+        } else {
+          box.innerHTML = entries.map(item => `
+            <div class="tarifLine">
+              <div class="name">${escapeHtml(item.label)}${item.note ? ` <span class="small" style="color:var(--muted)">— ${escapeHtml(item.note)}</span>` : ""}</div>
+              <div class="amount">${escapeHtml(money(item.amount))}</div>
+            </div>
+          `).join("");
+        }
+
+        $("publicSummary").textContent = buildSummary(data);
+        updateKpis(entries);
+        updateActionLinks(data);
+      }
+
+      function updateKpis(entries){
+        const amounts = entries.map(x => Number(x.amount || 0)).filter(n => n > 0);
+        $("kpiCount").textContent = String(entries.length);
+        $("kpiMin").textContent = amounts.length ? money(Math.min(...amounts)) : "—";
+        $("kpiMax").textContent = amounts.length ? money(Math.max(...amounts)) : "—";
+        $("kpiSlug").textContent = ACCESS.slug ? "sécurisé" : "—";
+      }
+
+      function updateNav(){
+        cleanVisibleUrl();
+
+        $("slugPill").textContent = accountLabel();
+        $("phonePill").textContent = "contact : masqué";
+
+        $("navDashboard").href = pageUrl(DASHBOARD_PAGE, ACCESS.slug, ACCESS.phone);
+        $("navCockpit").href = pageUrl(COCKPIT_PAGE, ACCESS.slug, ACCESS.phone);
+        $("navProfil").href = pageUrl(PROFILE_PAGE, ACCESS.slug, ACCESS.phone);
+        $("navTarifs").href = pageUrl(RATES_PAGE, ACCESS.slug, ACCESS.phone);
+        $("navPin").href = pageUrl(PIN_PAGE, ACCESS.slug, ACCESS.phone);
+        $("navHome").href = pageUrl(HOME_PAGE, ACCESS.slug, ACCESS.phone);
+        $("navQr").href = pageUrl(QR_PAGE, ACCESS.slug, ACCESS.phone);
+
+        $("btnBackCockpit").href = pageUrl(COCKPIT_PAGE, ACCESS.slug, ACCESS.phone);
+        $("btnGoProfile").href = pageUrl(PROFILE_PAGE, ACCESS.slug, ACCESS.phone);
+        $("btnGoQr").href = pageUrl(QR_PAGE, ACCESS.slug, ACCESS.phone);
+
+        const moreLinks = {
+          fastHome: DASHBOARD_PAGE,
+          fastTrips: "./trajets.html",
+          fastProfile: PROFILE_PAGE,
+          bottomHome: DASHBOARD_PAGE,
+          bottomTrips: "./trajets.html",
+          bottomMore: PROFILE_PAGE
+        };
+
+        Object.entries(moreLinks).forEach(([id, base]) => {
+          const el = $(id);
+          if (el) el.href = pageUrl(base, ACCESS.slug, ACCESS.phone);
+        });
+
+        const fastTarifs = $("fastTarifs");
+        const bottomNew = $("bottomNew");
+        const bottomNotes = $("bottomNotes");
+
+        if (fastTarifs) fastTarifs.href = "#tarifsForm";
+        if (bottomNew) bottomNew.href = pageUrl("./trajets.html", ACCESS.slug, ACCESS.phone) + "#newTrip";
+        if (bottomNotes) bottomNotes.href = pageUrl("./trajets.html", ACCESS.slug, ACCESS.phone) + "#quickDriverNote";
+
+        cleanVisibleUrl();
+      }
+
+      function updateActionLinks(data){
+        const wa = normPhone(data.whatsapp || "");
+        const txt = buildSummary(data);
+        $("btnOpenWhatsApp").disabled = !wa;
+        $("btnOpenWhatsApp").dataset.href = wa
+          ? `https://wa.me/${wa}?text=${encodeURIComponent(txt)}`
+          : "";
+      }
+
+      function renderExtras(){
+        const box = $("extrasList");
+
+        if (!extras.length){
+          box.innerHTML = `
+            <div class="extraItem">
+              <div class="muted">Aucune ligne libre pour l’instant. Ajoute une course spéciale ou un service premium.</div>
+            </div>
+          `;
+          return;
+        }
+
+        box.innerHTML = extras.map((item, i) => `
+          <div class="extraItem">
+            <div class="extraHead">
+              <div class="fareTitle">Ligne libre ${i + 1}</div>
+              <button class="btn danger" type="button" data-remove="${i}" style="flex:0 0 auto;min-height:38px;padding:8px 10px">🗑️ Retirer</button>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Nom</label>
+                <input data-extra-label="${i}" value="${escapeAttr(item.label)}" placeholder="Ex : Dakar nuit / Popenguine / Joal"/>
+              </div>
+              <div>
+                <label>Montant</label>
+                <input data-extra-amount="${i}" type="number" min="0" value="${item.amount || ""}" placeholder="Ex : 45000"/>
+              </div>
+            </div>
+
+            <label>Note</label>
+            <input data-extra-note="${i}" value="${escapeAttr(item.note)}" placeholder="Ex : nuit / bagages / aller simple"/>
+          </div>
+        `).join("");
+
+        box.querySelectorAll("[data-remove]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const i = Number(btn.getAttribute("data-remove"));
+            extras.splice(i, 1);
+            renderExtras();
+            refreshPreview();
+          });
+        });
+
+        box.querySelectorAll("[data-extra-label]").forEach(input => {
+          input.addEventListener("input", () => {
+            const i = Number(input.getAttribute("data-extra-label"));
+            extras[i].label = input.value;
+            refreshPreview();
+          });
+        });
+
+        box.querySelectorAll("[data-extra-amount]").forEach(input => {
+          input.addEventListener("input", () => {
+            const i = Number(input.getAttribute("data-extra-amount"));
+            extras[i].amount = Number(input.value || 0);
+            refreshPreview();
+          });
+        });
+
+        box.querySelectorAll("[data-extra-note]").forEach(input => {
+          input.addEventListener("input", () => {
+            const i = Number(input.getAttribute("data-extra-note"));
+            extras[i].note = input.value;
+            refreshPreview();
+          });
+        });
+      }
+
+      function escapeHtml(str){
+        return String(str || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function escapeAttr(str){
+        return escapeHtml(str).replaceAll("`", "&#096;");
+      }
+
+      async function loadProfile(){
+        if (!sb){
+          setToast("⚠️ Supabase indisponible dans cette page.", "warn");
+          return;
+        }
+
+        const slug = ACCESS.slug;
+        if (!slug){
+          setToast("⚠️ Identifiant absent pour charger le profil.", "warn");
+          return;
+        }
+
+        try{
+          const { data, error } = await sb
+            .from(TABLE)
+            .select("slug, display_name, city, whatsapp, photo_url, profile_url, bio, zones, tags, is_published, is_active, priority")
+            .eq("slug", slug)
+            .limit(1)
+            .maybeSingle();
+
+          if (error){
+            console.error(error);
+            setToast("⚠️ Profil non chargé : " + (error.message || "erreur inconnue"), "warn");
+            return;
+          }
+
+          ACCESS.profile = data || null;
+
+          if (data){
+            const draft = readDraft();
+            const merged = {
+              display_name: draft?.display_name || data.display_name || deriveNameFromSlug(ACCESS.slug),
+              city: draft?.city || data.city || "",
+              whatsapp: draft?.whatsapp || data.whatsapp || "",
+              zones: draft?.zones?.length ? draft.zones : (Array.isArray(data.zones) ? data.zones : []),
+              note: draft?.note || "",
+              fares: draft?.fares || {},
+              extras: draft?.extras || []
+            };
+            loadIntoForm(merged);
+            setToast("↻ Profil chargé. Tarifs repris depuis le brouillon local si présent.", "ok");
+          } else {
+            const draft = readDraft();
+            if (draft){
+              loadIntoForm(draft);
+              setToast("↻ Aucun profil SQL trouvé, mais le brouillon local a été repris.", "warn");
+            } else {
+              loadIntoForm({
+                display_name: deriveNameFromSlug(ACCESS.slug),
+                city: "",
+                whatsapp: "",
+                zones: [],
+                note: "",
+                fares: {},
+                extras: []
+              });
+              setToast("ℹ️ Aucun profil trouvé. Tu peux quand même préparer les tarifs.", "warn");
+            }
+          }
+        }catch(e){
+          console.error(e);
+          setToast("❌ Erreur de lecture profil.", "bad");
+        }
+      }
+
+      async function guardBoot(){
+        try{
+          const guard = window.DIGIY_GUARD;
+
+          if (guard && typeof guard.ready === "function"){
+            const out = guard.ready({ redirect:false, preserve_validation:true });
+            if (out && typeof out.then === "function") await out;
+          } else if (guard?.ready && typeof guard.ready.then === "function"){
+            await guard.ready;
+          }
+        }catch(e){
+          console.warn("[DIGIY DRIVER TARIFS] guard ready error", e);
+        }
+
+        const qs = new URLSearchParams(location.search);
+        const st = window.DIGIY_GUARD?.state || null;
+
+        ACCESS.slug = normSlug(
+          st?.slug ||
+          qs.get("slug") ||
+          ""
+        );
+
+        ACCESS.phone = normPhone(
+          st?.phone ||
+          qs.get("phone") ||
+          qs.get("tel") ||
+          phoneFromDriverSlug(ACCESS.slug) ||
+          ""
+        );
+
+        ACCESS.access_ok = !!(st?.access_ok || st?.access);
+        ACCESS.preview = !ACCESS.access_ok;
+        ACCESS.reason = st?.reason || (ACCESS.access_ok ? "access_ok" : "preview");
+        ACCESS.pay_url = st?.pay_url || "";
+
+        if (window.DIGIY_GUARD?.rememberIdentity && (ACCESS.slug || ACCESS.phone)){
+          try{
+            window.DIGIY_GUARD.rememberIdentity({ slug: ACCESS.slug, phone: ACCESS.phone });
+          }catch(_){}
+        }
+
+        cleanVisibleUrl();
+
+        if (!ACCESS.slug){
+          setAccessPill("bad", "compte à vérifier");
+          setTopSub("Aucun compte chauffeur détecté. Ouvre cette page depuis ton accès ou depuis ta gestion.");
+          $("disabledNote").style.display = "block";
+          return;
+        }
+
+        if (!isDriverSlug(ACCESS.slug)){
+          setAccessPill("bad", "lien invalide");
+          setTopSub("Lien chauffeur non reconnu. Repars par ton accès.");
+          $("disabledNote").style.display = "block";
+          return;
+        }
+
+        if (ACCESS.access_ok){
+          setAccessPill("ok", st?.pin_session_ok ? "session ouverte" : "accès ouvert");
+          setTopSub("Accès vivant détecté. Les tarifs restent rangés sans exposer tes identifiants.");
+        } else {
+          setAccessPill("warn", "aperçu");
+          setTopSub("Mode aperçu : tu peux préparer les tarifs localement, sans exposer ton compte dans l’adresse.");
+        }
+
+        $("disabledNote").style.display = "block";
+      }
+
+      function bindPreview(){
+        [
+          "f_display_name","f_city","f_whatsapp","f_zones","f_note",
+          "fare_saly_dakar","fare_saly_aibd","fare_saly_ngaparou","fare_saly_somone",
+          "fare_saly_mbour","fare_dispo_4h","fare_dispo_day","fare_wait_hour"
+        ].forEach(id => {
+          $(id).addEventListener("input", refreshPreview);
+        });
+      }
+
+      function bindButtons(){
+        $("btnLoadProfile").addEventListener("click", loadProfile);
+        $("btnSaveDraft").addEventListener("click", saveDraft);
+        $("btnResetDraft").addEventListener("click", resetDraft);
+
+        $("btnAddExtra").addEventListener("click", () => {
+          extras.push({ label:"", amount:0, note:"" });
+          renderExtras();
+          refreshPreview();
+        });
+
+        $("btnCopyPublic").addEventListener("click", async () => {
+          try{
+            await copyText(buildSummary(currentData()));
+            setToast("📋 Résumé public copié.", "ok");
+          }catch(e){
+            console.error(e);
+            setToast("❌ Copie impossible.", "bad");
+          }
+        });
+
+        $("btnCopyWhatsApp").addEventListener("click", async () => {
+          try{
+            await copyText(buildSummary(currentData()));
+            setToast("💬 Texte WhatsApp copié.", "ok");
+          }catch(e){
+            console.error(e);
+            setToast("❌ Copie WhatsApp impossible.", "bad");
+          }
+        });
+
+        $("btnShareText").addEventListener("click", async () => {
+          try{
+            await copyText(buildSummary(currentData()));
+            setToast("📨 Texte client copié.", "ok");
+          }catch(e){
+            console.error(e);
+            setToast("❌ Copie texte impossible.", "bad");
+          }
+        });
+
+        $("btnOpenWhatsApp").addEventListener("click", () => {
+          const href = $("btnOpenWhatsApp").dataset.href || "";
+          if (!href){
+            setToast("⚠️ WhatsApp absent. Mets un numéro d’abord.", "warn");
+            return;
+          }
+          window.open(href, "_blank", "noopener");
+        });
+
+        $("btnPay").addEventListener("click", () => {
+          location.href = buildPayUrl();
+        });
+      }
+
+      async function boot(){
+        bindPreview();
+        bindButtons();
+        await guardBoot();
+        updateNav();
+
+        const draft = readDraft();
+        if (draft){
+          loadIntoForm(draft);
+        } else {
+          loadIntoForm({
+            display_name: deriveNameFromSlug(ACCESS.slug),
+            city: "",
+            whatsapp: "",
+            zones: [],
+            note: "",
+            fares: {},
+            extras: []
+          });
+        }
+
+        await loadProfile();
+        refreshPreview();
+      }
+
+      boot().catch((e) => {
+        console.error("[DIGIY DRIVER TARIFS] boot error", e);
+        setToast("❌ Erreur au démarrage de la page.", "bad");
+      });
+    })();
+  </script>
+</body>
+</html>
