@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Je conduis — Mes trajets</title>
+<title>Je conduis — Tarifs</title>
 <meta name="theme-color" content="#13824d"/>
-<meta name="description" content="DIGIY DRIVER — façade téléphone allégée pour les courses."/>
+<meta name="description" content="DIGIY DRIVER — façade téléphone allégée pour les tarifs."/>
 <meta name="robots" content="noindex,nofollow"/>
 <meta name="digiy-build" content="driver-v4-3-facade-tel"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -321,35 +321,36 @@ h2{
 <body>
 <header class="pageHeader"><div class="headerInner">
 <a class="headerBtn left" href="./dashboard-pro.html">← activité</a>
-<div class="headerTitle">MES TRAJETS</div>
-<a class="headerBtn right" id="refreshBtn" href="#">🔄 Recharger</a>
+<div class="headerTitle">MES TARIFS</div>
+<a class="headerBtn right" id="goTarifsEdition" href="#">✏️ Modifier</a>
 </div></header>
 <main class="wrap">
   <section class="hero">
     <div class="eyebrow">Façade téléphone</div>
-    <h1>La course. Rien d’autre.</h1>
-    <p class="lead">Ici, le chauffeur lit vite et agit. Notes, argent, profil et QR ne traînent plus sur cette page.</p>
+    <h1>Voir les prix. Sans atelier.</h1>
+    <p class="lead">La page affiche les tarifs utiles. La modification et l’aperçu client restent dans l’atelier édition.</p>
     <div class="row"><span class="pill" id="sessionPill">session…</span></div>
   </section>
 
-  <section class="kpiGrid">
-    <div class="kpi"><div class="label">À traiter</div><div class="num" id="kpiAsk">0</div><div class="sub">demande / assignée</div></div>
-    <div class="kpi"><div class="label">En course</div><div class="num" id="kpiRun">0</div><div class="sub">maintenant</div></div>
-  </section>
-
   <section class="card">
-    <h2>Courses maintenant</h2>
+    <h2 id="driverName">Chauffeur</h2>
+    <div class="muted" id="driverMeta">Lecture…</div>
     <div class="actions">
-      <button class="btn primary" id="refreshBtn2" type="button" onclick="loadTrips()">🔄 Recharger</button>
-      <a class="btn ghost" id="goTrajetsComplet" href="./trajets-complet.html">⚙️ Atelier complet</a>
+      <a class="btn primary" id="goTarifsEdition" href="./tarifs-edition.html">✏️ Modifier mes tarifs</a>
+      <a class="btn ghost" href="./trajets.html">📋 Mes trajets</a>
     </div>
   </section>
 
-  <section class="actions" id="tripList">
+  <section class="kpiGrid">
+    <div class="kpi"><div class="label">Tarifs posés</div><div class="num" id="kpiCount">0</div><div class="sub">visibles ici</div></div>
+    <div class="kpi"><div class="label">Prix mini</div><div class="num" id="kpiMin" style="font-size:24px">—</div><div class="sub">repère rapide</div></div>
+  </section>
+
+  <section class="actions" id="fareList">
     <div class="empty">Lecture…</div>
   </section>
 
-  <div class="msg" id="msg">Prêt.</div>
+  <div class="msg">Si rien ne s’affiche, ouvre Modifier : le brouillon complet est dans l’atelier.</div>
 </main>
 
 <button class="audioCoachFab" id="digiyAudioFab" type="button" aria-controls="digiyAudioPanel" aria-expanded="false">
@@ -454,116 +455,54 @@ cleanVisibleUrl();
 setSessionPill();
 initCommonLinks();
 
-const sb = getClient();
-let trips = [];
-function tripStatus(t){return String(t?.status || t?.ride_status || "requested").toLowerCase().replace("ongoing","in_progress")}
-function statusLabel(s){s=tripStatus({status:s}); return {requested:"demande",assigned:"assignée",accepted:"acceptée",in_progress:"en course",completed:"terminée",canceled:"annulée",cancelled:"annulée"}[s]||s}
-function tripWhen(t){return t?.pickup_at || t?.ride_at || t?.booking_time || t?.updated_at || t?.created_at || null}
-function fmtDate(v){if(!v)return"—"; const d=new Date(v); if(Number.isNaN(d.getTime()))return String(v); return d.toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}
-function pick(t, keys, fb="—"){for(const k of keys){const v=t?.[k]; if(v!==undefined&&v!==null&&String(v).trim())return String(v)} return fb}
-function titleTrip(t){
-  const from=pick(t,["pickup_label","pickup","from_label","departure"],"Départ");
-  const to=pick(t,["dropoff_label","dropoff","to_label","destination"],"Arrivée");
-  return from+" → "+to;
+function deriveNameFromSlug(slug){
+  const s=normSlug(slug); if(!s)return"Chauffeur";
+  const tail=s.replace(/^driver-/,""); if(/^\d+$/.test(tail))return"Chauffeur "+tail.slice(-4);
+  return tail.replace(/-/g," ").replace(/\b\w/g,m=>m.toUpperCase());
 }
-function amount(t){return Number(t?.final_price_fcfa ?? t?.price_fcfa ?? t?.amount_fcfa ?? t?.amount ?? 0) || 0}
-function visibleRows(){
-  return trips
-    .filter(t=>["requested","assigned","accepted","in_progress"].includes(tripStatus(t)))
-    .sort((a,b)=>{
-      const rank={in_progress:0,accepted:1,assigned:2,requested:3};
-      return (rank[tripStatus(a)]??9)-(rank[tripStatus(b)]??9) || (new Date(tripWhen(b)||0)-new Date(tripWhen(a)||0));
-    })
+function storageKey(){const st=getState(); return "digiy_driver_tarifs_" + (st.slug || "preview")}
+function readDraft(){try{const raw=localStorage.getItem(storageKey()); return raw?JSON.parse(raw):null}catch(_){return null}}
+function fareEntries(data){
+  const f=data?.fares||{};
+  const rows=[
+    ["Saly → Dakar",f.saly_dakar],["Saly → AIBD",f.saly_aibd],["Saly → Ngaparou",f.saly_ngaparou],["Saly → Somone",f.saly_somone],["Saly → Mbour",f.saly_mbour],
+    ["Mise à dispo 4h",f.dispo_4h],["Mise à dispo journée",f.dispo_day],["Attente / heure",f.wait_hour]
+  ];
+  const extras=Array.isArray(data?.extras)?data.extras.map(x=>[x.label,x.amount,x.note]):[];
+  return rows.filter(([,a])=>Number(a||0)>0).map(([label,amount])=>({label,amount:Number(amount||0),note:""}))
+    .concat(extras.filter(([,a])=>Number(a||0)>0).map(([label,amount,note])=>({label,amount:Number(amount||0),note:note||""})));
 }
-function actionButtons(t){
-  const s=tripStatus(t), id=escapeHtml(t?.id||"");
-  if(s==="requested") return `<button class="btn primary" data-action="accept" data-id="${id}">✅ Accepter</button>`;
-  if(s==="assigned"||s==="accepted") return `<button class="btn primary" data-action="start" data-id="${id}">▶️ Démarrer</button>`;
-  if(s==="in_progress") return `<button class="btn gold" data-action="finish" data-id="${id}">🏁 Terminer</button>`;
-  return `<button class="btn ghost" disabled>Lecture</button>`;
-}
-function render(){
-  const rows=visibleRows();
-  $("kpiAsk").textContent = String(rows.filter(t=>["requested","assigned","accepted"].includes(tripStatus(t))).length);
-  $("kpiRun").textContent = String(rows.filter(t=>tripStatus(t)==="in_progress").length);
-  const box=$("tripList");
+function renderTarifs(){
+  const st=getState();
+  const data=readDraft() || {display_name:deriveNameFromSlug(st.slug),city:"",zones:[],whatsapp:"",fares:{},extras:[],note:""};
+  $("driverName").textContent = data.display_name || deriveNameFromSlug(st.slug);
+  $("driverMeta").textContent = [data.city||"Ville à compléter",(data.zones||[]).length?(data.zones||[]).join(" • "):"Zones à compléter"].join(" • ");
+  const rows=fareEntries(data);
+  $("kpiCount").textContent=String(rows.length);
+  $("kpiMin").textContent=rows.length?money(Math.min(...rows.map(r=>r.amount))):"—";
+  const box=$("fareList");
   if(!rows.length){
-    box.innerHTML = `<div class="empty">Aucune course à traiter maintenant. L’écran reste libre.</div>`;
+    box.innerHTML=`<div class="empty">Aucun tarif posé dans le brouillon. Ouvre Modifier pour préparer la grille.</div>`;
     return;
   }
-  box.innerHTML = rows.slice(0,6).map(t=>`
-    <article class="trip">
-      <div class="tripTop">
+  box.innerHTML=rows.slice(0,8).map(r=>`
+    <article class="fareCard">
+      <div class="fareTop">
         <div>
-          <div class="tripTitle">${escapeHtml(titleTrip(t))}</div>
-          <div class="meta">📅 ${escapeHtml(fmtDate(tripWhen(t)))} · 💰 ${escapeHtml(money(amount(t)))}</div>
+          <div class="fareName">${escapeHtml(r.label)}</div>
+          ${r.note?`<div class="meta">${escapeHtml(r.note)}</div>`:""}
         </div>
-        <div class="badge">${escapeHtml(statusLabel(tripStatus(t)))}</div>
+        <div class="badge">${escapeHtml(money(r.amount))}</div>
       </div>
-      <div class="meta">📍 ${escapeHtml(pick(t,["pickup_zone","zone"],"Zone à vérifier"))}</div>
-      <div class="actions">${actionButtons(t)}</div>
     </article>
   `).join("");
 }
-async function loadTrips(){
-  const st=getState();
-  const msg=$("msg");
-  if(!sb){msg.textContent="Supabase indisponible ici."; msg.className="msg bad"; return}
-  if(!st.phone){msg.textContent="Numéro chauffeur non reconnu. Reprends l’accès PIN."; msg.className="msg warn"; render(); return}
-  msg.textContent="Lecture des courses…"; msg.className="msg";
-  try{
-    const {data,error}=await sb.from("digiy_driver_trips").select("*").in("driver_phone",phoneVariants(st.phone)).order("created_at",{ascending:false}).limit(30);
-    if(error) throw error;
-    trips=Array.isArray(data)?data:[];
-    msg.textContent="Prêt. Pour le reste, ouvre l’atelier complet."; msg.className="msg ok";
-    render();
-  }catch(e){
-    console.warn(e);
-    msg.textContent="Lecture impossible ici. L’atelier complet reste disponible."; msg.className="msg bad";
-    render();
-  }
-}
-async function rpcWithFallback(names, rideId, driverPhone){
-  const funcs=Array.isArray(names)?names:[names];
-  const attempts=[
-    {p_ride_id:rideId,p_driver_phone:driverPhone},{ride_id:rideId,driver_phone:driverPhone},
-    {p_trip_id:rideId,p_driver_phone:driverPhone},{p_trip_id:rideId},{trip_id:rideId},{id:rideId,phone:driverPhone},{p_id:rideId,p_phone:driverPhone}
-  ];
-  let last=null;
-  for(const fn of funcs){
-    for(const args of attempts){
-      const {data,error}=await sb.rpc(fn,args);
-      if(!error)return data;
-      last=error;
-    }
-  }
-  throw last||new Error("rpc_failed");
-}
-document.addEventListener("click", async e=>{
-  const btn=e.target.closest("[data-action]");
-  if(!btn)return;
-  const st=getState(), id=btn.getAttribute("data-id"), action=btn.getAttribute("data-action");
-  if(!st.phone || !id){$("msg").textContent="Accès chauffeur incomplet."; $("msg").className="msg bad"; return}
-  btn.disabled=true; $("msg").textContent="Action en cours…"; $("msg").className="msg";
-  try{
-    if(action==="accept") await rpcWithFallback(["digiy_driver_accept_ride","accept_trip"],id,st.phone);
-    if(action==="start") await rpcWithFallback(["digiy_driver_start_ride","start_trip"],id,st.phone);
-    if(action==="finish") await rpcWithFallback(["digiy_driver_complete_ride","complete_trip"],id,st.phone);
-    $("msg").textContent="Action enregistrée."; $("msg").className="msg ok";
-    await loadTrips();
-  }catch(err){
-    console.warn(err);
-    $("msg").textContent="Action impossible depuis la façade. Ouvre l’atelier complet.";
-    $("msg").className="msg bad";
-  }finally{btn.disabled=false}
-});
-$("refreshBtn")?.addEventListener("click", e=>{e.preventDefault(); loadTrips()});
 setupAudio({
-  title:"Mes trajets en façade légère",
-  text:"Ici restent seulement les courses à traiter maintenant. Notes, argent et réglages sortent de cette page.",
-  speak:"Tu es dans Mes trajets. Cette façade garde seulement les courses à traiter maintenant. Lis la course, puis accepte, démarre ou termine. Les notes et Mon argent ne restent pas ici : ils ont leur porte."
+  title:"Tarifs en lecture simple",
+  text:"Ici le chauffeur consulte les prix. Modifier et aperçu client sont rangés dans l’atelier édition.",
+  speak:"Tu es dans Tarifs. Cette façade sert à consulter vite les prix. Si tu dois changer la grille ou préparer l’aperçu client, ouvre Modifier. Le chauffeur n’a pas besoin de voir tout l’atelier au premier écran."
 });
-loadTrips();
+renderTarifs();
 </script>
 </body>
 </html>
