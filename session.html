@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Je conduis — Ma session</title>
   <meta name="theme-color" content="#13824d"/>
-  <meta name="description" content="DIGIY DRIVER — page dédiée session et accès."/>
+  <meta name="description" content="DIGIY DRIVER PRO — session dédiée."/>
   <meta name="robots" content="noindex,nofollow"/>
-  <meta name="digiy-build" content="driver-v3-volants-architecture-20260519"/>
+  <meta name="digiy-build" content="driver-v4-session-neurones"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
@@ -19,7 +19,7 @@
     window.DIGIY_LOGIN_URL = "./pin.html";
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-v3-volants-20260519"></script>
+  <script src="./guard.js?v=driver-v4-neurones-20260519"></script>
   <style>
 :root{
   --bg:#13824d;
@@ -28,285 +28,447 @@
   --card:#17864f;
   --card2:#116b40;
   --ink:#f8fff9;
-  --muted:rgba(248,255,249,.86);
-  --soft:rgba(248,255,249,.68);
-  --line:rgba(255,255,255,.24);
-  --line2:rgba(250,204,21,.28);
+  --muted:rgba(248,255,249,.82);
+  --soft:rgba(248,255,249,.66);
+  --line:rgba(255,255,255,.22);
   --gold:#facc15;
   --gold2:#f59e0b;
-  --ok:#22c55e;
+  --green:#22c55e;
   --red:#fb7185;
   --blue:#60a5fa;
   --shadow:0 18px 42px rgba(0,0,0,.22);
-  --radius:26px;
-  --max:1040px;
+  --r:24px;
+  --max:860px;
   --headerH:52px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
-  margin:0;min-height:100vh;color:var(--ink);
+  margin:0;
+  min-height:100vh;
+  color:var(--ink);
   font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   background:
-    radial-gradient(920px 520px at 10% -10%,rgba(250,204,21,.22),transparent 60%),
-    radial-gradient(760px 440px at 106% 0%,rgba(34,197,94,.28),transparent 58%),
-    linear-gradient(180deg,#18a35d 0%,var(--bg) 36%,var(--bg2) 76%,var(--bg3) 100%);
-  padding:calc(var(--headerH) + 14px + env(safe-area-inset-top,0px)) 12px 28px;
+    radial-gradient(900px 520px at 8% -10%, rgba(250,204,21,.20), transparent 62%),
+    radial-gradient(760px 440px at 105% 0%, rgba(34,197,94,.24), transparent 58%),
+    linear-gradient(180deg,var(--bg),var(--bg2) 55%,var(--bg3) 100%);
 }
-a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}img{max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;color:inherit}
 .pageHeader{
-  position:fixed;top:0;left:0;right:0;z-index:80;height:calc(var(--headerH) + env(safe-area-inset-top,0px));
-  padding:env(safe-area-inset-top,0px) 8px 0;
-  display:grid;grid-template-columns:minmax(84px,1fr) auto minmax(84px,1fr);align-items:center;gap:6px;
-  background:rgba(11,79,49,.94);border-bottom:1px solid var(--line2);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  position:sticky;
+  top:0;
+  z-index:50;
+  min-height:var(--headerH);
+  padding:8px 10px calc(8px + env(safe-area-inset-top,0px));
+  background:rgba(11,79,49,.94);
+  border-bottom:1px solid rgba(250,204,21,.26);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
 }
-.headTitle{font-size:14px;font-weight:1000;letter-spacing:.12em;text-align:center;text-transform:uppercase;color:#fffbea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.headBtn,.headAction{
-  min-height:40px;border:1px solid rgba(255,255,255,.18);border-radius:16px;
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  background:rgba(255,255,255,.08);color:#fff4b8;font-size:13px;font-weight:1000;padding:9px 10px;text-align:center;
+.headerInner{
+  max-width:var(--max);
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:8px;
+  align-items:center;
 }
-.headBtn{justify-self:start}.headAction{justify-self:end}.headAction.ghost{background:transparent;border-color:transparent}
-.wrap{width:min(var(--max),100%);margin:0 auto;display:grid;gap:14px}.wrap.narrow{max-width:760px}
+.headerBtn,.headerTitle{
+  min-height:36px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:7px 10px;
+  font-size:13px;
+  font-weight:1000;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.075);
+  white-space:nowrap;
+}
+.headerBtn.left{justify-self:start}
+.headerBtn.right{justify-self:end}
+.headerTitle{
+  color:#fffbea;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  background:rgba(250,204,21,.12);
+  border-color:rgba(250,204,21,.30);
+}
+.wrap{
+  width:min(var(--max),100%);
+  margin:0 auto;
+  padding:16px 12px 32px;
+  display:grid;
+  gap:14px;
+}
 .hero,.card{
-  border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;
-  background:radial-gradient(680px 260px at 100% 0%,rgba(250,204,21,.15),transparent 72%),linear-gradient(180deg,rgba(23,134,79,.96),rgba(17,107,64,.96));
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  background:
+    radial-gradient(640px 260px at 100% 0%, rgba(250,204,21,.13), transparent 72%),
+    linear-gradient(180deg,rgba(23,134,79,.96),rgba(17,107,64,.96));
+  box-shadow:var(--shadow);
+  overflow:hidden;
 }
-.hero{position:relative;padding:20px;display:grid;gap:16px}.hero:after{content:"🚕";position:absolute;right:12px;bottom:-24px;font-size:128px;opacity:.08;transform:rotate(-10deg);pointer-events:none}.hero>*{position:relative;z-index:1}
-.card{padding:17px}.split{display:grid;gap:14px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(min-width:820px){.split{grid-template-columns:1.05fr .95fr}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}}
-.logoLine{display:flex;align-items:center;gap:12px}.digiyLogo{width:94px;height:auto;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(0,0,0,.25))}.badgeMark{width:54px;height:54px;border-radius:20px;display:grid;place-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);font-size:28px;box-shadow:0 14px 30px rgba(0,0,0,.16);flex:0 0 auto}
-.eyebrow{color:#fff0a8;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:1000}.title{margin:0;font-size:clamp(34px,8vw,64px);line-height:.96;letter-spacing:-.06em;font-weight:1000}.sectionTitle{margin:0 0 7px;font-size:clamp(24px,5vw,34px);line-height:1.04;letter-spacing:-.035em;font-weight:1000}.lead,.muted{color:var(--muted);font-size:17px;font-weight:900;line-height:1.42}.lead{font-size:clamp(18px,3.6vw,23px);max-width:820px}.soft{color:var(--soft);font-size:14px;font-weight:900;line-height:1.4}
-.pill{min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.09);font-size:13px;font-weight:1000;color:var(--muted);white-space:nowrap}.pill.ok{color:#dcfce7;border-color:rgba(34,197,94,.42);background:rgba(34,197,94,.18)}.pill.warn{color:#fff0a8;border-color:rgba(250,204,21,.40);background:rgba(250,204,21,.14)}.pill.bad{color:#fee2e2;border-color:rgba(251,113,133,.38);background:rgba(251,113,133,.15)}.pill.blue{color:#dbeafe;border-color:rgba(96,165,250,.38);background:rgba(96,165,250,.16)}
-.actions{display:grid;gap:10px}.actions.two{grid-template-columns:1fr 1fr}.btn{min-height:62px;border-radius:20px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.09);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:9px;text-align:center;padding:13px 15px;font-size:16px;font-weight:1000;box-shadow:0 13px 28px rgba(0,0,0,.16)}.btn.primary{background:linear-gradient(135deg,#34d566,#16a34a);color:#042012;border-color:transparent}.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#261600;border-color:transparent}.btn.blue{background:rgba(96,165,250,.18);color:#dbeafe;border-color:rgba(96,165,250,.36)}.btn.ghost{background:rgba(255,255,255,.055)}.btn.danger{background:rgba(251,113,133,.16);color:#fee2e2;border-color:rgba(251,113,133,.36)}.btn.small{min-height:44px;border-radius:16px;font-size:14px;box-shadow:none}.btn:disabled{opacity:.55;cursor:not-allowed}
-.kpi{border:1px solid rgba(255,255,255,.16);border-radius:24px;background:rgba(4,46,27,.24);padding:16px}.kpiLabel{color:var(--muted);font-size:13px;font-weight:1000;text-transform:uppercase;letter-spacing:.08em}.kpiValue{margin-top:8px;font-size:44px;font-weight:1000;line-height:1;letter-spacing:-.05em}.kpiSub{margin-top:7px;color:#fff0a8;font-size:13px;font-weight:950}.alertLine{display:none;border:1px solid rgba(250,204,21,.34);background:rgba(250,204,21,.14);color:#fff7c2;border-radius:20px;padding:13px 14px;font-size:15px;font-weight:1000;line-height:1.35}.alertLine.show{display:block}.tripCard,.door,.statusBox{border:1px solid rgba(255,255,255,.16);border-radius:22px;background:rgba(4,46,27,.24);padding:15px;display:grid;gap:10px}.tripTitle{font-size:20px;font-weight:1000;line-height:1.15}.meta{color:var(--muted);font-size:14px;font-weight:900;line-height:1.35}.door{min-height:92px}.door strong{font-size:19px;font-weight:1000}.door span{color:var(--muted);font-size:14px;font-weight:900;line-height:1.35}.doorGrid{display:grid;gap:10px}.statusRows{display:grid;gap:10px}.statusRow{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(255,255,255,.13);border-radius:18px;background:rgba(255,255,255,.06);padding:13px}.statusRow b{font-size:15px}.statusRow span{color:var(--muted);font-size:13px;font-weight:900;text-align:right}.readerBox{display:grid;gap:10px}.textareaLike{border:1px solid rgba(255,255,255,.16);border-radius:20px;background:rgba(4,46,27,.24);padding:15px;color:var(--muted);font-weight:900;line-height:1.5}.toast{position:fixed;left:50%;bottom:22px;z-index:130;transform:translateX(-50%);max-width:92vw;display:none;padding:12px 15px;border-radius:999px;background:rgba(2,20,12,.94);border:1px solid rgba(255,255,255,.18);box-shadow:var(--shadow);font-size:14px;font-weight:1000;color:#fff}
-/* Volants camemberts */
-.wheelBtn{position:fixed;z-index:90;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:74px;height:74px;border-radius:999px;border:2px solid rgba(250,204,21,.72);background:radial-gradient(circle at 50% 50%,#fff4b8 0 13%,#0f6b3e 14% 38%,#0a3f27 39% 100%);box-shadow:0 14px 34px rgba(0,0,0,.32);display:grid;place-items:center;color:#fff4b8;font-size:10px;font-weight:1000;text-transform:uppercase;letter-spacing:.03em;text-align:center;padding-top:36px}.wheelBtn:before,.wheelBtn:after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:999px;pointer-events:none}.wheelBtn:before{width:54px;height:54px;border:3px solid rgba(250,204,21,.75)}.wheelBtn:after{width:34px;height:4px;background:rgba(250,204,21,.74);box-shadow:0 -15px 0 -1px rgba(250,204,21,.60),0 15px 0 -1px rgba(250,204,21,.60);transform:translate(-50%,-50%) rotate(25deg)}.wheelLeft{left:12px}.wheelRight{right:12px}.wheelBtn img{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:22px;height:22px;object-fit:contain;border-radius:50%;z-index:2}.wheelOverlay{position:fixed;inset:0;z-index:120;display:none;background:rgba(2,20,12,.64);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:calc(var(--headerH) + 18px) 14px 18px;overflow:auto}.wheelOverlay.open{display:grid;place-items:center}.wheelPanel{width:min(460px,100%);border-radius:30px;border:1px solid rgba(250,204,21,.36);background:radial-gradient(520px 230px at 100% 0%,rgba(250,204,21,.18),transparent 70%),linear-gradient(180deg,rgba(23,134,79,.98),rgba(11,79,49,.98));box-shadow:0 30px 70px rgba(0,0,0,.38);overflow:hidden}.wheelHero{padding:18px 18px 14px;text-align:center;border-bottom:1px solid rgba(255,255,255,.14)}.wheelHero img{width:118px;height:auto;filter:drop-shadow(0 12px 24px rgba(0,0,0,.28))}.wheelHero h2{margin:8px 0 4px;font-size:32px;line-height:1;font-weight:1000;letter-spacing:-.04em;color:#fff4b8}.wheelHero p{margin:0;color:var(--muted);font-weight:900}.wheelList{display:grid;gap:8px;padding:14px}.wheelItem{min-height:54px;border-radius:18px;border:1px solid rgba(255,255,255,.15);background:rgba(4,46,27,.26);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;font-size:16px;font-weight:1000}.wheelItem small{display:block;color:var(--soft);font-size:12px;font-weight:900;margin-top:2px}.closeOverlay{width:100%;min-height:48px;border:0;border-top:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:#fff4b8;font-weight:1000;font-size:15px}.camembertHint{display:flex;gap:8px;align-items:center;color:var(--soft);font-size:13px;font-weight:900;line-height:1.35}.camembertHint b{color:#fff4b8}
-@media(max-width:620px){body{padding-left:10px;padding-right:10px}.pageHeader{grid-template-columns:76px 1fr 86px}.headBtn,.headAction{font-size:12px;padding:8px 9px}.headTitle{font-size:12px}.hero,.card{padding:15px;border-radius:24px}.actions.two{grid-template-columns:1fr}.grid2{grid-template-columns:1fr 1fr}.wheelBtn{width:68px;height:68px}.wheelBtn:before{width:50px;height:50px}.title{font-size:40px}.kpiValue{font-size:40px}.digiyLogo{width:78px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
+.hero{padding:20px;position:relative}
+.card{padding:17px}
+.logo{
+  width:92px;
+  height:auto;
+  display:block;
+  object-fit:contain;
+  margin-bottom:12px;
+  filter:drop-shadow(0 10px 20px rgba(0,0,0,.18));
+}
+.eyebrow{
+  color:#fff0a8;
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-weight:1000;
+  margin-bottom:8px;
+}
+h1,h2,h3,p{margin-top:0}
+h1{
+  margin-bottom:10px;
+  font-size:clamp(38px,8vw,64px);
+  line-height:.95;
+  letter-spacing:-.055em;
+  font-weight:1000;
+}
+h2{
+  margin-bottom:8px;
+  font-size:clamp(26px,5vw,34px);
+  line-height:1.03;
+  letter-spacing:-.035em;
+  font-weight:1000;
+}
+.lead,.muted{
+  color:var(--muted);
+  font-size:17px;
+  line-height:1.42;
+  font-weight:900;
+}
+.muted.small{font-size:14px;color:var(--soft)}
+.pill{
+  min-height:38px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.09);
+  color:var(--muted);
+  font-size:13px;
+  font-weight:1000;
+}
+.pill.ok{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.38);color:#d9ffe8}
+.pill.warn{background:rgba(245,158,11,.16);border-color:rgba(245,158,11,.36);color:#fff0bd}
+.pill.bad{background:rgba(251,113,133,.16);border-color:rgba(251,113,133,.36);color:#ffe1e6}
+.actions,.grid2,.kpiGrid,.doorGrid{
+  display:grid;
+  gap:10px;
+}
+.actions{margin-top:16px}
+.grid2{grid-template-columns:1fr}
+.kpiGrid{grid-template-columns:1fr 1fr}
+@media(min-width:760px){
+  .actions{grid-template-columns:repeat(2,1fr)}
+  .grid2{grid-template-columns:1fr 1fr}
+  .doorGrid{grid-template-columns:1fr 1fr}
+}
+.btn,.door{
+  min-height:58px;
+  border-radius:19px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.09);
+  color:var(--ink);
+  padding:13px 15px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  text-align:center;
+  font-size:16px;
+  font-weight:1000;
+  box-shadow:0 12px 25px rgba(0,0,0,.15);
+}
+.btn.primary{background:linear-gradient(135deg,var(--green),#16a34a);color:#042012;border-color:transparent}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#241300;border-color:transparent}
+.btn.ghost{background:rgba(255,255,255,.065)}
+.btn.warn{background:rgba(250,204,21,.14);border-color:rgba(250,204,21,.32);color:#fff0a8}
+.btn.danger{background:rgba(251,113,133,.16);border-color:rgba(251,113,133,.34);color:#ffe1e6}
+.door{
+  min-height:84px;
+  align-items:flex-start;
+  justify-content:flex-start;
+  text-align:left;
+  flex-direction:column;
+}
+.door b{font-size:20px;line-height:1.12}
+.door span{font-size:14px;color:var(--muted);font-weight:900;line-height:1.35}
+.kpi{
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:22px;
+  padding:16px;
+  background:rgba(4,18,13,.18);
+  min-height:128px;
+}
+.kpi .label{color:#fff0a8;font-size:14px;font-weight:1000;margin-bottom:8px}
+.kpi .num{font-size:46px;font-weight:1000;letter-spacing:-.06em;line-height:.9}
+.kpi .sub{margin-top:8px;color:var(--muted);font-size:13px;font-weight:900}
+.trip{
+  display:grid;
+  gap:9px;
+  border:1px solid rgba(250,204,21,.28);
+  border-radius:22px;
+  padding:16px;
+  background:rgba(4,18,13,.20);
+}
+.trip b{font-size:20px}
+.tripLine{color:var(--muted);font-weight:900;line-height:1.4}
+.message{
+  border:1px dashed rgba(255,255,255,.25);
+  background:rgba(255,255,255,.06);
+  border-radius:20px;
+  padding:14px;
+  color:var(--muted);
+  font-size:15px;
+  font-weight:900;
+  line-height:1.45;
+}
+.row{
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+hr{
+  border:0;
+  border-top:1px solid rgba(255,255,255,.16);
+  margin:12px 0;
+}
+@media(max-width:520px){
+  .wrap{padding:14px 10px 30px}
+  .hero,.card{padding:15px}
+  .headerBtn,.headerTitle{font-size:12px;padding:7px 8px}
+  h1{font-size:40px}
+  .btn{width:100%}
+  .door{min-height:76px}
+}
 </style>
 </head>
+
 <body>
-  <header class="pageHeader">
-    <a class="headBtn" href="./hub.html" data-route="">← hub</a>
-    <div class="headTitle">MA SESSION</div>
-    <button class="headAction" id="headerAction" data-action="refresh" type="button">🔄 Vérifier</button>
-  </header>
 
-  <main class="wrap narrow">
-    <section class="hero">
-      <div class="logoLine"><div class="badgeMark">🪪</div><div><div class="eyebrow">MA SESSION</div><h1 class="title">Un seul sujet : l’accès.</h1></div></div>
-      <div class="lead">Cette page ne mélange pas les trajets, le profil ou les tarifs. Elle vérifie seulement si le chauffeur est reconnu et si le rail est ouvert.</div>
-      <div class="pill warn" id="sessionBigPill">contrôle…</div>
-    </section>
-    <section class="card">
-      <h2 class="sectionTitle">État de session</h2>
-      <div class="statusRows">
-        <div class="statusRow"><b>Compte DRIVER</b><span id="rowCompte">lecture…</span></div>
-        <div class="statusRow"><b>Accès</b><span id="rowAccess">lecture…</span></div>
-        <div class="statusRow"><b>Identifiants visibles</b><span>cachés à l’écran</span></div>
-        <div class="statusRow"><b>PAY transversal</b><span id="rowPay">porte prête</span></div>
-      </div>
-      <div class="actions two" style="margin-top:14px">
-        <a class="btn gold" href="./pin.html" data-route="pin">🔐 Ouvrir au PIN</a>
-        <button class="btn primary" id="btnVerify" type="button">🔄 Vérifier</button>
-      </div>
-    </section>
-  </main>
+<header class="pageHeader">
+  <div class="headerInner">
+    <a class="headerBtn left" href="./hub.html">← hub</a>
+    <div class="headerTitle">MA SESSION</div>
+    <a class="headerBtn right" id="goDashboard" href="#">🏠 activité</a>
+  </div>
+</header>
 
-<button class="wheelBtn wheelLeft" id="wheelConduire" type="button" aria-label="Ouvrir Conduire"><img src="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png" alt=""/>Conduire</button>
-<button class="wheelBtn wheelRight" id="wheelPiloter" type="button" aria-label="Ouvrir Piloter"><img src="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png" alt=""/>Piloter</button>
-<div class="wheelOverlay" id="wheelOverlay" aria-hidden="true">
-  <section class="wheelPanel" role="dialog" aria-modal="true" aria-labelledby="wheelTitle">
-    <div class="wheelHero">
-      <img src="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png" alt="DIGIY — L’écosystème direct des métiers pro"/>
-      <h2 id="wheelTitle">Piloter</h2>
-      <p id="wheelSub">Choisis une porte claire.</p>
-    </div>
-    <div class="wheelList" id="wheelList"></div>
-    <button class="closeOverlay" id="wheelClose" type="button">Fermer</button>
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Un seul sujet</div>
+    <h1>Ton accès.</h1>
+    <p class="lead">Cette page ne parle que de la session. Pas de profil. Pas de QR. Pas de trajets.</p>
   </section>
-</div>
-<div class="toast" id="toast"></div>
 
-  <script>
-(() => {
-  "use strict";
-  window.DIGIY_DRIVER_V3 = window.DIGIY_DRIVER_V3 || {};
-  const LOGO_URL = "https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png";
-  const PAY_COCKPIT_URL = "https://pay.digiylyfe.com/cockpit.html";
-  const PAY_START_URL = "https://commencer-a-payer.digiylyfe.com/";
-  const ROUTES = {
-    index:"./index.html", hub:"./hub.html", dashboard:"./dashboard-pro.html", trips:"./trajets.html",
-    newTrip:"./trajets.html#newTrip", note:"./trajets.html#quickDriverNote", profile:"./profil-chauffeur.html",
-    rates:"./tarifs.html", qr:"./generateur-digiy-driver.html", pin:"./pin.html", fiche:"./ma-fiche.html",
-    session:"./session.html", alerts:"./alertes.html", public:"https://driver.digiylyfe.com/"
-  };
-  const $ = (id) => document.getElementById(id);
-  const $$ = (sel,root=document) => Array.from(root.querySelectorAll(sel));
-  const state = { slug:"", phone:"", access:false, access_ok:false, pin_session_ok:false, reason:"boot" };
-  let sb = null;
-  function normSlug(v){ return String(v||"").trim().toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"").replace(/-+/g,"-").replace(/^-|-$/g,""); }
-  function normPhone(v){ const d=String(v||"").replace(/[^\d]/g,""); if(!d) return ""; if(d.startsWith("221")&&d.length===12) return d; if(d.length===9) return "221"+d; return d.length>=9?d:""; }
-  function isSensitiveSlug(v){ return /\d{7,}/.test(String(v||"")); }
-  function isDriverSlug(v){ return /^driver-\d{12}$/.test(normSlug(v)); }
-  function phoneFromDriverSlug(v){ const s=normSlug(v); return isDriverSlug(s) ? normPhone(s.replace("driver-","")) : ""; }
-  function canExposeSlug(v){ const s=normSlug(v); return !!s && !isSensitiveSlug(s); }
-  function storageGet(k){ try{return sessionStorage.getItem(k)||localStorage.getItem(k)||"";}catch(_){return "";} }
-  function storageSet(k,v){ try{sessionStorage.setItem(k,String(v));localStorage.setItem(k,String(v));}catch(_){} }
-  function localGet(k){ try{return localStorage.getItem(k)||"";}catch(_){return "";} }
-  function localSet(k,v){ try{localStorage.setItem(k,String(v));}catch(_){} }
-  function getClient(){
-    if(sb) return sb;
-    if(!window.supabase || !window.DIGIY_SUPABASE_URL || !(window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON)) return null;
-    sb = window.supabase.createClient(window.DIGIY_SUPABASE_URL, window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON, {auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
-    return sb;
+  <section class="card">
+    <h2>État</h2>
+    <div class="row">
+      <span class="pill" id="accessState">lecture…</span>
+      <span class="pill" id="accountState">lecture…</span>
+    </div>
+    <hr/>
+    <a class="btn primary" id="sessionAction" href="./pin.html">Ouvrir</a>
+  </section>
+
+  <section class="card">
+    <h2>Sorties utiles</h2>
+    <div class="actions">
+      <a class="btn ghost" id="goHub" href="./hub.html">☰ Portes</a>
+      <a class="btn ghost" id="goPin" href="./pin.html">🔑 PIN</a>
+    </div>
+  </section>
+</main>
+<script>
+const ROUTES = {
+  index:"./index.html",
+  dashboard:"./dashboard-pro.html",
+  hub:"./hub.html",
+  session:"./session.html",
+  alertes:"./alertes.html",
+  trajets:"./trajets.html",
+  notes:"./trajets.html#quickDriverNote",
+  profil:"./profil-chauffeur.html",
+  tarifs:"./tarifs.html",
+  qr:"./generateur-digiy-driver.html",
+  pin:"./pin.html",
+  fiche:"./ma-fiche.html",
+  pay:"https://pro-pay.digiylyfe.com/",
+  payStart:"https://commencer-a-payer.digiylyfe.com/"
+};
+const $ = (id) => document.getElementById(id);
+function normSlug(v){
+  return String(v || "").trim().toLowerCase()
+    .replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"")
+    .replace(/-+/g,"-").replace(/^-|-$/g,"");
+}
+function normPhone(v){
+  const d = String(v || "").replace(/[^\d]/g,"");
+  if(!d) return "";
+  if(d.startsWith("221") && d.length === 12) return d;
+  if(d.length === 9) return "221" + d;
+  return d.length >= 9 ? d : "";
+}
+function isSensitiveSlug(v){ return /\d{7,}/.test(String(v || "")); }
+function canExposeSlug(v){ const s = normSlug(v); return !!s && !isSensitiveSlug(s); }
+function phoneFromDriverSlug(v){
+  const s = normSlug(v);
+  return /^driver-\d{12}$/.test(s) ? normPhone(s.replace("driver-","")) : "";
+}
+function storageGet(key){
+  try{ return sessionStorage.getItem(key) || localStorage.getItem(key) || ""; }catch(_){ return ""; }
+}
+function storageSet(key,val){
+  try{ sessionStorage.setItem(key,String(val)); localStorage.setItem(key,String(val)); }catch(_){}
+}
+function cleanVisibleUrl(){
+  try{
+    const u = new URL(location.href);
+    let changed = false;
+    ["phone","tel","wa","p_phone","owner_phone","checkout_phone","subscription_phone","identifiant"].forEach(k=>{
+      if(u.searchParams.has(k)){ u.searchParams.delete(k); changed = true; }
+    });
+    const s = normSlug(u.searchParams.get("slug") || "");
+    if(s && isSensitiveSlug(s)){ u.searchParams.delete("slug"); changed = true; }
+    if(changed) history.replaceState({}, document.title, u.pathname + u.search + u.hash);
+  }catch(_){}
+}
+function getState(){
+  const qs = new URLSearchParams(location.search);
+  const guard = window.DIGIY_GUARD?.state || {};
+  let slug = normSlug(
+    guard.slug || qs.get("slug") ||
+    storageGet("digiy_driver_slug") ||
+    storageGet("digiy_driver_last_slug") ||
+    storageGet("DIGIY_SLUG") || ""
+  );
+  let phone = normPhone(
+    guard.phone || qs.get("phone") || qs.get("tel") ||
+    storageGet("digiy_driver_phone") ||
+    storageGet("DIGIY_DRIVER_PHONE") ||
+    phoneFromDriverSlug(slug) || ""
+  );
+  const accessFlags = [
+    guard.access_ok, guard.access, guard.pin_session_ok,
+    storageGet("digiy_driver_access_ok"),
+    storageGet("digiy_driver_pin_access"),
+    storageGet("DIGIY_DRIVER_ACCESS_OK")
+  ].map(v => String(v || "").toLowerCase());
+  const access = accessFlags.some(v => ["true","1","yes","ok","valid"].includes(v));
+  if(slug) storageSet("digiy_driver_last_slug", slug);
+  if(phone) storageSet("digiy_driver_phone", phone);
+  return {slug, phone, access, guard};
+}
+function safeUrl(base, extra={}){
+  try{
+    const s = getState().slug;
+    const u = new URL(base, location.href);
+    if(canExposeSlug(s)) u.searchParams.set("slug", s);
+    u.searchParams.delete("phone"); u.searchParams.delete("tel"); u.searchParams.delete("wa");
+    Object.entries(extra).forEach(([k,v])=>{ if(v !== undefined && v !== null && v !== "") u.searchParams.set(k,v); });
+    if(u.origin === location.origin) return u.pathname + u.search + u.hash;
+    return u.toString();
+  }catch(_){ return base; }
+}
+function setHref(id, href){
+  const el = $(id);
+  if(el) el.href = href;
+}
+function wireStandardLinks(){
+  setHref("goIndex", ROUTES.index);
+  setHref("goDashboard", safeUrl(ROUTES.dashboard));
+  setHref("goHub", safeUrl(ROUTES.hub));
+  setHref("goSession", safeUrl(ROUTES.session));
+  setHref("goAlertes", safeUrl(ROUTES.alertes));
+  setHref("goTrajets", safeUrl(ROUTES.trajets));
+  setHref("goNotes", safeUrl(ROUTES.notes));
+  setHref("goProfil", safeUrl(ROUTES.profil));
+  setHref("goTarifs", safeUrl(ROUTES.tarifs));
+  setHref("goQr", safeUrl(ROUTES.qr));
+  setHref("goPin", safeUrl(ROUTES.pin));
+  setHref("goFiche", safeUrl(ROUTES.fiche));
+  setHref("goPay", buildPayDoorUrl());
+}
+function buildPayDoorUrl(){
+  const st = getState();
+  try{
+    const u = new URL(ROUTES.pay);
+    u.searchParams.set("from","driver");
+    if(canExposeSlug(st.slug)) u.searchParams.set("slug", st.slug);
+    u.searchParams.set("return", location.origin + location.pathname);
+    return u.toString();
+  }catch(_){ return ROUTES.pay; }
+}
+function paintSessionPill(){
+  const st = getState();
+  const pill = $("sessionPill");
+  if(!pill) return;
+  if(st.access){
+    pill.textContent = "● session ouverte";
+    pill.className = "pill ok";
+  }else if(st.slug || st.phone){
+    pill.textContent = "● compte reconnu";
+    pill.className = "pill warn";
+  }else{
+    pill.textContent = "● accès à ouvrir";
+    pill.className = "pill bad";
   }
-  function phoneVariants(v){ const p=normPhone(v); if(!p) return []; const out=new Set([p,"+"+p]); if(p.startsWith("221")&&p.length===12){out.add(p.slice(3));out.add("+221"+p.slice(3));} return Array.from(out); }
-  function cleanVisibleUrl(){
-    try{
-      const u = new URL(location.href); let changed=false;
-      ["phone","tel","wa","module","from","return"].forEach(k=>{ if(u.searchParams.has(k)){u.searchParams.delete(k);changed=true;} });
-      const s = normSlug(u.searchParams.get("slug")||"");
-      if(s && !canExposeSlug(s)){ u.searchParams.delete("slug"); changed=true; }
-      if(changed) history.replaceState({},"",u.pathname + (u.searchParams.toString()?"?"+u.searchParams.toString():"") + u.hash);
-    }catch(_){}
+}
+function getClient(){
+  if(!window.supabase?.createClient) return null;
+  if(!window.DIGIY_SUPABASE_URL || !(window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON)) return null;
+  try{
+    return window.supabase.createClient(
+      window.DIGIY_SUPABASE_URL,
+      window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON,
+      { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false } }
+    );
+  }catch(_){ return null; }
+}
+cleanVisibleUrl();
+wireStandardLinks();
+paintSessionPill();
+
+function renderSession(){
+  const st = getState();
+  const access = $("accessState");
+  const account = $("accountState");
+  const action = $("sessionAction");
+  if(access){
+    access.textContent = st.access ? "ouverte" : "à ouvrir";
+    access.className = "pill " + (st.access ? "ok" : "warn");
   }
-  function safeUrl(base, hash=""){
-    try{
-      const url = new URL(base, location.href);
-      if(canExposeSlug(state.slug)) url.searchParams.set("slug", normSlug(state.slug));
-      return url.pathname.split('/').pop() ? url.pathname.split('/').pop() + url.search + (hash || url.hash || "") : base;
-    }catch(_){ return base + (hash||""); }
+  if(account){
+    account.textContent = (st.slug || st.phone) ? "reconnu" : "absent";
+    account.className = "pill " + ((st.slug || st.phone) ? "ok" : "bad");
   }
-  function route(name){
-    const val = ROUTES[name] || name || "./index.html";
-    if(/^https?:/i.test(val)) return val;
-    const [base,hash] = String(val).split('#');
-    return safeUrl(base, hash ? '#'+hash : '');
+  if(action){
+    action.textContent = st.access ? "Retourner à l’activité" : "Ouvrir avec le PIN";
+    action.href = st.access ? safeUrl(ROUTES.dashboard) : safeUrl(ROUTES.pin);
   }
-  function remember(){ if(state.slug){storageSet("digiy_driver_slug",state.slug);storageSet("digiy_driver_last_slug",state.slug);storageSet("DIGIY_SLUG",state.slug);} if(state.phone){storageSet("digiy_driver_phone",state.phone);storageSet("DIGIY_DRIVER_PHONE",state.phone);} }
-  async function waitGuard(){
-    const g = window.DIGIY_GUARD;
-    if(!g) return {};
-    try{
-      if(typeof g.ready === "function"){
-        let out; try{ out = g.ready({redirect:false,preserve_validation:true}); }catch(_){ out = g.ready(); }
-        if(out && typeof out.then === "function") await out;
-      }else if(g.ready && typeof g.ready.then === "function") await g.ready;
-      if(typeof g.getSession === "function") return g.getSession() || g.state || {};
-      return g.state || {};
-    }catch(e){ console.warn("[DIGIY DRIVER] guard warning", e); return {}; }
-  }
-  async function resolveState(){
-    cleanVisibleUrl();
-    const qs = new URLSearchParams(location.search);
-    const guard = await waitGuard();
-    Object.assign(state, guard || {});
-    state.slug = normSlug(state.slug || qs.get("slug") || storageGet("digiy_driver_slug") || storageGet("digiy_driver_last_slug") || storageGet("DIGIY_SLUG") || "");
-    state.phone = normPhone(state.phone || qs.get("phone") || qs.get("tel") || storageGet("digiy_driver_phone") || storageGet("DIGIY_DRIVER_PHONE") || phoneFromDriverSlug(state.slug) || "");
-    if(!state.access && !state.access_ok){
-      const flags=[storageGet("digiy_driver_pin_access"),storageGet("digiy_driver_access_ok"),storageGet("digiy_driver_has_access"),storageGet("DIGIY_DRIVER_ACCESS_OK")].map(v=>String(v||"").toLowerCase());
-      if(flags.some(v=>["true","1","yes","ok"].includes(v))){state.access=true;state.access_ok=true;}
-    }
-    remember(); cleanVisibleUrl(); return state;
-  }
-  function bindRoutes(){
-    $$('[data-route]').forEach(el=>{ const r=el.getAttribute('data-route'); const h=el.getAttribute('data-hash')||''; if(r in ROUTES){ el.href = route(r) + (h && !route(r).includes('#') ? h : ''); } });
-    $$('[data-action="refresh"]').forEach(el=> el.addEventListener('click',()=> location.reload()));
-    $$('[data-action="speak-help"]').forEach(el=> el.addEventListener('click',()=> speak("DIGIY DRIVER. Le chauffeur ouvre une porte, fait une chose, puis revient. Le terrain garde la main.", true)));
-  }
-  function toast(text){ const el=$("toast"); if(!el) return; el.textContent=text; el.style.display="block"; clearTimeout(window.__digiyDriverToast); window.__digiyDriverToast=setTimeout(()=>{el.style.display="none";},2600); }
-  function escapeHtml(v){ return String(v??"").replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
-  function human(v, fallback="—"){ const s=String(v??"").trim(); return s || fallback; }
-  function money(v){ const n=Number(v); if(!Number.isFinite(n)||n<=0) return "Montant non précisé"; return new Intl.NumberFormat('fr-FR').format(n) + " F"; }
-  function tripStatus(r){ const s=String(r?.status||"").toLowerCase(); if(s==="ongoing") return "in_progress"; if(s==="cancelled") return "canceled"; return s || "requested"; }
-  function statusLabel(s){ return {requested:"Demandée",assigned:"Assignée",accepted:"Acceptée",in_progress:"En cours",completed:"Terminée",canceled:"Annulée"}[s] || s; }
-  function tripTitle(r){ return human(r?.title || r?.route_label || r?.pickup_label || r?.pickup_zone || r?.zone || "Course chauffeur"); }
-  function tripWhen(r){ return r?.scheduled_at || r?.created_at || r?.updated_at || r?.date || ""; }
-  function fmtDate(v){ if(!v) return "Date non précisée"; const d=new Date(v); if(isNaN(d)) return String(v); return d.toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); }
-  async function loadTrips(){
-    const client=getClient(); const p=normPhone(state.phone || phoneFromDriverSlug(state.slug));
-    if(!client || !p || !(state.access_ok || state.access)) return [];
-    try{
-      const {data,error}=await client.from("digiy_driver_trips").select("*").in("driver_phone", phoneVariants(p)).in("status", ["requested","assigned","accepted","ongoing","in_progress","completed","canceled","cancelled"]).order("created_at",{ascending:false}).limit(40);
-      if(error) throw error; return Array.isArray(data)?data:[];
-    }catch(e){ console.warn("[DIGIY DRIVER] trips warning", e); return []; }
-  }
-  function voiceAvailable(){ return typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined"; }
-  function speak(text, force=false){
-    const phrase=String(text||"").trim(); if(!phrase) return false;
-    if(!force && localGet("DIGIY_DRIVER_VOICE_ENABLED") !== "1") return false;
-    if(!voiceAvailable()){ toast("Voix non disponible sur ce navigateur."); return false; }
-    try{ window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(phrase); u.lang="fr-FR"; u.rate=.88; u.pitch=1.02; u.volume=1; window.speechSynthesis.speak(u); return true; }catch(e){ console.warn(e); return false; }
-  }
-  function stopVoice(){ try{ if(window.speechSynthesis) window.speechSynthesis.cancel(); }catch(_){} }
-  async function checkPayAccess(){
-    const client=getClient(); if(!client || !state.phone) return null;
-    try{ const {data,error}=await client.rpc("digiy_check_module_access",{p_phone:state.phone,p_module:"PAY"}); if(error) return null; return data===true; }catch(_){ return null; }
-  }
-  function buildPayStartUrl(){ const u=new URL(PAY_START_URL); u.searchParams.set("module","PAY"); u.searchParams.set("plan","9A"); u.searchParams.set("from","driver"); if(canExposeSlug(state.slug)) u.searchParams.set("slug",state.slug); u.searchParams.set("return", location.href.split('?')[0]); return u.toString(); }
-  async function initPayDoors(){
-    const doors=$$('[data-pay-door]'); if(!doors.length) return;
-    const defaultUrl=buildPayStartUrl(); doors.forEach(a=>{a.href=defaultUrl;});
-    const ok=await checkPayAccess();
-    const finalUrl = ok ? PAY_COCKPIT_URL + (canExposeSlug(state.slug) ? "?slug="+encodeURIComponent(state.slug) : "") : defaultUrl;
-    doors.forEach(a=>{a.href=finalUrl; const label=a.querySelector('[data-pay-label]'); if(label) label.textContent = ok ? "Mon argent" : "Commencer à payer";});
-  }
-  function buildWheelItem(icon, label, routeName, sub, extra=""){
-    const isPay = routeName === "pay";
-    const href = isPay ? buildPayStartUrl() : route(routeName);
-    return `<a class="wheelItem" href="${href}" ${isPay?'data-pay-door':''} ${extra}><span><b>${icon} ${label}</b>${sub?`<small>${sub}</small>`:""}</span><span>›</span></a>`;
-  }
-  function initWheels(){
-    const left=$("wheelConduire"), right=$("wheelPiloter"), overlay=$("wheelOverlay"), title=$("wheelTitle"), sub=$("wheelSub"), list=$("wheelList"), close=$("wheelClose");
-    if(!left || !right || !overlay || !title || !list) return;
-    function open(kind){
-      if(kind==="drive"){
-        title.textContent="Conduire"; sub.textContent="Le travail immédiat du chauffeur.";
-        list.innerHTML = [
-          buildWheelItem("🏠","Mon activité","dashboard","Voir l’état du jour"),
-          buildWheelItem("📋","Mes trajets","trips","Lire, accepter, démarrer"),
-          buildWheelItem("✍️","Nouvelle note","note","Course, carburant, client qui doit"),
-          `<button class="wheelItem" type="button" data-action="refresh"><span><b>🔄 Actualiser</b><small>Relire l’activité</small></span><span>↻</span></button>`
-        ].join("");
-      }else{
-        title.textContent="Piloter"; sub.textContent="La gestion rangée, sans surcharge.";
-        list.innerHTML = [
-          buildWheelItem("🧭","Hub DRIVER","hub","Toutes les portes du module"),
-          buildWheelItem("🪪","Ma session","session","Vérifier l’accès"),
-          buildWheelItem("🔔","Mes alertes","alerts","Voix, messages, lecteur"),
-          buildWheelItem("👤","Mon profil","profile","Identité chauffeur"),
-          buildWheelItem("🏷️","Mes tarifs","rates","Grille terrain"),
-          buildWheelItem("📱","Mon QR","qr","Partager la fiche"),
-          buildWheelItem("🔐","Mon accès","pin","Ouvrir au PIN"),
-          buildWheelItem("💳",`<span data-pay-label>Mon argent</span>`,`pay`,`Porte PAY transversale`)
-        ].join("");
-        initPayDoors();
-      }
-      overlay.classList.add("open"); overlay.setAttribute("aria-hidden","false"); bindRoutes();
-    }
-    left.addEventListener("click",()=>open("drive")); right.addEventListener("click",()=>open("pilot"));
-    close?.addEventListener("click",()=>{overlay.classList.remove("open"); overlay.setAttribute("aria-hidden","true");});
-    overlay.addEventListener("click",e=>{ if(e.target===overlay){ overlay.classList.remove("open"); overlay.setAttribute("aria-hidden","true"); }});
-  }
-  async function bootCommon(){ await resolveState(); bindRoutes(); initWheels(); initPayDoors(); }
-  window.DIGIY_DRIVER_V3 = { state, $, $$, route, resolveState, loadTrips, tripStatus, statusLabel, tripTitle, tripWhen, fmtDate, money, human, escapeHtml, speak, stopVoice, localGet, localSet, toast, initPayDoors, bootCommon, checkPayAccess, buildPayStartUrl };
-})();
+}
+renderSession();
 </script>
-  <script>
-(async()=>{
-  const D=window.DIGIY_DRIVER_V3; await D.bootCommon(); const $=D.$;
-  async function render(){
-    await D.resolveState();
-    const p=$('sessionBigPill');
-    $('rowCompte').textContent = D.state.slug ? 'reconnu' : 'à ouvrir';
-    $('rowAccess').textContent = (D.state.access_ok||D.state.access) ? (D.state.pin_session_ok?'session ouverte':'abonnement actif') : 'protégé';
-    if(D.state.access_ok||D.state.access){p.className='pill ok';p.textContent='session : active';}else if(D.state.slug){p.className='pill warn';p.textContent='session : protégée';}else{p.className='pill bad';p.textContent='session : à ouvrir';}
-    const pay=await D.checkPayAccess(); $('rowPay').textContent = pay===true ? 'PAY ouvert' : pay===false ? 'redirige vers Commencer à payer' : 'sera vérifiée à l’ouverture';
-  }
-  $('btnVerify')?.addEventListener('click',render); $('headerAction')?.addEventListener('click',render); await render();
-})();</script>
 </body>
 </html>
+
