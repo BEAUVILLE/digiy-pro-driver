@@ -678,7 +678,238 @@
       .btn,.navbtn{transition:none}
     }
 
-  </style>
+  
+/* =========================================================
+   DIGIY DRIVER V4.4 — TYPOGRAPHIE TERRAIN
+   Plus grand, plus gras, plus lisible sur téléphone.
+   Moteur inchangé.
+   ========================================================= */
+
+html{
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+
+body{
+  font-weight:800;
+  letter-spacing:-.005em;
+}
+
+.pageHeader{
+  min-height:58px;
+}
+
+.headerBtn,
+.headerTitle{
+  min-height:42px;
+  font-size:15px;
+  font-weight:1000;
+  padding:9px 12px;
+}
+
+.eyebrow{
+  font-size:13px !important;
+  font-weight:1000 !important;
+  letter-spacing:.12em;
+}
+
+h1{
+  font-size:clamp(42px,10vw,72px) !important;
+  line-height:.94 !important;
+  font-weight:1000 !important;
+  letter-spacing:-.06em !important;
+}
+
+h2{
+  font-size:clamp(30px,7vw,42px) !important;
+  line-height:1 !important;
+  font-weight:1000 !important;
+  letter-spacing:-.045em !important;
+}
+
+h3{
+  font-size:clamp(24px,5.6vw,32px) !important;
+  line-height:1.05 !important;
+  font-weight:1000 !important;
+}
+
+.lead,
+.muted,
+.heroLead,
+.brandSub,
+.meta,
+.tripLine,
+.audioCoachText{
+  font-size:clamp(18px,4.4vw,23px) !important;
+  line-height:1.42 !important;
+  font-weight:950 !important;
+}
+
+.small,
+.kpi .sub,
+.kpiSub,
+.hint,
+.msg,
+.empty,
+.audioCoachHint{
+  font-size:16px !important;
+  line-height:1.45 !important;
+  font-weight:950 !important;
+}
+
+.pill,
+.badge,
+.tag,
+.chip,
+.headerBtn,
+.headerTitle{
+  font-size:15px !important;
+  font-weight:1000 !important;
+}
+
+.btn,
+.door,
+.navbtn,
+.driverPhoneAction,
+.audioCoachActions button{
+  min-height:64px !important;
+  font-size:18px !important;
+  font-weight:1000 !important;
+  border-radius:20px !important;
+}
+
+.door b,
+.tripTitle,
+.fareName,
+.fareTitle,
+.fieldValue,
+.memoryItemTitle,
+.driverPhoneCopy strong{
+  font-size:clamp(21px,5vw,28px) !important;
+  line-height:1.12 !important;
+  font-weight:1000 !important;
+}
+
+.door span,
+.driverPhoneCopy span,
+.memoryItemMeta,
+.quickGuide p,
+.sectionLead{
+  font-size:17px !important;
+  line-height:1.4 !important;
+  font-weight:950 !important;
+}
+
+.kpi{
+  min-height:142px;
+  padding:18px !important;
+}
+
+.kpi .label,
+.kpiLabel{
+  font-size:17px !important;
+  font-weight:1000 !important;
+}
+
+.kpi .num,
+.kpiValue,
+.statNumber{
+  font-size:clamp(44px,11vw,62px) !important;
+  font-weight:1000 !important;
+  line-height:.9 !important;
+}
+
+input,
+textarea,
+select{
+  min-height:60px !important;
+  font-size:18px !important;
+  font-weight:1000 !important;
+  line-height:1.35 !important;
+}
+
+textarea{
+  min-height:118px !important;
+}
+
+label{
+  font-size:17px !important;
+  font-weight:1000 !important;
+}
+
+.trip,
+.fareCard,
+.card,
+.hero{
+  padding:18px !important;
+}
+
+.audioCoachFab{
+  min-height:58px !important;
+  min-width:58px !important;
+  font-size:16px !important;
+  font-weight:1000 !important;
+}
+
+.audioCoachTitle{
+  font-size:30px !important;
+  font-weight:1000 !important;
+}
+
+@media(max-width:560px){
+  .wrap{
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+
+  .pageHeader{
+    min-height:56px;
+  }
+
+  .headerBtn,
+  .headerTitle{
+    min-height:40px;
+    font-size:14px !important;
+    padding:8px 10px;
+  }
+
+  h1{
+    font-size:42px !important;
+  }
+
+  h2{
+    font-size:31px !important;
+  }
+
+  .lead,
+  .muted,
+  .heroLead,
+  .meta,
+  .tripLine{
+    font-size:18px !important;
+  }
+
+  .btn,
+  .door,
+  .navbtn,
+  .driverPhoneAction{
+    min-height:66px !important;
+    font-size:18px !important;
+  }
+
+  .grid2,
+  .kpiGrid{
+    grid-template-columns:1fr !important;
+  }
+
+  .kpi .num,
+  .kpiValue,
+  .statNumber{
+    font-size:50px !important;
+  }
+}
+
+</style>
 </head>
 <body>
   <div class="wrap">
@@ -691,7 +922,7 @@
         </div>
 
         <div class="tarifsFastRow">
-          <a class="btn" id="fastHome" href="./dashboard-pro.html">🏠 Accueil</a>
+          <a class="btn" id="fastHome" href="./hub.html">🏠 Accueil</a>
           <a class="btn" id="fastTrips" href="./trajets.html">📋 Trajets</a>
           <a class="btn primary" id="fastProfile" href="./profil-chauffeur.html">👤 Profil</a>
           <a class="btn gold" id="fastTarifs" href="#tarifsForm">💰 Tarifs</a>
@@ -710,7 +941,7 @@
       <div class="navbox">
         <div class="navtitle">Plus chauffeur</div>
         <div class="navgrid">
-          <a class="navbtn" id="navDashboard" href="./dashboard-pro.html">🏠 Accueil</a>
+          <a class="navbtn" id="navDashboard" href="./hub.html">🏠 Accueil</a>
           <a class="navbtn" id="navCockpit" href="./cockpit.html">⚙️ Plus</a>
           <a class="navbtn" id="navProfil" href="./profil-chauffeur.html">👤 Profil</a>
           <a class="navbtn active" id="navTarifs" href="./tarifs.html">💰 Tarifs</a>
@@ -968,7 +1199,7 @@
 
   <nav class="bottomNav" aria-label="Navigation DRIVER">
     <div class="bottomNavInner">
-      <a id="bottomHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
+      <a id="bottomHome" href="./hub.html"><span class="ico">🏠</span><span>Accueil</span></a>
       <a id="bottomTrips" href="./trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
       <a id="bottomNew" href="./trajets.html#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
       <a id="bottomNotes" href="./trajets.html#quickDriverNote"><span class="ico">✍️</span><span>Notes</span></a>
@@ -983,7 +1214,7 @@
       const TABLE = "digiy_driver_public_profiles";
       const MODULE = "DRIVER";
       const PAY_HOME = "https://commencer-a-payer.digiylyfe.com/";
-      const DASHBOARD_PAGE = "./dashboard-pro.html";
+      const DASHBOARD_PAGE = "./hub.html";
       const COCKPIT_PAGE = "./cockpit.html";
       const PROFILE_PAGE = "./profil-chauffeur.html";
       const RATES_PAGE = "./tarifs.html";
