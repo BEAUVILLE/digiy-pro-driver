@@ -1,1228 +1,722 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Je conduis — Tarifs</title>
-  <meta name="theme-color" content="#123b2d"/>
-  <meta name="description" content="DIGIY DRIVER — Tarifs chauffeur : grille terrain, aperçu client et brouillon local sécurisé."/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-
-  <script>
-    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
-    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
-    window.DIGIY_MODULE = "DRIVER";
-  </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../guard.js?v=driver-security-v2-20260504"></script>
-
-  <style>
-
-    :root{
-      --bg:#123b2d;
-      --bg2:#0b241b;
-      --card:#1f5a43;
-      --card2:#174735;
-      --line:rgba(255,255,255,.18);
-      --line2:rgba(255,255,255,.26);
-      --text:#f3fff7;
-      --muted:rgba(243,255,247,.84);
-      --green:#22c55e;
-      --green2:#16a34a;
-      --gold:#facc15;
-      --warn:#f59e0b;
-      --red:#fb7185;
-      --blue:#60a5fa;
-      --shadow:0 22px 58px rgba(0,0,0,.34);
-      --r:26px;
-      --max:1180px;
-      --bottomNavH:86px;
-    }
-
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-
-    body{
-      margin:0;
-      color:var(--text);
-      font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-      background:
-        radial-gradient(900px 520px at 8% -10%, rgba(34,197,94,.28), transparent 62%),
-        radial-gradient(760px 440px at 105% 0%, rgba(250,204,21,.16), transparent 58%),
-        linear-gradient(180deg,var(--bg),var(--bg2) 68%,#071811 100%);
-      padding:16px 16px calc(var(--bottomNavH) + env(safe-area-inset-bottom,0px) + 20px);
-      min-height:100vh;
-    }
-
-    a{color:inherit;text-decoration:none}
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-
-    .wrap{
-      max-width:var(--max);
-      margin:auto;
-    }
-
-    .top{
-      display:flex;
-      justify-content:space-between;
-      gap:14px;
-      flex-wrap:wrap;
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      padding:18px;
-      background:
-        radial-gradient(700px 260px at 100% 0%, rgba(250,204,21,.11), transparent 72%),
-        linear-gradient(180deg,rgba(31,90,67,.96),rgba(20,67,49,.96));
-      box-shadow:var(--shadow);
-      position:relative;
-      overflow:hidden;
-    }
-
-    .top:after{
-      content:"💰";
-      position:absolute;
-      right:14px;
-      bottom:-18px;
-      font-size:118px;
-      opacity:.075;
-      transform:rotate(-10deg);
-      pointer-events:none;
-    }
-
-    h1,h2,h3{
-      margin:0 0 10px 0;
-      font-weight:1000;
-      letter-spacing:-.035em;
-      line-height:1.04;
-    }
-
-    h1{
-      font-size:clamp(34px,7vw,54px);
-      max-width:860px;
-    }
-
-    h2{
-      font-size:clamp(25px,4.8vw,34px);
-    }
-
-    h3{
-      font-size:clamp(20px,3.5vw,25px);
-    }
-
-    p{margin:0}
-
-    .muted{
-      color:var(--muted);
-      font-weight:900;
-      font-size:16px;
-      line-height:1.48;
-    }
-
-    .small{font-size:14px}
-
-    .pillRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:flex-start;
-      justify-content:flex-end;
-      flex:0 0 auto;
-      position:relative;
-      z-index:1;
-    }
-
-    .pill{
-      min-height:44px;
-      padding:10px 13px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.08);
-      font-size:14px;
-      font-weight:1000;
-      white-space:nowrap;
-      color:var(--muted);
-      box-shadow:0 10px 24px rgba(0,0,0,.16);
-    }
-
-    .pill.ok{border-color:rgba(34,197,94,.40);color:#bbf7d0;background:rgba(34,197,94,.14)}
-    .pill.warn{border-color:rgba(245,158,11,.40);color:#fde68a;background:rgba(245,158,11,.14)}
-    .pill.bad{border-color:rgba(251,113,133,.40);color:#fecaca;background:rgba(251,113,133,.14)}
-
-    .stack{
-      display:grid;
-      gap:14px;
-      margin-top:14px;
-    }
-
-    .grid{
-      display:grid;
-      gap:14px;
-      grid-template-columns:1.1fr .9fr;
-    }
-
-    @media(max-width:980px){
-      .grid{grid-template-columns:1fr}
-    }
-
-    .card{
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      background:
-        radial-gradient(700px 260px at 100% 0%, rgba(250,204,21,.08), transparent 72%),
-        linear-gradient(180deg,rgba(31,90,67,.96),rgba(20,67,49,.96));
-      padding:18px;
-      box-shadow:var(--shadow);
-    }
-
-    .row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:stretch;
-    }
-
-    .row > *{flex:1}
-
-    .navbox{
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:22px;
-      padding:15px;
-      background:rgba(4,18,13,.22);
-      box-shadow:0 14px 28px rgba(0,0,0,.16);
-    }
-
-    .navtitle{
-      font-size:14px;
-      color:var(--muted);
-      font-weight:1000;
-      letter-spacing:.04em;
-      margin-bottom:12px;
-      text-transform:uppercase;
-    }
-
-    .navgrid{
-      display:grid;
-      gap:9px;
-      grid-template-columns:repeat(2,1fr);
-    }
-
-    @media(min-width:760px){
-      .navgrid{grid-template-columns:repeat(4,1fr)}
-    }
-
-    .navbtn,
-    .btn{
-      min-height:58px;
-      padding:14px 16px;
-      border-radius:18px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.09);
-      color:var(--text);
-      font-size:16px;
-      font-weight:1000;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:9px;
-      cursor:pointer;
-      text-align:center;
-      transition:.15s ease;
-      text-decoration:none;
-      box-shadow:0 14px 28px rgba(0,0,0,.16);
-    }
-
-    .navbtn:hover,
-    .btn:hover{transform:translateY(-1px)}
-
-    .navbtn.active{
-      background:rgba(250,204,21,.16);
-      border-color:rgba(250,204,21,.34);
-      color:#fff0a8;
-    }
-
-    .btn.primary{
-      background:linear-gradient(135deg,var(--green),var(--green2));
-      color:#042012;
-      border-color:transparent;
-      box-shadow:0 16px 34px rgba(34,197,94,.26);
-    }
-
-    .btn.gold{
-      background:linear-gradient(135deg,var(--gold),var(--warn));
-      color:#241300;
-      border-color:transparent;
-      box-shadow:0 16px 34px rgba(250,204,21,.20);
-    }
-
-    .btn.warn{
-      background:rgba(245,158,11,.16);
-      color:#fde68a;
-      border-color:rgba(245,158,11,.34);
-    }
-
-    .btn.danger{
-      background:rgba(251,113,133,.16);
-      color:#fecaca;
-      border-color:rgba(251,113,133,.34);
-    }
-
-    .btn.ghost{background:rgba(255,255,255,.055)}
-
-    label{
-      display:block;
-      font-size:15px;
-      font-weight:1000;
-      color:rgba(243,255,247,.94);
-      margin:12px 0 7px;
-    }
-
-    input, textarea{
-      width:100%;
-      padding:15px;
-      border-radius:18px;
-      border:1px solid var(--line2);
-      background:rgba(4,18,13,.22);
-      color:var(--text);
-      outline:none;
-      font-size:17px;
-      font-weight:1000;
-      font-family:inherit;
-    }
-
-    input::placeholder, textarea::placeholder{
-      color:rgba(243,255,247,.58);
-    }
-
-    input:focus, textarea:focus{
-      border-color:rgba(34,197,94,.52);
-      box-shadow:0 0 0 4px rgba(34,197,94,.12);
-      background:rgba(4,18,13,.28);
-    }
-
-    input[type="number"]{appearance:textfield}
-
-    input:disabled, textarea:disabled{
-      opacity:.75;
-      cursor:not-allowed;
-    }
-
-    textarea{
-      min-height:112px;
-      resize:vertical;
-      line-height:1.5;
-    }
-
-    .hint{
-      font-size:14px;
-      color:rgba(243,255,247,.72);
-      line-height:1.45;
-      margin-top:7px;
-      font-weight:900;
-    }
-
-    .hr{
-      height:1px;
-      background:rgba(255,255,255,.16);
-      margin:18px 0;
-    }
-
-    .kpis{
-      display:grid;
-      gap:10px;
-      grid-template-columns:repeat(4,1fr);
-      margin-top:14px;
-    }
-
-    @media(max-width:760px){
-      .kpis{grid-template-columns:repeat(2,1fr)}
-    }
-
-    @media(max-width:520px){
-      .kpis{grid-template-columns:1fr}
-    }
-
-    .kpi{
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:20px;
-      padding:15px;
-      background:rgba(4,18,13,.22);
-      box-shadow:0 12px 24px rgba(0,0,0,.13);
-    }
-
-    .kpi .label{
-      color:var(--muted);
-      font-size:14px;
-      font-weight:1000;
-      margin-bottom:7px;
-    }
-
-    .kpi .value{
-      font-size:27px;
-      font-weight:1000;
-      line-height:1;
-      color:#fff;
-    }
-
-    .fareGrid{
-      display:grid;
-      gap:10px;
-      grid-template-columns:repeat(2,1fr);
-    }
-
-    @media(max-width:760px){
-      .fareGrid{grid-template-columns:1fr}
-    }
-
-    .fareBox{
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:22px;
-      padding:15px;
-      background:rgba(4,18,13,.22);
-      box-shadow:0 12px 24px rgba(0,0,0,.13);
-    }
-
-    .fareTop{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-      margin-bottom:10px;
-    }
-
-    .fareTitle{
-      font-size:18px;
-      font-weight:1000;
-      line-height:1.18;
-    }
-
-    .prefix{
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-
-    .prefix span{
-      white-space:nowrap;
-      font-weight:1000;
-      color:#fff0a8;
-      font-size:14px;
-    }
-
-    .extras{
-      display:grid;
-      gap:10px;
-      margin-top:12px;
-    }
-
-    .extraItem{
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:22px;
-      padding:15px;
-      background:rgba(4,18,13,.22);
-    }
-
-    .extraHead{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-      margin-bottom:10px;
-    }
-
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:9px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.08);
-      color:rgba(243,255,247,.94);
-      font-size:13px;
-      font-weight:1000;
-      white-space:nowrap;
-    }
-
-    .list{
-      display:grid;
-      gap:12px;
-    }
-
-    .previewCard{
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(4,18,13,.22);
-      border-radius:24px;
-      padding:16px;
-      box-shadow:0 14px 28px rgba(0,0,0,.16);
-    }
-
-    .pTop{
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-
-    .pAvatar{
-      width:58px;
-      height:58px;
-      border-radius:18px;
-      display:grid;
-      place-items:center;
-      background:rgba(250,204,21,.16);
-      border:1px solid rgba(250,204,21,.34);
-      font-size:20px;
-      font-weight:1000;
-      overflow:hidden;
-      flex:0 0 auto;
-      color:#fff0a8;
-    }
-
-    .pAvatar img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    .pName{
-      margin:0;
-      font-weight:1000;
-      font-size:22px;
-      line-height:1.12;
-    }
-
-    .pMeta{
-      margin:4px 0 0;
-      color:var(--muted);
-      font-weight:900;
-      font-size:15px;
-      line-height:1.45;
-    }
-
-    .pBadges{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:12px;
-    }
-
-    .pBadge{
-      font-size:13px;
-      font-weight:1000;
-      padding:8px 11px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.08);
-      color:rgba(243,255,247,.94);
-    }
-
-    .tarifList{
-      display:grid;
-      gap:9px;
-      margin-top:14px;
-    }
-
-    .tarifLine{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      padding:13px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.06);
-      font-size:16px;
-      font-weight:1000;
-      line-height:1.3;
-    }
-
-    .tarifLine .name{
-      color:rgba(243,255,247,.94);
-    }
-
-    .tarifLine .amount{
-      white-space:nowrap;
-      color:#fde68a;
-    }
-
-    .summaryBox{
-      margin-top:14px;
-      padding:15px;
-      border-radius:20px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(4,18,13,.26);
-    }
-
-    .summaryBox pre{
-      margin:0;
-      white-space:pre-wrap;
-      word-break:break-word;
-      font:inherit;
-      font-size:16px;
-      line-height:1.6;
-      color:rgba(243,255,247,.94);
-      font-weight:900;
-    }
-
-    .toast{
-      margin-top:14px;
-      padding:13px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(4,18,13,.26);
-      color:rgba(243,255,247,.94);
-      font-size:15px;
-      font-weight:1000;
-      display:none;
-      line-height:1.4;
-    }
-
-    .toast.ok{border-color:rgba(34,197,94,.34);background:rgba(34,197,94,.14)}
-    .toast.bad{border-color:rgba(251,113,133,.34);background:rgba(251,113,133,.14)}
-    .toast.warn{border-color:rgba(250,204,21,.34);background:rgba(250,204,21,.14)}
-
-    .disabledNote{
-      margin-top:12px;
-      padding:13px;
-      border-radius:18px;
-      border:1px solid rgba(250,204,21,.28);
-      background:rgba(250,204,21,.10);
-      color:rgba(243,255,247,.94);
-      font-size:15px;
-      font-weight:1000;
-      display:none;
-      line-height:1.45;
-    }
-
-    #tarifsForm, #tarifsPreview{scroll-margin-top:96px}
-
-    .bottomNav{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      z-index:99990;
-      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
-      background:rgba(9,35,26,.96);
-      border-top:1px solid rgba(255,255,255,.16);
-      backdrop-filter:blur(16px);
-      -webkit-backdrop-filter:blur(16px);
-    }
-
-    .bottomNavInner{
-      width:min(100%,760px);
-      margin:0 auto;
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:6px;
-    }
-
-    .bottomNav a{
-      min-height:64px;
-      border-radius:17px;
-      display:grid;
-      place-items:center;
-      align-content:center;
-      gap:3px;
-      color:rgba(243,255,247,.78);
-      font-size:12px;
-      font-weight:1000;
-      text-align:center;
-      border:1px solid transparent;
-      text-decoration:none;
-    }
-
-    .bottomNav .ico{font-size:21px;line-height:1}
-
-    .bottomNav a.active{
-      color:#042012;
-      background:linear-gradient(135deg,var(--gold),var(--green));
-      border-color:rgba(250,204,21,.36);
-      box-shadow:0 14px 28px rgba(34,197,94,.24);
-    }
-
-    .tarifsFastRow{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:10px;
-      margin-top:15px;
-      position:relative;
-      z-index:1;
-    }
-
-    @media(max-width:720px){
-      body{padding:12px 10px calc(var(--bottomNavH) + env(safe-area-inset-bottom,0px) + 14px)}
-      .top,.card{padding:16px}
-      .tarifsFastRow{grid-template-columns:1fr 1fr}
-      .navbox{display:none}
-      h1{font-size:36px}
-      h2{font-size:27px}
-      h3{font-size:22px}
-      .muted{font-size:16px}
-      .row > *{flex:1 1 100%}
-      .row .btn{width:100%}
-      .tarifLine{align-items:flex-start;flex-direction:column}
-    }
-
-    @media(max-width:420px){
-      .tarifsFastRow{grid-template-columns:1fr}
-      .bottomNav a{font-size:11px}
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      html{scroll-behavior:auto}
-      .btn,.navbtn{transition:none}
-    }
-
-  
-/* =========================================================
-   DIGIY DRIVER V4.4 — TYPOGRAPHIE TERRAIN
-   Plus grand, plus gras, plus lisible sur téléphone.
-   Moteur inchangé.
-   ========================================================= */
-
-html{
-  -webkit-text-size-adjust:100%;
-  text-size-adjust:100%;
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Je conduis — Édition tarifs</title>
+<meta name="theme-color" content="#13824d"/>
+<meta name="description" content="DIGIY DRIVER — Atelier tarifs : grille terrain, aperçu client, brouillon local."/>
+<meta name="robots" content="noindex,nofollow"/>
+<meta name="digiy-build" content="driver-tarifs-edition-v5-20260519"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+
+<script>
+  window.DIGIY_SUPABASE_URL      = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+  window.DIGIY_SUPABASE_ANON     = window.DIGIY_SUPABASE_ANON_KEY;
+  window.DIGIY_MODULE            = "DRIVER";
+  window.DIGIY_LOGIN_URL         = "./pin.html";
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./guard.js?v=driver-tarifs-edition-v5-20260519"></script>
+
+<style>
+/* ══ VARIABLES ══ */
+:root{
+  --bg:#13824d;--bg2:#0f6b3e;--bg3:#0b4f31;
+  --card:rgba(23,134,79,.65);
+  --bar:rgba(8,50,24,.96);
+  --gold:#c4973f;--green:#22c55e;
+  --line:rgba(255,255,255,.22);
+  --text:#f0fff5;--muted:rgba(240,255,245,.7);
+  --shadow:0 18px 42px rgba(0,0,0,.22);
+  --r:20px;--max:960px;
+  --hdrH:52px;--barH:78px;
 }
 
+/* ══ BASE ══ */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{
+  margin:0;min-height:100dvh;color:var(--text);
+  font-family:Outfit,system-ui,-apple-system,"Segoe UI",sans-serif;
   font-weight:800;
-  letter-spacing:-.005em;
+  background:
+    radial-gradient(900px 520px at 8% -10%,rgba(196,151,63,.18),transparent 62%),
+    radial-gradient(760px 440px at 105% 0%,rgba(34,197,94,.22),transparent 58%),
+    linear-gradient(180deg,var(--bg),var(--bg2) 55%,var(--bg3) 100%);
+  padding:calc(var(--hdrH) + 14px) 12px calc(var(--barH) + env(safe-area-inset-bottom,0px) + 20px);
 }
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+p{margin:0}
 
+/* ══ HEADER ══ */
 .pageHeader{
-  min-height:58px;
+  position:fixed;top:0;left:0;right:0;height:var(--hdrH);z-index:60;
+  padding:8px 10px;
+  background:var(--bar);
+  border-bottom:1px solid rgba(196,151,63,.26);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
 }
-
-.headerBtn,
+.headerInner{
+  width:min(var(--max),100%);margin:0 auto;
+  display:grid;grid-template-columns:1fr auto 1fr;
+  gap:8px;align-items:center;
+}
+.headerBtn,.headerTitle{
+  min-height:36px;border-radius:999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:7px;padding:7px 11px;
+  font-size:13px;font-weight:1000;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.08);white-space:nowrap;
+}
+.headerBtn.left{justify-self:start}
+.headerBtn.right{justify-self:end}
 .headerTitle{
-  min-height:42px;
-  font-size:15px;
-  font-weight:1000;
-  padding:9px 12px;
+  color:#fffbea;letter-spacing:.08em;text-transform:uppercase;
+  background:rgba(196,151,63,.12);border-color:rgba(196,151,63,.32);
+}
+.headerBtn.save{
+  background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.38);color:#bbf7d0;
+}
+.hdrPill{
+  display:none; /* mirrors accessPill state visually in header on desktop */
 }
 
+/* ══ WRAP ══ */
+.wrap{width:min(var(--max),100%);margin:0 auto;display:grid;gap:12px}
+
+/* ══ HERO SIMPLE ══ */
+.heroSimple{
+  display:flex;flex-direction:column;gap:6px;padding:4px 0;
+}
 .eyebrow{
-  font-size:13px !important;
-  font-weight:1000 !important;
-  letter-spacing:.12em;
+  display:inline-flex;align-items:center;gap:6px;
+  color:#fff0a8;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;font-weight:1000;
+}
+.heroSub{font-size:15px;font-weight:900;color:var(--muted);line-height:1.4}
+
+/* ══ SESSION PILL ══ */
+.pill{
+  display:inline-flex;align-items:center;gap:6px;
+  min-height:32px;padding:6px 10px;border-radius:999px;
+  border:1px solid var(--line);background:rgba(255,255,255,.09);
+  color:var(--muted);font-size:12px;font-weight:1000;
+}
+.pill.ok  {color:#bbf7d0;border-color:rgba(34,197,94,.38);background:rgba(34,197,94,.12)}
+.pill.warn{color:#fde68a;border-color:rgba(245,158,11,.38);background:rgba(245,158,11,.12)}
+.pill.bad {color:#fecaca;border-color:rgba(251,113,133,.38);background:rgba(251,113,133,.10)}
+
+/* ══ ACTIONS BAR ══ */
+.actionsBar{
+  display:flex;gap:8px;flex-wrap:wrap;
 }
 
-h1{
-  font-size:clamp(42px,10vw,72px) !important;
-  line-height:.94 !important;
-  font-weight:1000 !important;
-  letter-spacing:-.06em !important;
-}
-
-h2{
-  font-size:clamp(30px,7vw,42px) !important;
-  line-height:1 !important;
-  font-weight:1000 !important;
-  letter-spacing:-.045em !important;
-}
-
-h3{
-  font-size:clamp(24px,5.6vw,32px) !important;
-  line-height:1.05 !important;
-  font-weight:1000 !important;
-}
-
-.lead,
-.muted,
-.heroLead,
-.brandSub,
-.meta,
-.tripLine,
-.audioCoachText{
-  font-size:clamp(18px,4.4vw,23px) !important;
-  line-height:1.42 !important;
-  font-weight:950 !important;
-}
-
-.small,
-.kpi .sub,
-.kpiSub,
-.hint,
-.msg,
-.empty,
-.audioCoachHint{
-  font-size:16px !important;
-  line-height:1.45 !important;
-  font-weight:950 !important;
-}
-
-.pill,
-.badge,
-.tag,
-.chip,
-.headerBtn,
-.headerTitle{
-  font-size:15px !important;
-  font-weight:1000 !important;
-}
-
-.btn,
-.door,
-.navbtn,
-.driverPhoneAction,
-.audioCoachActions button{
-  min-height:64px !important;
-  font-size:18px !important;
-  font-weight:1000 !important;
-  border-radius:20px !important;
-}
-
-.door b,
-.tripTitle,
-.fareName,
-.fareTitle,
-.fieldValue,
-.memoryItemTitle,
-.driverPhoneCopy strong{
-  font-size:clamp(21px,5vw,28px) !important;
-  line-height:1.12 !important;
-  font-weight:1000 !important;
-}
-
-.door span,
-.driverPhoneCopy span,
-.memoryItemMeta,
-.quickGuide p,
-.sectionLead{
-  font-size:17px !important;
-  line-height:1.4 !important;
-  font-weight:950 !important;
-}
-
+/* ══ KPI ══ */
+.kpiGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .kpi{
-  min-height:142px;
-  padding:18px !important;
+  border:1px solid var(--line);border-radius:16px;
+  background:var(--card);padding:12px 10px;text-align:center;
+}
+.kpi .label{font-size:11px;font-weight:1000;color:var(--gold);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+.kpi .value{font-size:22px;font-weight:1000;line-height:1;letter-spacing:-.03em}
+
+/* ══ CARD ══ */
+.card{
+  border:1px solid var(--line);border-radius:var(--r);
+  background:radial-gradient(480px 200px at 100% 0%,rgba(196,151,63,.1),transparent 68%),
+    linear-gradient(180deg,rgba(23,134,79,.92),rgba(17,107,64,.92));
+  box-shadow:var(--shadow);padding:18px;
 }
 
-.kpi .label,
-.kpiLabel{
-  font-size:17px !important;
-  font-weight:1000 !important;
+/* ══ LAYOUT ══ */
+.grid{display:grid;gap:12px}
+
+/* ══ TYPOGRAPHY ══ */
+h2{margin:0 0 8px;font-size:clamp(22px,4.5vw,28px);font-weight:1000;letter-spacing:-.03em;line-height:1.05}
+h3{margin:0 0 8px;font-size:clamp(18px,3.5vw,22px);font-weight:1000;letter-spacing:-.02em;line-height:1.08}
+.muted{color:var(--muted);font-size:14px;font-weight:900;line-height:1.45}
+.small{font-size:13px;font-weight:900;color:var(--muted)}
+.hr{height:1px;background:rgba(255,255,255,.16);margin:16px 0}
+
+/* ══ ROW ══ */
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.row > *{flex:1;min-width:180px}
+
+/* ══ INPUTS ══ */
+label{display:block;font-size:14px;font-weight:1000;margin-bottom:6px;margin-top:14px}
+input,textarea,select{
+  width:100%;min-height:52px;padding:12px 14px;
+  border-radius:14px;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.09);color:var(--text);
+  font-size:16px;font-weight:1000;line-height:1.3;
+  outline:none;transition:border-color .14s;
+}
+input:focus,textarea:focus,select:focus{border-color:rgba(196,151,63,.5)}
+input::placeholder,textarea::placeholder{color:rgba(240,255,245,.4);font-weight:900}
+textarea{min-height:100px;resize:vertical}
+
+/* ══ BUTTONS ══ */
+.btn{
+  min-height:50px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.09);
+  color:var(--text);padding:12px 16px;
+  font-size:15px;font-weight:1000;
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:8px;transition:background .14s,transform .12s;
+}
+.btn:hover{background:rgba(255,255,255,.15);transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.primary{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.38);color:#bbf7d0}
+.btn.gold{background:rgba(196,151,63,.18);border-color:rgba(196,151,63,.38);color:#fde68a}
+.btn.danger{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.32);color:#fecaca}
+.btn.ghost{background:transparent;border-color:rgba(255,255,255,.14);color:var(--muted)}
+
+/* ══ FARE GRID ══ */
+.fareGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.fareBox{
+  padding:14px;border-radius:16px;
+  border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);
+}
+.fareTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.fareTitle{font-size:14px;font-weight:1000;line-height:1.2}
+.chip{
+  display:inline-flex;padding:3px 8px;border-radius:999px;
+  font-size:10px;font-weight:1000;letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);
+  color:var(--muted);white-space:nowrap;flex:0 0 auto;
+}
+.prefix{display:flex;align-items:center;gap:0;border:1px solid rgba(255,255,255,.2);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.09)}
+.prefix span{padding:0 10px;font-size:12px;font-weight:1000;color:var(--gold);border-right:1px solid rgba(255,255,255,.16);white-space:nowrap;background:rgba(196,151,63,.1)}
+.prefix input{flex:1;border:none;border-radius:0;background:transparent;min-height:48px;padding:10px 12px}
+.prefix input:focus{border-color:transparent}
+
+/* ══ EXTRAS ══ */
+.extras{display:grid;gap:10px;margin-top:12px}
+.extraItem{padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06)}
+.extraHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+
+/* ══ TOAST ══ */
+.toast{
+  margin-top:12px;padding:12px 14px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.16);background:rgba(4,22,12,.5);
+  color:var(--text);font-size:14px;font-weight:1000;display:none;line-height:1.4;
+}
+.toast.ok  {border-color:rgba(34,197,94,.38);background:rgba(34,197,94,.14)}
+.toast.bad {border-color:rgba(239,68,68,.38);background:rgba(239,68,68,.14)}
+.toast.warn{border-color:rgba(245,158,11,.38);background:rgba(245,158,11,.14)}
+.disabledNote{
+  margin-top:12px;padding:12px 14px;border-radius:14px;
+  border:1px solid rgba(196,151,63,.3);background:rgba(196,151,63,.1);
+  color:var(--muted);font-size:13px;font-weight:1000;display:none;line-height:1.45;
 }
 
-.kpi .num,
-.kpiValue,
-.statNumber{
-  font-size:clamp(44px,11vw,62px) !important;
-  font-weight:1000 !important;
-  line-height:.9 !important;
+/* ══ PREVIEW ══ */
+.previewCard{
+  margin-top:14px;padding:16px;border-radius:16px;
+  border:1px solid rgba(255,255,255,.16);background:rgba(4,22,12,.4);
+}
+.pTop{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.pAvatar{
+  width:52px;height:52px;border-radius:50%;
+  display:grid;place-items:center;
+  font-size:18px;font-weight:1000;
+  background:rgba(196,151,63,.18);border:2px solid rgba(196,151,63,.38);
+  color:#fde68a;flex:0 0 auto;overflow:hidden;
+}
+.pAvatar img{width:100%;height:100%;object-fit:cover}
+.pName{font-size:18px;font-weight:1000;margin-bottom:3px}
+.pMeta{font-size:13px;font-weight:900;color:var(--muted)}
+.pBadges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.pBadge{
+  padding:4px 10px;border-radius:999px;
+  font-size:12px;font-weight:1000;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+}
+.tarifList{display:grid;gap:6px;margin-bottom:12px}
+.tarifLine{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:10px;padding:10px 12px;border-radius:12px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  font-size:14px;font-weight:1000;
+}
+.tarifLine .name{flex:1;min-width:0}
+.tarifLine .amount{flex:0 0 auto;color:var(--gold);font-weight:1000}
+.summaryBox{
+  margin-top:10px;padding:12px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);background:rgba(4,18,13,.3);
+}
+.summaryBox pre{
+  margin:0;white-space:pre-wrap;word-break:break-word;
+  font:inherit;font-size:14px;line-height:1.55;font-weight:900;
+  color:rgba(240,255,245,.9);
 }
 
-input,
-textarea,
-select{
-  min-height:60px !important;
-  font-size:18px !important;
-  font-weight:1000 !important;
-  line-height:1.35 !important;
+/* ══ BOTTOM BAR ══ */
+.bottomBar{
+  position:fixed;bottom:0;left:0;right:0;height:var(--barH);z-index:100;
+  display:flex;align-items:center;justify-content:space-around;
+  padding:0 32px calc(8px + env(safe-area-inset-bottom,0px));
+  background:rgba(6,38,18,.97);
+  border-top:1px solid rgba(196,151,63,.18);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+}
+.wbtn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  border:none;background:transparent;cursor:pointer;
+  padding:4px 10px;border-radius:14px;transition:background .14s;
+  -webkit-tap-highlight-color:transparent;
+}
+.wbtn:hover{background:rgba(255,255,255,.06)}
+.wbtn svg{display:block;transition:transform .4s cubic-bezier(.36,.07,.19,.97)}
+.wbtn:hover svg{transform:rotate(22deg)}
+.wbtn.spinning svg{animation:wspin .55s cubic-bezier(.36,.07,.19,.97) forwards}
+@keyframes wspin{0%{transform:rotate(0)}60%{transform:rotate(200deg)}100%{transform:rotate(360deg)}}
+.wlbl{font-size:10px;font-weight:1000;letter-spacing:.08em;text-transform:uppercase}
+.cwbtn .wlbl{color:rgba(240,255,245,.48)}
+.pwbtn .wlbl{color:var(--gold)}
+
+/* ══ OVERLAYS ══ */
+.overlay{
+  position:fixed;inset:0;z-index:200;
+  display:none;flex-direction:column;
+  background:rgba(4,22,12,.98);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.overlay.open{display:flex;animation:fadeOv .22s ease}
+@keyframes fadeOv{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+.ovHdr{
+  min-height:150px;flex:0 0 auto;width:100%;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-end;padding:14px 16px 16px;
+  background:linear-gradient(180deg,#081a0e 0%,#040e08 100%);
+  position:relative;overflow:hidden;
+}
+.ovHdrGlow{position:absolute;inset:0}
+.co .ovHdrGlow{background:radial-gradient(circle at 50% 45%,rgba(74,222,128,.12),transparent 62%)}
+.po .ovHdrGlow{background:radial-gradient(circle at 50% 45%,rgba(196,151,63,.14),transparent 62%)}
+.ovCity{position:absolute;bottom:0;left:0;right:0;z-index:0;opacity:.15}
+.ovLogo{width:46px;height:46px;object-fit:contain;border-radius:6px;position:relative;z-index:1;margin-bottom:7px}
+.ovLogoFb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:1000;font-family:Georgia,serif;border:2px solid;position:relative;z-index:1;margin-bottom:7px}
+.co .ovLogoFb{color:#4ade80;border-color:#4ade80}.po .ovLogoFb{color:var(--gold);border-color:var(--gold)}
+.ovLine{width:24px;height:2px;margin-bottom:7px;position:relative;z-index:1}
+.co .ovLine{background:rgba(74,222,128,.45)}.po .ovLine{background:rgba(196,151,63,.5)}
+.ovTitle{font-size:22px;font-weight:1000;font-family:Georgia,serif;position:relative;z-index:1}
+.co .ovTitle{color:#4ade80}.po .ovTitle{color:var(--gold)}
+.ovSub{font-size:11px;color:rgba(240,255,245,.38);font-weight:900;position:relative;z-index:1;margin-top:3px}
+.closeBtn{
+  position:absolute;top:12px;right:12px;z-index:30;
+  width:36px;height:36px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);
+  color:var(--text);font-size:16px;cursor:pointer;
+  display:grid;place-items:center;font-weight:1000;
+}
+.closeBtn:hover{background:rgba(255,255,255,.14)}
+.ovLinks{padding:0 16px 28px;flex:1;display:flex;flex-direction:column}
+.payRow{
+  display:flex;align-items:center;gap:14px;
+  padding:14px;margin:10px 0 6px;border-radius:14px;
+  border:1px solid rgba(196,151,63,.4);background:rgba(196,151,63,.1);
+  color:var(--text);cursor:pointer;transition:background .13s;
+}
+.payRow:hover{background:rgba(196,151,63,.17)}
+.paySep{height:1px;background:rgba(255,255,255,.07);margin:4px 0 0}
+.ovLink{
+  display:flex;align-items:center;gap:14px;padding:13px 0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  color:var(--text);cursor:pointer;transition:padding-left .12s;
+  background:none;border-top:none;border-left:none;border-right:none;
+  width:100%;text-align:left;font-family:inherit;
+}
+.ovLink:last-child{border-bottom:none}
+.ovLink:hover{padding-left:4px}
+.ovIco{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:16px;flex:0 0 auto}
+.co .ovIco{background:rgba(74,222,128,.1)}.po .ovIco,.payRow .ovIco{background:rgba(196,151,63,.12)}
+.ovLbl{flex:1;font-size:14px;font-weight:1000;line-height:1.15}
+.ovSublbl{display:block;font-size:11px;color:rgba(240,255,245,.42);font-weight:900;margin-top:1px}
+.ovArr{font-size:12px;color:rgba(255,255,255,.25)}
+.co .ovLink:hover .ovArr{color:#4ade80}.po .ovLink:hover .ovArr,.payRow:hover .ovArr{color:var(--gold)}
+.payBadge{
+  display:inline-block;margin-left:7px;padding:2px 6px;border-radius:999px;
+  background:rgba(196,151,63,.22);border:1px solid rgba(196,151,63,.42);
+  color:var(--gold);font-size:9px;font-weight:1000;
+  letter-spacing:.06em;text-transform:uppercase;vertical-align:middle;
 }
 
-textarea{
-  min-height:118px !important;
+/* ══ RESPONSIVE ══ */
+@media(min-width:720px){
+  .grid{grid-template-columns:1fr 1fr}
+  .fareGrid{grid-template-columns:repeat(4,1fr)}
+  .kpiGrid{grid-template-columns:repeat(4,1fr)}
 }
-
-label{
-  font-size:17px !important;
-  font-weight:1000 !important;
+@media(max-width:520px){
+  body{padding:calc(var(--hdrH)+10px) 10px calc(var(--barH)+env(safe-area-inset-bottom,0px)+16px)}
+  .kpiGrid{grid-template-columns:1fr 1fr}
+  .actionsBar{flex-direction:column}
+  .actionsBar .btn{width:100%}
+  .row > *{flex:1 1 100%}
+  .fareGrid{grid-template-columns:1fr}
 }
-
-.trip,
-.fareCard,
-.card,
-.hero{
-  padding:18px !important;
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}.btn,.wbtn,.ovLink{transition:none}
 }
-
-.audioCoachFab{
-  min-height:58px !important;
-  min-width:58px !important;
-  font-size:16px !important;
-  font-weight:1000 !important;
-}
-
-.audioCoachTitle{
-  font-size:30px !important;
-  font-weight:1000 !important;
-}
-
-@media(max-width:560px){
-  .wrap{
-    padding-left:10px !important;
-    padding-right:10px !important;
-  }
-
-  .pageHeader{
-    min-height:56px;
-  }
-
-  .headerBtn,
-  .headerTitle{
-    min-height:40px;
-    font-size:14px !important;
-    padding:8px 10px;
-  }
-
-  h1{
-    font-size:42px !important;
-  }
-
-  h2{
-    font-size:31px !important;
-  }
-
-  .lead,
-  .muted,
-  .heroLead,
-  .meta,
-  .tripLine{
-    font-size:18px !important;
-  }
-
-  .btn,
-  .door,
-  .navbtn,
-  .driverPhoneAction{
-    min-height:66px !important;
-    font-size:18px !important;
-  }
-
-  .grid2,
-  .kpiGrid{
-    grid-template-columns:1fr !important;
-  }
-
-  .kpi .num,
-  .kpiValue,
-  .statNumber{
-    font-size:50px !important;
-  }
-}
-
 </style>
 </head>
+
 <body>
 
-  <div style="position:sticky;top:0;z-index:9999;padding:10px;background:rgba(11,79,49,.96);border-bottom:1px solid rgba(250,204,21,.25);font-family:Outfit,system-ui,sans-serif;">
-    <a href="../tarifs.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 14px;border-radius:999px;background:rgba(250,204,21,.16);color:#fff0a8;text-decoration:none;font-weight:1000;border:1px solid rgba(250,204,21,.32);">⬅️ Retour aux tarifs</a>
+<!-- ══ HEADER ══ -->
+<header class="pageHeader">
+  <div class="headerInner">
+    <a class="headerBtn left" href="./tarifs.html">← Mes tarifs</a>
+    <div class="headerTitle">Édition tarifs</div>
+    <button class="headerBtn right save" id="hdrSave" type="button" aria-label="Enregistrer brouillon">💾 Enregistrer</button>
+  </div>
+</header>
+
+<!-- ══ JS COMPAT — hidden elements required by motor ══ -->
+<div aria-hidden="true" style="display:none" id="jsCompat">
+  <div id="slugPill"></div>
+  <div id="phonePill"></div>
+  <a id="navDashboard" href="./hub.html"></a>
+  <a id="navCockpit"   href="./hub.html"></a>
+  <a id="navProfil"    href="./profil-chauffeur.html"></a>
+  <a id="navTarifs"    href="./tarifs.html"></a>
+  <a id="navPin"       href="./pin.html"></a>
+  <a id="navHome"      href="./hub.html"></a>
+  <a id="navQr"        href="./generateur-digiy-driver.html"></a>
+  <button id="btnPay" type="button"></button>
+</div>
+
+<!-- ══ CONTENU ══ -->
+<main class="wrap">
+
+  <!-- Hero simplifié -->
+  <div class="heroSimple">
+    <div class="eyebrow">✏️ Atelier tarifs</div>
+    <div class="heroSub" id="topSub">Pose tes prix terrain. Le brouillon reste lié à ton compte chauffeur.</div>
   </div>
 
-  <div class="wrap">
+  <!-- Session pill -->
+  <div><div class="pill" id="accessPill">session…</div></div>
 
-    <div class="top">
+  <!-- KPIs -->
+  <div class="kpiGrid">
+    <div class="kpi"><div class="label">Tarifs actifs</div><div class="value" id="kpiCount">0</div></div>
+    <div class="kpi"><div class="label">Prix mini</div><div class="value" id="kpiMin">—</div></div>
+    <div class="kpi"><div class="label">Prix maxi</div><div class="value" id="kpiMax">—</div></div>
+    <div class="kpi"><div class="label">Compte</div><div class="value" id="kpiSlug" style="font-size:13px;line-height:1.3">—</div></div>
+  </div>
+
+  <!-- Barre d'actions -->
+  <div class="actionsBar">
+    <button class="btn" id="btnLoadProfile" type="button">↻ Charger mon profil</button>
+    <button class="btn primary" id="btnSaveDraft" type="button">💾 Enregistrer brouillon</button>
+    <button class="btn danger" id="btnResetDraft" type="button">🧹 Effacer brouillon</button>
+  </div>
+
+  <div class="grid">
+
+    <!-- ══ FORMULAIRE ══ -->
+    <div class="card" id="tarifsForm">
+
+      <h2>Tarifs chauffeur</h2>
+      <div class="muted">Les prix que tu veux montrer au client. Brouillon local, pas d'exposition de compte.</div>
+
+      <div class="row">
+        <div>
+          <label for="f_display_name">Nom affiché</label>
+          <input id="f_display_name" placeholder="Ex : Lamine"/>
+        </div>
+        <div>
+          <label for="f_city">Ville</label>
+          <input id="f_city" placeholder="Ex : Saly / Dakar"/>
+        </div>
+      </div>
+
+      <input id="f_whatsapp" type="hidden" value=""/>
+
       <div>
-        <h1>💰 Je conduis — Tarifs</h1>
-        <div class="muted" id="topSub">
-          Lecture claire des prix terrain. Tes tarifs restent rangés ici, sans exposer tes identifiants.
-        </div>
+        <label for="f_zones">Zones</label>
+        <input id="f_zones" placeholder="Saly, Petite Côte, Dakar, AIBD"/>
+      </div>
 
-        <div class="tarifsFastRow">
-          <a class="btn" id="fastHome" href="../hub.html">🏠 Accueil</a>
-          <a class="btn" id="fastTrips" href="../trajets.html">📋 Trajets</a>
-          <a class="btn primary" id="fastProfile" href="../profil-chauffeur.html">👤 Profil</a>
-          <a class="btn gold" id="fastTarifs" href="#tarifsForm">💰 Tarifs</a>
+      <div class="disabledNote" id="disabledNote" style="display:block">ℹ️ Le contact se règle dans le profil chauffeur. Ici, on inscrit seulement les tarifs.</div>
+
+      <label for="f_note">Note terrain</label>
+      <textarea id="f_note" placeholder="Ex : Prix de jour, bagages légers inclus, nuit et attente selon contexte…"></textarea>
+
+      <div class="hr"></div>
+      <h3>Tarifs principaux</h3>
+
+      <div class="fareGrid">
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Saly → Dakar</div><div class="chip">trajet</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_saly_dakar" type="number" min="0" placeholder="Ex : 35000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Saly → AIBD</div><div class="chip">trajet</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_saly_aibd" type="number" min="0" placeholder="Ex : 25000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Saly → Ngaparou</div><div class="chip">trajet</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_saly_ngaparou" type="number" min="0" placeholder="Ex : 5000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Saly → Somone</div><div class="chip">trajet</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_saly_somone" type="number" min="0" placeholder="Ex : 7000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Saly → Mbour</div><div class="chip">trajet</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_saly_mbour" type="number" min="0" placeholder="Ex : 5000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Mise à dispo 4h</div><div class="chip">service</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_dispo_4h" type="number" min="0" placeholder="Ex : 30000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Mise à dispo journée</div><div class="chip">service</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_dispo_day" type="number" min="0" placeholder="Ex : 60000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Attente / heure</div><div class="chip">option</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_wait_hour" type="number" min="0" placeholder="Ex : 5000"/></div>
         </div>
       </div>
 
-      <div class="pillRow">
-        <div class="pill" id="slugPill">compte : sécurisé</div>
-        <div class="pill" id="phonePill">contact : masqué</div>
-        <div class="pill warn" id="accessPill">session : contrôle…</div>
-      </div>
-    </div>
+      <div class="hr"></div>
 
-    <div class="stack">
-
-      <div class="navbox">
-        <div class="navtitle">Plus chauffeur</div>
-        <div class="navgrid">
-          <a class="navbtn" id="navDashboard" href="../hub.html">🏠 Accueil</a>
-          <a class="navbtn" id="navCockpit" href="../cockpit.html">⚙️ Plus</a>
-          <a class="navbtn" id="navProfil" href="../profil-chauffeur.html">👤 Profil</a>
-          <a class="navbtn active" id="navTarifs" href="../tarifs.html">💰 Tarifs</a>
-          <a class="navbtn" id="navPin" href="../pin.html">🔐 Accès</a>
-          <a class="navbtn" id="navHome" href="../index.html">🌍 Façade</a>
-          <a class="navbtn" id="navQr" href="../generateur-digiy-driver.html">📱 Mon QR</a>
-          <button class="navbtn" id="btnPay" type="button">💳 Mon abonnement</button>
+      <div class="row" style="align-items:center">
+        <div>
+          <h3 style="margin-bottom:4px">Tarifs libres</h3>
+          <div class="muted">Ajoute tes autres courses : AIBD retour, Popenguine, Dakar nuit…</div>
+        </div>
+        <div style="flex:0 0 auto">
+          <button class="btn gold" id="btnAddExtra" type="button">➕ Ajouter une ligne</button>
         </div>
       </div>
 
-      <div class="grid">
+      <div class="extras" id="extrasList"></div>
 
-        <div class="card" id="tarifsForm">
-          <div class="row">
-            <div>
-              <h2>Tarifs chauffeur</h2>
-              <div class="muted">
-                Pose ici les prix que tu veux montrer au client. Le brouillon reste lié au compte chauffeur reconnu, sans l’afficher.
-              </div>
-            </div>
-            <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-              <button class="btn" id="btnLoadProfile" type="button">↻ Charger mon profil</button>
-              <button class="btn primary" id="btnSaveDraft" type="button">💾 Enregistrer brouillon</button>
-              <button class="btn danger" id="btnResetDraft" type="button">🧹 Effacer brouillon</button>
-            </div>
+      <div id="toast" class="toast"></div>
+
+    </div><!-- /tarifsForm -->
+
+    <!-- ══ APERÇU CLIENT ══ -->
+    <div>
+      <div class="card" id="tarifsPreview">
+        <div class="row" style="align-items:center">
+          <div>
+            <h2 style="margin-bottom:3px">Aperçu client</h2>
+            <div class="muted">Lecture simple pour le client.</div>
           </div>
-
-          <div class="kpis">
-            <div class="kpi">
-              <div class="label">Tarifs actifs</div>
-              <div class="value" id="kpiCount">0</div>
-            </div>
-            <div class="kpi">
-              <div class="label">Prix mini</div>
-              <div class="value" id="kpiMin">—</div>
-            </div>
-            <div class="kpi">
-              <div class="label">Prix maxi</div>
-              <div class="value" id="kpiMax">—</div>
-            </div>
-            <div class="kpi">
-              <div class="label">Compte</div>
-              <div class="value" id="kpiSlug" style="font-size:14px;line-height:1.35">—</div>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="row">
-            <div>
-              <label>Nom affiché</label>
-              <input id="f_display_name" placeholder="Ex : Lamine"/>
-            </div>
-            <div>
-              <label>Ville</label>
-              <input id="f_city" placeholder="Ex : Saly / Dakar"/>
-            </div>
-          </div>
-
-          <input id="f_whatsapp" type="hidden" value=""/>
-          <div class="row">
-            <div>
-              <label>Zones</label>
-              <input id="f_zones" placeholder="Saly, Petite Côte, Dakar, AIBD"/>
-            </div>
-          </div>
-
-          <div class="disabledNote" style="display:block">ℹ️ Le contact se règle dans le profil chauffeur. Ici, on inscrit seulement les tarifs.</div>
-
-          <label>Note terrain</label>
-          <textarea id="f_note" placeholder="Ex : Prix de jour, bagages légers inclus, nuit et attente selon contexte…"></textarea>
-
-          <div class="hr"></div>
-
-          <h3>Tarifs principaux</h3>
-
-          <div class="fareGrid">
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Saly → Dakar</div>
-                <div class="chip">trajet</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_saly_dakar" type="number" min="0" placeholder="Ex : 35000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Saly → AIBD</div>
-                <div class="chip">trajet</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_saly_aibd" type="number" min="0" placeholder="Ex : 25000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Saly → Ngaparou</div>
-                <div class="chip">trajet</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_saly_ngaparou" type="number" min="0" placeholder="Ex : 5000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Saly → Somone</div>
-                <div class="chip">trajet</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_saly_somone" type="number" min="0" placeholder="Ex : 7000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Saly → Mbour</div>
-                <div class="chip">trajet</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_saly_mbour" type="number" min="0" placeholder="Ex : 5000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Mise à dispo 4h</div>
-                <div class="chip">service</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_dispo_4h" type="number" min="0" placeholder="Ex : 30000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Mise à dispo journée</div>
-                <div class="chip">service</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_dispo_day" type="number" min="0" placeholder="Ex : 60000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Attente / heure</div>
-                <div class="chip">option</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_wait_hour" type="number" min="0" placeholder="Ex : 5000"/>
-              </div>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="row">
-            <div>
-              <h3>Tarifs libres</h3>
-              <div class="muted">Ajoute tes autres courses : AIBD retour, Popenguine, Dakar nuit, etc.</div>
-            </div>
-            <div style="flex:0 0 auto">
-              <button class="btn gold" id="btnAddExtra" type="button">➕ Ajouter une ligne</button>
-            </div>
-          </div>
-
-          <div class="extras" id="extrasList"></div>
-
-          <div id="toast" class="toast"></div>
-          <div id="disabledNote" class="disabledNote">
-            ℹ️ Ici on garde un brouillon local lié au compte reconnu. Pas de fausse écriture SQL inventée sur un rail tarifaire non prouvé.
+          <div style="flex:0 0 auto;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" id="btnCopyPublic" type="button">📋 Copier résumé</button>
+            <button class="btn gold" id="btnCopyMessage" type="button">📋 Copier message</button>
           </div>
         </div>
 
-        <div class="list">
-
-          <div class="card" id="tarifsPreview">
-            <div class="row">
-              <div>
-                <h2>Aperçu client</h2>
-                <div class="muted">Lecture simple pour le client.</div>
-              </div>
-              <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap">
-                <button class="btn" id="btnCopyPublic" type="button">📋 Copier résumé</button>
-                <button class="btn gold" id="btnCopyMessage" type="button">📋 Copier message</button>
-              </div>
-            </div>
-
-            <div class="previewCard">
-              <div class="pTop">
-                <div class="pAvatar" id="pAvatar">DR</div>
-                <div>
-                  <p class="pName" id="pName">Mon espace chauffeur</p>
-                  <p class="pMeta" id="pMeta">Ville • Zones</p>
-                </div>
-              </div>
-
-              <div class="pBadges" id="pBadges"></div>
-
-              <div class="tarifList" id="previewTarifs">
-                <div class="tarifLine">
-                  <div class="name">Aucun tarif posé</div>
-                  <div class="amount">—</div>
-                </div>
-              </div>
-
-              <div class="summaryBox">
-                <pre id="publicSummary">Aucun résumé pour l’instant.</pre>
-              </div>
-
-              <div class="row" style="margin-top:12px">
-                <a class="btn ghost" id="btnBackCockpit" href="../cockpit.html">⬅️ Revenir</a>
-                <a class="btn" id="btnGoProfile" href="../profil-chauffeur.html">👤 Profil</a>
-                <a class="btn ghost" id="btnGoQr" href="../generateur-digiy-driver.html">📱 Mon QR</a>
-              </div>
+        <div class="previewCard">
+          <div class="pTop">
+            <div class="pAvatar" id="pAvatar">DR</div>
+            <div>
+              <p class="pName" id="pName">Mon espace chauffeur</p>
+              <p class="pMeta" id="pMeta">Ville · Zones</p>
             </div>
           </div>
-
-          <div class="card">
-            <h2>Texte client</h2>
-            <div class="muted">Copie le résumé propre. Le contact se gère dans le profil chauffeur, pas dans l’atelier tarifs.</div>
-
-            <div class="row" style="margin-top:12px">
-              <button class="btn primary" id="btnShareText" type="button">📨 Copier texte client</button>
-            </div>
-
-            <div class="hr"></div>
-
-            <div class="muted small">
-              Astuce terrain : une grille claire vaut mieux qu’un catalogue flou.
-            </div>
+          <div class="pBadges" id="pBadges"></div>
+          <div class="tarifList" id="previewTarifs">
+            <div class="tarifLine"><div class="name">Aucun tarif posé</div><div class="amount">—</div></div>
           </div>
-
+          <div class="summaryBox">
+            <pre id="publicSummary">Aucun résumé pour l'instant.</pre>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <a class="btn ghost" id="btnBackCockpit" href="./hub.html">⬅️ Revenir</a>
+            <a class="btn" id="btnGoProfile" href="./profil-chauffeur.html">👤 Profil</a>
+            <a class="btn ghost" id="btnGoQr" href="./generateur-digiy-driver.html">📱 Mon QR</a>
+          </div>
         </div>
+      </div>
 
+      <div class="card" style="margin-top:12px">
+        <h2 style="margin-bottom:6px">Texte client</h2>
+        <div class="muted" style="margin-bottom:14px">Copie le résumé propre. Le contact se gère dans le profil, pas dans l'atelier tarifs.</div>
+        <button class="btn primary" id="btnShareText" type="button" style="width:100%">📨 Copier texte client</button>
+        <div class="hr"></div>
+        <div class="small">Astuce terrain : une grille claire vaut mieux qu'un catalogue flou.</div>
       </div>
     </div>
+
+  </div><!-- /grid -->
+
+</main>
+
+<!-- ══ BOTTOM BAR ══ -->
+<nav class="bottomBar" aria-label="Navigation rapide DRIVER">
+  <button class="wbtn cwbtn" id="btnConduite" aria-label="Menu Conduire">
+    <svg width="52" height="52" viewBox="0 0 68 68" fill="none" aria-hidden="true">
+      <circle cx="34" cy="34" r="32" fill="#091510"/>
+      <circle cx="34" cy="34" r="32" stroke="#22c55e" stroke-width="2.5" stroke-opacity=".7"/>
+      <circle cx="34" cy="34" r="22" stroke="#22c55e" stroke-width=".8" stroke-opacity=".22"/>
+      <line x1="34" y1="24" x2="34" y2="12" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".8"/>
+      <line x1="42.6" y1="39" x2="53.3" y2="44.5" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".8"/>
+      <line x1="25.4" y1="39" x2="14.7" y2="44.5" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".8"/>
+      <circle cx="34" cy="34" r="10" fill="#0f2418"/>
+      <text x="34" y="38.5" text-anchor="middle" font-size="13" font-weight="900" fill="#22c55e" font-family="Georgia,serif">D</text>
+    </svg>
+    <span class="wlbl">Conduire</span>
+  </button>
+
+  <button class="wbtn pwbtn" id="btnPilotage" aria-label="Menu Piloter">
+    <svg width="52" height="52" viewBox="0 0 68 68" fill="none" aria-hidden="true">
+      <circle cx="34" cy="34" r="32" fill="#100e05"/>
+      <circle cx="34" cy="34" r="33.5" stroke="#c4973f" stroke-width=".8" stroke-opacity=".5"/>
+      <circle cx="34" cy="34" r="32" stroke="#c4973f" stroke-width="2.5" stroke-opacity=".88"/>
+      <circle cx="34" cy="34" r="22" stroke="#c4973f" stroke-width=".8" stroke-opacity=".25"/>
+      <circle cx="2"  cy="34" r="2" fill="#c4973f" opacity=".55"/>
+      <circle cx="66" cy="34" r="2" fill="#c4973f" opacity=".55"/>
+      <line x1="34" y1="24" x2="34" y2="12" stroke="#c4973f" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".9"/>
+      <line x1="42.6" y1="39" x2="53.3" y2="44.5" stroke="#c4973f" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".9"/>
+      <line x1="25.4" y1="39" x2="14.7" y2="44.5" stroke="#c4973f" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".9"/>
+      <circle cx="34" cy="34" r="10" fill="#1a1005"/>
+      <text x="34" y="38.5" text-anchor="middle" font-size="13" font-weight="900" fill="#c4973f" font-family="Georgia,serif">D</text>
+    </svg>
+    <span class="wlbl">Piloter</span>
+  </button>
+</nav>
+
+<!-- ══ OVERLAY CONDUIRE ══ -->
+<div class="overlay co" id="ovConduite" role="dialog" aria-modal="true" aria-label="Menu Conduire">
+  <div class="ovHdr">
+    <div class="ovHdrGlow"></div>
+    <svg class="ovCity" width="100%" height="48" viewBox="0 0 320 48" fill="#4ade80" preserveAspectRatio="none" aria-hidden="true">
+      <rect x="0" y="22" width="14" height="26"/><rect x="8" y="14" width="10" height="34"/>
+      <rect x="22" y="28" width="12" height="20"/><rect x="38" y="10" width="7" height="38"/>
+      <rect x="50" y="20" width="12" height="28"/><rect x="66" y="6"  width="6" height="42"/>
+      <rect x="76" y="16" width="16" height="32"/><rect x="262" y="20" width="12" height="28"/>
+      <rect x="278" y="10" width="8" height="38"/><rect x="292" y="22" width="14" height="26"/>
+      <rect x="308" y="14" width="12" height="34"/>
+    </svg>
+    <button class="closeBtn" id="closeConduite" aria-label="Fermer">✕</button>
+    <img class="ovLogo" id="logoC"
+         src="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png"
+         alt="DIGIY"
+         onerror="this.style.display='none';document.getElementById('logoCfb').style.display='grid'"/>
+    <div class="ovLogoFb co" id="logoCfb" style="display:none">D</div>
+    <div class="ovLine"></div>
+    <div class="ovTitle">Conduire</div>
+    <div class="ovSub">Actions terrain du quotidien</div>
   </div>
+  <div class="ovLinks">
+    <button class="ovLink" id="ovSave">
+      <span class="ovIco">💾</span>
+      <span class="ovLbl">Enregistrer brouillon<span class="ovSublbl">Sauvegarder les tarifs en cours</span></span>
+      <span class="ovArr">→</span>
+    </button>
+    <button class="ovLink" id="ovDashboard">
+      <span class="ovIco">🏠</span>
+      <span class="ovLbl">Mon activité<span class="ovSublbl">Tableau de bord · KPIs</span></span>
+      <span class="ovArr">→</span>
+    </button>
+    <button class="ovLink" id="ovTrajets">
+      <span class="ovIco">📋</span>
+      <span class="ovLbl">Mes trajets<span class="ovSublbl">Lire · accepter · démarrer</span></span>
+      <span class="ovArr">→</span>
+    </button>
+    <button class="ovLink" id="ovTarifsLecture">
+      <span class="ovIco">👁️</span>
+      <span class="ovLbl">Aperçu tarifs<span class="ovSublbl">Vue client — lecture seule</span></span>
+      <span class="ovArr">→</span>
+    </button>
+  </div>
+</div>
 
+<!-- ══ OVERLAY PILOTER ══ -->
+<div class="overlay po" id="ovPilotage" role="dialog" aria-modal="true" aria-label="Menu Piloter">
+  <div class="ovHdr">
+    <div class="ovHdrGlow"></div>
+    <svg class="ovCity" width="100%" height="48" viewBox="0 0 320 48" fill="#c4973f" preserveAspectRatio="none" aria-hidden="true">
+      <rect x="0" y="22" width="14" height="26"/><rect x="8" y="14" width="10" height="34"/>
+      <rect x="22" y="28" width="12" height="20"/><rect x="38" y="10" width="7" height="38"/>
+      <rect x="50" y="20" width="12" height="28"/><rect x="66" y="6"  width="6" height="42"/>
+      <rect x="76" y="16" width="16" height="32"/><rect x="262" y="20" width="12" height="28"/>
+      <rect x="278" y="10" width="8" height="38"/><rect x="292" y="22" width="14" height="26"/>
+      <rect x="308" y="14" width="12" height="34"/>
+    </svg>
+    <button class="closeBtn" id="closePilotage" aria-label="Fermer">✕</button>
+    <img class="ovLogo" id="logoP"
+         src="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png"
+         alt="DIGIY"
+         onerror="this.style.display='none';document.getElementById('logoPfb').style.display='grid'"/>
+    <div class="ovLogoFb po" id="logoPfb" style="display:none">D</div>
+    <div class="ovLine"></div>
+    <div class="ovTitle">Piloter</div>
+    <div class="ovSub">Coffre · gestion · organisation</div>
+  </div>
+  <div class="ovLinks">
+    <a class="payRow" href="https://pay.digiylyfe.com/">
+      <span class="ovIco">💳</span>
+      <span class="ovLbl">Mon argent <span class="payBadge">PAY</span><span class="ovSublbl">Ouvre si abonné · sinon Commencer à payer</span></span>
+      <span class="ovArr">→</span>
+    </a>
+    <div class="paySep"></div>
+    <button class="ovLink" id="ovHub">
+      <span class="ovIco">🗺️</span>
+      <span class="ovLbl">Hub DRIVER<span class="ovSublbl">Répertoire complet des pages</span></span>
+      <span class="ovArr">→</span>
+    </button>
+    <button class="ovLink" id="ovSession">
+      <span class="ovIco">🔒</span>
+      <span class="ovLbl">Ma session<span class="ovSublbl">Compte · accès · sync</span></span>
+      <span class="ovArr">→</span>
+    </button>
+    <button class="ovLink" id="ovAlertes">
+      <span class="ovIco">🔔</span>
+      <span class="ovLbl">Mes alertes<span class="ovSublbl">Voix DIGIY · activer</span></span>
+      <span class="ovArr">→</span>
+    </button>
+    <button class="ovLink" id="ovProfil">
+      <span class="ovIco">👤</span>
+      <span class="ovLbl">Mon profil<span class="ovSublbl">Identité · zone · visibilité</span></span>
+      <span class="ovArr">→</span>
+    </button>
+    <button class="ovLink" id="ovQr">
+      <span class="ovIco">📱</span>
+      <span class="ovLbl">Mon QR<span class="ovSublbl">Partager la porte chauffeur</span></span>
+      <span class="ovArr">→</span>
+    </button>
+    <button class="ovLink" id="ovPin">
+      <span class="ovIco">🔐</span>
+      <span class="ovLbl">Mon accès<span class="ovSublbl">PIN · authentification</span></span>
+      <span class="ovArr">→</span>
+    </button>
+  </div>
+</div>
 
-  <nav class="bottomNav" aria-label="Navigation DRIVER">
-    <div class="bottomNavInner">
-      <a id="bottomHome" href="../hub.html"><span class="ico">🏠</span><span>Accueil</span></a>
-      <a id="bottomTrips" href="../trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
-      <a id="bottomNew" href="../trajets.html#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
-      <a id="bottomNotes" href="../trajets.html#quickDriverNote"><span class="ico">✍️</span><span>Notes</span></a>
-      <a class="active" id="bottomMore" href="../profil-chauffeur.html"><span class="ico">⚙️</span><span>Plus</span></a>
-    </div>
-  </nav>
-
-  <script>
+<!-- ══ MOTEUR JS — intact (paths corrected ./ ) ══ -->
+<script>
     (() => {
       "use strict";
 
       const TABLE = "digiy_driver_public_profiles";
       const MODULE = "DRIVER";
       const PAY_HOME = "https://commencer-a-payer.digiylyfe.com/";
-      const DASHBOARD_PAGE = "../hub.html";
-      const COCKPIT_PAGE = "../hub.html";
-      const PROFILE_PAGE = "./profil-chauffeur.html";
-      const RATES_PAGE = "../tarifs.html";
-      const PIN_PAGE = "../pin.html";
-      const HOME_PAGE = "../hub.html";
-      const QR_PAGE = "../generateur-digiy-driver.html";
+      const DASHBOARD_PAGE = "./hub.html";
+      const COCKPIT_PAGE   = "./hub.html";
+      const PROFILE_PAGE   = "./profil-chauffeur.html";
+      const RATES_PAGE     = "./tarifs.html";
+      const PIN_PAGE       = "./pin.html";
+      const HOME_PAGE      = "./hub.html";
+      const QR_PAGE        = "./generateur-digiy-driver.html";
 
       const $ = (id) => document.getElementById(id);
 
@@ -1234,802 +728,380 @@ label{
           )
         : null;
 
-      const ACCESS = {
-        slug:"",
-        phone:"",
-        preview:true,
-        access_ok:false,
-        reason:"preview",
-        pay_url:"",
-        profile:null
-      };
-
+      const ACCESS = { slug:"", phone:"", preview:true, access_ok:false, reason:"preview", pay_url:"", profile:null };
       let extras = [];
 
-      function normSlug(v){
-        return String(v || "").trim().toLowerCase();
-      }
-
-      function phoneDigits(v){
-        return String(v || "").replace(/[^\d]/g, "");
-      }
-
-      function normPhone(v){
-        const digits = phoneDigits(v);
-        if (!digits) return "";
-        if (digits.startsWith("221") && digits.length === 12) return digits;
-        if (digits.length === 9) return "221" + digits;
-        return digits;
-      }
-
-      function displayPhone(v){
-        const p = normPhone(v);
-        return p ? "+" + p : "—";
-      }
-
-      function isDriverSlug(v){
-        return /^driver-\d{12}$/.test(normSlug(v));
-      }
-
-      function phoneFromDriverSlug(v){
-        const s = normSlug(v);
-        return isDriverSlug(s) ? normPhone(s.slice("driver-".length)) : "";
-      }
-
-      function isSensitiveSlug(v){
-        return /\d{7,}/.test(String(v || ""));
-      }
-
-      function canExposeSlug(v){
-        const s = normSlug(v);
-        return !!s && !isSensitiveSlug(s);
-      }
+      function normSlug(v){ return String(v || "").trim().toLowerCase() }
+      function phoneDigits(v){ return String(v || "").replace(/[^\d]/g, "") }
+      function normPhone(v){ const d=phoneDigits(v); if(!d)return""; if(d.startsWith("221")&&d.length===12)return d; if(d.length===9)return"221"+d; return d }
+      function displayPhone(v){ const p=normPhone(v); return p?"+"+ p:"—" }
+      function isDriverSlug(v){ return /^driver-\d{12}$/.test(normSlug(v)) }
+      function phoneFromDriverSlug(v){ const s=normSlug(v); return isDriverSlug(s)?normPhone(s.slice("driver-".length)):"" }
+      function isSensitiveSlug(v){ return /\d{7,}/.test(String(v||"")) }
+      function canExposeSlug(v){ const s=normSlug(v); return !!s&&!isSensitiveSlug(s) }
 
       function cleanVisibleUrl(){
         try{
-          const u = new URL(location.href);
-          let changed = false;
-
-          if (u.searchParams.has("phone")){
-            u.searchParams.delete("phone");
-            changed = true;
-          }
-
-          if (u.searchParams.has("tel")){
-            u.searchParams.delete("tel");
-            changed = true;
-          }
-
-          const urlSlug = normSlug(u.searchParams.get("slug") || "");
-          if (urlSlug && isSensitiveSlug(urlSlug)){
-            u.searchParams.delete("slug");
-            changed = true;
-          }
-
-          if (changed){
-            history.replaceState({}, "", u.pathname + u.search + u.hash);
-          }
+          const u=new URL(location.href); let changed=false;
+          if(u.searchParams.has("phone")){u.searchParams.delete("phone");changed=true}
+          if(u.searchParams.has("tel")){u.searchParams.delete("tel");changed=true}
+          const urlSlug=normSlug(u.searchParams.get("slug")||"");
+          if(urlSlug&&isSensitiveSlug(urlSlug)){u.searchParams.delete("slug");changed=true}
+          if(changed) history.replaceState({},"",u.pathname+u.search+u.hash);
         }catch(_){}
       }
 
       function sanitizeReturnUrl(){
         try{
-          const u = new URL(location.href);
-          u.searchParams.delete("phone");
-          u.searchParams.delete("tel");
-          const s = normSlug(u.searchParams.get("slug") || "");
-          if (s && isSensitiveSlug(s)) u.searchParams.delete("slug");
-          return u.pathname + u.search + u.hash;
-        }catch(_){
-          return location.pathname;
-        }
+          const u=new URL(location.href);
+          u.searchParams.delete("phone");u.searchParams.delete("tel");
+          const s=normSlug(u.searchParams.get("slug")||"");
+          if(s&&isSensitiveSlug(s))u.searchParams.delete("slug");
+          return u.pathname+u.search+u.hash;
+        }catch(_){ return location.pathname }
       }
 
-      function accountLabel(){
-        return ACCESS.access_ok ? "compte : sécurisé" : (ACCESS.slug ? "compte : reconnu" : "compte : à vérifier");
-      }
+      function accountLabel(){ return ACCESS.access_ok?"compte : sécurisé":(ACCESS.slug?"compte : reconnu":"compte : à vérifier") }
 
-      function buildSafeUrl(base, params){
+      function buildSafeUrl(base,params){
         try{
-          const u = new URL(base, location.href);
-
-          u.searchParams.delete("phone");
-          u.searchParams.delete("tel");
-
-          Object.entries(params || {}).forEach(([key, value]) => {
-            const clean = String(value == null ? "" : value).trim();
-
-            if (key === "phone" || key === "tel") return;
-
-            if (key === "slug" || key === "identifiant"){
-              const s = normSlug(clean);
-              if (canExposeSlug(s)) u.searchParams.set("slug", s);
-              else u.searchParams.delete("slug");
-              return;
-            }
-
-            if (clean) u.searchParams.set(key, clean);
-            else u.searchParams.delete(key);
+          const u=new URL(base,location.href);
+          u.searchParams.delete("phone");u.searchParams.delete("tel");
+          Object.entries(params||{}).forEach(([key,value])=>{
+            const clean=String(value==null?"":value).trim();
+            if(key==="phone"||key==="tel")return;
+            if(key==="slug"||key==="identifiant"){const s=normSlug(clean);if(canExposeSlug(s))u.searchParams.set("slug",s);else u.searchParams.delete("slug");return}
+            if(clean)u.searchParams.set(key,clean);else u.searchParams.delete(key);
           });
-
-          const currentSlug = normSlug(u.searchParams.get("slug") || "");
-          if (currentSlug && isSensitiveSlug(currentSlug)){
-            u.searchParams.delete("slug");
-          }
-
-          if (u.origin === location.origin) return u.pathname + u.search + u.hash;
+          const currentSlug=normSlug(u.searchParams.get("slug")||"");
+          if(currentSlug&&isSensitiveSlug(currentSlug))u.searchParams.delete("slug");
+          if(u.origin===location.origin)return u.pathname+u.search+u.hash;
           return u.toString();
-        }catch(e){
-          console.error("[DIGIY DRIVER TARIFS] buildSafeUrl", e);
-          return base;
-        }
+        }catch(e){ return base }
       }
 
-      function pageUrl(base, slug, phone){
-        return buildSafeUrl(base, {
-          slug: normSlug(slug),
-          phone: normPhone(phone)
-        });
-      }
+      function pageUrl(base,slug,phone){ return buildSafeUrl(base,{slug:normSlug(slug),phone:normPhone(phone)}) }
 
       function buildPayUrl(){
         try{
-          if (ACCESS.pay_url) return ACCESS.pay_url;
-
-          const u = new URL(PAY_HOME);
-          u.searchParams.set("module", MODULE);
-
-          if (canExposeSlug(ACCESS.slug)){
-            u.searchParams.set("slug", ACCESS.slug);
-          }
-
-          u.searchParams.delete("phone");
-          u.searchParams.delete("tel");
-          u.searchParams.set("return", sanitizeReturnUrl());
-
+          if(ACCESS.pay_url)return ACCESS.pay_url;
+          const u=new URL(PAY_HOME);
+          u.searchParams.set("module",MODULE);
+          if(canExposeSlug(ACCESS.slug))u.searchParams.set("slug",ACCESS.slug);
+          u.searchParams.delete("phone");u.searchParams.delete("tel");
+          u.searchParams.set("return",sanitizeReturnUrl());
           return u.toString();
-        }catch(_){
-          return PAY_HOME;
-        }
+        }catch(_){ return PAY_HOME }
       }
 
-      function storageKey(){
-        return "digiy_driver_tarifs_" + (ACCESS.slug || "preview");
+      function storageKey(){ return "digiy_driver_tarifs_"+(ACCESS.slug||"preview") }
+
+      function setToast(text,kind){
+        const el=$("toast");
+        el.className="toast "+(kind||"");
+        el.textContent=text;
+        el.style.display=text?"block":"none";
       }
 
-      function setToast(text, kind){
-        const el = $("toast");
-        el.className = "toast " + (kind || "");
-        el.textContent = text;
-        el.style.display = text ? "block" : "none";
+      function setAccessPill(mode,text){
+        const pill=$("accessPill");
+        pill.className="pill "+mode;
+        pill.textContent="session : "+text;
       }
 
-      function setAccessPill(mode, text){
-        const pill = $("accessPill");
-        pill.className = "pill " + mode;
-        pill.textContent = "session : " + text;
-      }
+      function setTopSub(text){ const el=$("topSub"); if(el)el.textContent=text }
 
-      function setTopSub(text){
-        $("topSub").textContent = text;
-      }
+      function money(v){ const n=Number(v||0); if(!Number.isFinite(n)||n<=0)return"—"; return n.toLocaleString("fr-FR")+" F CFA" }
 
-      function money(v){
-        const n = Number(v || 0);
-        if (!Number.isFinite(n) || n <= 0) return "—";
-        return n.toLocaleString("fr-FR") + " F CFA";
-      }
+      function initialsFromName(v){ const words=String(v||"").trim().split(/\s+/).filter(Boolean).slice(0,2); if(!words.length)return"DR"; return words.map(w=>w[0]?.toUpperCase()||"").join("") }
 
-      function initialsFromName(v){
-        const words = String(v || "").trim().split(/\s+/).filter(Boolean).slice(0,2);
-        if (!words.length) return "DR";
-        return words.map(w => w[0]?.toUpperCase() || "").join("");
-      }
-
-      function csvToArray(v){
-        return String(v || "")
-          .split(",")
-          .map(x => x.trim())
-          .filter(Boolean);
-      }
-
-      function arrayToCsv(v){
-        return Array.isArray(v) ? v.join(", ") : "";
-      }
+      function csvToArray(v){ return String(v||"").split(",").map(x=>x.trim()).filter(Boolean) }
+      function arrayToCsv(v){ return Array.isArray(v)?v.join(", "):"" }
 
       function copyText(text){
-        if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        ta.setAttribute("readonly", "");
-        ta.style.position = "fixed";
-        ta.style.left = "-9999px";
-        document.body.appendChild(ta);
-        ta.select();
-        let ok = false;
-        try{ ok = document.execCommand("copy"); }catch(_){}
-        ta.remove();
-        if (!ok) throw new Error("copy_failed");
-        return Promise.resolve();
+        if(navigator.clipboard?.writeText)return navigator.clipboard.writeText(text);
+        const ta=document.createElement("textarea");ta.value=text;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();if(!ok)throw new Error("copy_failed");return Promise.resolve();
       }
 
       function currentData(){
         return {
-          display_name: $("f_display_name").value.trim(),
-          city: $("f_city").value.trim(),
-          whatsapp: "",
-          zones: csvToArray($("f_zones").value),
-          note: $("f_note").value.trim(),
-          fares: {
-            saly_dakar: Number($("fare_saly_dakar").value || 0),
-            saly_aibd: Number($("fare_saly_aibd").value || 0),
-            saly_ngaparou: Number($("fare_saly_ngaparou").value || 0),
-            saly_somone: Number($("fare_saly_somone").value || 0),
-            saly_mbour: Number($("fare_saly_mbour").value || 0),
-            dispo_4h: Number($("fare_dispo_4h").value || 0),
-            dispo_day: Number($("fare_dispo_day").value || 0),
-            wait_hour: Number($("fare_wait_hour").value || 0)
+          display_name:$("f_display_name").value.trim(),
+          city:$("f_city").value.trim(),
+          whatsapp:"",
+          zones:csvToArray($("f_zones").value),
+          note:$("f_note").value.trim(),
+          fares:{
+            saly_dakar:  Number($("fare_saly_dakar").value||0),
+            saly_aibd:   Number($("fare_saly_aibd").value||0),
+            saly_ngaparou:Number($("fare_saly_ngaparou").value||0),
+            saly_somone: Number($("fare_saly_somone").value||0),
+            saly_mbour:  Number($("fare_saly_mbour").value||0),
+            dispo_4h:    Number($("fare_dispo_4h").value||0),
+            dispo_day:   Number($("fare_dispo_day").value||0),
+            wait_hour:   Number($("fare_wait_hour").value||0)
           },
-          extras: extras.map(x => ({
-            label: String(x.label || "").trim(),
-            amount: Number(x.amount || 0),
-            note: String(x.note || "").trim()
-          })).filter(x => x.label && x.amount > 0)
+          extras:extras.map(x=>({label:String(x.label||"").trim(),amount:Number(x.amount||0),note:String(x.note||"").trim()})).filter(x=>x.label&&x.amount>0)
         };
       }
 
       function loadIntoForm(data){
-        $("f_display_name").value = data?.display_name || "";
-        $("f_city").value = data?.city || "";
-        $("f_whatsapp").value = "";
-        $("f_zones").value = arrayToCsv(data?.zones);
-        $("f_note").value = data?.note || "";
-
-        const fares = data?.fares || {};
-        $("fare_saly_dakar").value = fares.saly_dakar || "";
-        $("fare_saly_aibd").value = fares.saly_aibd || "";
-        $("fare_saly_ngaparou").value = fares.saly_ngaparou || "";
-        $("fare_saly_somone").value = fares.saly_somone || "";
-        $("fare_saly_mbour").value = fares.saly_mbour || "";
-        $("fare_dispo_4h").value = fares.dispo_4h || "";
-        $("fare_dispo_day").value = fares.dispo_day || "";
-        $("fare_wait_hour").value = fares.wait_hour || "";
-
-        extras = Array.isArray(data?.extras) ? data.extras.map(x => ({
-          label: String(x.label || ""),
-          amount: Number(x.amount || 0),
-          note: String(x.note || "")
-        })) : [];
-
-        renderExtras();
-        refreshPreview();
+        $("f_display_name").value=data?.display_name||"";
+        $("f_city").value=data?.city||"";
+        $("f_whatsapp").value="";
+        $("f_zones").value=arrayToCsv(data?.zones);
+        $("f_note").value=data?.note||"";
+        const fares=data?.fares||{};
+        $("fare_saly_dakar").value=fares.saly_dakar||"";
+        $("fare_saly_aibd").value=fares.saly_aibd||"";
+        $("fare_saly_ngaparou").value=fares.saly_ngaparou||"";
+        $("fare_saly_somone").value=fares.saly_somone||"";
+        $("fare_saly_mbour").value=fares.saly_mbour||"";
+        $("fare_dispo_4h").value=fares.dispo_4h||"";
+        $("fare_dispo_day").value=fares.dispo_day||"";
+        $("fare_wait_hour").value=fares.wait_hour||"";
+        extras=Array.isArray(data?.extras)?data.extras.map(x=>({label:String(x.label||""),amount:Number(x.amount||0),note:String(x.note||"")})):[];
+        renderExtras();refreshPreview();
       }
 
       function saveDraft(){
-        const data = currentData();
-        try{
-          localStorage.setItem(storageKey(), JSON.stringify(data));
-          setToast("💾 Brouillon tarifs enregistré sur ce compte.", "ok");
-          refreshPreview();
-        }catch(e){
-          console.error(e);
-          setToast("❌ Impossible d’enregistrer le brouillon local.", "bad");
-        }
+        const data=currentData();
+        try{localStorage.setItem(storageKey(),JSON.stringify(data));setToast("💾 Brouillon tarifs enregistré.","ok");refreshPreview()}catch(e){setToast("❌ Impossible d'enregistrer le brouillon.","bad")}
       }
 
       function resetDraft(){
-        try{
-          localStorage.removeItem(storageKey());
-        }catch(_){}
-        loadIntoForm({
-          display_name: ACCESS.profile?.display_name || deriveNameFromSlug(ACCESS.slug),
-          city: ACCESS.profile?.city || "",
-          whatsapp: "",
-          zones: ACCESS.profile?.zones || [],
-          note: "",
-          fares: {},
-          extras: []
-        });
-        setToast("🧹 Brouillon effacé pour ce compte.", "warn");
+        try{localStorage.removeItem(storageKey())}catch(_){}
+        loadIntoForm({display_name:ACCESS.profile?.display_name||deriveNameFromSlug(ACCESS.slug),city:ACCESS.profile?.city||"",whatsapp:"",zones:ACCESS.profile?.zones||[],note:"",fares:{},extras:[]});
+        setToast("🧹 Brouillon effacé.","warn");
       }
 
       function readDraft(){
-        try{
-          const raw = localStorage.getItem(storageKey());
-          return raw ? JSON.parse(raw) : null;
-        }catch(_){
-          return null;
-        }
+        try{const raw=localStorage.getItem(storageKey());return raw?JSON.parse(raw):null}catch(_){return null}
       }
 
       function deriveNameFromSlug(slug){
-        const s = normSlug(slug);
-        if (!s) return "Mon espace chauffeur";
-        const tail = s.replace(/^driver-/, "");
-        if (/^\d+$/.test(tail)) return "Mon espace chauffeur";
-        return tail.replace(/-/g, " ").replace(/\b\w/g, m => m.toUpperCase());
+        const s=normSlug(slug);if(!s)return"Mon espace chauffeur";
+        const tail=s.replace(/^driver-/,"");
+        if(/^\d+$/.test(tail))return"Mon espace chauffeur";
+        return tail.replace(/-/g," ").replace(/\b\w/g,m=>m.toUpperCase());
       }
 
       function fareEntries(data){
-        const f = data?.fares || {};
-        const rows = [
-          ["Saly → Dakar", f.saly_dakar],
-          ["Saly → AIBD", f.saly_aibd],
-          ["Saly → Ngaparou", f.saly_ngaparou],
-          ["Saly → Somone", f.saly_somone],
-          ["Saly → Mbour", f.saly_mbour],
-          ["Mise à dispo 4h", f.dispo_4h],
-          ["Mise à dispo journée", f.dispo_day],
-          ["Attente / heure", f.wait_hour]
-        ];
-
-        const extraRows = (data?.extras || []).map(x => [x.label, x.amount, x.note]);
-        return rows
-          .filter(([, amount]) => Number(amount || 0) > 0)
-          .map(([label, amount]) => ({ label, amount:Number(amount || 0), note:"" }))
-          .concat(
-            extraRows
-              .filter(([, amount]) => Number(amount || 0) > 0)
-              .map(([label, amount, note]) => ({ label, amount:Number(amount || 0), note:note || "" }))
-          );
+        const f=data?.fares||{};
+        const rows=[["Saly → Dakar",f.saly_dakar],["Saly → AIBD",f.saly_aibd],["Saly → Ngaparou",f.saly_ngaparou],["Saly → Somone",f.saly_somone],["Saly → Mbour",f.saly_mbour],["Mise à dispo 4h",f.dispo_4h],["Mise à dispo journée",f.dispo_day],["Attente / heure",f.wait_hour]];
+        const extraRows=(data?.extras||[]).map(x=>[x.label,x.amount,x.note]);
+        return rows.filter(([,amount])=>Number(amount||0)>0).map(([label,amount])=>({label,amount:Number(amount||0),note:""})).concat(extraRows.filter(([,amount])=>Number(amount||0)>0).map(([label,amount,note])=>({label,amount:Number(amount||0),note:note||""})));
       }
 
       function buildSummary(data){
-        const displayName = data.display_name || deriveNameFromSlug(ACCESS.slug);
-        const city = data.city || "Sénégal";
-        const zones = (data.zones || []).length ? data.zones.join(", ") : "Zones à confirmer";
-        const wa = "";
-        const fares = fareEntries(data);
-
-        let txt = `🚖 ${displayName}\n`;
-        txt += `📍 ${city} — ${zones}\n`;
-
-        if (fares.length){
-          txt += `\n💰 Tarifs :\n`;
-          fares.forEach(item => {
-            txt += `• ${item.label} : ${money(item.amount)}\n`;
-          });
-        } else {
-          txt += `\n💰 Tarifs sur demande.\n`;
-        }
-
-        if (data.note){
-          txt += `\n📝 ${data.note}\n`;
-        }
-
+        const displayName=data.display_name||deriveNameFromSlug(ACCESS.slug);
+        const city=data.city||"Sénégal";
+        const zones=(data.zones||[]).length?data.zones.join(", "):"Zones à confirmer";
+        const fares=fareEntries(data);
+        let txt=`🚖 ${displayName}\n📍 ${city} — ${zones}\n`;
+        if(fares.length){txt+=`\n💰 Tarifs :\n`;fares.forEach(item=>{txt+=`• ${item.label} : ${money(item.amount)}\n`})}
+        else{txt+=`\n💰 Tarifs sur demande.\n`}
+        if(data.note)txt+=`\n📝 ${data.note}\n`;
         return txt.trim();
       }
 
       function setAvatar(profile){
-        const avatar = $("pAvatar");
-        const photo = String(profile?.photo_url || "").trim();
-
-        if (photo){
-          avatar.innerHTML = `<img src="${escapeAttr(photo)}" alt="Photo chauffeur"/>`;
-        } else {
-          avatar.textContent = initialsFromName(
-            currentData().display_name || deriveNameFromSlug(ACCESS.slug)
-          );
-        }
+        const avatar=$("pAvatar");const photo=String(profile?.photo_url||"").trim();
+        if(photo){avatar.innerHTML=`<img src="${escapeAttr(photo)}" alt="Photo chauffeur"/>`}
+        else{avatar.textContent=initialsFromName(currentData().display_name||deriveNameFromSlug(ACCESS.slug))}
       }
 
       function refreshPreview(){
-        const data = currentData();
-        const entries = fareEntries(data);
-
-        $("pName").textContent = data.display_name || deriveNameFromSlug(ACCESS.slug);
-        $("pMeta").textContent =
-          [data.city || "Ville à compléter", (data.zones || []).length ? data.zones.join(" • ") : "Zones à compléter"].join(" • ");
-
+        const data=currentData();const entries=fareEntries(data);
+        $("pName").textContent=data.display_name||deriveNameFromSlug(ACCESS.slug);
+        $("pMeta").textContent=[data.city||"Ville à compléter",(data.zones||[]).length?data.zones.join(" • "):"Zones à compléter"].join(" • ");
         setAvatar(ACCESS.profile);
-
-        const badges = [];
-        if (data.city) badges.push(data.city);
-        if ((data.zones || []).length) badges.push((data.zones || []).length + " zone(s)");
-        
-        if (entries.length) badges.push(entries.length + " tarif(s)");
-
-        $("pBadges").innerHTML = badges.length
-          ? badges.map(x => `<span class="pBadge">${escapeHtml(x)}</span>`).join("")
-          : `<span class="pBadge">Profil en préparation</span>`;
-
-        const box = $("previewTarifs");
-        if (!entries.length){
-          box.innerHTML = `
-            <div class="tarifLine">
-              <div class="name">Aucun tarif posé</div>
-              <div class="amount">—</div>
-            </div>
-          `;
-        } else {
-          box.innerHTML = entries.map(item => `
-            <div class="tarifLine">
-              <div class="name">${escapeHtml(item.label)}${item.note ? ` <span class="small" style="color:var(--muted)">— ${escapeHtml(item.note)}</span>` : ""}</div>
-              <div class="amount">${escapeHtml(money(item.amount))}</div>
-            </div>
-          `).join("");
-        }
-
-        $("publicSummary").textContent = buildSummary(data);
-        updateKpis(entries);
-        updateActionLinks(data);
+        const badges=[];
+        if(data.city)badges.push(data.city);
+        if((data.zones||[]).length)badges.push((data.zones||[]).length+" zone(s)");
+        if(entries.length)badges.push(entries.length+" tarif(s)");
+        $("pBadges").innerHTML=badges.length?badges.map(x=>`<span class="pBadge">${escapeHtml(x)}</span>`).join(""):`<span class="pBadge">Profil en préparation</span>`;
+        const box=$("previewTarifs");
+        if(!entries.length){box.innerHTML=`<div class="tarifLine"><div class="name">Aucun tarif posé</div><div class="amount">—</div></div>`}
+        else{box.innerHTML=entries.map(item=>`<div class="tarifLine"><div class="name">${escapeHtml(item.label)}${item.note?` <span class="small" style="color:var(--muted)">— ${escapeHtml(item.note)}</span>`:""}</div><div class="amount">${escapeHtml(money(item.amount))}</div></div>`).join("")}
+        $("publicSummary").textContent=buildSummary(data);
+        updateKpis(entries);updateActionLinks(data);
       }
 
       function updateKpis(entries){
-        const amounts = entries.map(x => Number(x.amount || 0)).filter(n => n > 0);
-        $("kpiCount").textContent = String(entries.length);
-        $("kpiMin").textContent = amounts.length ? money(Math.min(...amounts)) : "—";
-        $("kpiMax").textContent = amounts.length ? money(Math.max(...amounts)) : "—";
-        $("kpiSlug").textContent = ACCESS.slug ? "sécurisé" : "—";
+        const amounts=entries.map(x=>Number(x.amount||0)).filter(n=>n>0);
+        $("kpiCount").textContent=String(entries.length);
+        $("kpiMin").textContent=amounts.length?money(Math.min(...amounts)):"—";
+        $("kpiMax").textContent=amounts.length?money(Math.max(...amounts)):"—";
+        $("kpiSlug").textContent=ACCESS.slug?"sécurisé":"—";
       }
 
       function updateNav(){
         cleanVisibleUrl();
-
-        $("slugPill").textContent = accountLabel();
-        $("phonePill").textContent = "contact : masqué";
-
-        $("navDashboard").href = pageUrl(DASHBOARD_PAGE, ACCESS.slug, ACCESS.phone);
-        $("navCockpit").href = pageUrl(COCKPIT_PAGE, ACCESS.slug, ACCESS.phone);
-        $("navProfil").href = pageUrl(PROFILE_PAGE, ACCESS.slug, ACCESS.phone);
-        $("navTarifs").href = pageUrl(RATES_PAGE, ACCESS.slug, ACCESS.phone);
-        $("navPin").href = pageUrl(PIN_PAGE, ACCESS.slug, ACCESS.phone);
-        $("navHome").href = pageUrl(HOME_PAGE, ACCESS.slug, ACCESS.phone);
-        $("navQr").href = pageUrl(QR_PAGE, ACCESS.slug, ACCESS.phone);
-
-        $("btnBackCockpit").href = pageUrl(COCKPIT_PAGE, ACCESS.slug, ACCESS.phone);
-        $("btnGoProfile").href = pageUrl(PROFILE_PAGE, ACCESS.slug, ACCESS.phone);
-        $("btnGoQr").href = pageUrl(QR_PAGE, ACCESS.slug, ACCESS.phone);
-
-        const moreLinks = {
-          fastHome: DASHBOARD_PAGE,
-          fastTrips: "../trajets.html",
-          fastProfile: PROFILE_PAGE,
-          bottomHome: DASHBOARD_PAGE,
-          bottomTrips: "../trajets.html",
-          bottomMore: PROFILE_PAGE
-        };
-
-        Object.entries(moreLinks).forEach(([id, base]) => {
-          const el = $(id);
-          if (el) el.href = pageUrl(base, ACCESS.slug, ACCESS.phone);
-        });
-
-        const fastTarifs = $("fastTarifs");
-        const bottomNew = $("bottomNew");
-        const bottomNotes = $("bottomNotes");
-
-        if (fastTarifs) fastTarifs.href = "#tarifsForm";
-        if (bottomNew) bottomNew.href = pageUrl("../trajets.html", ACCESS.slug, ACCESS.phone) + "#newTrip";
-        if (bottomNotes) bottomNotes.href = pageUrl("../trajets.html", ACCESS.slug, ACCESS.phone) + "#quickDriverNote";
-
+        const sp=$("slugPill");if(sp)sp.textContent=accountLabel();
+        const pp=$("phonePill");if(pp)pp.textContent="contact : masqué";
+        $("navDashboard").href=pageUrl(DASHBOARD_PAGE,ACCESS.slug,ACCESS.phone);
+        $("navCockpit").href=pageUrl(COCKPIT_PAGE,ACCESS.slug,ACCESS.phone);
+        $("navProfil").href=pageUrl(PROFILE_PAGE,ACCESS.slug,ACCESS.phone);
+        $("navTarifs").href=pageUrl(RATES_PAGE,ACCESS.slug,ACCESS.phone);
+        $("navPin").href=pageUrl(PIN_PAGE,ACCESS.slug,ACCESS.phone);
+        $("navHome").href=pageUrl(HOME_PAGE,ACCESS.slug,ACCESS.phone);
+        $("navQr").href=pageUrl(QR_PAGE,ACCESS.slug,ACCESS.phone);
+        $("btnBackCockpit").href=pageUrl(COCKPIT_PAGE,ACCESS.slug,ACCESS.phone);
+        $("btnGoProfile").href=pageUrl(PROFILE_PAGE,ACCESS.slug,ACCESS.phone);
+        $("btnGoQr").href=pageUrl(QR_PAGE,ACCESS.slug,ACCESS.phone);
+        const moreLinks={fastHome:DASHBOARD_PAGE,fastTrips:"./trajets.html",fastProfile:PROFILE_PAGE,bottomHome:DASHBOARD_PAGE,bottomTrips:"./trajets.html",bottomMore:PROFILE_PAGE};
+        Object.entries(moreLinks).forEach(([id,base])=>{const el=$(id);if(el)el.href=pageUrl(base,ACCESS.slug,ACCESS.phone)});
+        const fastTarifs=$("fastTarifs");if(fastTarifs)fastTarifs.href="#tarifsForm";
+        const bottomNew=$("bottomNew");if(bottomNew)bottomNew.href=pageUrl("./trajets.html",ACCESS.slug,ACCESS.phone)+"#newTrip";
+        const bottomNotes=$("bottomNotes");if(bottomNotes)bottomNotes.href=pageUrl("./trajets.html",ACCESS.slug,ACCESS.phone)+"#quickDriverNote";
         cleanVisibleUrl();
       }
 
-      function updateActionLinks(data){
-        // Contact volontairement retiré de l’atelier tarifs.
-        // Le contact chauffeur vit dans le profil, pas dans la grille de prix.
-      }
+      function updateActionLinks(data){}
 
       function renderExtras(){
-        const box = $("extrasList");
-
-        if (!extras.length){
-          box.innerHTML = `
-            <div class="extraItem">
-              <div class="muted">Aucune ligne libre pour l’instant. Ajoute une course spéciale ou un service premium.</div>
-            </div>
-          `;
-          return;
-        }
-
-        box.innerHTML = extras.map((item, i) => `
+        const box=$("extrasList");
+        if(!extras.length){box.innerHTML=`<div class="extraItem"><div class="muted">Aucune ligne libre. Ajoute une course spéciale ou un service premium.</div></div>`;return}
+        box.innerHTML=extras.map((item,i)=>`
           <div class="extraItem">
             <div class="extraHead">
-              <div class="fareTitle">Ligne libre ${i + 1}</div>
-              <button class="btn danger" type="button" data-remove="${i}" style="flex:0 0 auto;min-height:38px;padding:8px 10px">🗑️ Retirer</button>
+              <div class="fareTitle">Ligne libre ${i+1}</div>
+              <button class="btn danger" type="button" data-remove="${i}" style="flex:0 0 auto;min-height:38px;padding:8px 10px;font-size:13px">🗑️ Retirer</button>
             </div>
-
             <div class="row">
-              <div>
-                <label>Nom</label>
-                <input data-extra-label="${i}" value="${escapeAttr(item.label)}" placeholder="Ex : Dakar nuit / Popenguine / Joal"/>
-              </div>
-              <div>
-                <label>Montant</label>
-                <input data-extra-amount="${i}" type="number" min="0" value="${item.amount || ""}" placeholder="Ex : 45000"/>
-              </div>
+              <div><label>Nom</label><input data-extra-label="${i}" value="${escapeAttr(item.label)}" placeholder="Ex : Dakar nuit / Popenguine"/></div>
+              <div><label>Montant</label><input data-extra-amount="${i}" type="number" min="0" value="${item.amount||""}" placeholder="Ex : 45000"/></div>
             </div>
-
             <label>Note</label>
             <input data-extra-note="${i}" value="${escapeAttr(item.note)}" placeholder="Ex : nuit / bagages / aller simple"/>
           </div>
         `).join("");
-
-        box.querySelectorAll("[data-remove]").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const i = Number(btn.getAttribute("data-remove"));
-            extras.splice(i, 1);
-            renderExtras();
-            refreshPreview();
-          });
-        });
-
-        box.querySelectorAll("[data-extra-label]").forEach(input => {
-          input.addEventListener("input", () => {
-            const i = Number(input.getAttribute("data-extra-label"));
-            extras[i].label = input.value;
-            refreshPreview();
-          });
-        });
-
-        box.querySelectorAll("[data-extra-amount]").forEach(input => {
-          input.addEventListener("input", () => {
-            const i = Number(input.getAttribute("data-extra-amount"));
-            extras[i].amount = Number(input.value || 0);
-            refreshPreview();
-          });
-        });
-
-        box.querySelectorAll("[data-extra-note]").forEach(input => {
-          input.addEventListener("input", () => {
-            const i = Number(input.getAttribute("data-extra-note"));
-            extras[i].note = input.value;
-            refreshPreview();
-          });
-        });
+        box.querySelectorAll("[data-remove]").forEach(btn=>{btn.addEventListener("click",()=>{const i=Number(btn.getAttribute("data-remove"));extras.splice(i,1);renderExtras();refreshPreview()})});
+        box.querySelectorAll("[data-extra-label]").forEach(input=>{input.addEventListener("input",()=>{const i=Number(input.getAttribute("data-extra-label"));extras[i].label=input.value;refreshPreview()})});
+        box.querySelectorAll("[data-extra-amount]").forEach(input=>{input.addEventListener("input",()=>{const i=Number(input.getAttribute("data-extra-amount"));extras[i].amount=Number(input.value||0);refreshPreview()})});
+        box.querySelectorAll("[data-extra-note]").forEach(input=>{input.addEventListener("input",()=>{const i=Number(input.getAttribute("data-extra-note"));extras[i].note=input.value;refreshPreview()})});
       }
 
-      function escapeHtml(str){
-        return String(str || "")
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#039;");
-      }
-
-      function escapeAttr(str){
-        return escapeHtml(str).replaceAll("`", "&#096;");
-      }
+      function escapeHtml(str){ return String(str||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;") }
+      function escapeAttr(str){ return escapeHtml(str).replaceAll("`","&#096;") }
 
       async function loadProfile(){
-        if (!sb){
-          setToast("⚠️ Supabase indisponible dans cette page.", "warn");
-          return;
-        }
-
-        const slug = ACCESS.slug;
-        if (!slug){
-          setToast("⚠️ Identifiant absent pour charger le profil.", "warn");
-          return;
-        }
-
+        if(!sb){setToast("⚠️ Supabase indisponible.","warn");return}
+        const slug=ACCESS.slug;if(!slug){setToast("⚠️ Identifiant absent.","warn");return}
         try{
-          const { data, error } = await sb
-            .from(TABLE)
-            .select("slug, display_name, city, contact, photo_url, profile_url, bio, zones, tags, is_published, is_active, priority")
-            .eq("slug", slug)
-            .limit(1)
-            .maybeSingle();
-
-          if (error){
-            console.error(error);
-            setToast("⚠️ Profil non chargé : " + (error.message || "erreur inconnue"), "warn");
-            return;
+          const{data,error}=await sb.from(TABLE).select("slug,display_name,city,contact,photo_url,profile_url,bio,zones,tags,is_published,is_active,priority").eq("slug",slug).limit(1).maybeSingle();
+          if(error){setToast("⚠️ Profil non chargé : "+(error.message||"erreur inconnue"),"warn");return}
+          ACCESS.profile=data||null;
+          if(data){
+            const draft=readDraft();
+            const merged={display_name:draft?.display_name||data.display_name||deriveNameFromSlug(ACCESS.slug),city:draft?.city||data.city||"",whatsapp:"",zones:draft?.zones?.length?draft.zones:(Array.isArray(data.zones)?data.zones:[]),note:draft?.note||"",fares:draft?.fares||{},extras:draft?.extras||[]};
+            loadIntoForm(merged);setToast("↻ Profil chargé. Tarifs repris depuis le brouillon local si présent.","ok");
+          }else{
+            const draft=readDraft();
+            if(draft){loadIntoForm(draft);setToast("↻ Aucun profil trouvé, brouillon local repris.","warn")}
+            else{loadIntoForm({display_name:deriveNameFromSlug(ACCESS.slug),city:"",whatsapp:"",zones:[],note:"",fares:{},extras:[]});setToast("ℹ️ Aucun profil trouvé. Tu peux préparer les tarifs.","warn")}
           }
-
-          ACCESS.profile = data || null;
-
-          if (data){
-            const draft = readDraft();
-            const merged = {
-              display_name: draft?.display_name || data.display_name || deriveNameFromSlug(ACCESS.slug),
-              city: draft?.city || data.city || "",
-              whatsapp: "",
-              zones: draft?.zones?.length ? draft.zones : (Array.isArray(data.zones) ? data.zones : []),
-              note: draft?.note || "",
-              fares: draft?.fares || {},
-              extras: draft?.extras || []
-            };
-            loadIntoForm(merged);
-            setToast("↻ Profil chargé. Tarifs repris depuis le brouillon local si présent.", "ok");
-          } else {
-            const draft = readDraft();
-            if (draft){
-              loadIntoForm(draft);
-              setToast("↻ Aucun profil SQL trouvé, mais le brouillon local a été repris.", "warn");
-            } else {
-              loadIntoForm({
-                display_name: deriveNameFromSlug(ACCESS.slug),
-                city: "",
-                whatsapp: "",
-                zones: [],
-                note: "",
-                fares: {},
-                extras: []
-              });
-              setToast("ℹ️ Aucun profil trouvé. Tu peux quand même préparer les tarifs.", "warn");
-            }
-          }
-        }catch(e){
-          console.error(e);
-          setToast("❌ Erreur de lecture profil.", "bad");
-        }
+        }catch(e){setToast("❌ Erreur de lecture profil.","bad")}
       }
 
       async function guardBoot(){
         try{
-          const guard = window.DIGIY_GUARD;
-
-          if (guard && typeof guard.ready === "function"){
-            const out = guard.ready({ redirect:false, preserve_validation:true });
-            if (out && typeof out.then === "function") await out;
-          } else if (guard?.ready && typeof guard.ready.then === "function"){
-            await guard.ready;
-          }
-        }catch(e){
-          console.warn("[DIGIY DRIVER TARIFS] guard ready error", e);
-        }
-
-        const qs = new URLSearchParams(location.search);
-        const st = window.DIGIY_GUARD?.state || null;
-
-        ACCESS.slug = normSlug(
-          st?.slug ||
-          qs.get("slug") ||
-          ""
-        );
-
-        ACCESS.phone = normPhone(
-          st?.phone ||
-          qs.get("phone") ||
-          qs.get("tel") ||
-          phoneFromDriverSlug(ACCESS.slug) ||
-          ""
-        );
-
-        ACCESS.access_ok = !!(st?.access_ok || st?.access);
-        ACCESS.preview = !ACCESS.access_ok;
-        ACCESS.reason = st?.reason || (ACCESS.access_ok ? "access_ok" : "preview");
-        ACCESS.pay_url = st?.pay_url || "";
-
-        if (window.DIGIY_GUARD?.rememberIdentity && (ACCESS.slug || ACCESS.phone)){
-          try{
-            window.DIGIY_GUARD.rememberIdentity({ slug: ACCESS.slug, phone: ACCESS.phone });
-          }catch(_){}
-        }
-
+          const guard=window.DIGIY_GUARD;
+          if(guard&&typeof guard.ready==="function"){const out=guard.ready({redirect:false,preserve_validation:true});if(out&&typeof out.then==="function")await out}
+          else if(guard?.ready&&typeof guard.ready.then==="function")await guard.ready;
+        }catch(e){console.warn("[DIGIY DRIVER TARIFS] guard ready error",e)}
+        const qs=new URLSearchParams(location.search);const st=window.DIGIY_GUARD?.state||null;
+        ACCESS.slug=normSlug(st?.slug||qs.get("slug")||"");
+        ACCESS.phone=normPhone(st?.phone||qs.get("phone")||qs.get("tel")||phoneFromDriverSlug(ACCESS.slug)||"");
+        ACCESS.access_ok=!!(st?.access_ok||st?.access);
+        ACCESS.preview=!ACCESS.access_ok;
+        ACCESS.reason=st?.reason||(ACCESS.access_ok?"access_ok":"preview");
+        ACCESS.pay_url=st?.pay_url||"";
+        if(window.DIGIY_GUARD?.rememberIdentity&&(ACCESS.slug||ACCESS.phone)){try{window.DIGIY_GUARD.rememberIdentity({slug:ACCESS.slug,phone:ACCESS.phone})}catch(_){}}
         cleanVisibleUrl();
-
-        if (!ACCESS.slug){
-          setAccessPill("bad", "compte à vérifier");
-          setTopSub("Aucun compte chauffeur détecté. Ouvre cette page depuis ton accès ou depuis ta gestion.");
-          $("disabledNote").style.display = "block";
-          return;
-        }
-
-        if (!isDriverSlug(ACCESS.slug)){
-          setAccessPill("bad", "lien invalide");
-          setTopSub("Lien chauffeur non reconnu. Repars par ton accès.");
-          $("disabledNote").style.display = "block";
-          return;
-        }
-
-        if (ACCESS.access_ok){
-          setAccessPill("ok", st?.pin_session_ok ? "session ouverte" : "accès ouvert");
-          setTopSub("Accès vivant détecté. Les tarifs restent rangés sans exposer tes identifiants.");
-        } else {
-          setAccessPill("warn", "aperçu");
-          setTopSub("Mode aperçu : tu peux préparer les tarifs localement, sans exposer ton compte dans l’adresse.");
-        }
-
-        $("disabledNote").style.display = "block";
+        if(!ACCESS.slug){setAccessPill("bad","compte à vérifier");setTopSub("Aucun compte chauffeur détecté. Ouvre cette page depuis ton accès.");$("disabledNote").style.display="block";return}
+        if(!isDriverSlug(ACCESS.slug)){setAccessPill("bad","lien invalide");setTopSub("Lien chauffeur non reconnu. Repars par ton accès.");$("disabledNote").style.display="block";return}
+        if(ACCESS.access_ok){setAccessPill("ok",st?.pin_session_ok?"session ouverte":"accès ouvert");setTopSub("Accès vivant détecté. Les tarifs restent rangés sans exposer tes identifiants.")}
+        else{setAccessPill("warn","aperçu");setTopSub("Mode aperçu : prépare les tarifs localement, sans exposer ton compte.")}
+        $("disabledNote").style.display="block";
       }
 
       function bindPreview(){
-        [
-          "f_display_name","f_city","f_zones","f_note",
-          "fare_saly_dakar","fare_saly_aibd","fare_saly_ngaparou","fare_saly_somone",
-          "fare_saly_mbour","fare_dispo_4h","fare_dispo_day","fare_wait_hour"
-        ].forEach(id => {
-          $(id).addEventListener("input", refreshPreview);
-        });
+        ["f_display_name","f_city","f_zones","f_note","fare_saly_dakar","fare_saly_aibd","fare_saly_ngaparou","fare_saly_somone","fare_saly_mbour","fare_dispo_4h","fare_dispo_day","fare_wait_hour"].forEach(id=>$(id).addEventListener("input",refreshPreview));
       }
 
       function bindButtons(){
-        $("btnLoadProfile").addEventListener("click", loadProfile);
-        $("btnSaveDraft").addEventListener("click", saveDraft);
-        $("btnResetDraft").addEventListener("click", resetDraft);
-
-        $("btnAddExtra").addEventListener("click", () => {
-          extras.push({ label:"", amount:0, note:"" });
-          renderExtras();
-          refreshPreview();
-        });
-
-        $("btnCopyPublic").addEventListener("click", async () => {
-          try{
-            await copyText(buildSummary(currentData()));
-            setToast("📋 Résumé public copié.", "ok");
-          }catch(e){
-            console.error(e);
-            setToast("❌ Copie impossible.", "bad");
-          }
-        });
-
-        $("btnCopyMessage").addEventListener("click", async () => {
-          try{
-            await copyText(buildSummary(currentData()));
-            setToast("📋 Message client copié.", "ok");
-          }catch(e){
-            console.error(e);
-            setToast("❌ Copie message impossible.", "bad");
-          }
-        });
-
-        $("btnShareText").addEventListener("click", async () => {
-          try{
-            await copyText(buildSummary(currentData()));
-            setToast("📨 Texte client copié.", "ok");
-          }catch(e){
-            console.error(e);
-            setToast("❌ Copie texte impossible.", "bad");
-          }
-        });
-
-        $("btnPay").addEventListener("click", () => {
-          location.href = buildPayUrl();
-        });
+        $("btnLoadProfile").addEventListener("click",loadProfile);
+        $("btnSaveDraft").addEventListener("click",saveDraft);
+        $("btnResetDraft").addEventListener("click",resetDraft);
+        $("hdrSave").addEventListener("click",saveDraft);
+        $("btnAddExtra").addEventListener("click",()=>{extras.push({label:"",amount:0,note:""});renderExtras();refreshPreview()});
+        $("btnCopyPublic").addEventListener("click",async()=>{try{await copyText(buildSummary(currentData()));setToast("📋 Résumé public copié.","ok")}catch(e){setToast("❌ Copie impossible.","bad")}});
+        $("btnCopyMessage").addEventListener("click",async()=>{try{await copyText(buildSummary(currentData()));setToast("📋 Message client copié.","ok")}catch(e){setToast("❌ Copie impossible.","bad")}});
+        $("btnShareText").addEventListener("click",async()=>{try{await copyText(buildSummary(currentData()));setToast("📨 Texte client copié.","ok")}catch(e){setToast("❌ Copie impossible.","bad")}});
+        $("btnPay").addEventListener("click",()=>{location.href=buildPayUrl()});
       }
 
       async function boot(){
-        bindPreview();
-        bindButtons();
-        await guardBoot();
-        updateNav();
-
-        const draft = readDraft();
-        if (draft){
-          loadIntoForm(draft);
-        } else {
-          loadIntoForm({
-            display_name: deriveNameFromSlug(ACCESS.slug),
-            city: "",
-            whatsapp: "",
-            zones: [],
-            note: "",
-            fares: {},
-            extras: []
-          });
-        }
-
-        await loadProfile();
-        refreshPreview();
+        bindPreview();bindButtons();
+        await guardBoot();updateNav();
+        const draft=readDraft();
+        if(draft){loadIntoForm(draft)}
+        else{loadIntoForm({display_name:deriveNameFromSlug(ACCESS.slug),city:"",whatsapp:"",zones:[],note:"",fares:{},extras:[]})}
+        await loadProfile();refreshPreview();
       }
 
-      boot().catch((e) => {
-        console.error("[DIGIY DRIVER TARIFS] boot error", e);
-        setToast("❌ Erreur au démarrage de la page.", "bad");
-      });
+      boot().catch(e=>{console.error("[DIGIY DRIVER TARIFS] boot error",e);setToast("❌ Erreur au démarrage.","bad")});
     })();
-  </script>
+</script>
 
+<!-- ══ WHEEL NAV JS ══ -->
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const ROUTES={
+    dashboard:"./dashboard-pro.html",hub:"./hub.html",
+    session:"./session.html",alertes:"./alertes.html",
+    profile:"./profil-chauffeur.html",rates:"./tarifs.html",
+    qr:"./generateur-digiy-driver.html",pin:"./pin.html",
+    trajets:"./trajets.html"
+  };
+  const go=url=>{location.href=url};
+  const open=id=>$(id)?.classList.add("open");
+  const close=id=>$(id)?.classList.remove("open");
+  function spin(btn){const svg=btn.querySelector("svg");btn.classList.add("spinning");svg.addEventListener("animationend",()=>btn.classList.remove("spinning"),{once:true})}
+
+  $("btnConduite")?.addEventListener("click",()=>{spin($("btnConduite"));open("ovConduite")});
+  $("btnPilotage")?.addEventListener("click",()=>{spin($("btnPilotage"));open("ovPilotage")});
+  $("closeConduite")?.addEventListener("click",()=>close("ovConduite"));
+  $("closePilotage")?.addEventListener("click",()=>close("ovPilotage"));
+  ["ovConduite","ovPilotage"].forEach(id=>$(id)?.addEventListener("click",e=>{if(e.target===$(id))close(id)}));
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){close("ovConduite");close("ovPilotage")}});
+
+  $("ovSave")?.addEventListener("click",()=>{close("ovConduite");$("btnSaveDraft")?.click()});
+  $("ovDashboard")?.addEventListener("click",()=>go(ROUTES.dashboard));
+  $("ovTrajets")?.addEventListener("click",()=>go(ROUTES.trajets));
+  $("ovTarifsLecture")?.addEventListener("click",()=>go(ROUTES.rates));
+  $("ovHub")?.addEventListener("click",()=>go(ROUTES.hub));
+  $("ovSession")?.addEventListener("click",()=>go(ROUTES.session));
+  $("ovAlertes")?.addEventListener("click",()=>go(ROUTES.alertes));
+  $("ovProfil")?.addEventListener("click",()=>go(ROUTES.profile));
+  $("ovQr")?.addEventListener("click",()=>go(ROUTES.qr));
+  $("ovPin")?.addEventListener("click",()=>go(ROUTES.pin));
+})();
+</script>
+
+<!-- ══ MASQUAGE TÉLÉPHONE — intact ══ -->
 <script>
 (function(){
   function maskPhoneText(){
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    while(walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(function(n){
-      n.nodeValue = String(n.nodeValue || "")
-        .replace(/\+?\s*221[\s.-]*(7[05678])[\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}/g, "Contact masqué")
-        .replace(/\b7[05678][\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}\b/g, "Contact masqué");
-    });
+    const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+    const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+    nodes.forEach(function(n){n.nodeValue=String(n.nodeValue||"").replace(/\+?\s*221[\s.-]*(7[05678])[\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}/g,"Contact masqué").replace(/\b7[05678][\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}\b/g,"Contact masqué")});
   }
-  document.addEventListener("DOMContentLoaded", maskPhoneText);
-  setTimeout(maskPhoneText, 300);
-  setTimeout(maskPhoneText, 1200);
+  document.addEventListener("DOMContentLoaded",maskPhoneText);
+  setTimeout(maskPhoneText,300);
+  setTimeout(maskPhoneText,1200);
 })();
 </script>
 
