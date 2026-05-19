@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Je conduis — Mes trajets</title>
+<title>Je conduis — Édition tarifs</title>
 <meta name="theme-color" content="#13824d"/>
-<meta name="description" content="DIGIY DRIVER — Mes trajets terrain."/>
+<meta name="description" content="DIGIY DRIVER — Atelier tarifs : grille terrain, aperçu client, brouillon local."/>
 <meta name="robots" content="noindex,nofollow"/>
-<meta name="digiy-build" content="driver-trajets-v5-20260519"/>
+<meta name="digiy-build" content="driver-tarifs-edition-v5-20260519"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -21,18 +21,19 @@
   window.DIGIY_LOGIN_URL         = "./pin.html";
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./guard.js?v=driver-trajets-v5-20260519"></script>
+<script src="./guard.js?v=driver-tarifs-edition-v5-20260519"></script>
 
 <style>
 /* ══ VARIABLES ══ */
 :root{
   --bg:#13824d;--bg2:#0f6b3e;--bg3:#0b4f31;
+  --card:rgba(23,134,79,.65);
   --bar:rgba(8,50,24,.96);
   --gold:#c4973f;--green:#22c55e;
   --line:rgba(255,255,255,.22);
-  --text:#f0fff5;--muted:rgba(240,255,245,.65);
+  --text:#f0fff5;--muted:rgba(240,255,245,.7);
   --shadow:0 18px 42px rgba(0,0,0,.22);
-  --r:20px;--max:840px;
+  --r:20px;--max:960px;
   --hdrH:52px;--barH:78px;
 }
 
@@ -42,20 +43,21 @@ html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{
   margin:0;min-height:100dvh;color:var(--text);
   font-family:Outfit,system-ui,-apple-system,"Segoe UI",sans-serif;
-  font-weight:800;letter-spacing:-.005em;
+  font-weight:800;
   background:
     radial-gradient(900px 520px at 8% -10%,rgba(196,151,63,.18),transparent 62%),
     radial-gradient(760px 440px at 105% 0%,rgba(34,197,94,.22),transparent 58%),
     linear-gradient(180deg,var(--bg),var(--bg2) 55%,var(--bg3) 100%);
+  padding:calc(var(--hdrH) + 14px) 12px calc(var(--barH) + env(safe-area-inset-bottom,0px) + 20px);
 }
 a{color:inherit;text-decoration:none}
-button,input,textarea{font:inherit;color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
+p{margin:0}
 
 /* ══ HEADER ══ */
 .pageHeader{
-  position:sticky;top:0;z-index:60;
-  min-height:var(--hdrH);
+  position:fixed;top:0;left:0;right:0;height:var(--hdrH);z-index:60;
   padding:8px 10px;
   background:var(--bar);
   border-bottom:1px solid rgba(196,151,63,.26);
@@ -67,171 +69,195 @@ button{cursor:pointer}
   gap:8px;align-items:center;
 }
 .headerBtn,.headerTitle{
-  min-height:40px;border-radius:999px;
+  min-height:36px;border-radius:999px;
   display:inline-flex;align-items:center;justify-content:center;
-  gap:7px;padding:8px 12px;
-  font-size:14px;font-weight:1000;
+  gap:7px;padding:7px 11px;
+  font-size:13px;font-weight:1000;
   border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.08);
-  white-space:nowrap;
+  background:rgba(255,255,255,.08);white-space:nowrap;
 }
 .headerBtn.left{justify-self:start}
-.headerBtn.right{justify-self:end;background:transparent;border-color:transparent}
+.headerBtn.right{justify-self:end}
 .headerTitle{
   color:#fffbea;letter-spacing:.08em;text-transform:uppercase;
   background:rgba(196,151,63,.12);border-color:rgba(196,151,63,.32);
 }
-
-/* ══ WRAP ══ */
-.wrap{
-  width:min(var(--max),100%);margin:0 auto;
-  padding:12px 12px calc(var(--barH) + env(safe-area-inset-bottom,0px) + 72px);
-  display:grid;gap:10px;
+.headerBtn.save{
+  background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.38);color:#bbf7d0;
+}
+.hdrPill{
+  display:none; /* mirrors accessPill state visually in header on desktop */
 }
 
-/* ══ SESSION ROW ══ */
-.topRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* ══ WRAP ══ */
+.wrap{width:min(var(--max),100%);margin:0 auto;display:grid;gap:12px}
+
+/* ══ HERO SIMPLE ══ */
+.heroSimple{
+  display:flex;flex-direction:column;gap:6px;padding:4px 0;
+}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  color:#fff0a8;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;font-weight:1000;
+}
+.heroSub{font-size:15px;font-weight:900;color:var(--muted);line-height:1.4}
+
+/* ══ SESSION PILL ══ */
 .pill{
   display:inline-flex;align-items:center;gap:6px;
-  min-height:34px;padding:6px 12px;border-radius:999px;
+  min-height:32px;padding:6px 10px;border-radius:999px;
   border:1px solid var(--line);background:rgba(255,255,255,.09);
-  color:var(--muted);font-size:13px;font-weight:1000;
+  color:var(--muted);font-size:12px;font-weight:1000;
 }
 .pill.ok  {color:#bbf7d0;border-color:rgba(34,197,94,.38);background:rgba(34,197,94,.12)}
 .pill.warn{color:#fde68a;border-color:rgba(245,158,11,.38);background:rgba(245,158,11,.12)}
 .pill.bad {color:#fecaca;border-color:rgba(251,113,133,.38);background:rgba(251,113,133,.10)}
 
-/* ══ KPI GRID ══ */
-.kpiGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.kpi{
-  border:1px solid var(--line);border-radius:var(--r);
-  background:rgba(23,134,79,.55);
-  padding:16px;min-height:100px;
+/* ══ ACTIONS BAR ══ */
+.actionsBar{
+  display:flex;gap:8px;flex-wrap:wrap;
 }
-.kpi .label{font-size:13px;font-weight:1000;color:var(--gold);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
-.kpi .num{font-size:48px;font-weight:1000;line-height:.9;letter-spacing:-.05em}
-.kpi .sub{font-size:13px;font-weight:950;color:var(--muted);margin-top:6px}
 
-/* ══ TRIP LIST ══ */
-#tripList{display:grid;gap:10px}
-.trip{
+/* ══ KPI ══ */
+.kpiGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kpi{
+  border:1px solid var(--line);border-radius:16px;
+  background:var(--card);padding:12px 10px;text-align:center;
+}
+.kpi .label{font-size:11px;font-weight:1000;color:var(--gold);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+.kpi .value{font-size:22px;font-weight:1000;line-height:1;letter-spacing:-.03em}
+
+/* ══ CARD ══ */
+.card{
   border:1px solid var(--line);border-radius:var(--r);
-  background:radial-gradient(420px 200px at 100% 0%,rgba(196,151,63,.1),transparent 65%),
-    linear-gradient(180deg,rgba(23,134,79,.9),rgba(17,107,64,.9));
-  box-shadow:var(--shadow);padding:16px;
+  background:radial-gradient(480px 200px at 100% 0%,rgba(196,151,63,.1),transparent 68%),
+    linear-gradient(180deg,rgba(23,134,79,.92),rgba(17,107,64,.92));
+  box-shadow:var(--shadow);padding:18px;
 }
-.tripTop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
-.tripTitle{font-size:18px;font-weight:1000;line-height:1.2;letter-spacing:-.01em}
-.badge{
-  display:inline-flex;align-items:center;padding:5px 10px;border-radius:999px;
-  font-size:12px;font-weight:1000;letter-spacing:.04em;text-transform:uppercase;
-  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
-  white-space:nowrap;flex:0 0 auto;
+
+/* ══ LAYOUT ══ */
+.grid{display:grid;gap:12px}
+
+/* ══ TYPOGRAPHY ══ */
+h2{margin:0 0 8px;font-size:clamp(22px,4.5vw,28px);font-weight:1000;letter-spacing:-.03em;line-height:1.05}
+h3{margin:0 0 8px;font-size:clamp(18px,3.5vw,22px);font-weight:1000;letter-spacing:-.02em;line-height:1.08}
+.muted{color:var(--muted);font-size:14px;font-weight:900;line-height:1.45}
+.small{font-size:13px;font-weight:900;color:var(--muted)}
+.hr{height:1px;background:rgba(255,255,255,.16);margin:16px 0}
+
+/* ══ ROW ══ */
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.row > *{flex:1;min-width:180px}
+
+/* ══ INPUTS ══ */
+label{display:block;font-size:14px;font-weight:1000;margin-bottom:6px;margin-top:14px}
+input,textarea,select{
+  width:100%;min-height:52px;padding:12px 14px;
+  border-radius:14px;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.09);color:var(--text);
+  font-size:16px;font-weight:1000;line-height:1.3;
+  outline:none;transition:border-color .14s;
 }
-.meta{font-size:14px;font-weight:950;color:var(--muted);margin-bottom:10px;line-height:1.5}
-.actions{display:grid;gap:8px;margin-top:12px}
+input:focus,textarea:focus,select:focus{border-color:rgba(196,151,63,.5)}
+input::placeholder,textarea::placeholder{color:rgba(240,255,245,.4);font-weight:900}
+textarea{min-height:100px;resize:vertical}
 
 /* ══ BUTTONS ══ */
 .btn{
-  min-height:58px;border-radius:16px;
-  border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);
-  color:var(--text);
-  padding:14px 16px;font-size:17px;font-weight:1000;
+  min-height:50px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.09);
+  color:var(--text);padding:12px 16px;
+  font-size:15px;font-weight:1000;
   display:inline-flex;align-items:center;justify-content:center;
-  gap:8px;width:100%;transition:background .14s,transform .12s;
+  gap:8px;transition:background .14s,transform .12s;
 }
-.btn:hover{background:rgba(255,255,255,.14);transform:translateY(-1px)}
+.btn:hover{background:rgba(255,255,255,.15);transform:translateY(-1px)}
 .btn:active{transform:none}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.primary{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.38);color:#bbf7d0}
+.btn.gold{background:rgba(196,151,63,.18);border-color:rgba(196,151,63,.38);color:#fde68a}
+.btn.danger{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.32);color:#fecaca}
+.btn.ghost{background:transparent;border-color:rgba(255,255,255,.14);color:var(--muted)}
 
-.btn.primary{
-  background:rgba(34,197,94,.2);
-  border-color:rgba(34,197,94,.4);color:#bbf7d0;
-}
-.btn.gold{
-  background:rgba(196,151,63,.18);
-  border-color:rgba(196,151,63,.4);color:#fde68a;
-}
-.btn.ghost{background:transparent;border-color:rgba(255,255,255,.12);color:var(--muted)}
-
-/* ══ MSG / EMPTY ══ */
-.msg{font-size:14px;font-weight:1000;color:var(--muted);text-align:center;padding:4px 0}
-.msg.ok  {color:#bbf7d0}
-.msg.warn{color:#fde68a}
-.msg.bad {color:#fecaca}
-.empty{
-  padding:28px 16px;text-align:center;
-  font-size:16px;font-weight:1000;color:var(--muted);
-  border:1px solid var(--line);border-radius:var(--r);
-  background:rgba(255,255,255,.05);
-}
-
-/* ══ ATELIER CARD ══ */
-.atelierCard{
-  display:flex;align-items:center;gap:14px;
-  padding:16px;border-radius:var(--r);
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.06);
-  text-decoration:none;color:var(--text);
-  transition:background .13s,transform .12s;
-}
-.atelierCard:hover{background:rgba(255,255,255,.11);transform:translateY(-1px)}
-.atelierCard:active{transform:none}
-.atelierIco{
-  width:44px;height:44px;border-radius:13px;
-  display:grid;place-items:center;font-size:21px;
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
-  flex:0 0 auto;
-}
-.atelierInfo{flex:1}
-.atelierInfo b{display:block;font-size:16px;font-weight:1000;line-height:1.15;margin-bottom:3px}
-.atelierInfo span{display:block;font-size:13px;font-weight:900;color:var(--muted);line-height:1.35}
-.atelierArr{font-size:18px;color:rgba(240,255,245,.3)}
-
-/* ══ AUDIO FAB ══ */
-.audioFab{
-  position:fixed;
-  bottom:calc(var(--barH) + env(safe-area-inset-bottom,0px) + 14px);
-  right:16px;z-index:50;
-  width:50px;height:50px;border-radius:50%;
-  border:1px solid rgba(255,255,255,.2);
-  background:rgba(8,50,24,.94);color:var(--text);
-  font-size:20px;display:grid;place-items:center;
-  box-shadow:0 8px 24px rgba(0,0,0,.3);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  transition:transform .14s;
-}
-.audioFab:hover{transform:scale(1.07)}
-
-/* ══ AUDIO PANEL ══ */
-.audioPanel{
-  position:fixed;left:0;right:0;
-  bottom:calc(var(--barH) + env(safe-area-inset-bottom,0px));
-  z-index:80;
-  padding:20px 16px;
-  background:rgba(4,22,12,.97);
-  border-top:1px solid rgba(196,151,63,.28);
-  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  transform:translateY(100%);transition:transform .3s ease;
-}
-.audioPanel.open{transform:translateY(0)}
-.audioPanelTop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
-.audioKicker{font-size:11px;font-weight:1000;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
-.audioTitle{font-size:20px;font-weight:1000;line-height:1.1}
-.audioClose{
-  width:34px;height:34px;border-radius:50%;
+/* ══ FARE GRID ══ */
+.fareGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.fareBox{
+  padding:14px;border-radius:16px;
   border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);
-  color:var(--text);font-size:18px;display:grid;place-items:center;flex:0 0 auto;
 }
-.audioText{font-size:15px;font-weight:950;color:var(--muted);line-height:1.5;margin-bottom:14px}
-.audioActions{display:flex;gap:10px}
-.audioActions button{
-  flex:1;min-height:48px;border-radius:14px;
-  border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.09);
-  color:var(--text);font-size:15px;font-weight:1000;
+.fareTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.fareTitle{font-size:14px;font-weight:1000;line-height:1.2}
+.chip{
+  display:inline-flex;padding:3px 8px;border-radius:999px;
+  font-size:10px;font-weight:1000;letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);
+  color:var(--muted);white-space:nowrap;flex:0 0 auto;
 }
-.audioActions button.primary{
-  background:rgba(196,151,63,.2);border-color:rgba(196,151,63,.38);color:#fde68a;
+.prefix{display:flex;align-items:center;gap:0;border:1px solid rgba(255,255,255,.2);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.09)}
+.prefix span{padding:0 10px;font-size:12px;font-weight:1000;color:var(--gold);border-right:1px solid rgba(255,255,255,.16);white-space:nowrap;background:rgba(196,151,63,.1)}
+.prefix input{flex:1;border:none;border-radius:0;background:transparent;min-height:48px;padding:10px 12px}
+.prefix input:focus{border-color:transparent}
+
+/* ══ EXTRAS ══ */
+.extras{display:grid;gap:10px;margin-top:12px}
+.extraItem{padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06)}
+.extraHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+
+/* ══ TOAST ══ */
+.toast{
+  margin-top:12px;padding:12px 14px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.16);background:rgba(4,22,12,.5);
+  color:var(--text);font-size:14px;font-weight:1000;display:none;line-height:1.4;
+}
+.toast.ok  {border-color:rgba(34,197,94,.38);background:rgba(34,197,94,.14)}
+.toast.bad {border-color:rgba(239,68,68,.38);background:rgba(239,68,68,.14)}
+.toast.warn{border-color:rgba(245,158,11,.38);background:rgba(245,158,11,.14)}
+.disabledNote{
+  margin-top:12px;padding:12px 14px;border-radius:14px;
+  border:1px solid rgba(196,151,63,.3);background:rgba(196,151,63,.1);
+  color:var(--muted);font-size:13px;font-weight:1000;display:none;line-height:1.45;
+}
+
+/* ══ PREVIEW ══ */
+.previewCard{
+  margin-top:14px;padding:16px;border-radius:16px;
+  border:1px solid rgba(255,255,255,.16);background:rgba(4,22,12,.4);
+}
+.pTop{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.pAvatar{
+  width:52px;height:52px;border-radius:50%;
+  display:grid;place-items:center;
+  font-size:18px;font-weight:1000;
+  background:rgba(196,151,63,.18);border:2px solid rgba(196,151,63,.38);
+  color:#fde68a;flex:0 0 auto;overflow:hidden;
+}
+.pAvatar img{width:100%;height:100%;object-fit:cover}
+.pName{font-size:18px;font-weight:1000;margin-bottom:3px}
+.pMeta{font-size:13px;font-weight:900;color:var(--muted)}
+.pBadges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.pBadge{
+  padding:4px 10px;border-radius:999px;
+  font-size:12px;font-weight:1000;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+}
+.tarifList{display:grid;gap:6px;margin-bottom:12px}
+.tarifLine{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:10px;padding:10px 12px;border-radius:12px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  font-size:14px;font-weight:1000;
+}
+.tarifLine .name{flex:1;min-width:0}
+.tarifLine .amount{flex:0 0 auto;color:var(--gold);font-weight:1000}
+.summaryBox{
+  margin-top:10px;padding:12px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);background:rgba(4,18,13,.3);
+}
+.summaryBox pre{
+  margin:0;white-space:pre-wrap;word-break:break-word;
+  font:inherit;font-size:14px;line-height:1.55;font-weight:900;
+  color:rgba(240,255,245,.9);
 }
 
 /* ══ BOTTOM BAR ══ */
@@ -278,12 +304,12 @@ button{cursor:pointer}
 .co .ovHdrGlow{background:radial-gradient(circle at 50% 45%,rgba(74,222,128,.12),transparent 62%)}
 .po .ovHdrGlow{background:radial-gradient(circle at 50% 45%,rgba(196,151,63,.14),transparent 62%)}
 .ovCity{position:absolute;bottom:0;left:0;right:0;z-index:0;opacity:.15}
-.ovLogo{width:48px;height:48px;object-fit:contain;border-radius:6px;position:relative;z-index:1;margin-bottom:7px}
-.ovLogoFb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:19px;font-weight:1000;font-family:Georgia,serif;border:2px solid;position:relative;z-index:1;margin-bottom:7px}
+.ovLogo{width:46px;height:46px;object-fit:contain;border-radius:6px;position:relative;z-index:1;margin-bottom:7px}
+.ovLogoFb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:1000;font-family:Georgia,serif;border:2px solid;position:relative;z-index:1;margin-bottom:7px}
 .co .ovLogoFb{color:#4ade80;border-color:#4ade80}.po .ovLogoFb{color:var(--gold);border-color:var(--gold)}
 .ovLine{width:24px;height:2px;margin-bottom:7px;position:relative;z-index:1}
 .co .ovLine{background:rgba(74,222,128,.45)}.po .ovLine{background:rgba(196,151,63,.5)}
-.ovTitle{font-size:23px;font-weight:1000;font-family:Georgia,serif;position:relative;z-index:1}
+.ovTitle{font-size:22px;font-weight:1000;font-family:Georgia,serif;position:relative;z-index:1}
 .co .ovTitle{color:#4ade80}.po .ovTitle{color:var(--gold)}
 .ovSub{font-size:11px;color:rgba(240,255,245,.38);font-weight:900;position:relative;z-index:1;margin-top:3px}
 .closeBtn{
@@ -312,28 +338,35 @@ button{cursor:pointer}
 }
 .ovLink:last-child{border-bottom:none}
 .ovLink:hover{padding-left:4px}
-.ovIco{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:17px;flex:0 0 auto}
+.ovIco{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:16px;flex:0 0 auto}
 .co .ovIco{background:rgba(74,222,128,.1)}.po .ovIco,.payRow .ovIco{background:rgba(196,151,63,.12)}
-.ovLbl{flex:1;font-size:15px;font-weight:1000;line-height:1.15}
-.ovSublbl{display:block;font-size:11px;color:rgba(240,255,245,.42);font-weight:900;margin-top:2px}
-.ovArr{font-size:13px;color:rgba(255,255,255,.25);transition:color .12s}
-.co .ovLink:hover .ovArr{color:#4ade80}
-.po .ovLink:hover .ovArr,.payRow:hover .ovArr{color:var(--gold)}
+.ovLbl{flex:1;font-size:14px;font-weight:1000;line-height:1.15}
+.ovSublbl{display:block;font-size:11px;color:rgba(240,255,245,.42);font-weight:900;margin-top:1px}
+.ovArr{font-size:12px;color:rgba(255,255,255,.25)}
+.co .ovLink:hover .ovArr{color:#4ade80}.po .ovLink:hover .ovArr,.payRow:hover .ovArr{color:var(--gold)}
 .payBadge{
-  display:inline-block;margin-left:7px;padding:2px 7px;border-radius:999px;
+  display:inline-block;margin-left:7px;padding:2px 6px;border-radius:999px;
   background:rgba(196,151,63,.22);border:1px solid rgba(196,151,63,.42);
   color:var(--gold);font-size:9px;font-weight:1000;
   letter-spacing:.06em;text-transform:uppercase;vertical-align:middle;
 }
 
 /* ══ RESPONSIVE ══ */
+@media(min-width:720px){
+  .grid{grid-template-columns:1fr 1fr}
+  .fareGrid{grid-template-columns:repeat(4,1fr)}
+  .kpiGrid{grid-template-columns:repeat(4,1fr)}
+}
 @media(max-width:520px){
-  .wrap{padding:10px 10px calc(var(--barH) + env(safe-area-inset-bottom,0px) + 68px)}
+  body{padding:calc(var(--hdrH)+10px) 10px calc(var(--barH)+env(safe-area-inset-bottom,0px)+16px)}
+  .kpiGrid{grid-template-columns:1fr 1fr}
+  .actionsBar{flex-direction:column}
+  .actionsBar .btn{width:100%}
+  .row > *{flex:1 1 100%}
+  .fareGrid{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  .btn,.wbtn,.ovLink{transition:none}
-  .audioPanel{transition:none}
+  html{scroll-behavior:auto}.btn,.wbtn,.ovLink{transition:none}
 }
 </style>
 </head>
@@ -343,72 +376,189 @@ button{cursor:pointer}
 <!-- ══ HEADER ══ -->
 <header class="pageHeader">
   <div class="headerInner">
-    <a class="headerBtn left" id="goHub" href="./hub.html">← portes</a>
-    <div class="headerTitle">Mes trajets</div>
-    <button class="headerBtn right" id="refreshBtn" type="button" aria-label="Recharger">🔄</button>
+    <a class="headerBtn left" href="./tarifs.html">← Mes tarifs</a>
+    <div class="headerTitle">Édition tarifs</div>
+    <button class="headerBtn right save" id="hdrSave" type="button" aria-label="Enregistrer brouillon">💾 Enregistrer</button>
   </div>
 </header>
+
+<!-- ══ JS COMPAT — hidden elements required by motor ══ -->
+<div aria-hidden="true" style="display:none" id="jsCompat">
+  <div id="slugPill"></div>
+  <div id="phonePill"></div>
+  <a id="navDashboard" href="./hub.html"></a>
+  <a id="navCockpit"   href="./hub.html"></a>
+  <a id="navProfil"    href="./profil-chauffeur.html"></a>
+  <a id="navTarifs"    href="./tarifs.html"></a>
+  <a id="navPin"       href="./pin.html"></a>
+  <a id="navHome"      href="./hub.html"></a>
+  <a id="navQr"        href="./generateur-digiy-driver.html"></a>
+  <button id="btnPay" type="button"></button>
+</div>
 
 <!-- ══ CONTENU ══ -->
 <main class="wrap">
 
-  <!-- Session -->
-  <div class="topRow">
-    <span class="pill" id="sessionPill">session…</span>
+  <!-- Hero simplifié -->
+  <div class="heroSimple">
+    <div class="eyebrow">✏️ Atelier tarifs</div>
+    <div class="heroSub" id="topSub">Pose tes prix terrain. Le brouillon reste lié à ton compte chauffeur.</div>
   </div>
+
+  <!-- Session pill -->
+  <div><div class="pill" id="accessPill">session…</div></div>
 
   <!-- KPIs -->
   <div class="kpiGrid">
-    <div class="kpi">
-      <div class="label">À traiter</div>
-      <div class="num" id="kpiAsk">—</div>
-      <div class="sub">courses à voir</div>
-    </div>
-    <div class="kpi">
-      <div class="label">En course</div>
-      <div class="num" id="kpiRun">—</div>
-      <div class="sub">maintenant</div>
-    </div>
+    <div class="kpi"><div class="label">Tarifs actifs</div><div class="value" id="kpiCount">0</div></div>
+    <div class="kpi"><div class="label">Prix mini</div><div class="value" id="kpiMin">—</div></div>
+    <div class="kpi"><div class="label">Prix maxi</div><div class="value" id="kpiMax">—</div></div>
+    <div class="kpi"><div class="label">Compte</div><div class="value" id="kpiSlug" style="font-size:13px;line-height:1.3">—</div></div>
   </div>
 
-  <!-- Liste des courses -->
-  <section id="tripList" aria-label="Liste des courses">
-    <div class="empty">Lecture des courses…</div>
-  </section>
+  <!-- Barre d'actions -->
+  <div class="actionsBar">
+    <button class="btn" id="btnLoadProfile" type="button">↻ Charger mon profil</button>
+    <button class="btn primary" id="btnSaveDraft" type="button">💾 Enregistrer brouillon</button>
+    <button class="btn danger" id="btnResetDraft" type="button">🧹 Effacer brouillon</button>
+  </div>
 
-  <!-- Message statut -->
-  <div class="msg" id="msg"></div>
+  <div class="grid">
 
-  <!-- Porte atelier -->
-  <a class="atelierCard" id="atelierLink" href="./trajets-complet.html">
-    <div class="atelierIco">⚙️</div>
-    <div class="atelierInfo">
-      <b>Programmer · noter · filtrer</b>
-      <span>Atelier complet · nouvelles courses · notes terrain · argent</span>
+    <!-- ══ FORMULAIRE ══ -->
+    <div class="card" id="tarifsForm">
+
+      <h2>Tarifs chauffeur</h2>
+      <div class="muted">Les prix que tu veux montrer au client. Brouillon local, pas d'exposition de compte.</div>
+
+      <div class="row">
+        <div>
+          <label for="f_display_name">Nom affiché</label>
+          <input id="f_display_name" placeholder="Ex : Lamine"/>
+        </div>
+        <div>
+          <label for="f_city">Ville</label>
+          <input id="f_city" placeholder="Ex : Saly / Dakar"/>
+        </div>
+      </div>
+
+      <input id="f_whatsapp" type="hidden" value=""/>
+
+      <div>
+        <label for="f_zones">Zones</label>
+        <input id="f_zones" placeholder="Saly, Petite Côte, Dakar, AIBD"/>
+      </div>
+
+      <div class="disabledNote" id="disabledNote" style="display:block">ℹ️ Le contact se règle dans le profil chauffeur. Ici, on inscrit seulement les tarifs.</div>
+
+      <label for="f_note">Note terrain</label>
+      <textarea id="f_note" placeholder="Ex : Prix de jour, bagages légers inclus, nuit et attente selon contexte…"></textarea>
+
+      <div class="hr"></div>
+      <h3>Tarifs principaux</h3>
+
+      <div class="fareGrid">
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Saly → Dakar</div><div class="chip">trajet</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_saly_dakar" type="number" min="0" placeholder="Ex : 35000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Saly → AIBD</div><div class="chip">trajet</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_saly_aibd" type="number" min="0" placeholder="Ex : 25000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Saly → Ngaparou</div><div class="chip">trajet</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_saly_ngaparou" type="number" min="0" placeholder="Ex : 5000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Saly → Somone</div><div class="chip">trajet</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_saly_somone" type="number" min="0" placeholder="Ex : 7000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Saly → Mbour</div><div class="chip">trajet</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_saly_mbour" type="number" min="0" placeholder="Ex : 5000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Mise à dispo 4h</div><div class="chip">service</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_dispo_4h" type="number" min="0" placeholder="Ex : 30000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Mise à dispo journée</div><div class="chip">service</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_dispo_day" type="number" min="0" placeholder="Ex : 60000"/></div>
+        </div>
+        <div class="fareBox">
+          <div class="fareTop"><div class="fareTitle">Attente / heure</div><div class="chip">option</div></div>
+          <div class="prefix"><span>FCFA</span><input id="fare_wait_hour" type="number" min="0" placeholder="Ex : 5000"/></div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row" style="align-items:center">
+        <div>
+          <h3 style="margin-bottom:4px">Tarifs libres</h3>
+          <div class="muted">Ajoute tes autres courses : AIBD retour, Popenguine, Dakar nuit…</div>
+        </div>
+        <div style="flex:0 0 auto">
+          <button class="btn gold" id="btnAddExtra" type="button">➕ Ajouter une ligne</button>
+        </div>
+      </div>
+
+      <div class="extras" id="extrasList"></div>
+
+      <div id="toast" class="toast"></div>
+
+    </div><!-- /tarifsForm -->
+
+    <!-- ══ APERÇU CLIENT ══ -->
+    <div>
+      <div class="card" id="tarifsPreview">
+        <div class="row" style="align-items:center">
+          <div>
+            <h2 style="margin-bottom:3px">Aperçu client</h2>
+            <div class="muted">Lecture simple pour le client.</div>
+          </div>
+          <div style="flex:0 0 auto;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" id="btnCopyPublic" type="button">📋 Copier résumé</button>
+            <button class="btn gold" id="btnCopyMessage" type="button">📋 Copier message</button>
+          </div>
+        </div>
+
+        <div class="previewCard">
+          <div class="pTop">
+            <div class="pAvatar" id="pAvatar">DR</div>
+            <div>
+              <p class="pName" id="pName">Mon espace chauffeur</p>
+              <p class="pMeta" id="pMeta">Ville · Zones</p>
+            </div>
+          </div>
+          <div class="pBadges" id="pBadges"></div>
+          <div class="tarifList" id="previewTarifs">
+            <div class="tarifLine"><div class="name">Aucun tarif posé</div><div class="amount">—</div></div>
+          </div>
+          <div class="summaryBox">
+            <pre id="publicSummary">Aucun résumé pour l'instant.</pre>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <a class="btn ghost" id="btnBackCockpit" href="./hub.html">⬅️ Revenir</a>
+            <a class="btn" id="btnGoProfile" href="./profil-chauffeur.html">👤 Profil</a>
+            <a class="btn ghost" id="btnGoQr" href="./generateur-digiy-driver.html">📱 Mon QR</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h2 style="margin-bottom:6px">Texte client</h2>
+        <div class="muted" style="margin-bottom:14px">Copie le résumé propre. Le contact se gère dans le profil, pas dans l'atelier tarifs.</div>
+        <button class="btn primary" id="btnShareText" type="button" style="width:100%">📨 Copier texte client</button>
+        <div class="hr"></div>
+        <div class="small">Astuce terrain : une grille claire vaut mieux qu'un catalogue flou.</div>
+      </div>
     </div>
-    <div class="atelierArr">→</div>
-  </a>
+
+  </div><!-- /grid -->
 
 </main>
-
-<!-- ══ LECTEUR FAB ══ -->
-<button class="audioFab" id="digiyAudioFab" type="button" aria-controls="digiyAudioPanel" aria-expanded="false" aria-label="Lecteur DIGIY">🎧</button>
-
-<!-- ══ AUDIO PANEL ══ -->
-<section class="audioPanel" id="digiyAudioPanel" aria-label="Lecteur DIGIY">
-  <div class="audioPanelTop">
-    <div>
-      <div class="audioKicker">Lecteur DIGIY</div>
-      <div class="audioTitle" id="digiyAudioTitle">Mes trajets</div>
-    </div>
-    <button class="audioClose" id="digiyAudioClose" type="button" aria-label="Fermer">×</button>
-  </div>
-  <div class="audioText" id="digiyAudioText">Écoute la consigne courte.</div>
-  <div class="audioActions">
-    <button class="primary" id="digiyAudioPlay" type="button">▶ Écouter</button>
-    <button id="digiyAudioStop" type="button">⏹ Stop</button>
-  </div>
-</section>
 
 <!-- ══ BOTTOM BAR ══ -->
 <nav class="bottomBar" aria-label="Navigation rapide DRIVER">
@@ -448,13 +598,13 @@ button{cursor:pointer}
 <div class="overlay co" id="ovConduite" role="dialog" aria-modal="true" aria-label="Menu Conduire">
   <div class="ovHdr">
     <div class="ovHdrGlow"></div>
-    <svg class="ovCity" width="100%" height="50" viewBox="0 0 320 50" fill="#4ade80" preserveAspectRatio="none" aria-hidden="true">
-      <rect x="0" y="25" width="16" height="25"/><rect x="9" y="16" width="11" height="34"/>
-      <rect x="24" y="30" width="14" height="20"/><rect x="42" y="12" width="7" height="38"/>
-      <rect x="53" y="23" width="13" height="27"/><rect x="70" y="8" width="6" height="42"/>
-      <rect x="80" y="18" width="18" height="32"/><rect x="260" y="21" width="14" height="29"/>
-      <rect x="278" y="12" width="9" height="38"/><rect x="292" y="25" width="16" height="25"/>
-      <rect x="308" y="16" width="12" height="34"/>
+    <svg class="ovCity" width="100%" height="48" viewBox="0 0 320 48" fill="#4ade80" preserveAspectRatio="none" aria-hidden="true">
+      <rect x="0" y="22" width="14" height="26"/><rect x="8" y="14" width="10" height="34"/>
+      <rect x="22" y="28" width="12" height="20"/><rect x="38" y="10" width="7" height="38"/>
+      <rect x="50" y="20" width="12" height="28"/><rect x="66" y="6"  width="6" height="42"/>
+      <rect x="76" y="16" width="16" height="32"/><rect x="262" y="20" width="12" height="28"/>
+      <rect x="278" y="10" width="8" height="38"/><rect x="292" y="22" width="14" height="26"/>
+      <rect x="308" y="14" width="12" height="34"/>
     </svg>
     <button class="closeBtn" id="closeConduite" aria-label="Fermer">✕</button>
     <img class="ovLogo" id="logoC"
@@ -467,25 +617,25 @@ button{cursor:pointer}
     <div class="ovSub">Actions terrain du quotidien</div>
   </div>
   <div class="ovLinks">
+    <button class="ovLink" id="ovSave">
+      <span class="ovIco">💾</span>
+      <span class="ovLbl">Enregistrer brouillon<span class="ovSublbl">Sauvegarder les tarifs en cours</span></span>
+      <span class="ovArr">→</span>
+    </button>
     <button class="ovLink" id="ovDashboard">
       <span class="ovIco">🏠</span>
       <span class="ovLbl">Mon activité<span class="ovSublbl">Tableau de bord · KPIs</span></span>
       <span class="ovArr">→</span>
     </button>
-    <button class="ovLink" id="ovActualiser">
-      <span class="ovIco">🔄</span>
-      <span class="ovLbl">Actualiser<span class="ovSublbl">Recharger les courses</span></span>
-      <span class="ovArr">↺</span>
-    </button>
-    <button class="ovLink" id="ovAtelier">
-      <span class="ovIco">⚙️</span>
-      <span class="ovLbl">Atelier complet<span class="ovSublbl">Notes, filtres et argent</span></span>
+    <button class="ovLink" id="ovTrajets">
+      <span class="ovIco">📋</span>
+      <span class="ovLbl">Mes trajets<span class="ovSublbl">Lire · accepter · démarrer</span></span>
       <span class="ovArr">→</span>
     </button>
-    <button class="ovLink" id="ovLecteur">
-      <span class="ovIco">🎧</span>
-      <span class="ovLbl">Lecteur DIGIY<span class="ovSublbl">Lecture vocale de l'état terrain</span></span>
-      <span class="ovArr" id="lecArr">▶</span>
+    <button class="ovLink" id="ovTarifsLecture">
+      <span class="ovIco">👁️</span>
+      <span class="ovLbl">Aperçu tarifs<span class="ovSublbl">Vue client — lecture seule</span></span>
+      <span class="ovArr">→</span>
     </button>
   </div>
 </div>
@@ -494,13 +644,13 @@ button{cursor:pointer}
 <div class="overlay po" id="ovPilotage" role="dialog" aria-modal="true" aria-label="Menu Piloter">
   <div class="ovHdr">
     <div class="ovHdrGlow"></div>
-    <svg class="ovCity" width="100%" height="50" viewBox="0 0 320 50" fill="#c4973f" preserveAspectRatio="none" aria-hidden="true">
-      <rect x="0" y="25" width="16" height="25"/><rect x="9" y="16" width="11" height="34"/>
-      <rect x="24" y="30" width="14" height="20"/><rect x="42" y="12" width="7" height="38"/>
-      <rect x="53" y="23" width="13" height="27"/><rect x="70" y="8" width="6" height="42"/>
-      <rect x="80" y="18" width="18" height="32"/><rect x="260" y="21" width="14" height="29"/>
-      <rect x="278" y="12" width="9" height="38"/><rect x="292" y="25" width="16" height="25"/>
-      <rect x="308" y="16" width="12" height="34"/>
+    <svg class="ovCity" width="100%" height="48" viewBox="0 0 320 48" fill="#c4973f" preserveAspectRatio="none" aria-hidden="true">
+      <rect x="0" y="22" width="14" height="26"/><rect x="8" y="14" width="10" height="34"/>
+      <rect x="22" y="28" width="12" height="20"/><rect x="38" y="10" width="7" height="38"/>
+      <rect x="50" y="20" width="12" height="28"/><rect x="66" y="6"  width="6" height="42"/>
+      <rect x="76" y="16" width="16" height="32"/><rect x="262" y="20" width="12" height="28"/>
+      <rect x="278" y="10" width="8" height="38"/><rect x="292" y="22" width="14" height="26"/>
+      <rect x="308" y="14" width="12" height="34"/>
     </svg>
     <button class="closeBtn" id="closePilotage" aria-label="Fermer">✕</button>
     <img class="ovLogo" id="logoP"
@@ -539,11 +689,6 @@ button{cursor:pointer}
       <span class="ovLbl">Mon profil<span class="ovSublbl">Identité · zone · visibilité</span></span>
       <span class="ovArr">→</span>
     </button>
-    <button class="ovLink" id="ovTarifs">
-      <span class="ovIco">💰</span>
-      <span class="ovLbl">Mes tarifs<span class="ovSublbl">Grille terrain · prix client</span></span>
-      <span class="ovArr">→</span>
-    </button>
     <button class="ovLink" id="ovQr">
       <span class="ovIco">📱</span>
       <span class="ovLbl">Mon QR<span class="ovSublbl">Partager la porte chauffeur</span></span>
@@ -557,246 +702,409 @@ button{cursor:pointer}
   </div>
 </div>
 
-<!-- ══ MOTEUR JS — inchangé ══ -->
+<!-- ══ MOTEUR JS — intact (paths corrected ./ ) ══ -->
 <script>
-const ROUTES = {
-  dashboard:      "./dashboard-pro.html",
-  hub:            "./hub.html",
-  pin:            "./pin.html",
-  session:        "./session.html",
-  alertes:        "./alertes.html",
-  profile:        "./profil-chauffeur.html",
-  rates:          "./tarifs.html",
-  qr:             "./generateur-digiy-driver.html",
-  pay:            "https://pay.digiylyfe.com/",
-  trajetsComplet: "./trajets-complet.html"
-};
+    (() => {
+      "use strict";
 
-const $ = id => document.getElementById(id);
+      const TABLE = "digiy_driver_public_profiles";
+      const MODULE = "DRIVER";
+      const PAY_HOME = "https://commencer-a-payer.digiylyfe.com/";
+      const DASHBOARD_PAGE = "./hub.html";
+      const COCKPIT_PAGE   = "./hub.html";
+      const PROFILE_PAGE   = "./profil-chauffeur.html";
+      const RATES_PAGE     = "./tarifs.html";
+      const PIN_PAGE       = "./pin.html";
+      const HOME_PAGE      = "./hub.html";
+      const QR_PAGE        = "./generateur-digiy-driver.html";
 
-function normSlug(v){return String(v||"").trim().toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"").replace(/-+/g,"-").replace(/^-|-$/g,"")}
-function normPhone(v){const d=String(v||"").replace(/[^\d]/g,""); if(!d)return""; if(d.startsWith("221")&&d.length===12)return d; if(d.length===9)return"221"+d; return d.length>=9?d:""}
-function isDriverSlug(s){return /^driver-\d{12}$/.test(normSlug(s))}
-function phoneFromDriverSlug(v){const s=normSlug(v); return isDriverSlug(s)?normPhone(s.replace("driver-","")):""}
-function canExposeSlug(v){const s=normSlug(v); return !!s && !/\d{7,}/.test(s.replace(/^driver-/,""))}
-function storageGet(k){try{return sessionStorage.getItem(k)||localStorage.getItem(k)||""}catch(_){return""}}
-function storageSet(k,v){try{sessionStorage.setItem(k,String(v));localStorage.setItem(k,String(v))}catch(_){}}
+      const $ = (id) => document.getElementById(id);
 
-function getState(){
-  const qs=new URLSearchParams(location.search);
-  const guard=window.DIGIY_GUARD?.state||{};
-  const slug=normSlug(guard.slug||qs.get("slug")||storageGet("digiy_driver_last_slug")||storageGet("digiy_driver_slug")||storageGet("DIGIY_SLUG")||"");
-  const phone=normPhone(guard.phone||qs.get("phone")||qs.get("tel")||storageGet("digiy_driver_phone")||storageGet("DIGIY_DRIVER_PHONE")||phoneFromDriverSlug(slug)||"");
-  const flags=[guard.access_ok,guard.access,guard.pin_session_ok,storageGet("digiy_driver_access_ok"),storageGet("DIGIY_DRIVER_ACCESS_OK")].map(v=>String(v||"").toLowerCase());
-  const access=flags.some(v=>["true","1","yes","ok","valid"].includes(v));
-  if(slug)storageSet("digiy_driver_last_slug",slug);
-  if(phone)storageSet("digiy_driver_phone",phone);
-  return {slug,phone,access,guard};
-}
+      const sb = window.supabase?.createClient
+        ? window.supabase.createClient(
+            window.DIGIY_SUPABASE_URL,
+            window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON,
+            { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false } }
+          )
+        : null;
 
-function safeUrl(base){
-  try{
-    const st=getState();
-    const u=new URL(base,location.href);
-    if(canExposeSlug(st.slug))u.searchParams.set("slug",st.slug);
-    u.searchParams.delete("phone");u.searchParams.delete("tel");u.searchParams.delete("wa");
-    if(u.origin===location.origin)return u.pathname+u.search+u.hash;
-    return u.toString();
-  }catch(_){return base}
-}
+      const ACCESS = { slug:"", phone:"", preview:true, access_ok:false, reason:"preview", pay_url:"", profile:null };
+      let extras = [];
 
-function cleanVisibleUrl(){
-  try{
-    const u=new URL(location.href);let changed=false;
-    ["phone","tel","wa","p_phone","owner_phone"].forEach(k=>{if(u.searchParams.has(k)){u.searchParams.delete(k);changed=true}});
-    const s=normSlug(u.searchParams.get("slug")||"");
-    if(s&&/\d{7,}/.test(s.replace(/^driver-/,""))){u.searchParams.delete("slug");changed=true}
-    if(changed)history.replaceState({},document.title,u.pathname+u.search+u.hash);
-  }catch(_){}
-}
+      function normSlug(v){ return String(v || "").trim().toLowerCase() }
+      function phoneDigits(v){ return String(v || "").replace(/[^\d]/g, "") }
+      function normPhone(v){ const d=phoneDigits(v); if(!d)return""; if(d.startsWith("221")&&d.length===12)return d; if(d.length===9)return"221"+d; return d }
+      function displayPhone(v){ const p=normPhone(v); return p?"+"+ p:"—" }
+      function isDriverSlug(v){ return /^driver-\d{12}$/.test(normSlug(v)) }
+      function phoneFromDriverSlug(v){ const s=normSlug(v); return isDriverSlug(s)?normPhone(s.slice("driver-".length)):"" }
+      function isSensitiveSlug(v){ return /\d{7,}/.test(String(v||"")) }
+      function canExposeSlug(v){ const s=normSlug(v); return !!s&&!isSensitiveSlug(s) }
 
-function phoneVariants(v){
-  const d=normPhone(v);const out=new Set();if(!d)return[];
-  out.add(d);out.add("+"+d);
-  if(d.startsWith("221")&&d.length===12){out.add(d.slice(3));out.add("+221"+d.slice(3))}
-  return Array.from(out).filter(Boolean);
-}
+      function cleanVisibleUrl(){
+        try{
+          const u=new URL(location.href); let changed=false;
+          if(u.searchParams.has("phone")){u.searchParams.delete("phone");changed=true}
+          if(u.searchParams.has("tel")){u.searchParams.delete("tel");changed=true}
+          const urlSlug=normSlug(u.searchParams.get("slug")||"");
+          if(urlSlug&&isSensitiveSlug(urlSlug)){u.searchParams.delete("slug");changed=true}
+          if(changed) history.replaceState({},"",u.pathname+u.search+u.hash);
+        }catch(_){}
+      }
 
-function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-function money(v){const n=Number(v||0);return Number.isFinite(n)&&n>0?n.toLocaleString("fr-FR")+" FCFA":"—"}
+      function sanitizeReturnUrl(){
+        try{
+          const u=new URL(location.href);
+          u.searchParams.delete("phone");u.searchParams.delete("tel");
+          const s=normSlug(u.searchParams.get("slug")||"");
+          if(s&&isSensitiveSlug(s))u.searchParams.delete("slug");
+          return u.pathname+u.search+u.hash;
+        }catch(_){ return location.pathname }
+      }
 
-function getClient(){
-  if(!window.supabase?.createClient)return null;
-  try{return window.supabase.createClient(window.DIGIY_SUPABASE_URL,window.DIGIY_SUPABASE_ANON_KEY||window.DIGIY_SUPABASE_ANON,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(_){return null}
-}
+      function accountLabel(){ return ACCESS.access_ok?"compte : sécurisé":(ACCESS.slug?"compte : reconnu":"compte : à vérifier") }
 
-function setSessionPill(){
-  const st=getState(),p=$("sessionPill");if(!p)return;
-  if(st.access){p.textContent="● session ouverte";p.className="pill ok"}
-  else if(st.slug||st.phone){p.textContent="● compte reconnu";p.className="pill warn"}
-  else{p.textContent="● accès à ouvrir";p.className="pill bad"}
-}
+      function buildSafeUrl(base,params){
+        try{
+          const u=new URL(base,location.href);
+          u.searchParams.delete("phone");u.searchParams.delete("tel");
+          Object.entries(params||{}).forEach(([key,value])=>{
+            const clean=String(value==null?"":value).trim();
+            if(key==="phone"||key==="tel")return;
+            if(key==="slug"||key==="identifiant"){const s=normSlug(clean);if(canExposeSlug(s))u.searchParams.set("slug",s);else u.searchParams.delete("slug");return}
+            if(clean)u.searchParams.set(key,clean);else u.searchParams.delete(key);
+          });
+          const currentSlug=normSlug(u.searchParams.get("slug")||"");
+          if(currentSlug&&isSensitiveSlug(currentSlug))u.searchParams.delete("slug");
+          if(u.origin===location.origin)return u.pathname+u.search+u.hash;
+          return u.toString();
+        }catch(e){ return base }
+      }
 
-/* ── TRIP ENGINE ── */
-const sb=getClient();
-let trips=[];
+      function pageUrl(base,slug,phone){ return buildSafeUrl(base,{slug:normSlug(slug),phone:normPhone(phone)}) }
 
-function tripStatus(t){return String(t?.status||t?.ride_status||"requested").toLowerCase().replace("ongoing","in_progress")}
-function statusLabel(s){s=tripStatus({status:s});return{requested:"demande",assigned:"assignée",accepted:"acceptée",in_progress:"en course",completed:"terminée",canceled:"annulée",cancelled:"annulée"}[s]||s}
-function tripWhen(t){return t?.pickup_at||t?.ride_at||t?.booking_time||t?.updated_at||t?.created_at||null}
-function fmtDate(v){if(!v)return"—";const d=new Date(v);if(Number.isNaN(d.getTime()))return String(v);return d.toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}
-function pick(t,keys,fb="—"){for(const k of keys){const v=t?.[k];if(v!==undefined&&v!==null&&String(v).trim())return String(v)}return fb}
-function titleTrip(t){
-  const from=pick(t,["pickup_label","pickup","from_label","departure"],"Départ");
-  const to=pick(t,["dropoff_label","dropoff","to_label","destination"],"Arrivée");
-  return from+" → "+to;
-}
-function amount(t){return Number(t?.final_price_fcfa??t?.price_fcfa??t?.amount_fcfa??t?.amount??0)||0}
+      function buildPayUrl(){
+        try{
+          if(ACCESS.pay_url)return ACCESS.pay_url;
+          const u=new URL(PAY_HOME);
+          u.searchParams.set("module",MODULE);
+          if(canExposeSlug(ACCESS.slug))u.searchParams.set("slug",ACCESS.slug);
+          u.searchParams.delete("phone");u.searchParams.delete("tel");
+          u.searchParams.set("return",sanitizeReturnUrl());
+          return u.toString();
+        }catch(_){ return PAY_HOME }
+      }
 
-function visibleRows(){
-  return trips
-    .filter(t=>["requested","assigned","accepted","in_progress"].includes(tripStatus(t)))
-    .sort((a,b)=>{
-      const rank={in_progress:0,accepted:1,assigned:2,requested:3};
-      return (rank[tripStatus(a)]??9)-(rank[tripStatus(b)]??9)||(new Date(tripWhen(b)||0)-new Date(tripWhen(a)||0));
-    });
-}
+      function storageKey(){ return "digiy_driver_tarifs_"+(ACCESS.slug||"preview") }
 
-function actionButtons(t){
-  const s=tripStatus(t),id=escapeHtml(t?.id||"");
-  if(s==="requested")return`<button class="btn primary" data-action="accept" data-id="${id}">✅ Accepter</button>`;
-  if(s==="assigned"||s==="accepted")return`<button class="btn primary" data-action="start" data-id="${id}">▶️ Démarrer</button>`;
-  if(s==="in_progress")return`<button class="btn gold" data-action="finish" data-id="${id}">🏁 Terminer</button>`;
-  return`<button class="btn ghost" disabled>Lecture</button>`;
-}
+      function setToast(text,kind){
+        const el=$("toast");
+        el.className="toast "+(kind||"");
+        el.textContent=text;
+        el.style.display=text?"block":"none";
+      }
 
-function render(){
-  const rows=visibleRows();
-  $("kpiAsk").textContent=String(rows.filter(t=>["requested","assigned","accepted"].includes(tripStatus(t))).length);
-  $("kpiRun").textContent=String(rows.filter(t=>tripStatus(t)==="in_progress").length);
-  const box=$("tripList");
-  if(!rows.length){box.innerHTML=`<div class="empty">Aucune course à traiter maintenant.</div>`;return}
-  box.innerHTML=rows.slice(0,6).map(t=>`
-    <article class="trip">
-      <div class="tripTop">
-        <div>
-          <div class="tripTitle">${escapeHtml(titleTrip(t))}</div>
-          <div class="meta">📅 ${escapeHtml(fmtDate(tripWhen(t)))} · 💰 ${escapeHtml(money(amount(t)))}</div>
-        </div>
-        <div class="badge">${escapeHtml(statusLabel(tripStatus(t)))}</div>
-      </div>
-      <div class="meta">📍 ${escapeHtml(pick(t,["pickup_zone","zone"],"Zone à vérifier"))}</div>
-      <div class="actions">${actionButtons(t)}</div>
-    </article>
-  `).join("");
-}
+      function setAccessPill(mode,text){
+        const pill=$("accessPill");
+        pill.className="pill "+mode;
+        pill.textContent="session : "+text;
+      }
 
-async function loadTrips(){
-  const st=getState(),msg=$("msg");
-  if(!sb){msg.textContent="Supabase indisponible.";msg.className="msg bad";return}
-  if(!st.phone){msg.textContent="Numéro chauffeur non reconnu. Reprends l'accès PIN.";msg.className="msg warn";render();return}
-  msg.textContent="Lecture…";msg.className="msg";
-  try{
-    const {data,error}=await sb.from("digiy_driver_trips").select("*").in("driver_phone",phoneVariants(st.phone)).order("created_at",{ascending:false}).limit(30);
-    if(error)throw error;
-    trips=Array.isArray(data)?data:[];
-    msg.textContent="";msg.className="msg";
-    render();
-  }catch(e){
-    console.warn(e);
-    msg.textContent="Lecture impossible. L'atelier complet reste disponible.";msg.className="msg bad";
-    render();
-  }
-}
+      function setTopSub(text){ const el=$("topSub"); if(el)el.textContent=text }
 
-async function rpcWithFallback(names,rideId,driverPhone){
-  const funcs=Array.isArray(names)?names:[names];
-  const attempts=[{p_ride_id:rideId,p_driver_phone:driverPhone},{ride_id:rideId,driver_phone:driverPhone},{p_trip_id:rideId,p_driver_phone:driverPhone},{p_trip_id:rideId},{trip_id:rideId},{id:rideId,phone:driverPhone},{p_id:rideId,p_phone:driverPhone}];
-  let last=null;
-  for(const fn of funcs){for(const args of attempts){const{data,error}=await sb.rpc(fn,args);if(!error)return data;last=error}}
-  throw last||new Error("rpc_failed");
-}
+      function money(v){ const n=Number(v||0); if(!Number.isFinite(n)||n<=0)return"—"; return n.toLocaleString("fr-FR")+" F CFA" }
 
-document.addEventListener("click",async e=>{
-  const btn=e.target.closest("[data-action]");if(!btn)return;
-  const st=getState(),id=btn.getAttribute("data-id"),action=btn.getAttribute("data-action");
-  if(!st.phone||!id){$("msg").textContent="Accès chauffeur incomplet.";$("msg").className="msg bad";return}
-  btn.disabled=true;$("msg").textContent="Action en cours…";$("msg").className="msg";
-  try{
-    if(action==="accept")await rpcWithFallback(["digiy_driver_accept_ride","accept_trip"],id,st.phone);
-    if(action==="start") await rpcWithFallback(["digiy_driver_start_ride","start_trip"],id,st.phone);
-    if(action==="finish")await rpcWithFallback(["digiy_driver_complete_ride","complete_trip"],id,st.phone);
-    $("msg").textContent="Action enregistrée.";$("msg").className="msg ok";
-    await loadTrips();
-  }catch(err){
-    console.warn(err);
-    $("msg").textContent="Action impossible. Ouvre l'atelier complet.";$("msg").className="msg bad";
-  }finally{btn.disabled=false}
-});
+      function initialsFromName(v){ const words=String(v||"").trim().split(/\s+/).filter(Boolean).slice(0,2); if(!words.length)return"DR"; return words.map(w=>w[0]?.toUpperCase()||"").join("") }
 
-/* ── AUDIO COACH ── */
-function setupAudio(){
-  const fab=$("digiyAudioFab"),panel=$("digiyAudioPanel");
-  const closeBtn=$("digiyAudioClose"),playBtn=$("digiyAudioPlay"),stopBtn=$("digiyAudioStop");
-  const title=$("digiyAudioTitle"),text=$("digiyAudioText");
-  if(title)title.textContent="Mes trajets";
-  if(text)text.textContent="Lis la course, puis accepte, démarre ou termine. C'est tout ce que cette page fait.";
-  const speak=txt=>{
-    if(!("speechSynthesis" in window))return;
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(txt||"Tu es dans Mes trajets. Cette page garde seulement les courses à traiter maintenant. Lis la course, puis accepte, démarre ou termine.");
-    u.lang="fr-FR";u.rate=.88;u.pitch=1.02;speechSynthesis.speak(u);
+      function csvToArray(v){ return String(v||"").split(",").map(x=>x.trim()).filter(Boolean) }
+      function arrayToCsv(v){ return Array.isArray(v)?v.join(", "):"" }
+
+      function copyText(text){
+        if(navigator.clipboard?.writeText)return navigator.clipboard.writeText(text);
+        const ta=document.createElement("textarea");ta.value=text;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();if(!ok)throw new Error("copy_failed");return Promise.resolve();
+      }
+
+      function currentData(){
+        return {
+          display_name:$("f_display_name").value.trim(),
+          city:$("f_city").value.trim(),
+          whatsapp:"",
+          zones:csvToArray($("f_zones").value),
+          note:$("f_note").value.trim(),
+          fares:{
+            saly_dakar:  Number($("fare_saly_dakar").value||0),
+            saly_aibd:   Number($("fare_saly_aibd").value||0),
+            saly_ngaparou:Number($("fare_saly_ngaparou").value||0),
+            saly_somone: Number($("fare_saly_somone").value||0),
+            saly_mbour:  Number($("fare_saly_mbour").value||0),
+            dispo_4h:    Number($("fare_dispo_4h").value||0),
+            dispo_day:   Number($("fare_dispo_day").value||0),
+            wait_hour:   Number($("fare_wait_hour").value||0)
+          },
+          extras:extras.map(x=>({label:String(x.label||"").trim(),amount:Number(x.amount||0),note:String(x.note||"").trim()})).filter(x=>x.label&&x.amount>0)
+        };
+      }
+
+      function loadIntoForm(data){
+        $("f_display_name").value=data?.display_name||"";
+        $("f_city").value=data?.city||"";
+        $("f_whatsapp").value="";
+        $("f_zones").value=arrayToCsv(data?.zones);
+        $("f_note").value=data?.note||"";
+        const fares=data?.fares||{};
+        $("fare_saly_dakar").value=fares.saly_dakar||"";
+        $("fare_saly_aibd").value=fares.saly_aibd||"";
+        $("fare_saly_ngaparou").value=fares.saly_ngaparou||"";
+        $("fare_saly_somone").value=fares.saly_somone||"";
+        $("fare_saly_mbour").value=fares.saly_mbour||"";
+        $("fare_dispo_4h").value=fares.dispo_4h||"";
+        $("fare_dispo_day").value=fares.dispo_day||"";
+        $("fare_wait_hour").value=fares.wait_hour||"";
+        extras=Array.isArray(data?.extras)?data.extras.map(x=>({label:String(x.label||""),amount:Number(x.amount||0),note:String(x.note||"")})):[];
+        renderExtras();refreshPreview();
+      }
+
+      function saveDraft(){
+        const data=currentData();
+        try{localStorage.setItem(storageKey(),JSON.stringify(data));setToast("💾 Brouillon tarifs enregistré.","ok");refreshPreview()}catch(e){setToast("❌ Impossible d'enregistrer le brouillon.","bad")}
+      }
+
+      function resetDraft(){
+        try{localStorage.removeItem(storageKey())}catch(_){}
+        loadIntoForm({display_name:ACCESS.profile?.display_name||deriveNameFromSlug(ACCESS.slug),city:ACCESS.profile?.city||"",whatsapp:"",zones:ACCESS.profile?.zones||[],note:"",fares:{},extras:[]});
+        setToast("🧹 Brouillon effacé.","warn");
+      }
+
+      function readDraft(){
+        try{const raw=localStorage.getItem(storageKey());return raw?JSON.parse(raw):null}catch(_){return null}
+      }
+
+      function deriveNameFromSlug(slug){
+        const s=normSlug(slug);if(!s)return"Mon espace chauffeur";
+        const tail=s.replace(/^driver-/,"");
+        if(/^\d+$/.test(tail))return"Mon espace chauffeur";
+        return tail.replace(/-/g," ").replace(/\b\w/g,m=>m.toUpperCase());
+      }
+
+      function fareEntries(data){
+        const f=data?.fares||{};
+        const rows=[["Saly → Dakar",f.saly_dakar],["Saly → AIBD",f.saly_aibd],["Saly → Ngaparou",f.saly_ngaparou],["Saly → Somone",f.saly_somone],["Saly → Mbour",f.saly_mbour],["Mise à dispo 4h",f.dispo_4h],["Mise à dispo journée",f.dispo_day],["Attente / heure",f.wait_hour]];
+        const extraRows=(data?.extras||[]).map(x=>[x.label,x.amount,x.note]);
+        return rows.filter(([,amount])=>Number(amount||0)>0).map(([label,amount])=>({label,amount:Number(amount||0),note:""})).concat(extraRows.filter(([,amount])=>Number(amount||0)>0).map(([label,amount,note])=>({label,amount:Number(amount||0),note:note||""})));
+      }
+
+      function buildSummary(data){
+        const displayName=data.display_name||deriveNameFromSlug(ACCESS.slug);
+        const city=data.city||"Sénégal";
+        const zones=(data.zones||[]).length?data.zones.join(", "):"Zones à confirmer";
+        const fares=fareEntries(data);
+        let txt=`🚖 ${displayName}\n📍 ${city} — ${zones}\n`;
+        if(fares.length){txt+=`\n💰 Tarifs :\n`;fares.forEach(item=>{txt+=`• ${item.label} : ${money(item.amount)}\n`})}
+        else{txt+=`\n💰 Tarifs sur demande.\n`}
+        if(data.note)txt+=`\n📝 ${data.note}\n`;
+        return txt.trim();
+      }
+
+      function setAvatar(profile){
+        const avatar=$("pAvatar");const photo=String(profile?.photo_url||"").trim();
+        if(photo){avatar.innerHTML=`<img src="${escapeAttr(photo)}" alt="Photo chauffeur"/>`}
+        else{avatar.textContent=initialsFromName(currentData().display_name||deriveNameFromSlug(ACCESS.slug))}
+      }
+
+      function refreshPreview(){
+        const data=currentData();const entries=fareEntries(data);
+        $("pName").textContent=data.display_name||deriveNameFromSlug(ACCESS.slug);
+        $("pMeta").textContent=[data.city||"Ville à compléter",(data.zones||[]).length?data.zones.join(" • "):"Zones à compléter"].join(" • ");
+        setAvatar(ACCESS.profile);
+        const badges=[];
+        if(data.city)badges.push(data.city);
+        if((data.zones||[]).length)badges.push((data.zones||[]).length+" zone(s)");
+        if(entries.length)badges.push(entries.length+" tarif(s)");
+        $("pBadges").innerHTML=badges.length?badges.map(x=>`<span class="pBadge">${escapeHtml(x)}</span>`).join(""):`<span class="pBadge">Profil en préparation</span>`;
+        const box=$("previewTarifs");
+        if(!entries.length){box.innerHTML=`<div class="tarifLine"><div class="name">Aucun tarif posé</div><div class="amount">—</div></div>`}
+        else{box.innerHTML=entries.map(item=>`<div class="tarifLine"><div class="name">${escapeHtml(item.label)}${item.note?` <span class="small" style="color:var(--muted)">— ${escapeHtml(item.note)}</span>`:""}</div><div class="amount">${escapeHtml(money(item.amount))}</div></div>`).join("")}
+        $("publicSummary").textContent=buildSummary(data);
+        updateKpis(entries);updateActionLinks(data);
+      }
+
+      function updateKpis(entries){
+        const amounts=entries.map(x=>Number(x.amount||0)).filter(n=>n>0);
+        $("kpiCount").textContent=String(entries.length);
+        $("kpiMin").textContent=amounts.length?money(Math.min(...amounts)):"—";
+        $("kpiMax").textContent=amounts.length?money(Math.max(...amounts)):"—";
+        $("kpiSlug").textContent=ACCESS.slug?"sécurisé":"—";
+      }
+
+      function updateNav(){
+        cleanVisibleUrl();
+        const sp=$("slugPill");if(sp)sp.textContent=accountLabel();
+        const pp=$("phonePill");if(pp)pp.textContent="contact : masqué";
+        $("navDashboard").href=pageUrl(DASHBOARD_PAGE,ACCESS.slug,ACCESS.phone);
+        $("navCockpit").href=pageUrl(COCKPIT_PAGE,ACCESS.slug,ACCESS.phone);
+        $("navProfil").href=pageUrl(PROFILE_PAGE,ACCESS.slug,ACCESS.phone);
+        $("navTarifs").href=pageUrl(RATES_PAGE,ACCESS.slug,ACCESS.phone);
+        $("navPin").href=pageUrl(PIN_PAGE,ACCESS.slug,ACCESS.phone);
+        $("navHome").href=pageUrl(HOME_PAGE,ACCESS.slug,ACCESS.phone);
+        $("navQr").href=pageUrl(QR_PAGE,ACCESS.slug,ACCESS.phone);
+        $("btnBackCockpit").href=pageUrl(COCKPIT_PAGE,ACCESS.slug,ACCESS.phone);
+        $("btnGoProfile").href=pageUrl(PROFILE_PAGE,ACCESS.slug,ACCESS.phone);
+        $("btnGoQr").href=pageUrl(QR_PAGE,ACCESS.slug,ACCESS.phone);
+        const moreLinks={fastHome:DASHBOARD_PAGE,fastTrips:"./trajets.html",fastProfile:PROFILE_PAGE,bottomHome:DASHBOARD_PAGE,bottomTrips:"./trajets.html",bottomMore:PROFILE_PAGE};
+        Object.entries(moreLinks).forEach(([id,base])=>{const el=$(id);if(el)el.href=pageUrl(base,ACCESS.slug,ACCESS.phone)});
+        const fastTarifs=$("fastTarifs");if(fastTarifs)fastTarifs.href="#tarifsForm";
+        const bottomNew=$("bottomNew");if(bottomNew)bottomNew.href=pageUrl("./trajets.html",ACCESS.slug,ACCESS.phone)+"#newTrip";
+        const bottomNotes=$("bottomNotes");if(bottomNotes)bottomNotes.href=pageUrl("./trajets.html",ACCESS.slug,ACCESS.phone)+"#quickDriverNote";
+        cleanVisibleUrl();
+      }
+
+      function updateActionLinks(data){}
+
+      function renderExtras(){
+        const box=$("extrasList");
+        if(!extras.length){box.innerHTML=`<div class="extraItem"><div class="muted">Aucune ligne libre. Ajoute une course spéciale ou un service premium.</div></div>`;return}
+        box.innerHTML=extras.map((item,i)=>`
+          <div class="extraItem">
+            <div class="extraHead">
+              <div class="fareTitle">Ligne libre ${i+1}</div>
+              <button class="btn danger" type="button" data-remove="${i}" style="flex:0 0 auto;min-height:38px;padding:8px 10px;font-size:13px">🗑️ Retirer</button>
+            </div>
+            <div class="row">
+              <div><label>Nom</label><input data-extra-label="${i}" value="${escapeAttr(item.label)}" placeholder="Ex : Dakar nuit / Popenguine"/></div>
+              <div><label>Montant</label><input data-extra-amount="${i}" type="number" min="0" value="${item.amount||""}" placeholder="Ex : 45000"/></div>
+            </div>
+            <label>Note</label>
+            <input data-extra-note="${i}" value="${escapeAttr(item.note)}" placeholder="Ex : nuit / bagages / aller simple"/>
+          </div>
+        `).join("");
+        box.querySelectorAll("[data-remove]").forEach(btn=>{btn.addEventListener("click",()=>{const i=Number(btn.getAttribute("data-remove"));extras.splice(i,1);renderExtras();refreshPreview()})});
+        box.querySelectorAll("[data-extra-label]").forEach(input=>{input.addEventListener("input",()=>{const i=Number(input.getAttribute("data-extra-label"));extras[i].label=input.value;refreshPreview()})});
+        box.querySelectorAll("[data-extra-amount]").forEach(input=>{input.addEventListener("input",()=>{const i=Number(input.getAttribute("data-extra-amount"));extras[i].amount=Number(input.value||0);refreshPreview()})});
+        box.querySelectorAll("[data-extra-note]").forEach(input=>{input.addEventListener("input",()=>{const i=Number(input.getAttribute("data-extra-note"));extras[i].note=input.value;refreshPreview()})});
+      }
+
+      function escapeHtml(str){ return String(str||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;") }
+      function escapeAttr(str){ return escapeHtml(str).replaceAll("`","&#096;") }
+
+      async function loadProfile(){
+        if(!sb){setToast("⚠️ Supabase indisponible.","warn");return}
+        const slug=ACCESS.slug;if(!slug){setToast("⚠️ Identifiant absent.","warn");return}
+        try{
+          const{data,error}=await sb.from(TABLE).select("slug,display_name,city,contact,photo_url,profile_url,bio,zones,tags,is_published,is_active,priority").eq("slug",slug).limit(1).maybeSingle();
+          if(error){setToast("⚠️ Profil non chargé : "+(error.message||"erreur inconnue"),"warn");return}
+          ACCESS.profile=data||null;
+          if(data){
+            const draft=readDraft();
+            const merged={display_name:draft?.display_name||data.display_name||deriveNameFromSlug(ACCESS.slug),city:draft?.city||data.city||"",whatsapp:"",zones:draft?.zones?.length?draft.zones:(Array.isArray(data.zones)?data.zones:[]),note:draft?.note||"",fares:draft?.fares||{},extras:draft?.extras||[]};
+            loadIntoForm(merged);setToast("↻ Profil chargé. Tarifs repris depuis le brouillon local si présent.","ok");
+          }else{
+            const draft=readDraft();
+            if(draft){loadIntoForm(draft);setToast("↻ Aucun profil trouvé, brouillon local repris.","warn")}
+            else{loadIntoForm({display_name:deriveNameFromSlug(ACCESS.slug),city:"",whatsapp:"",zones:[],note:"",fares:{},extras:[]});setToast("ℹ️ Aucun profil trouvé. Tu peux préparer les tarifs.","warn")}
+          }
+        }catch(e){setToast("❌ Erreur de lecture profil.","bad")}
+      }
+
+      async function guardBoot(){
+        try{
+          const guard=window.DIGIY_GUARD;
+          if(guard&&typeof guard.ready==="function"){const out=guard.ready({redirect:false,preserve_validation:true});if(out&&typeof out.then==="function")await out}
+          else if(guard?.ready&&typeof guard.ready.then==="function")await guard.ready;
+        }catch(e){console.warn("[DIGIY DRIVER TARIFS] guard ready error",e)}
+        const qs=new URLSearchParams(location.search);const st=window.DIGIY_GUARD?.state||null;
+        ACCESS.slug=normSlug(st?.slug||qs.get("slug")||"");
+        ACCESS.phone=normPhone(st?.phone||qs.get("phone")||qs.get("tel")||phoneFromDriverSlug(ACCESS.slug)||"");
+        ACCESS.access_ok=!!(st?.access_ok||st?.access);
+        ACCESS.preview=!ACCESS.access_ok;
+        ACCESS.reason=st?.reason||(ACCESS.access_ok?"access_ok":"preview");
+        ACCESS.pay_url=st?.pay_url||"";
+        if(window.DIGIY_GUARD?.rememberIdentity&&(ACCESS.slug||ACCESS.phone)){try{window.DIGIY_GUARD.rememberIdentity({slug:ACCESS.slug,phone:ACCESS.phone})}catch(_){}}
+        cleanVisibleUrl();
+        if(!ACCESS.slug){setAccessPill("bad","compte à vérifier");setTopSub("Aucun compte chauffeur détecté. Ouvre cette page depuis ton accès.");$("disabledNote").style.display="block";return}
+        if(!isDriverSlug(ACCESS.slug)){setAccessPill("bad","lien invalide");setTopSub("Lien chauffeur non reconnu. Repars par ton accès.");$("disabledNote").style.display="block";return}
+        if(ACCESS.access_ok){setAccessPill("ok",st?.pin_session_ok?"session ouverte":"accès ouvert");setTopSub("Accès vivant détecté. Les tarifs restent rangés sans exposer tes identifiants.")}
+        else{setAccessPill("warn","aperçu");setTopSub("Mode aperçu : prépare les tarifs localement, sans exposer ton compte.")}
+        $("disabledNote").style.display="block";
+      }
+
+      function bindPreview(){
+        ["f_display_name","f_city","f_zones","f_note","fare_saly_dakar","fare_saly_aibd","fare_saly_ngaparou","fare_saly_somone","fare_saly_mbour","fare_dispo_4h","fare_dispo_day","fare_wait_hour"].forEach(id=>$(id).addEventListener("input",refreshPreview));
+      }
+
+      function bindButtons(){
+        $("btnLoadProfile").addEventListener("click",loadProfile);
+        $("btnSaveDraft").addEventListener("click",saveDraft);
+        $("btnResetDraft").addEventListener("click",resetDraft);
+        $("hdrSave").addEventListener("click",saveDraft);
+        $("btnAddExtra").addEventListener("click",()=>{extras.push({label:"",amount:0,note:""});renderExtras();refreshPreview()});
+        $("btnCopyPublic").addEventListener("click",async()=>{try{await copyText(buildSummary(currentData()));setToast("📋 Résumé public copié.","ok")}catch(e){setToast("❌ Copie impossible.","bad")}});
+        $("btnCopyMessage").addEventListener("click",async()=>{try{await copyText(buildSummary(currentData()));setToast("📋 Message client copié.","ok")}catch(e){setToast("❌ Copie impossible.","bad")}});
+        $("btnShareText").addEventListener("click",async()=>{try{await copyText(buildSummary(currentData()));setToast("📨 Texte client copié.","ok")}catch(e){setToast("❌ Copie impossible.","bad")}});
+        $("btnPay").addEventListener("click",()=>{location.href=buildPayUrl()});
+      }
+
+      async function boot(){
+        bindPreview();bindButtons();
+        await guardBoot();updateNav();
+        const draft=readDraft();
+        if(draft){loadIntoForm(draft)}
+        else{loadIntoForm({display_name:deriveNameFromSlug(ACCESS.slug),city:"",whatsapp:"",zones:[],note:"",fares:{},extras:[]})}
+        await loadProfile();refreshPreview();
+      }
+
+      boot().catch(e=>{console.error("[DIGIY DRIVER TARIFS] boot error",e);setToast("❌ Erreur au démarrage.","bad")});
+    })();
+</script>
+
+<!-- ══ WHEEL NAV JS ══ -->
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const ROUTES={
+    dashboard:"./dashboard-pro.html",hub:"./hub.html",
+    session:"./session.html",alertes:"./alertes.html",
+    profile:"./profil-chauffeur.html",rates:"./tarifs.html",
+    qr:"./generateur-digiy-driver.html",pin:"./pin.html",
+    trajets:"./trajets.html"
   };
-  const openPanel=()=>{panel?.classList.add("open");fab?.setAttribute("aria-expanded","true")};
-  const closePanel=()=>{panel?.classList.remove("open");fab?.setAttribute("aria-expanded","false");if("speechSynthesis" in window)speechSynthesis.cancel()};
-  fab?.addEventListener("click",()=>panel?.classList.contains("open")?closePanel():openPanel());
-  closeBtn?.addEventListener("click",closePanel);
-  playBtn?.addEventListener("click",()=>speak());
-  stopBtn?.addEventListener("click",()=>{"speechSynthesis" in window&&speechSynthesis.cancel()});
-}
+  const go=url=>{location.href=url};
+  const open=id=>$(id)?.classList.add("open");
+  const close=id=>$(id)?.classList.remove("open");
+  function spin(btn){const svg=btn.querySelector("svg");btn.classList.add("spinning");svg.addEventListener("animationend",()=>btn.classList.remove("spinning"),{once:true})}
 
-/* ── WHEEL NAV ── */
-function openOverlay(id){$(id)?.classList.add("open")}
-function closeOverlay(id){$(id)?.classList.remove("open")}
-function spin(btn){
-  const svg=btn.querySelector("svg");
-  btn.classList.add("spinning");
-  svg.addEventListener("animationend",()=>btn.classList.remove("spinning"),{once:true});
-}
+  $("btnConduite")?.addEventListener("click",()=>{spin($("btnConduite"));open("ovConduite")});
+  $("btnPilotage")?.addEventListener("click",()=>{spin($("btnPilotage"));open("ovPilotage")});
+  $("closeConduite")?.addEventListener("click",()=>close("ovConduite"));
+  $("closePilotage")?.addEventListener("click",()=>close("ovPilotage"));
+  ["ovConduite","ovPilotage"].forEach(id=>$(id)?.addEventListener("click",e=>{if(e.target===$(id))close(id)}));
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){close("ovConduite");close("ovPilotage")}});
 
-function bindOverlayLinks(){
-  const go=url=>{closeOverlay("ovConduite");closeOverlay("ovPilotage");location.href=safeUrl(url)};
+  $("ovSave")?.addEventListener("click",()=>{close("ovConduite");$("btnSaveDraft")?.click()});
   $("ovDashboard")?.addEventListener("click",()=>go(ROUTES.dashboard));
-  $("ovActualiser")?.addEventListener("click",()=>{closeOverlay("ovConduite");loadTrips()});
-  $("ovAtelier")?.addEventListener("click",()=>go(ROUTES.trajetsComplet));
-  $("ovLecteur")?.addEventListener("click",()=>{closeOverlay("ovConduite");$("digiyAudioPanel")?.classList.add("open");$("digiyAudioFab")?.setAttribute("aria-expanded","true")});
+  $("ovTrajets")?.addEventListener("click",()=>go(ROUTES.trajets));
+  $("ovTarifsLecture")?.addEventListener("click",()=>go(ROUTES.rates));
   $("ovHub")?.addEventListener("click",()=>go(ROUTES.hub));
   $("ovSession")?.addEventListener("click",()=>go(ROUTES.session));
   $("ovAlertes")?.addEventListener("click",()=>go(ROUTES.alertes));
   $("ovProfil")?.addEventListener("click",()=>go(ROUTES.profile));
-  $("ovTarifs")?.addEventListener("click",()=>go(ROUTES.rates));
   $("ovQr")?.addEventListener("click",()=>go(ROUTES.qr));
   $("ovPin")?.addEventListener("click",()=>go(ROUTES.pin));
-  $("goHub")?.setAttribute("href",safeUrl(ROUTES.hub));
-  const al=$("atelierLink"); if(al) al.href=safeUrl(ROUTES.trajetsComplet);
-}
+})();
+</script>
 
-$("btnConduite")?.addEventListener("click",()=>{spin($("btnConduite"));openOverlay("ovConduite")});
-$("btnPilotage")?.addEventListener("click",()=>{spin($("btnPilotage"));openOverlay("ovPilotage")});
-$("closeConduite")?.addEventListener("click",()=>closeOverlay("ovConduite"));
-$("closePilotage")?.addEventListener("click",()=>closeOverlay("ovPilotage"));
-["ovConduite","ovPilotage"].forEach(id=>$(id)?.addEventListener("click",e=>{if(e.target===$(id))closeOverlay(id)}));
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeOverlay("ovConduite");closeOverlay("ovPilotage")}});
-
-$("refreshBtn")?.addEventListener("click",e=>{e.preventDefault();loadTrips()});
-
-/* ── BOOT ── */
-cleanVisibleUrl();
-setSessionPill();
-setupAudio();
-bindOverlayLinks();
-loadTrips();
+<!-- ══ MASQUAGE TÉLÉPHONE — intact ══ -->
+<script>
+(function(){
+  function maskPhoneText(){
+    const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+    const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+    nodes.forEach(function(n){n.nodeValue=String(n.nodeValue||"").replace(/\+?\s*221[\s.-]*(7[05678])[\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}/g,"Contact masqué").replace(/\b7[05678][\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}\b/g,"Contact masqué")});
+  }
+  document.addEventListener("DOMContentLoaded",maskPhoneText);
+  setTimeout(maskPhoneText,300);
+  setTimeout(maskPhoneText,1200);
+})();
 </script>
 
 </body>
 </html>
+
