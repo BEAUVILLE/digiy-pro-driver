@@ -1,737 +1,271 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Je conduis — Tarifs</title>
-  <meta name="theme-color" content="#123b2d"/>
-  <meta name="description" content="DIGIY DRIVER — Tarifs chauffeur : grille terrain, aperçu client, WhatsApp et brouillon local sécurisé."/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-
-  <script>
-    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
-    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
-    window.DIGIY_MODULE = "DRIVER";
-  </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-security-v2-20260504"></script>
-
-  <style>
-
-    :root{
-      --bg:#123b2d;
-      --bg2:#0b241b;
-      --card:#1f5a43;
-      --card2:#174735;
-      --line:rgba(255,255,255,.18);
-      --line2:rgba(255,255,255,.26);
-      --text:#f3fff7;
-      --muted:rgba(243,255,247,.84);
-      --green:#22c55e;
-      --green2:#16a34a;
-      --gold:#facc15;
-      --warn:#f59e0b;
-      --red:#fb7185;
-      --blue:#60a5fa;
-      --shadow:0 22px 58px rgba(0,0,0,.34);
-      --r:26px;
-      --max:1180px;
-      --bottomNavH:86px;
-    }
-
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-
-    body{
-      margin:0;
-      color:var(--text);
-      font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-      background:
-        radial-gradient(900px 520px at 8% -10%, rgba(34,197,94,.28), transparent 62%),
-        radial-gradient(760px 440px at 105% 0%, rgba(250,204,21,.16), transparent 58%),
-        linear-gradient(180deg,var(--bg),var(--bg2) 68%,#071811 100%);
-      padding:16px 16px calc(var(--bottomNavH) + env(safe-area-inset-bottom,0px) + 20px);
-      min-height:100vh;
-    }
-
-    a{color:inherit;text-decoration:none}
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-
-    .wrap{
-      max-width:var(--max);
-      margin:auto;
-    }
-
-    .top{
-      display:flex;
-      justify-content:space-between;
-      gap:14px;
-      flex-wrap:wrap;
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      padding:18px;
-      background:
-        radial-gradient(700px 260px at 100% 0%, rgba(250,204,21,.11), transparent 72%),
-        linear-gradient(180deg,rgba(31,90,67,.96),rgba(20,67,49,.96));
-      box-shadow:var(--shadow);
-      position:relative;
-      overflow:hidden;
-    }
-
-    .top:after{
-      content:"💰";
-      position:absolute;
-      right:14px;
-      bottom:-18px;
-      font-size:118px;
-      opacity:.075;
-      transform:rotate(-10deg);
-      pointer-events:none;
-    }
-
-    h1,h2,h3{
-      margin:0 0 10px 0;
-      font-weight:1000;
-      letter-spacing:-.035em;
-      line-height:1.04;
-    }
-
-    h1{
-      font-size:clamp(34px,7vw,54px);
-      max-width:860px;
-    }
-
-    h2{
-      font-size:clamp(25px,4.8vw,34px);
-    }
-
-    h3{
-      font-size:clamp(20px,3.5vw,25px);
-    }
-
-    p{margin:0}
-
-    .muted{
-      color:var(--muted);
-      font-weight:900;
-      font-size:16px;
-      line-height:1.48;
-    }
-
-    .small{font-size:14px}
-
-    .pillRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:flex-start;
-      justify-content:flex-end;
-      flex:0 0 auto;
-      position:relative;
-      z-index:1;
-    }
-
-    .pill{
-      min-height:44px;
-      padding:10px 13px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.08);
-      font-size:14px;
-      font-weight:1000;
-      white-space:nowrap;
-      color:var(--muted);
-      box-shadow:0 10px 24px rgba(0,0,0,.16);
-    }
-
-    .pill.ok{border-color:rgba(34,197,94,.40);color:#bbf7d0;background:rgba(34,197,94,.14)}
-    .pill.warn{border-color:rgba(245,158,11,.40);color:#fde68a;background:rgba(245,158,11,.14)}
-    .pill.bad{border-color:rgba(251,113,133,.40);color:#fecaca;background:rgba(251,113,133,.14)}
-
-    .stack{
-      display:grid;
-      gap:14px;
-      margin-top:14px;
-    }
-
-    .grid{
-      display:grid;
-      gap:14px;
-      grid-template-columns:1.1fr .9fr;
-    }
-
-    @media(max-width:980px){
-      .grid{grid-template-columns:1fr}
-    }
-
-    .card{
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      background:
-        radial-gradient(700px 260px at 100% 0%, rgba(250,204,21,.08), transparent 72%),
-        linear-gradient(180deg,rgba(31,90,67,.96),rgba(20,67,49,.96));
-      padding:18px;
-      box-shadow:var(--shadow);
-    }
-
-    .row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:stretch;
-    }
-
-    .row > *{flex:1}
-
-    .navbox{
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:22px;
-      padding:15px;
-      background:rgba(4,18,13,.22);
-      box-shadow:0 14px 28px rgba(0,0,0,.16);
-    }
-
-    .navtitle{
-      font-size:14px;
-      color:var(--muted);
-      font-weight:1000;
-      letter-spacing:.04em;
-      margin-bottom:12px;
-      text-transform:uppercase;
-    }
-
-    .navgrid{
-      display:grid;
-      gap:9px;
-      grid-template-columns:repeat(2,1fr);
-    }
-
-    @media(min-width:760px){
-      .navgrid{grid-template-columns:repeat(4,1fr)}
-    }
-
-    .navbtn,
-    .btn{
-      min-height:58px;
-      padding:14px 16px;
-      border-radius:18px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.09);
-      color:var(--text);
-      font-size:16px;
-      font-weight:1000;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:9px;
-      cursor:pointer;
-      text-align:center;
-      transition:.15s ease;
-      text-decoration:none;
-      box-shadow:0 14px 28px rgba(0,0,0,.16);
-    }
-
-    .navbtn:hover,
-    .btn:hover{transform:translateY(-1px)}
-
-    .navbtn.active{
-      background:rgba(250,204,21,.16);
-      border-color:rgba(250,204,21,.34);
-      color:#fff0a8;
-    }
-
-    .btn.primary{
-      background:linear-gradient(135deg,var(--green),var(--green2));
-      color:#042012;
-      border-color:transparent;
-      box-shadow:0 16px 34px rgba(34,197,94,.26);
-    }
-
-    .btn.gold{
-      background:linear-gradient(135deg,var(--gold),var(--warn));
-      color:#241300;
-      border-color:transparent;
-      box-shadow:0 16px 34px rgba(250,204,21,.20);
-    }
-
-    .btn.warn{
-      background:rgba(245,158,11,.16);
-      color:#fde68a;
-      border-color:rgba(245,158,11,.34);
-    }
-
-    .btn.danger{
-      background:rgba(251,113,133,.16);
-      color:#fecaca;
-      border-color:rgba(251,113,133,.34);
-    }
-
-    .btn.ghost{background:rgba(255,255,255,.055)}
-
-    label{
-      display:block;
-      font-size:15px;
-      font-weight:1000;
-      color:rgba(243,255,247,.94);
-      margin:12px 0 7px;
-    }
-
-    input, textarea{
-      width:100%;
-      padding:15px;
-      border-radius:18px;
-      border:1px solid var(--line2);
-      background:rgba(4,18,13,.22);
-      color:var(--text);
-      outline:none;
-      font-size:17px;
-      font-weight:1000;
-      font-family:inherit;
-    }
-
-    input::placeholder, textarea::placeholder{
-      color:rgba(243,255,247,.58);
-    }
-
-    input:focus, textarea:focus{
-      border-color:rgba(34,197,94,.52);
-      box-shadow:0 0 0 4px rgba(34,197,94,.12);
-      background:rgba(4,18,13,.28);
-    }
-
-    input[type="number"]{appearance:textfield}
-
-    input:disabled, textarea:disabled{
-      opacity:.75;
-      cursor:not-allowed;
-    }
-
-    textarea{
-      min-height:112px;
-      resize:vertical;
-      line-height:1.5;
-    }
-
-    .hint{
-      font-size:14px;
-      color:rgba(243,255,247,.72);
-      line-height:1.45;
-      margin-top:7px;
-      font-weight:900;
-    }
-
-    .hr{
-      height:1px;
-      background:rgba(255,255,255,.16);
-      margin:18px 0;
-    }
-
-    .kpis{
-      display:grid;
-      gap:10px;
-      grid-template-columns:repeat(4,1fr);
-      margin-top:14px;
-    }
-
-    @media(max-width:760px){
-      .kpis{grid-template-columns:repeat(2,1fr)}
-    }
-
-    @media(max-width:520px){
-      .kpis{grid-template-columns:1fr}
-    }
-
-    .kpi{
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:20px;
-      padding:15px;
-      background:rgba(4,18,13,.22);
-      box-shadow:0 12px 24px rgba(0,0,0,.13);
-    }
-
-    .kpi .label{
-      color:var(--muted);
-      font-size:14px;
-      font-weight:1000;
-      margin-bottom:7px;
-    }
-
-    .kpi .value{
-      font-size:27px;
-      font-weight:1000;
-      line-height:1;
-      color:#fff;
-    }
-
-    .fareGrid{
-      display:grid;
-      gap:10px;
-      grid-template-columns:repeat(2,1fr);
-    }
-
-    @media(max-width:760px){
-      .fareGrid{grid-template-columns:1fr}
-    }
-
-    .fareBox{
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:22px;
-      padding:15px;
-      background:rgba(4,18,13,.22);
-      box-shadow:0 12px 24px rgba(0,0,0,.13);
-    }
-
-    .fareTop{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-      margin-bottom:10px;
-    }
-
-    .fareTitle{
-      font-size:18px;
-      font-weight:1000;
-      line-height:1.18;
-    }
-
-    .prefix{
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-
-    .prefix span{
-      white-space:nowrap;
-      font-weight:1000;
-      color:#fff0a8;
-      font-size:14px;
-    }
-
-    .extras{
-      display:grid;
-      gap:10px;
-      margin-top:12px;
-    }
-
-    .extraItem{
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:22px;
-      padding:15px;
-      background:rgba(4,18,13,.22);
-    }
-
-    .extraHead{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-      margin-bottom:10px;
-    }
-
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:9px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.08);
-      color:rgba(243,255,247,.94);
-      font-size:13px;
-      font-weight:1000;
-      white-space:nowrap;
-    }
-
-    .list{
-      display:grid;
-      gap:12px;
-    }
-
-    .previewCard{
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(4,18,13,.22);
-      border-radius:24px;
-      padding:16px;
-      box-shadow:0 14px 28px rgba(0,0,0,.16);
-    }
-
-    .pTop{
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-
-    .pAvatar{
-      width:58px;
-      height:58px;
-      border-radius:18px;
-      display:grid;
-      place-items:center;
-      background:rgba(250,204,21,.16);
-      border:1px solid rgba(250,204,21,.34);
-      font-size:20px;
-      font-weight:1000;
-      overflow:hidden;
-      flex:0 0 auto;
-      color:#fff0a8;
-    }
-
-    .pAvatar img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    .pName{
-      margin:0;
-      font-weight:1000;
-      font-size:22px;
-      line-height:1.12;
-    }
-
-    .pMeta{
-      margin:4px 0 0;
-      color:var(--muted);
-      font-weight:900;
-      font-size:15px;
-      line-height:1.45;
-    }
-
-    .pBadges{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:12px;
-    }
-
-    .pBadge{
-      font-size:13px;
-      font-weight:1000;
-      padding:8px 11px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.08);
-      color:rgba(243,255,247,.94);
-    }
-
-    .tarifList{
-      display:grid;
-      gap:9px;
-      margin-top:14px;
-    }
-
-    .tarifLine{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      padding:13px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.06);
-      font-size:16px;
-      font-weight:1000;
-      line-height:1.3;
-    }
-
-    .tarifLine .name{
-      color:rgba(243,255,247,.94);
-    }
-
-    .tarifLine .amount{
-      white-space:nowrap;
-      color:#fde68a;
-    }
-
-    .summaryBox{
-      margin-top:14px;
-      padding:15px;
-      border-radius:20px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(4,18,13,.26);
-    }
-
-    .summaryBox pre{
-      margin:0;
-      white-space:pre-wrap;
-      word-break:break-word;
-      font:inherit;
-      font-size:16px;
-      line-height:1.6;
-      color:rgba(243,255,247,.94);
-      font-weight:900;
-    }
-
-    .toast{
-      margin-top:14px;
-      padding:13px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(4,18,13,.26);
-      color:rgba(243,255,247,.94);
-      font-size:15px;
-      font-weight:1000;
-      display:none;
-      line-height:1.4;
-    }
-
-    .toast.ok{border-color:rgba(34,197,94,.34);background:rgba(34,197,94,.14)}
-    .toast.bad{border-color:rgba(251,113,133,.34);background:rgba(251,113,133,.14)}
-    .toast.warn{border-color:rgba(250,204,21,.34);background:rgba(250,204,21,.14)}
-
-    .disabledNote{
-      margin-top:12px;
-      padding:13px;
-      border-radius:18px;
-      border:1px solid rgba(250,204,21,.28);
-      background:rgba(250,204,21,.10);
-      color:rgba(243,255,247,.94);
-      font-size:15px;
-      font-weight:1000;
-      display:none;
-      line-height:1.45;
-    }
-
-    #tarifsForm, #tarifsPreview{scroll-margin-top:96px}
-
-    .bottomNav{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      z-index:99990;
-      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
-      background:rgba(9,35,26,.96);
-      border-top:1px solid rgba(255,255,255,.16);
-      backdrop-filter:blur(16px);
-      -webkit-backdrop-filter:blur(16px);
-    }
-
-    .bottomNavInner{
-      width:min(100%,760px);
-      margin:0 auto;
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:6px;
-    }
-
-    .bottomNav a{
-      min-height:64px;
-      border-radius:17px;
-      display:grid;
-      place-items:center;
-      align-content:center;
-      gap:3px;
-      color:rgba(243,255,247,.78);
-      font-size:12px;
-      font-weight:1000;
-      text-align:center;
-      border:1px solid transparent;
-      text-decoration:none;
-    }
-
-    .bottomNav .ico{font-size:21px;line-height:1}
-
-    .bottomNav a.active{
-      color:#042012;
-      background:linear-gradient(135deg,var(--gold),var(--green));
-      border-color:rgba(250,204,21,.36);
-      box-shadow:0 14px 28px rgba(34,197,94,.24);
-    }
-
-    .tarifsFastRow{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:10px;
-      margin-top:15px;
-      position:relative;
-      z-index:1;
-    }
-
-    @media(max-width:720px){
-      body{padding:12px 10px calc(var(--bottomNavH) + env(safe-area-inset-bottom,0px) + 14px)}
-      .top,.card{padding:16px}
-      .tarifsFastRow{grid-template-columns:1fr 1fr}
-      .navbox{display:none}
-      h1{font-size:36px}
-      h2{font-size:27px}
-      h3{font-size:22px}
-      .muted{font-size:16px}
-      .row > *{flex:1 1 100%}
-      .row .btn{width:100%}
-      .tarifLine{align-items:flex-start;flex-direction:column}
-    }
-
-    @media(max-width:420px){
-      .tarifsFastRow{grid-template-columns:1fr}
-      .bottomNav a{font-size:11px}
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      html{scroll-behavior:auto}
-      .btn,.navbtn{transition:none}
-    }
-
-  
-/* ── DIGIY V4.2 — Quelques mots + lecteur métier ───────────── */
-.digiyFewWords{
-  margin-top:14px;
-  border:1px solid rgba(250,204,21,.30);
-  border-radius:22px;
-  padding:15px;
-  background:
-    radial-gradient(520px 210px at 100% 0%, rgba(250,204,21,.13), transparent 70%),
-    rgba(4,18,13,.18);
-  box-shadow:0 14px 30px rgba(0,0,0,.15);
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Je conduis — Mes trajets</title>
+<meta name="theme-color" content="#13824d"/>
+<meta name="description" content="DIGIY DRIVER — façade téléphone allégée pour les courses."/>
+<meta name="robots" content="noindex,nofollow"/>
+<meta name="digiy-build" content="driver-v4-3-facade-tel"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script>
+window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+window.DIGIY_MODULE = "DRIVER";
+window.DIGIY_LOGIN_URL = "./pin.html";
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./guard.js?v=driver-v4-3-facade-tel"></script>
+<style>
+:root{
+  --bg:#13824d;
+  --bg2:#0f6b3e;
+  --bg3:#0b4f31;
+  --card:#17864f;
+  --card2:#116b40;
+  --text:#f8fff9;
+  --muted:rgba(248,255,249,.84);
+  --soft:rgba(248,255,249,.68);
+  --line:rgba(255,255,255,.22);
+  --gold:#facc15;
+  --warn:#f59e0b;
+  --green:#22c55e;
+  --green2:#16a34a;
+  --red:#fb7185;
+  --blue:#60a5fa;
+  --shadow:0 18px 42px rgba(0,0,0,.22);
+  --r:24px;
+  --max:840px;
+  --headerH:52px;
 }
-.digiyFewWordsKicker{
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(900px 520px at 8% -10%, rgba(250,204,21,.20), transparent 62%),
+    radial-gradient(760px 440px at 105% 0%, rgba(34,197,94,.24), transparent 58%),
+    linear-gradient(180deg,var(--bg),var(--bg2) 55%,var(--bg3) 100%);
+}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.pageHeader{
+  position:sticky;
+  top:0;
+  z-index:60;
+  min-height:var(--headerH);
+  padding:8px 10px calc(8px + env(safe-area-inset-top,0px));
+  background:rgba(11,79,49,.94);
+  border-bottom:1px solid rgba(250,204,21,.26);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.headerInner{
+  width:min(var(--max),100%);
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:8px;
+  align-items:center;
+}
+.headerBtn,.headerTitle{
+  min-height:36px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:7px 10px;
+  font-size:13px;
+  font-weight:1000;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.075);
+  white-space:nowrap;
+}
+.headerBtn.left{justify-self:start}
+.headerBtn.right{justify-self:end}
+.headerTitle{
+  color:#fffbea;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  background:rgba(250,204,21,.12);
+  border-color:rgba(250,204,21,.30);
+}
+.wrap{
+  width:min(var(--max),100%);
+  margin:0 auto;
+  padding:14px 10px 28px;
+  display:grid;
+  gap:12px;
+}
+.hero,.card,.trip,.fareCard{
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  background:
+    radial-gradient(620px 230px at 100% 0%, rgba(250,204,21,.12), transparent 70%),
+    linear-gradient(180deg,rgba(23,134,79,.96),rgba(17,107,64,.96));
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.hero,.card{padding:16px}
+.eyebrow{
+  color:#fff0a8;
+  font-size:11px;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  font-weight:1000;
+  margin-bottom:8px;
+}
+h1,h2,h3,p{margin-top:0}
+h1{
+  margin-bottom:8px;
+  font-size:clamp(34px,8vw,58px);
+  line-height:.96;
+  letter-spacing:-.055em;
+  font-weight:1000;
+}
+h2{
+  margin-bottom:8px;
+  font-size:clamp(24px,5vw,32px);
+  line-height:1.04;
+  letter-spacing:-.035em;
+  font-weight:1000;
+}
+.lead,.muted{
+  color:var(--muted);
+  font-size:16px;
+  line-height:1.42;
+  font-weight:900;
+}
+.small{font-size:13px;color:var(--soft);font-weight:900}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{
+  min-height:36px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:8px 11px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.09);
+  color:var(--muted);
+  font-size:12px;
+  font-weight:1000;
+}
+.pill.ok{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.38);color:#d9ffe8}
+.pill.warn{background:rgba(245,158,11,.16);border-color:rgba(245,158,11,.36);color:#fff0bd}
+.pill.bad{background:rgba(251,113,133,.16);border-color:rgba(251,113,133,.36);color:#ffe1e6}
+.actions,.grid2{
+  display:grid;
+  gap:9px;
+}
+.actions{margin-top:12px}
+.grid2{grid-template-columns:1fr 1fr}
+.btn{
+  min-height:56px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.09);
+  color:var(--text);
+  padding:13px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  text-align:center;
+  font-size:16px;
+  font-weight:1000;
+  box-shadow:0 12px 25px rgba(0,0,0,.15);
+}
+.btn.primary{background:linear-gradient(135deg,var(--green),var(--green2));color:#042012;border-color:transparent}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--warn));color:#241300;border-color:transparent}
+.btn.ghost{background:rgba(255,255,255,.065)}
+.btn.warn{background:rgba(250,204,21,.14);border-color:rgba(250,204,21,.32);color:#fff0a8}
+.btn.danger{background:rgba(251,113,133,.16);border-color:rgba(251,113,133,.34);color:#ffe1e6}
+.trip,.fareCard{
+  padding:14px;
+  display:grid;
+  gap:10px;
+  background:rgba(4,18,13,.18);
+}
+.tripTop,.fareTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.tripTitle,.fareName{
+  font-size:19px;
+  line-height:1.18;
+  font-weight:1000;
+}
+.meta{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.4;
+  font-weight:900;
+}
+.badge{
+  min-height:34px;
+  padding:7px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.08);
   color:#fff0a8;
   font-size:12px;
   font-weight:1000;
-  letter-spacing:.10em;
   text-transform:uppercase;
-  margin-bottom:8px;
+  white-space:nowrap;
 }
-.digiyFewWordsText{
+.empty{
+  border:1px dashed rgba(255,255,255,.22);
+  border-radius:20px;
+  padding:14px;
   color:var(--muted);
-  font-size:16px;
-  line-height:1.48;
-  font-weight:950;
-}
-.digiyFewWordsList{
-  display:grid;
-  gap:8px;
-  margin-top:12px;
-}
-.digiyFewWordsLine{
-  display:flex;
-  gap:9px;
-  align-items:flex-start;
-  padding:10px 11px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.13);
-  background:rgba(255,255,255,.06);
-  color:rgba(243,255,247,.92);
-  font-size:14px;
-  line-height:1.35;
+  background:rgba(255,255,255,.055);
+  font-size:15px;
   font-weight:900;
+  line-height:1.45;
 }
-.digiyFewWordsLine b{color:#fff0a8;font-weight:1000}
+.msg{
+  padding:12px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(4,18,13,.18);
+  color:var(--muted);
+  font-size:14px;
+  font-weight:950;
+  line-height:1.4;
+}
+.msg.ok{color:#bbf7d0}.msg.warn{color:#fde68a}.msg.bad{color:#fecaca}
+.kpiGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.kpi{
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:20px;
+  padding:14px;
+  background:rgba(4,18,13,.18);
+}
+.kpi .label{font-size:13px;color:#fff0a8;font-weight:1000;margin-bottom:7px}
+.kpi .num{font-size:38px;font-weight:1000;line-height:.95;letter-spacing:-.04em}
+.kpi .sub{font-size:12px;color:var(--muted);font-weight:900;margin-top:6px}
 .audioCoachFab{
   position:fixed;
-  right:12px;
-  top:calc(12px + env(safe-area-inset-top,0px));
-  z-index:99980;
-  min-height:52px;
-  min-width:52px;
-  max-width:148px;
-  padding:10px 12px;
+  right:10px;
+  top:calc(var(--headerH) + 9px + env(safe-area-inset-top,0px));
+  z-index:90;
+  min-height:48px;
+  min-width:48px;
+  padding:9px 11px;
   border-radius:999px;
   border:1px solid rgba(250,204,21,.42);
   background:linear-gradient(135deg,rgba(250,204,21,.96),rgba(245,158,11,.96));
@@ -744,1332 +278,293 @@
   font-size:14px;
   font-weight:1000;
 }
-.audioCoachFab .ico{font-size:20px;line-height:1}
+.audioCoachFab .ico{font-size:20px}
 .audioCoachPanel{
   position:fixed;
-  left:12px;
-  right:12px;
-  top:calc(76px + env(safe-area-inset-top,0px));
-  z-index:99979;
-  width:min(calc(100% - 24px),900px);
+  left:10px;
+  right:10px;
+  top:calc(var(--headerH) + 66px + env(safe-area-inset-top,0px));
+  z-index:89;
+  width:min(calc(100% - 20px),var(--max));
   margin:0 auto;
   display:none;
-  border-radius:26px;
+  border-radius:24px;
   border:1px solid rgba(250,204,21,.34);
-  background:
-    radial-gradient(560px 220px at 100% 0%, rgba(250,204,21,.18), transparent 70%),
-    linear-gradient(180deg,rgba(17,107,64,.98),rgba(11,79,49,.98));
+  background:linear-gradient(180deg,rgba(17,107,64,.98),rgba(11,79,49,.98));
   box-shadow:0 24px 60px rgba(0,0,0,.34);
-  padding:16px;
+  padding:15px;
 }
 .audioCoachPanel.open{display:block}
-.audioCoachTop{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-}
-.audioCoachKicker{
-  color:#fff0a8;
-  font-size:11px;
-  font-weight:1000;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  margin-bottom:7px;
-}
-.audioCoachTitle{
-  margin:0;
-  font-size:24px;
-  line-height:1.05;
-  font-weight:1000;
-  letter-spacing:-.03em;
-}
-.audioCoachText{
-  margin-top:9px;
-  color:var(--muted);
-  font-size:15px;
-  font-weight:900;
-  line-height:1.45;
-}
+.audioCoachTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.audioCoachKicker{color:#fff0a8;font-size:11px;font-weight:1000;letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}
+.audioCoachTitle{margin:0;font-size:24px;line-height:1.05;font-weight:1000;letter-spacing:-.03em}
+.audioCoachText{margin-top:9px;color:var(--muted);font-size:15px;font-weight:900;line-height:1.45}
 .audioCoachClose{
-  width:38px;
-  height:38px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.08);
-  color:var(--text);
-  font-weight:1000;
+  width:38px;height:38px;border-radius:999px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.08);font-weight:1000;
 }
-.audioCoachActions{
-  display:grid;
-  gap:9px;
-  grid-template-columns:1fr 1fr;
-  margin-top:13px;
-}
+.audioCoachActions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
 .audioCoachActions button{
-  min-height:48px;
-  border-radius:17px;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.085);
-  color:var(--text);
-  font-weight:1000;
+  min-height:48px;border-radius:17px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.085);font-weight:1000;
 }
-.audioCoachActions button.primary{
-  background:linear-gradient(135deg,var(--gold),var(--warn));
-  color:#241300;
-  border-color:transparent;
-}
-.audioCoachHint{
-  margin-top:10px;
-  padding:12px;
-  border-radius:18px;
-  border:1px dashed rgba(255,255,255,.22);
-  background:rgba(255,255,255,.06);
-  color:var(--muted);
-  font-size:13px;
-  font-weight:900;
-  line-height:1.38;
-}
+.audioCoachActions button.primary{background:linear-gradient(135deg,var(--gold),var(--warn));color:#241300;border-color:transparent}
 @media(max-width:560px){
-  .audioCoachFab{
-    right:9px;
-    min-width:48px;
-    min-height:48px;
-    padding:9px 10px;
-  }
   .audioCoachFab span:not(.ico){display:none}
-  .audioCoachPanel{
-    left:10px;
-    right:10px;
-    width:calc(100% - 20px);
-    top:calc(66px + env(safe-area-inset-top,0px));
-  }
-  .audioCoachActions{grid-template-columns:1fr}
-  .digiyFewWordsText{font-size:15px}
+  .grid2,.kpiGrid{grid-template-columns:1fr 1fr}
+  .hero,.card{padding:15px}
+  h1{font-size:36px}
 }
-
-  </style>
+</style>
 </head>
+
 <body>
-  <div class="wrap">
+<header class="pageHeader"><div class="headerInner">
+<a class="headerBtn left" href="./dashboard-pro.html">← activité</a>
+<div class="headerTitle">MES TRAJETS</div>
+<a class="headerBtn right" id="refreshBtn" href="#">🔄 Recharger</a>
+</div></header>
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Façade téléphone</div>
+    <h1>La course. Rien d’autre.</h1>
+    <p class="lead">Ici, le chauffeur lit vite et agit. Notes, argent, profil et QR ne traînent plus sur cette page.</p>
+    <div class="row"><span class="pill" id="sessionPill">session…</span></div>
+  </section>
 
-    <div class="top">
-      <div>
-        <h1>💰 Je conduis — Tarifs</h1>
-        <div class="muted" id="topSub">
-          Lecture claire des prix terrain. Tes tarifs restent rangés ici, sans exposer tes identifiants.
-        </div>
+  <section class="kpiGrid">
+    <div class="kpi"><div class="label">À traiter</div><div class="num" id="kpiAsk">0</div><div class="sub">demande / assignée</div></div>
+    <div class="kpi"><div class="label">En course</div><div class="num" id="kpiRun">0</div><div class="sub">maintenant</div></div>
+  </section>
 
-
-        <div class="digiyFewWords" id="digiyTarifsWords">
-          <div class="digiyFewWordsKicker">Quelques mots DIGIY</div>
-          <div class="digiyFewWordsText">
-            Ici, le chauffeur ne vend pas du flou : il pose des repères simples. Un prix clair rassure le client,
-            protège la discussion WhatsApp et évite les malentendus avant la course.
-          </div>
-          <div class="digiyFewWordsList">
-            <div class="digiyFewWordsLine"><span>1.</span><div><b>Prix principaux</b> — les trajets que tu fais souvent.</div></div>
-            <div class="digiyFewWordsLine"><span>2.</span><div><b>Lignes libres</b> — tes cas terrain : nuit, attente, bagages, distance.</div></div>
-            <div class="digiyFewWordsLine"><span>3.</span><div><b>Aperçu client</b> — tu vérifies ce que le public peut comprendre vite.</div></div>
-          </div>
-        </div>
-
-        <div class="tarifsFastRow">
-          <a class="btn" id="fastHome" data-audio="Retour à l’activité : pour voir seulement l’état immédiat." href="./dashboard-pro.html">🏠 Accueil</a>
-          <a class="btn" id="fastTrips" data-audio="Ouvre Mes trajets : pour lire ou agir sur les courses." href="./trajets.html">📋 Trajets</a>
-          <a class="btn primary" id="fastProfile" data-audio="Ouvre Mon profil : identité, zone et visibilité chauffeur." href="./profil-chauffeur.html">👤 Profil</a>
-          <a class="btn gold" id="fastTarifs" data-audio="Tu es dans Tarifs : commence par les prix principaux." href="#tarifsForm">💰 Tarifs</a>
-        </div>
-      </div>
-
-      <div class="pillRow">
-        <div class="pill" id="slugPill">compte : sécurisé</div>
-        <div class="pill" id="phonePill">contact : masqué</div>
-        <div class="pill warn" id="accessPill">session : contrôle…</div>
-      </div>
+  <section class="card">
+    <h2>Courses maintenant</h2>
+    <div class="actions">
+      <button class="btn primary" id="refreshBtn2" type="button" onclick="loadTrips()">🔄 Recharger</button>
+      <a class="btn ghost" id="goTrajetsComplet" href="./trajets-complet.html">⚙️ Atelier complet</a>
     </div>
+  </section>
 
-    <div class="stack">
+  <section class="actions" id="tripList">
+    <div class="empty">Lecture…</div>
+  </section>
 
-      <div class="navbox">
-        <div class="navtitle">Plus chauffeur</div>
-        <div class="navgrid">
-          <a class="navbtn" id="navDashboard" href="./dashboard-pro.html">🏠 Accueil</a>
-          <a class="navbtn" id="navCockpit" href="./cockpit.html">⚙️ Plus</a>
-          <a class="navbtn" id="navProfil" href="./profil-chauffeur.html">👤 Profil</a>
-          <a class="navbtn active" id="navTarifs" href="./tarifs.html">💰 Tarifs</a>
-          <a class="navbtn" id="navPin" href="./pin.html">🔐 Accès</a>
-          <a class="navbtn" id="navHome" href="./index.html">🌍 Façade</a>
-          <a class="navbtn" id="navQr" href="./generateur-digiy-driver.html">📱 Mon QR</a>
-          <button class="navbtn" id="btnPay" data-audio="Mon abonnement ouvre la porte PAY. Si l’accès manque, PAY guide vers commencer à payer." type="button">💳 Mon abonnement</button>
-        </div>
-      </div>
+  <div class="msg" id="msg">Prêt.</div>
+</main>
 
-      <div class="grid">
-
-        <div class="card" id="tarifsForm">
-          <div class="row">
-            <div>
-              <h2>Tarifs chauffeur</h2>
-              <div class="muted">
-                Pose ici les prix que tu veux montrer au client. Le brouillon reste lié au compte chauffeur reconnu, sans l’afficher.
-              </div>
-            </div>
-            <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-              <button class="btn" id="btnLoadProfile" data-audio="Charger mon profil : DIGIY récupère les infos chauffeur connues." type="button">↻ Charger mon profil</button>
-              <button class="btn primary" id="btnSaveDraft" data-audio="Enregistrer brouillon : tu gardes tes tarifs sans exposer tes identifiants." type="button">💾 Enregistrer brouillon</button>
-              <button class="btn danger" id="btnResetDraft" data-audio="Effacer brouillon : attention, cela remet les tarifs locaux à zéro." type="button">🧹 Effacer brouillon</button>
-            </div>
-          </div>
-
-          <div class="kpis">
-            <div class="kpi">
-              <div class="label">Tarifs actifs</div>
-              <div class="value" id="kpiCount">0</div>
-            </div>
-            <div class="kpi">
-              <div class="label">Prix mini</div>
-              <div class="value" id="kpiMin">—</div>
-            </div>
-            <div class="kpi">
-              <div class="label">Prix maxi</div>
-              <div class="value" id="kpiMax">—</div>
-            </div>
-            <div class="kpi">
-              <div class="label">Compte</div>
-              <div class="value" id="kpiSlug" style="font-size:14px;line-height:1.35">—</div>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="row">
-            <div>
-              <label>Nom affiché</label>
-              <input id="f_display_name" placeholder="Ex : Lamine"/>
-            </div>
-            <div>
-              <label>Ville</label>
-              <input id="f_city" placeholder="Ex : Saly / Dakar"/>
-            </div>
-          </div>
-
-          <div class="row">
-            <div>
-              <label>WhatsApp</label>
-              <input id="f_whatsapp" placeholder="22177xxxxxxx"/>
-              <div class="hint">Ce numéro sert seulement au résumé client si tu veux l’afficher.</div>
-            </div>
-            <div>
-              <label>Zones</label>
-              <input id="f_zones" placeholder="Saly, Petite Côte, Dakar, AIBD"/>
-            </div>
-          </div>
-
-          <label>Note terrain</label>
-          <textarea id="f_note" placeholder="Ex : Prix de jour, bagages légers inclus, nuit et attente selon contexte…"></textarea>
-
-          <div class="hr"></div>
-
-          <h3>Tarifs principaux</h3>
-
-          <div class="fareGrid">
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Saly → Dakar</div>
-                <div class="chip">trajet</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_saly_dakar" type="number" min="0" placeholder="Ex : 35000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Saly → AIBD</div>
-                <div class="chip">trajet</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_saly_aibd" type="number" min="0" placeholder="Ex : 25000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Saly → Ngaparou</div>
-                <div class="chip">trajet</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_saly_ngaparou" type="number" min="0" placeholder="Ex : 5000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Saly → Somone</div>
-                <div class="chip">trajet</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_saly_somone" type="number" min="0" placeholder="Ex : 7000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Saly → Mbour</div>
-                <div class="chip">trajet</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_saly_mbour" type="number" min="0" placeholder="Ex : 5000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Mise à dispo 4h</div>
-                <div class="chip">service</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_dispo_4h" type="number" min="0" placeholder="Ex : 30000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Mise à dispo journée</div>
-                <div class="chip">service</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_dispo_day" type="number" min="0" placeholder="Ex : 60000"/>
-              </div>
-            </div>
-
-            <div class="fareBox">
-              <div class="fareTop">
-                <div class="fareTitle">Attente / heure</div>
-                <div class="chip">option</div>
-              </div>
-              <div class="prefix">
-                <span>FCFA</span>
-                <input id="fare_wait_hour" type="number" min="0" placeholder="Ex : 5000"/>
-              </div>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="row">
-            <div>
-              <h3>Tarifs libres</h3>
-              <div class="muted">Ajoute tes autres courses : AIBD retour, Popenguine, Dakar nuit, etc.</div>
-            </div>
-            <div style="flex:0 0 auto">
-              <button class="btn gold" id="btnAddExtra" data-audio="Ajouter une ligne : pour les prix terrain que la grille ne prévoit pas." type="button">➕ Ajouter une ligne</button>
-            </div>
-          </div>
-
-          <div class="extras" id="extrasList"></div>
-
-          <div id="toast" class="toast"></div>
-          <div id="disabledNote" class="disabledNote">
-            ℹ️ Ici on garde un brouillon local lié au compte reconnu. Pas de fausse écriture SQL inventée sur un rail tarifaire non prouvé.
-          </div>
-        </div>
-
-        <div class="list">
-
-          <div class="card" id="tarifsPreview">
-            <div class="row">
-              <div>
-                <h2>Aperçu client</h2>
-                <div class="muted">Lecture simple pour le client avant WhatsApp.</div>
-              </div>
-              <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap">
-                <button class="btn" id="btnCopyPublic" type="button">📋 Copier résumé</button>
-                <button class="btn gold" id="btnCopyWhatsApp" type="button">💬 Copier WhatsApp</button>
-              </div>
-            </div>
-
-            <div class="previewCard">
-              <div class="pTop">
-                <div class="pAvatar" id="pAvatar">DR</div>
-                <div>
-                  <p class="pName" id="pName">Chauffeur</p>
-                  <p class="pMeta" id="pMeta">Ville • Zones</p>
-                </div>
-              </div>
-
-              <div class="pBadges" id="pBadges"></div>
-
-              <div class="tarifList" id="previewTarifs">
-                <div class="tarifLine">
-                  <div class="name">Aucun tarif posé</div>
-                  <div class="amount">—</div>
-                </div>
-              </div>
-
-              <div class="summaryBox">
-                <pre id="publicSummary">Aucun résumé pour l’instant.</pre>
-              </div>
-
-              <div class="row" style="margin-top:12px">
-                <a class="btn ghost" id="btnBackCockpit" href="./cockpit.html">⬅️ Revenir</a>
-                <a class="btn" id="btnGoProfile" href="./profil-chauffeur.html">👤 Profil</a>
-                <a class="btn ghost" id="btnGoQr" href="./generateur-digiy-driver.html">📱 Mon QR</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <h2>Envoyer au client</h2>
-            <div class="muted">Tu peux copier le texte ou ouvrir WhatsApp si le numéro est prêt.</div>
-
-            <div class="row" style="margin-top:12px">
-              <button class="btn primary" id="btnOpenWhatsApp" type="button">🟢 Ouvrir WhatsApp</button>
-              <button class="btn warn" id="btnShareText" type="button">📨 Copier texte client</button>
-            </div>
-
-            <div class="hr"></div>
-
-            <div class="muted small">
-              Astuce terrain : une grille claire vaut mieux qu’un catalogue flou.
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-
-  <nav class="bottomNav" aria-label="Navigation DRIVER">
-    <div class="bottomNavInner">
-      <a id="bottomHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
-      <a id="bottomTrips" href="./trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
-      <a id="bottomNew" href="./trajets.html#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
-      <a id="bottomNotes" href="./trajets.html#quickDriverNote"><span class="ico">✍️</span><span>Notes</span></a>
-      <a class="active" id="bottomMore" href="./profil-chauffeur.html"><span class="ico">⚙️</span><span>Plus</span></a>
-    </div>
-  </nav>
-
-  <script>
-    (() => {
-      "use strict";
-
-      const TABLE = "digiy_driver_public_profiles";
-      const MODULE = "DRIVER";
-      const PAY_HOME = "https://commencer-a-payer.digiylyfe.com/";
-      const DASHBOARD_PAGE = "./dashboard-pro.html";
-      const COCKPIT_PAGE = "./cockpit.html";
-      const PROFILE_PAGE = "./profil-chauffeur.html";
-      const RATES_PAGE = "./tarifs.html";
-      const PIN_PAGE = "./pin.html";
-      const HOME_PAGE = "./index.html";
-      const QR_PAGE = "./generateur-digiy-driver.html";
-
-      const $ = (id) => document.getElementById(id);
-
-      const sb = window.supabase?.createClient
-        ? window.supabase.createClient(
-            window.DIGIY_SUPABASE_URL,
-            window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON,
-            { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false } }
-          )
-        : null;
-
-      const ACCESS = {
-        slug:"",
-        phone:"",
-        preview:true,
-        access_ok:false,
-        reason:"preview",
-        pay_url:"",
-        profile:null
-      };
-
-      let extras = [];
-
-      function normSlug(v){
-        return String(v || "").trim().toLowerCase();
-      }
-
-      function phoneDigits(v){
-        return String(v || "").replace(/[^\d]/g, "");
-      }
-
-      function normPhone(v){
-        const digits = phoneDigits(v);
-        if (!digits) return "";
-        if (digits.startsWith("221") && digits.length === 12) return digits;
-        if (digits.length === 9) return "221" + digits;
-        return digits;
-      }
-
-      function displayPhone(v){
-        const p = normPhone(v);
-        return p ? "+" + p : "—";
-      }
-
-      function isDriverSlug(v){
-        return /^driver-\d{12}$/.test(normSlug(v));
-      }
-
-      function phoneFromDriverSlug(v){
-        const s = normSlug(v);
-        return isDriverSlug(s) ? normPhone(s.slice("driver-".length)) : "";
-      }
-
-      function isSensitiveSlug(v){
-        return /\d{7,}/.test(String(v || ""));
-      }
-
-      function canExposeSlug(v){
-        const s = normSlug(v);
-        return !!s && !isSensitiveSlug(s);
-      }
-
-      function cleanVisibleUrl(){
-        try{
-          const u = new URL(location.href);
-          let changed = false;
-
-          if (u.searchParams.has("phone")){
-            u.searchParams.delete("phone");
-            changed = true;
-          }
-
-          if (u.searchParams.has("tel")){
-            u.searchParams.delete("tel");
-            changed = true;
-          }
-
-          const urlSlug = normSlug(u.searchParams.get("slug") || "");
-          if (urlSlug && isSensitiveSlug(urlSlug)){
-            u.searchParams.delete("slug");
-            changed = true;
-          }
-
-          if (changed){
-            history.replaceState({}, "", u.pathname + u.search + u.hash);
-          }
-        }catch(_){}
-      }
-
-      function sanitizeReturnUrl(){
-        try{
-          const u = new URL(location.href);
-          u.searchParams.delete("phone");
-          u.searchParams.delete("tel");
-          const s = normSlug(u.searchParams.get("slug") || "");
-          if (s && isSensitiveSlug(s)) u.searchParams.delete("slug");
-          return u.pathname + u.search + u.hash;
-        }catch(_){
-          return location.pathname;
-        }
-      }
-
-      function accountLabel(){
-        return ACCESS.access_ok ? "compte : sécurisé" : (ACCESS.slug ? "compte : reconnu" : "compte : à vérifier");
-      }
-
-      function buildSafeUrl(base, params){
-        try{
-          const u = new URL(base, location.href);
-
-          u.searchParams.delete("phone");
-          u.searchParams.delete("tel");
-
-          Object.entries(params || {}).forEach(([key, value]) => {
-            const clean = String(value == null ? "" : value).trim();
-
-            if (key === "phone" || key === "tel") return;
-
-            if (key === "slug" || key === "identifiant"){
-              const s = normSlug(clean);
-              if (canExposeSlug(s)) u.searchParams.set("slug", s);
-              else u.searchParams.delete("slug");
-              return;
-            }
-
-            if (clean) u.searchParams.set(key, clean);
-            else u.searchParams.delete(key);
-          });
-
-          const currentSlug = normSlug(u.searchParams.get("slug") || "");
-          if (currentSlug && isSensitiveSlug(currentSlug)){
-            u.searchParams.delete("slug");
-          }
-
-          if (u.origin === location.origin) return u.pathname + u.search + u.hash;
-          return u.toString();
-        }catch(e){
-          console.error("[DIGIY DRIVER TARIFS] buildSafeUrl", e);
-          return base;
-        }
-      }
-
-      function pageUrl(base, slug, phone){
-        return buildSafeUrl(base, {
-          slug: normSlug(slug),
-          phone: normPhone(phone)
-        });
-      }
-
-      function buildPayUrl(){
-        try{
-          if (ACCESS.pay_url) return ACCESS.pay_url;
-
-          const u = new URL(PAY_HOME);
-          u.searchParams.set("module", MODULE);
-
-          if (canExposeSlug(ACCESS.slug)){
-            u.searchParams.set("slug", ACCESS.slug);
-          }
-
-          u.searchParams.delete("phone");
-          u.searchParams.delete("tel");
-          u.searchParams.set("return", sanitizeReturnUrl());
-
-          return u.toString();
-        }catch(_){
-          return PAY_HOME;
-        }
-      }
-
-      function storageKey(){
-        return "digiy_driver_tarifs_" + (ACCESS.slug || "preview");
-      }
-
-      function setToast(text, kind){
-        const el = $("toast");
-        el.className = "toast " + (kind || "");
-        el.textContent = text;
-        el.style.display = text ? "block" : "none";
-      }
-
-      function setAccessPill(mode, text){
-        const pill = $("accessPill");
-        pill.className = "pill " + mode;
-        pill.textContent = "session : " + text;
-      }
-
-      function setTopSub(text){
-        $("topSub").textContent = text;
-      }
-
-      function money(v){
-        const n = Number(v || 0);
-        if (!Number.isFinite(n) || n <= 0) return "—";
-        return n.toLocaleString("fr-FR") + " F CFA";
-      }
-
-      function initialsFromName(v){
-        const words = String(v || "").trim().split(/\s+/).filter(Boolean).slice(0,2);
-        if (!words.length) return "DR";
-        return words.map(w => w[0]?.toUpperCase() || "").join("");
-      }
-
-      function csvToArray(v){
-        return String(v || "")
-          .split(",")
-          .map(x => x.trim())
-          .filter(Boolean);
-      }
-
-      function arrayToCsv(v){
-        return Array.isArray(v) ? v.join(", ") : "";
-      }
-
-      function copyText(text){
-        if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        ta.setAttribute("readonly", "");
-        ta.style.position = "fixed";
-        ta.style.left = "-9999px";
-        document.body.appendChild(ta);
-        ta.select();
-        let ok = false;
-        try{ ok = document.execCommand("copy"); }catch(_){}
-        ta.remove();
-        if (!ok) throw new Error("copy_failed");
-        return Promise.resolve();
-      }
-
-      function currentData(){
-        return {
-          display_name: $("f_display_name").value.trim(),
-          city: $("f_city").value.trim(),
-          whatsapp: normPhone($("f_whatsapp").value.trim()),
-          zones: csvToArray($("f_zones").value),
-          note: $("f_note").value.trim(),
-          fares: {
-            saly_dakar: Number($("fare_saly_dakar").value || 0),
-            saly_aibd: Number($("fare_saly_aibd").value || 0),
-            saly_ngaparou: Number($("fare_saly_ngaparou").value || 0),
-            saly_somone: Number($("fare_saly_somone").value || 0),
-            saly_mbour: Number($("fare_saly_mbour").value || 0),
-            dispo_4h: Number($("fare_dispo_4h").value || 0),
-            dispo_day: Number($("fare_dispo_day").value || 0),
-            wait_hour: Number($("fare_wait_hour").value || 0)
-          },
-          extras: extras.map(x => ({
-            label: String(x.label || "").trim(),
-            amount: Number(x.amount || 0),
-            note: String(x.note || "").trim()
-          })).filter(x => x.label && x.amount > 0)
-        };
-      }
-
-      function loadIntoForm(data){
-        $("f_display_name").value = data?.display_name || "";
-        $("f_city").value = data?.city || "";
-        $("f_whatsapp").value = data?.whatsapp || "";
-        $("f_zones").value = arrayToCsv(data?.zones);
-        $("f_note").value = data?.note || "";
-
-        const fares = data?.fares || {};
-        $("fare_saly_dakar").value = fares.saly_dakar || "";
-        $("fare_saly_aibd").value = fares.saly_aibd || "";
-        $("fare_saly_ngaparou").value = fares.saly_ngaparou || "";
-        $("fare_saly_somone").value = fares.saly_somone || "";
-        $("fare_saly_mbour").value = fares.saly_mbour || "";
-        $("fare_dispo_4h").value = fares.dispo_4h || "";
-        $("fare_dispo_day").value = fares.dispo_day || "";
-        $("fare_wait_hour").value = fares.wait_hour || "";
-
-        extras = Array.isArray(data?.extras) ? data.extras.map(x => ({
-          label: String(x.label || ""),
-          amount: Number(x.amount || 0),
-          note: String(x.note || "")
-        })) : [];
-
-        renderExtras();
-        refreshPreview();
-      }
-
-      function saveDraft(){
-        const data = currentData();
-        try{
-          localStorage.setItem(storageKey(), JSON.stringify(data));
-          setToast("💾 Brouillon tarifs enregistré sur ce compte.", "ok");
-          refreshPreview();
-        }catch(e){
-          console.error(e);
-          setToast("❌ Impossible d’enregistrer le brouillon local.", "bad");
-        }
-      }
-
-      function resetDraft(){
-        try{
-          localStorage.removeItem(storageKey());
-        }catch(_){}
-        loadIntoForm({
-          display_name: ACCESS.profile?.display_name || deriveNameFromSlug(ACCESS.slug),
-          city: ACCESS.profile?.city || "",
-          whatsapp: ACCESS.profile?.whatsapp || "",
-          zones: ACCESS.profile?.zones || [],
-          note: "",
-          fares: {},
-          extras: []
-        });
-        setToast("🧹 Brouillon effacé pour ce compte.", "warn");
-      }
-
-      function readDraft(){
-        try{
-          const raw = localStorage.getItem(storageKey());
-          return raw ? JSON.parse(raw) : null;
-        }catch(_){
-          return null;
-        }
-      }
-
-      function deriveNameFromSlug(slug){
-        const s = normSlug(slug);
-        if (!s) return "Chauffeur";
-        const tail = s.replace(/^driver-/, "");
-        if (/^\d+$/.test(tail)) return "Chauffeur " + tail.slice(-4);
-        return tail.replace(/-/g, " ").replace(/\b\w/g, m => m.toUpperCase());
-      }
-
-      function fareEntries(data){
-        const f = data?.fares || {};
-        const rows = [
-          ["Saly → Dakar", f.saly_dakar],
-          ["Saly → AIBD", f.saly_aibd],
-          ["Saly → Ngaparou", f.saly_ngaparou],
-          ["Saly → Somone", f.saly_somone],
-          ["Saly → Mbour", f.saly_mbour],
-          ["Mise à dispo 4h", f.dispo_4h],
-          ["Mise à dispo journée", f.dispo_day],
-          ["Attente / heure", f.wait_hour]
-        ];
-
-        const extraRows = (data?.extras || []).map(x => [x.label, x.amount, x.note]);
-        return rows
-          .filter(([, amount]) => Number(amount || 0) > 0)
-          .map(([label, amount]) => ({ label, amount:Number(amount || 0), note:"" }))
-          .concat(
-            extraRows
-              .filter(([, amount]) => Number(amount || 0) > 0)
-              .map(([label, amount, note]) => ({ label, amount:Number(amount || 0), note:note || "" }))
-          );
-      }
-
-      function buildSummary(data){
-        const displayName = data.display_name || deriveNameFromSlug(ACCESS.slug);
-        const city = data.city || "Sénégal";
-        const zones = (data.zones || []).length ? data.zones.join(", ") : "Zones à confirmer";
-        const wa = data.whatsapp || "";
-        const fares = fareEntries(data);
-
-        let txt = `🚖 ${displayName}\n`;
-        txt += `📍 ${city} — ${zones}\n`;
-
-        if (fares.length){
-          txt += `\n💰 Tarifs :\n`;
-          fares.forEach(item => {
-            txt += `• ${item.label} : ${money(item.amount)}\n`;
-          });
-        } else {
-          txt += `\n💰 Tarifs sur demande.\n`;
-        }
-
-        if (data.note){
-          txt += `\n📝 ${data.note}\n`;
-        }
-
-        if (wa){
-          txt += `\nWhatsApp : +${wa}`;
-        }
-
-        return txt.trim();
-      }
-
-      function setAvatar(profile){
-        const avatar = $("pAvatar");
-        const photo = String(profile?.photo_url || "").trim();
-
-        if (photo){
-          avatar.innerHTML = `<img src="${escapeAttr(photo)}" alt="Photo chauffeur"/>`;
-        } else {
-          avatar.textContent = initialsFromName(
-            currentData().display_name || deriveNameFromSlug(ACCESS.slug)
-          );
-        }
-      }
-
-      function refreshPreview(){
-        const data = currentData();
-        const entries = fareEntries(data);
-
-        $("pName").textContent = data.display_name || deriveNameFromSlug(ACCESS.slug);
-        $("pMeta").textContent =
-          [data.city || "Ville à compléter", (data.zones || []).length ? data.zones.join(" • ") : "Zones à compléter"].join(" • ");
-
-        setAvatar(ACCESS.profile);
-
-        const badges = [];
-        if (data.city) badges.push(data.city);
-        if ((data.zones || []).length) badges.push((data.zones || []).length + " zone(s)");
-        if (data.whatsapp) badges.push("WhatsApp OK");
-        if (entries.length) badges.push(entries.length + " tarif(s)");
-
-        $("pBadges").innerHTML = badges.length
-          ? badges.map(x => `<span class="pBadge">${escapeHtml(x)}</span>`).join("")
-          : `<span class="pBadge">Profil en préparation</span>`;
-
-        const box = $("previewTarifs");
-        if (!entries.length){
-          box.innerHTML = `
-            <div class="tarifLine">
-              <div class="name">Aucun tarif posé</div>
-              <div class="amount">—</div>
-            </div>
-          `;
-        } else {
-          box.innerHTML = entries.map(item => `
-            <div class="tarifLine">
-              <div class="name">${escapeHtml(item.label)}${item.note ? ` <span class="small" style="color:var(--muted)">— ${escapeHtml(item.note)}</span>` : ""}</div>
-              <div class="amount">${escapeHtml(money(item.amount))}</div>
-            </div>
-          `).join("");
-        }
-
-        $("publicSummary").textContent = buildSummary(data);
-        updateKpis(entries);
-        updateActionLinks(data);
-      }
-
-      function updateKpis(entries){
-        const amounts = entries.map(x => Number(x.amount || 0)).filter(n => n > 0);
-        $("kpiCount").textContent = String(entries.length);
-        $("kpiMin").textContent = amounts.length ? money(Math.min(...amounts)) : "—";
-        $("kpiMax").textContent = amounts.length ? money(Math.max(...amounts)) : "—";
-        $("kpiSlug").textContent = ACCESS.slug ? "sécurisé" : "—";
-      }
-
-      function updateNav(){
-        cleanVisibleUrl();
-
-        $("slugPill").textContent = accountLabel();
-        $("phonePill").textContent = "contact : masqué";
-
-        $("navDashboard").href = pageUrl(DASHBOARD_PAGE, ACCESS.slug, ACCESS.phone);
-        $("navCockpit").href = pageUrl(COCKPIT_PAGE, ACCESS.slug, ACCESS.phone);
-        $("navProfil").href = pageUrl(PROFILE_PAGE, ACCESS.slug, ACCESS.phone);
-        $("navTarifs").href = pageUrl(RATES_PAGE, ACCESS.slug, ACCESS.phone);
-        $("navPin").href = pageUrl(PIN_PAGE, ACCESS.slug, ACCESS.phone);
-        $("navHome").href = pageUrl(HOME_PAGE, ACCESS.slug, ACCESS.phone);
-        $("navQr").href = pageUrl(QR_PAGE, ACCESS.slug, ACCESS.phone);
-
-        $("btnBackCockpit").href = pageUrl(COCKPIT_PAGE, ACCESS.slug, ACCESS.phone);
-        $("btnGoProfile").href = pageUrl(PROFILE_PAGE, ACCESS.slug, ACCESS.phone);
-        $("btnGoQr").href = pageUrl(QR_PAGE, ACCESS.slug, ACCESS.phone);
-
-        const moreLinks = {
-          fastHome: DASHBOARD_PAGE,
-          fastTrips: "./trajets.html",
-          fastProfile: PROFILE_PAGE,
-          bottomHome: DASHBOARD_PAGE,
-          bottomTrips: "./trajets.html",
-          bottomMore: PROFILE_PAGE
-        };
-
-        Object.entries(moreLinks).forEach(([id, base]) => {
-          const el = $(id);
-          if (el) el.href = pageUrl(base, ACCESS.slug, ACCESS.phone);
-        });
-
-        const fastTarifs = $("fastTarifs");
-        const bottomNew = $("bottomNew");
-        const bottomNotes = $("bottomNotes");
-
-        if (fastTarifs) fastTarifs.href = "#tarifsForm";
-        if (bottomNew) bottomNew.href = pageUrl("./trajets.html", ACCESS.slug, ACCESS.phone) + "#newTrip";
-        if (bottomNotes) bottomNotes.href = pageUrl("./trajets.html", ACCESS.slug, ACCESS.phone) + "#quickDriverNote";
-
-        cleanVisibleUrl();
-      }
-
-      function updateActionLinks(data){
-        const wa = normPhone(data.whatsapp || "");
-        const txt = buildSummary(data);
-        $("btnOpenWhatsApp").disabled = !wa;
-        $("btnOpenWhatsApp").dataset.href = wa
-          ? `https://wa.me/${wa}?text=${encodeURIComponent(txt)}`
-          : "";
-      }
-
-      function renderExtras(){
-        const box = $("extrasList");
-
-        if (!extras.length){
-          box.innerHTML = `
-            <div class="extraItem">
-              <div class="muted">Aucune ligne libre pour l’instant. Ajoute une course spéciale ou un service premium.</div>
-            </div>
-          `;
-          return;
-        }
-
-        box.innerHTML = extras.map((item, i) => `
-          <div class="extraItem">
-            <div class="extraHead">
-              <div class="fareTitle">Ligne libre ${i + 1}</div>
-              <button class="btn danger" type="button" data-remove="${i}" style="flex:0 0 auto;min-height:38px;padding:8px 10px">🗑️ Retirer</button>
-            </div>
-
-            <div class="row">
-              <div>
-                <label>Nom</label>
-                <input data-extra-label="${i}" value="${escapeAttr(item.label)}" placeholder="Ex : Dakar nuit / Popenguine / Joal"/>
-              </div>
-              <div>
-                <label>Montant</label>
-                <input data-extra-amount="${i}" type="number" min="0" value="${item.amount || ""}" placeholder="Ex : 45000"/>
-              </div>
-            </div>
-
-            <label>Note</label>
-            <input data-extra-note="${i}" value="${escapeAttr(item.note)}" placeholder="Ex : nuit / bagages / aller simple"/>
-          </div>
-        `).join("");
-
-        box.querySelectorAll("[data-remove]").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const i = Number(btn.getAttribute("data-remove"));
-            extras.splice(i, 1);
-            renderExtras();
-            refreshPreview();
-          });
-        });
-
-        box.querySelectorAll("[data-extra-label]").forEach(input => {
-          input.addEventListener("input", () => {
-            const i = Number(input.getAttribute("data-extra-label"));
-            extras[i].label = input.value;
-            refreshPreview();
-          });
-        });
-
-        box.querySelectorAll("[data-extra-amount]").forEach(input => {
-          input.addEventListener("input", () => {
-            const i = Number(input.getAttribute("data-extra-amount"));
-            extras[i].amount = Number(input.value || 0);
-            refreshPreview();
-          });
-        });
-
-        box.querySelectorAll("[data-extra-note]").forEach(input => {
-          input.addEventListener("input", () => {
-            const i = Number(input.getAttribute("data-extra-note"));
-            extras[i].note = input.value;
-            refreshPreview();
-          });
-        });
-      }
-
-      function escapeHtml(str){
-        return String(str || "")
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#039;");
-      }
-
-      function escapeAttr(str){
-        return escapeHtml(str).replaceAll("`", "&#096;");
-      }
-
-      async function loadProfile(){
-        if (!sb){
-          setToast("⚠️ Supabase indisponible dans cette page.", "warn");
-          return;
-        }
-
-        const slug = ACCESS.slug;
-        if (!slug){
-          setToast("⚠️ Identifiant absent pour charger le profil.", "warn");
-          return;
-        }
-
-        try{
-          const { data, error } = await sb
-            .from(TABLE)
-            .select("slug, display_name, city, whatsapp, photo_url, profile_url, bio, zones, tags, is_published, is_active, priority")
-            .eq("slug", slug)
-            .limit(1)
-            .maybeSingle();
-
-          if (error){
-            console.error(error);
-            setToast("⚠️ Profil non chargé : " + (error.message || "erreur inconnue"), "warn");
-            return;
-          }
-
-          ACCESS.profile = data || null;
-
-          if (data){
-            const draft = readDraft();
-            const merged = {
-              display_name: draft?.display_name || data.display_name || deriveNameFromSlug(ACCESS.slug),
-              city: draft?.city || data.city || "",
-              whatsapp: draft?.whatsapp || data.whatsapp || "",
-              zones: draft?.zones?.length ? draft.zones : (Array.isArray(data.zones) ? data.zones : []),
-              note: draft?.note || "",
-              fares: draft?.fares || {},
-              extras: draft?.extras || []
-            };
-            loadIntoForm(merged);
-            setToast("↻ Profil chargé. Tarifs repris depuis le brouillon local si présent.", "ok");
-          } else {
-            const draft = readDraft();
-            if (draft){
-              loadIntoForm(draft);
-              setToast("↻ Aucun profil SQL trouvé, mais le brouillon local a été repris.", "warn");
-            } else {
-              loadIntoForm({
-                display_name: deriveNameFromSlug(ACCESS.slug),
-                city: "",
-                whatsapp: "",
-                zones: [],
-                note: "",
-                fares: {},
-                extras: []
-              });
-              setToast("ℹ️ Aucun profil trouvé. Tu peux quand même préparer les tarifs.", "warn");
-            }
-          }
-        }catch(e){
-          console.error(e);
-          setToast("❌ Erreur de lecture profil.", "bad");
-        }
-      }
-
-      async function guardBoot(){
-        try{
-          const guard = window.DIGIY_GUARD;
-
-          if (guard && typeof guard.ready === "function"){
-            const out = guard.ready({ redirect:false, preserve_validation:true });
-            if (out && typeof out.then === "function") await out;
-          } else if (guard?.ready && typeof guard.ready.then === "function"){
-            await guard.ready;
-          }
-        }catch(e){
-          console.warn("[DIGIY DRIVER TARIFS] guard ready error", e);
-        }
-
-        const qs = new URLSearchParams(location.search);
-        const st = window.DIGIY_GUARD?.state || null;
-
-        ACCESS.slug = normSlug(
-          st?.slug ||
-          qs.get("slug") ||
-          ""
-        );
-
-        ACCESS.phone = normPhone(
-          st?.phone ||
-          qs.get("phone") ||
-          qs.get("tel") ||
-          phoneFromDriverSlug(ACCESS.slug) ||
-          ""
-        );
-
-        ACCESS.access_ok = !!(st?.access_ok || st?.access);
-        ACCESS.preview = !ACCESS.access_ok;
-        ACCESS.reason = st?.reason || (ACCESS.access_ok ? "access_ok" : "preview");
-        ACCESS.pay_url = st?.pay_url || "";
-
-        if (window.DIGIY_GUARD?.rememberIdentity && (ACCESS.slug || ACCESS.phone)){
-          try{
-            window.DIGIY_GUARD.rememberIdentity({ slug: ACCESS.slug, phone: ACCESS.phone });
-          }catch(_){}
-        }
-
-        cleanVisibleUrl();
-
-        if (!ACCESS.slug){
-          setAccessPill("bad", "compte à vérifier");
-          setTopSub("Aucun compte chauffeur détecté. Ouvre cette page depuis ton accès ou depuis ta gestion.");
-          $("disabledNote").style.display = "block";
-          return;
-        }
-
-        if (!isDriverSlug(ACCESS.slug)){
-          setAccessPill("bad", "lien invalide");
-          setTopSub("Lien chauffeur non reconnu. Repars par ton accès.");
-          $("disabledNote").style.display = "block";
-          return;
-        }
-
-        if (ACCESS.access_ok){
-          setAccessPill("ok", st?.pin_session_ok ? "session ouverte" : "accès ouvert");
-          setTopSub("Accès vivant détecté. Les tarifs restent rangés sans exposer tes identifiants.");
-        } else {
-          setAccessPill("warn", "aperçu");
-          setTopSub("Mode aperçu : tu peux préparer les tarifs localement, sans exposer ton compte dans l’adresse.");
-        }
-
-        $("disabledNote").style.display = "block";
-      }
-
-      function bindPreview(){
-        [
-          "f_display_name","f_city","f_whatsapp","f_zones","f_note",
-          "fare_saly_dakar","fare_saly_aibd","fare_saly_ngaparou","fare_saly_somone",
-          "fare_saly_mbour","fare_dispo_4h","fare_dispo_day","fare_wait_hour"
-        ].forEach(id => {
-          $(id).addEventListener("input", refreshPreview);
-        });
-      }
-
-      function bindButtons(){
-        $("btnLoadProfile").addEventListener("click", loadProfile);
-        $("btnSaveDraft").addEventListener("click", saveDraft);
-        $("btnResetDraft").addEventListener("click", resetDraft);
-
-        $("btnAddExtra").addEventListener("click", () => {
-          extras.push({ label:"", amount:0, note:"" });
-          renderExtras();
-          refreshPreview();
-        });
-
-        $("btnCopyPublic").addEventListener("click", async () => {
-          try{
-            await copyText(buildSummary(currentData()));
-            setToast("📋 Résumé public copié.", "ok");
-          }catch(e){
-            console.error(e);
-            setToast("❌ Copie impossible.", "bad");
-          }
-        });
-
-        $("btnCopyWhatsApp").addEventListener("click", async () => {
-          try{
-            await copyText(buildSummary(currentData()));
-            setToast("💬 Texte WhatsApp copié.", "ok");
-          }catch(e){
-            console.error(e);
-            setToast("❌ Copie WhatsApp impossible.", "bad");
-          }
-        });
-
-        $("btnShareText").addEventListener("click", async () => {
-          try{
-            await copyText(buildSummary(currentData()));
-            setToast("📨 Texte client copié.", "ok");
-          }catch(e){
-            console.error(e);
-            setToast("❌ Copie texte impossible.", "bad");
-          }
-        });
-
-        $("btnOpenWhatsApp").addEventListener("click", () => {
-          const href = $("btnOpenWhatsApp").dataset.href || "";
-          if (!href){
-            setToast("⚠️ WhatsApp absent. Mets un numéro d’abord.", "warn");
-            return;
-          }
-          window.open(href, "_blank", "noopener");
-        });
-
-        $("btnPay").addEventListener("click", () => {
-          location.href = buildPayUrl();
-        });
-      }
-
-      async function boot(){
-        bindPreview();
-        bindButtons();
-        await guardBoot();
-        updateNav();
-
-        const draft = readDraft();
-        if (draft){
-          loadIntoForm(draft);
-        } else {
-          loadIntoForm({
-            display_name: deriveNameFromSlug(ACCESS.slug),
-            city: "",
-            whatsapp: "",
-            zones: [],
-            note: "",
-            fares: {},
-            extras: []
-          });
-        }
-
-        await loadProfile();
-        refreshPreview();
-      }
-
-      boot().catch((e) => {
-        console.error("[DIGIY DRIVER TARIFS] boot error", e);
-        setToast("❌ Erreur au démarrage de la page.", "bad");
-      });
-    })();
-  </script>
-
-<!-- DIGIY V4.2 — Lecteur qui rassure et explique le clic -->
 <button class="audioCoachFab" id="digiyAudioFab" type="button" aria-controls="digiyAudioPanel" aria-expanded="false">
   <span class="ico">🎧</span><span>Écouter</span>
 </button>
-
 <section class="audioCoachPanel" id="digiyAudioPanel" aria-label="Lecteur DIGIY">
   <div class="audioCoachTop">
     <div>
       <div class="audioCoachKicker">Lecteur DIGIY</div>
-      <h2 class="audioCoachTitle" id="digiyAudioTitle">DIGIY explique le clic</h2>
+      <h2 class="audioCoachTitle" id="digiyAudioTitle">DIGIY explique</h2>
     </div>
     <button class="audioCoachClose" id="digiyAudioClose" type="button" aria-label="Fermer">×</button>
   </div>
-  <div class="audioCoachText" id="digiyAudioText">
-    Clique sur écouter : DIGIY te dit quoi faire, sans charger l’écran.
-  </div>
+  <div class="audioCoachText" id="digiyAudioText">Écoute la consigne courte.</div>
   <div class="audioCoachActions">
     <button class="primary" id="digiyAudioPlay" type="button">▶ Écouter</button>
     <button id="digiyAudioStop" type="button">⏹ Stop</button>
   </div>
-  <div class="audioCoachHint">
-    Moins d’écrit devant, plus de voix utile au moment du geste.
-  </div>
 </section>
 
-
 <script>
-(function(){
-  const pageScript = {"title": "Tarifs chauffeur, expliqué doucement.", "text": "Ici tu poses quelques prix clairs. Prix principaux, lignes libres, puis aperçu client. DIGIY aide à éviter le flou avant la course.", "speak": "Tu es dans Tarifs chauffeur. Commence par les prix principaux : Saly Dakar, AIBD, Ngaparou, Somone, Mbour. Ajoute ensuite les lignes libres pour les cas terrain : nuit, attente, bagages ou mise à disposition. Puis vérifie l’aperçu client. Un prix clair rassure le client et protège la discussion WhatsApp."};
+const ROUTES = {
+  dashboard:"./dashboard-pro.html",
+  hub:"./hub.html",
+  pin:"./pin.html",
+  pay:"https://pro-pay.digiylyfe.com/",
+  trajetsComplet:"./trajets-complet.html",
+  tarifsEdition:"./tarifs-edition.html"
+};
+const $ = id => document.getElementById(id);
+function normSlug(v){return String(v||"").trim().toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"").replace(/-+/g,"-").replace(/^-|-$/g,"")}
+function normPhone(v){const d=String(v||"").replace(/[^\d]/g,""); if(!d)return""; if(d.startsWith("221")&&d.length===12)return d; if(d.length===9)return"221"+d; return d.length>=9?d:""}
+function isDriverSlug(s){return /^driver-\d{12}$/.test(normSlug(s))}
+function phoneFromDriverSlug(v){const s=normSlug(v); return isDriverSlug(s)?normPhone(s.replace("driver-","")):""}
+function canExposeSlug(v){const s=normSlug(v); return !!s && !/\d{7,}/.test(s.replace(/^driver-/,""))}
+function storageGet(k){try{return sessionStorage.getItem(k)||localStorage.getItem(k)||""}catch(_){return""}}
+function storageSet(k,v){try{sessionStorage.setItem(k,String(v));localStorage.setItem(k,String(v))}catch(_){}} 
+function getState(){
+  const qs = new URLSearchParams(location.search);
+  const guard = window.DIGIY_GUARD?.state || {};
+  const slug = normSlug(guard.slug || qs.get("slug") || storageGet("digiy_driver_last_slug") || storageGet("digiy_driver_slug") || storageGet("DIGIY_SLUG") || "");
+  const phone = normPhone(guard.phone || qs.get("phone") || qs.get("tel") || storageGet("digiy_driver_phone") || storageGet("DIGIY_DRIVER_PHONE") || phoneFromDriverSlug(slug) || "");
+  const flags = [guard.access_ok, guard.access, guard.pin_session_ok, storageGet("digiy_driver_access_ok"), storageGet("DIGIY_DRIVER_ACCESS_OK")].map(v=>String(v||"").toLowerCase());
+  const access = flags.some(v=>["true","1","yes","ok","valid"].includes(v));
+  if(slug) storageSet("digiy_driver_last_slug", slug);
+  if(phone) storageSet("digiy_driver_phone", phone);
+  return {slug,phone,access,guard};
+}
+function safeUrl(base){
+  try{
+    const st=getState();
+    const u=new URL(base, location.href);
+    if(canExposeSlug(st.slug)) u.searchParams.set("slug", st.slug);
+    u.searchParams.delete("phone"); u.searchParams.delete("tel"); u.searchParams.delete("wa");
+    if(u.origin===location.origin) return u.pathname+u.search+u.hash;
+    return u.toString();
+  }catch(_){return base}
+}
+function cleanVisibleUrl(){
+  try{
+    const u=new URL(location.href); let changed=false;
+    ["phone","tel","wa","p_phone","owner_phone","checkout_phone","subscription_phone","identifiant"].forEach(k=>{if(u.searchParams.has(k)){u.searchParams.delete(k);changed=true}});
+    const s=normSlug(u.searchParams.get("slug")||"");
+    if(s && /\d{7,}/.test(s.replace(/^driver-/,""))){u.searchParams.delete("slug");changed=true}
+    if(changed) history.replaceState({}, document.title, u.pathname+u.search+u.hash);
+  }catch(_){}
+}
+function phoneVariants(v){
+  const d=normPhone(v); const out=new Set(); if(!d)return [];
+  out.add(d); out.add("+"+d);
+  if(d.startsWith("221")&&d.length===12){out.add(d.slice(3)); out.add("+221"+d.slice(3))}
+  return Array.from(out).filter(Boolean);
+}
+function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function money(v){const n=Number(v||0);return Number.isFinite(n)&&n>0?n.toLocaleString("fr-FR")+" FCFA":"—"}
+function getClient(){
+  if(!window.supabase?.createClient)return null;
+  try{return window.supabase.createClient(window.DIGIY_SUPABASE_URL, window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON, {auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(_){return null}
+}
+function setSessionPill(){
+  const st=getState(), p=$("sessionPill"); if(!p)return;
+  if(st.access){p.textContent="● session ouverte";p.className="pill ok"}
+  else if(st.slug||st.phone){p.textContent="● compte reconnu";p.className="pill warn"}
+  else{p.textContent="● accès à ouvrir";p.className="pill bad"}
+}
+function initCommonLinks(){
+  const ids = {goDashboard:ROUTES.dashboard, goHub:ROUTES.hub, goPin:ROUTES.pin, goPay:ROUTES.pay, goTrajetsComplet:ROUTES.trajetsComplet, goTarifsEdition:ROUTES.tarifsEdition};
+  Object.entries(ids).forEach(([id,href])=>{const el=$(id); if(el) el.href = href.startsWith("http") ? href : safeUrl(href);});
+}
+function setupAudio(script){
+  const fab=$("digiyAudioFab"), panel=$("digiyAudioPanel"), closeBtn=$("digiyAudioClose"), playBtn=$("digiyAudioPlay"), stopBtn=$("digiyAudioStop"), title=$("digiyAudioTitle"), text=$("digiyAudioText");
+  if(title)title.textContent=script.title; if(text)text.textContent=script.text;
+  function open(){panel?.classList.add("open"); fab?.setAttribute("aria-expanded","true")}
+  function close(){panel?.classList.remove("open"); fab?.setAttribute("aria-expanded","false")}
+  function speak(txt){open(); if(!("speechSynthesis" in window))return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(txt||script.speak); u.lang="fr-FR"; u.rate=.86; u.pitch=1.03; speechSynthesis.speak(u)}
+  fab?.addEventListener("click",()=> panel?.classList.contains("open") ? close() : open());
+  closeBtn?.addEventListener("click",close);
+  playBtn?.addEventListener("click",()=>speak());
+  stopBtn?.addEventListener("click",()=>{"speechSynthesis" in window && speechSynthesis.cancel()});
+}
+cleanVisibleUrl();
+setSessionPill();
+initCommonLinks();
 
-  const fab = document.getElementById("digiyAudioFab");
-  const panel = document.getElementById("digiyAudioPanel");
-  const closeBtn = document.getElementById("digiyAudioClose");
-  const playBtn = document.getElementById("digiyAudioPlay");
-  const stopBtn = document.getElementById("digiyAudioStop");
-  const title = document.getElementById("digiyAudioTitle");
-  const text = document.getElementById("digiyAudioText");
-
-  if(title) title.textContent = pageScript.title || "DIGIY explique le clic";
-  if(text) text.textContent = pageScript.text || "Écoute DIGIY pour savoir quoi faire.";
-
-  function openPanel(){
-    if(!panel || !fab) return;
-    panel.classList.add("open");
-    fab.setAttribute("aria-expanded","true");
+const sb = getClient();
+let trips = [];
+function tripStatus(t){return String(t?.status || t?.ride_status || "requested").toLowerCase().replace("ongoing","in_progress")}
+function statusLabel(s){s=tripStatus({status:s}); return {requested:"demande",assigned:"assignée",accepted:"acceptée",in_progress:"en course",completed:"terminée",canceled:"annulée",cancelled:"annulée"}[s]||s}
+function tripWhen(t){return t?.pickup_at || t?.ride_at || t?.booking_time || t?.updated_at || t?.created_at || null}
+function fmtDate(v){if(!v)return"—"; const d=new Date(v); if(Number.isNaN(d.getTime()))return String(v); return d.toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}
+function pick(t, keys, fb="—"){for(const k of keys){const v=t?.[k]; if(v!==undefined&&v!==null&&String(v).trim())return String(v)} return fb}
+function titleTrip(t){
+  const from=pick(t,["pickup_label","pickup","from_label","departure"],"Départ");
+  const to=pick(t,["dropoff_label","dropoff","to_label","destination"],"Arrivée");
+  return from+" → "+to;
+}
+function amount(t){return Number(t?.final_price_fcfa ?? t?.price_fcfa ?? t?.amount_fcfa ?? t?.amount ?? 0) || 0}
+function visibleRows(){
+  return trips
+    .filter(t=>["requested","assigned","accepted","in_progress"].includes(tripStatus(t)))
+    .sort((a,b)=>{
+      const rank={in_progress:0,accepted:1,assigned:2,requested:3};
+      return (rank[tripStatus(a)]??9)-(rank[tripStatus(b)]??9) || (new Date(tripWhen(b)||0)-new Date(tripWhen(a)||0));
+    })
+}
+function actionButtons(t){
+  const s=tripStatus(t), id=escapeHtml(t?.id||"");
+  if(s==="requested") return `<button class="btn primary" data-action="accept" data-id="${id}">✅ Accepter</button>`;
+  if(s==="assigned"||s==="accepted") return `<button class="btn primary" data-action="start" data-id="${id}">▶️ Démarrer</button>`;
+  if(s==="in_progress") return `<button class="btn gold" data-action="finish" data-id="${id}">🏁 Terminer</button>`;
+  return `<button class="btn ghost" disabled>Lecture</button>`;
+}
+function render(){
+  const rows=visibleRows();
+  $("kpiAsk").textContent = String(rows.filter(t=>["requested","assigned","accepted"].includes(tripStatus(t))).length);
+  $("kpiRun").textContent = String(rows.filter(t=>tripStatus(t)==="in_progress").length);
+  const box=$("tripList");
+  if(!rows.length){
+    box.innerHTML = `<div class="empty">Aucune course à traiter maintenant. L’écran reste libre.</div>`;
+    return;
   }
-  function closePanel(){
-    if(!panel || !fab) return;
-    panel.classList.remove("open");
-    fab.setAttribute("aria-expanded","false");
+  box.innerHTML = rows.slice(0,6).map(t=>`
+    <article class="trip">
+      <div class="tripTop">
+        <div>
+          <div class="tripTitle">${escapeHtml(titleTrip(t))}</div>
+          <div class="meta">📅 ${escapeHtml(fmtDate(tripWhen(t)))} · 💰 ${escapeHtml(money(amount(t)))}</div>
+        </div>
+        <div class="badge">${escapeHtml(statusLabel(tripStatus(t)))}</div>
+      </div>
+      <div class="meta">📍 ${escapeHtml(pick(t,["pickup_zone","zone"],"Zone à vérifier"))}</div>
+      <div class="actions">${actionButtons(t)}</div>
+    </article>
+  `).join("");
+}
+async function loadTrips(){
+  const st=getState();
+  const msg=$("msg");
+  if(!sb){msg.textContent="Supabase indisponible ici."; msg.className="msg bad"; return}
+  if(!st.phone){msg.textContent="Numéro chauffeur non reconnu. Reprends l’accès PIN."; msg.className="msg warn"; render(); return}
+  msg.textContent="Lecture des courses…"; msg.className="msg";
+  try{
+    const {data,error}=await sb.from("digiy_driver_trips").select("*").in("driver_phone",phoneVariants(st.phone)).order("created_at",{ascending:false}).limit(30);
+    if(error) throw error;
+    trips=Array.isArray(data)?data:[];
+    msg.textContent="Prêt. Pour le reste, ouvre l’atelier complet."; msg.className="msg ok";
+    render();
+  }catch(e){
+    console.warn(e);
+    msg.textContent="Lecture impossible ici. L’atelier complet reste disponible."; msg.className="msg bad";
+    render();
   }
-  function canSpeak(){
-    return "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
-  }
-  function speakText(txt){
-    openPanel();
-    if(!canSpeak()){
-      if(text) text.textContent = "Ton navigateur ne donne pas encore la voix ici. Le panneau garde l’explication courte.";
-      return;
+}
+async function rpcWithFallback(names, rideId, driverPhone){
+  const funcs=Array.isArray(names)?names:[names];
+  const attempts=[
+    {p_ride_id:rideId,p_driver_phone:driverPhone},{ride_id:rideId,driver_phone:driverPhone},
+    {p_trip_id:rideId,p_driver_phone:driverPhone},{p_trip_id:rideId},{trip_id:rideId},{id:rideId,phone:driverPhone},{p_id:rideId,p_phone:driverPhone}
+  ];
+  let last=null;
+  for(const fn of funcs){
+    for(const args of attempts){
+      const {data,error}=await sb.rpc(fn,args);
+      if(!error)return data;
+      last=error;
     }
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(txt || pageScript.speak || pageScript.text || "DIGIY explique le clic.");
-    u.lang = "fr-FR";
-    u.rate = 0.86;
-    u.pitch = 1.03;
-    window.speechSynthesis.speak(u);
   }
-  function stop(){
-    if(canSpeak()) window.speechSynthesis.cancel();
-  }
-
-  if(fab) fab.addEventListener("click", function(){
-    const isOpen = panel && panel.classList.contains("open");
-    if(isOpen) closePanel(); else openPanel();
-  });
-  if(closeBtn) closeBtn.addEventListener("click", closePanel);
-  if(playBtn) playBtn.addEventListener("click", function(){ speakText(); });
-  if(stopBtn) stopBtn.addEventListener("click", stop);
-
-  document.addEventListener("click", function(e){
-    const link = e.target.closest && e.target.closest("[data-audio]");
-    if(!link) return;
-    const phrase = link.getAttribute("data-audio");
-    if(phrase) speakText(phrase);
-  });
-})();
+  throw last||new Error("rpc_failed");
+}
+document.addEventListener("click", async e=>{
+  const btn=e.target.closest("[data-action]");
+  if(!btn)return;
+  const st=getState(), id=btn.getAttribute("data-id"), action=btn.getAttribute("data-action");
+  if(!st.phone || !id){$("msg").textContent="Accès chauffeur incomplet."; $("msg").className="msg bad"; return}
+  btn.disabled=true; $("msg").textContent="Action en cours…"; $("msg").className="msg";
+  try{
+    if(action==="accept") await rpcWithFallback(["digiy_driver_accept_ride","accept_trip"],id,st.phone);
+    if(action==="start") await rpcWithFallback(["digiy_driver_start_ride","start_trip"],id,st.phone);
+    if(action==="finish") await rpcWithFallback(["digiy_driver_complete_ride","complete_trip"],id,st.phone);
+    $("msg").textContent="Action enregistrée."; $("msg").className="msg ok";
+    await loadTrips();
+  }catch(err){
+    console.warn(err);
+    $("msg").textContent="Action impossible depuis la façade. Ouvre l’atelier complet.";
+    $("msg").className="msg bad";
+  }finally{btn.disabled=false}
+});
+$("refreshBtn")?.addEventListener("click", e=>{e.preventDefault(); loadTrips()});
+setupAudio({
+  title:"Mes trajets en façade légère",
+  text:"Ici restent seulement les courses à traiter maintenant. Notes, argent et réglages sortent de cette page.",
+  speak:"Tu es dans Mes trajets. Cette façade garde seulement les courses à traiter maintenant. Lis la course, puis accepte, démarre ou termine. Les notes et Mon argent ne restent pas ici : ils ont leur porte."
+});
+loadTrips();
 </script>
-
 </body>
 </html>
+
