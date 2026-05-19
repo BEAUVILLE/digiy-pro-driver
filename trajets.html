@@ -166,6 +166,28 @@ button{cursor:pointer}
   background:rgba(255,255,255,.05);
 }
 
+/* ══ ATELIER CARD ══ */
+.atelierCard{
+  display:flex;align-items:center;gap:14px;
+  padding:16px;border-radius:var(--r);
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  text-decoration:none;color:var(--text);
+  transition:background .13s,transform .12s;
+}
+.atelierCard:hover{background:rgba(255,255,255,.11);transform:translateY(-1px)}
+.atelierCard:active{transform:none}
+.atelierIco{
+  width:44px;height:44px;border-radius:13px;
+  display:grid;place-items:center;font-size:21px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  flex:0 0 auto;
+}
+.atelierInfo{flex:1}
+.atelierInfo b{display:block;font-size:16px;font-weight:1000;line-height:1.15;margin-bottom:3px}
+.atelierInfo span{display:block;font-size:13px;font-weight:900;color:var(--muted);line-height:1.35}
+.atelierArr{font-size:18px;color:rgba(240,255,245,.3)}
+
 /* ══ AUDIO FAB ══ */
 .audioFab{
   position:fixed;
@@ -356,6 +378,16 @@ button{cursor:pointer}
 
   <!-- Message statut -->
   <div class="msg" id="msg"></div>
+
+  <!-- Porte atelier -->
+  <a class="atelierCard" id="atelierLink" href="./trajets-complet.html">
+    <div class="atelierIco">⚙️</div>
+    <div class="atelierInfo">
+      <b>Programmer · noter · filtrer</b>
+      <span>Atelier complet · nouvelles courses · notes terrain · argent</span>
+    </div>
+    <div class="atelierArr">→</div>
+  </a>
 
 </main>
 
@@ -746,6 +778,7 @@ function bindOverlayLinks(){
   $("ovQr")?.addEventListener("click",()=>go(ROUTES.qr));
   $("ovPin")?.addEventListener("click",()=>go(ROUTES.pin));
   $("goHub")?.setAttribute("href",safeUrl(ROUTES.hub));
+  const al=$("atelierLink"); if(al) al.href=safeUrl(ROUTES.trajetsComplet);
 }
 
 $("btnConduite")?.addEventListener("click",()=>{spin($("btnConduite"));openOverlay("ovConduite")});
@@ -767,4 +800,5 @@ loadTrips();
 
 </body>
 </html>
+
 
