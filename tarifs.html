@@ -1,3 +1,4 @@
+<!-- ==================== tarifs.html ==================== -->
 <!doctype html>
 <html lang="fr">
 <head>
@@ -553,13 +554,13 @@ label{
 <header class="pageHeader"><div class="headerInner">
 <a class="headerBtn left" href="./hub.html">← portes</a>
 <div class="headerTitle">MES TARIFS</div>
-<a class="headerBtn right" id="goTarifsEditionTop" href="./tarifs-edition.html">✍️ Inscrire</a>
+<a class="headerBtn right" id="goTarifsEdition" href="#">✏️ Modifier</a>
 </div></header>
 <main class="wrap">
   <section class="hero">
     <div class="eyebrow">Façade téléphone</div>
     <h1>Voir les prix. Sans atelier.</h1>
-    <p class="lead">La page affiche les tarifs utiles. Pour ajouter ou changer tes prix, ouvre l’atelier : Inscrire mes tarifs.</p>
+    <p class="lead">La page affiche les tarifs utiles. La modification et l’aperçu client restent dans l’atelier édition.</p>
     <div class="row"><span class="pill" id="sessionPill">session…</span></div>
   </section>
 
@@ -567,7 +568,7 @@ label{
     <h2 id="driverName">Mon espace chauffeur</h2>
     <div class="muted" id="driverMeta">Lecture…</div>
     <div class="actions">
-      <a class="btn primary" id="goTarifsEdition" href="./tarifs-edition.html">✍️ Inscrire mes tarifs</a>
+      <a class="btn primary" id="goTarifsEdition" href="./tarifs-edition.html">✏️ Modifier mes tarifs</a>
       <a class="btn ghost" href="./trajets.html">📋 Mes trajets</a>
     </div>
   </section>
@@ -581,16 +582,7 @@ label{
     <div class="empty">Lecture…</div>
   </section>
 
-  <div class="card">
-    <h2>Pas encore de prix ?</h2>
-    <p class="muted">Commence ici : tu ouvres l’atelier, tu écris tes prix, puis tu reviens voir la grille propre.</p>
-    <div class="actions">
-      <a class="btn gold" id="goTarifsEditionBottom" href="./tarifs-edition.html">✍️ Inscrire mes tarifs</a>
-      <a class="btn ghost" href="./hub.html">☰ Retour aux portes</a>
-    </div>
-  </div>
-
-  <div class="msg">Si rien ne s’affiche, ouvre “Inscrire mes tarifs” : le brouillon complet est dans l’atelier.</div>
+  <div class="msg">Si rien ne s’affiche, ouvre Modifier : le brouillon complet est dans l’atelier.</div>
 </main>
 
 <button class="audioCoachFab" id="digiyAudioFab" type="button" aria-controls="digiyAudioPanel" aria-expanded="false">
@@ -677,7 +669,7 @@ function setSessionPill(){
   else{p.textContent="● accès à ouvrir";p.className="pill bad"}
 }
 function initCommonLinks(){
-  const ids = {goDashboard:ROUTES.dashboard, goHub:ROUTES.hub, goPin:ROUTES.pin, goPay:ROUTES.pay, goTrajetsComplet:ROUTES.trajetsComplet, goTarifsEdition:ROUTES.tarifsEdition, goTarifsEditionTop:ROUTES.tarifsEdition, goTarifsEditionBottom:ROUTES.tarifsEdition};
+  const ids = {goDashboard:ROUTES.dashboard, goHub:ROUTES.hub, goPin:ROUTES.pin, goPay:ROUTES.pay, goTrajetsComplet:ROUTES.trajetsComplet, goTarifsEdition:ROUTES.tarifsEdition};
   Object.entries(ids).forEach(([id,href])=>{const el=$(id); if(el) el.href = href.startsWith("http") ? href : safeUrl(href);});
 }
 function setupAudio(script){
@@ -739,13 +731,35 @@ function renderTarifs(){
 }
 setupAudio({
   title:"Tarifs en lecture simple",
-  text:"Ici le chauffeur consulte les prix. Pour ajouter ou changer la grille, clique Inscrire mes tarifs.",
-  speak:"Tu es dans Tarifs. Cette façade sert à consulter vite les prix. Si tu dois ajouter ou changer la grille, clique Inscrire mes tarifs. Le chauffeur n’a pas besoin de voir tout l’atelier au premier écran."
+  text:"Ici le chauffeur consulte les prix. Modifier et aperçu client sont rangés dans l’atelier édition.",
+  speak:"Tu es dans Tarifs. Cette façade sert à consulter vite les prix. Si tu dois changer la grille ou préparer l’aperçu client, ouvre Modifier. Le chauffeur n’a pas besoin de voir tout l’atelier au premier écran."
 });
 renderTarifs();
 </script>
+
+<script>
+(function(){
+  function maskPhoneText(){
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach(function(n){
+      n.nodeValue = String(n.nodeValue || "")
+        .replace(/\+?\s*221[\s.-]*(7[05678])[\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}/g, "WhatsApp masqué")
+        .replace(/\b7[05678][\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}\b/g, "WhatsApp masqué");
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", maskPhoneText);
+  setTimeout(maskPhoneText, 300);
+  setTimeout(maskPhoneText, 1200);
+})();
+</script>
+
 </body>
 </html>
+
 
 
 
