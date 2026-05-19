@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Je conduis — Mes trajets</title>
+<meta name="theme-color" content="#13824d"/>
+<meta name="description" content="DIGIY DRIVER — façade téléphone allégée pour les courses."/>
+<meta name="robots" content="noindex,nofollow"/>
+<meta name="digiy-build" content="driver-v4-3-facade-tel"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script>
+window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+window.DIGIY_MODULE = "DRIVER";
+window.DIGIY_LOGIN_URL = "./pin.html";
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./guard.js?v=driver-v4-3-facade-tel"></script>
+<style>
+:root{
+  --bg:#13824d;
+  --bg2:#0f6b3e;
+  --bg3:#0b4f31;
+  --card:#17864f;
+  --card2:#116b40;
+  --text:#f8fff9;
+  --muted:rgba(248,255,249,.84);
+  --soft:rgba(248,255,249,.68);
+  --line:rgba(255,255,255,.22);
+  --gold:#facc15;
+  --warn:#f59e0b;
+  --green:#22c55e;
+  --green2:#16a34a;
+  --red:#fb7185;
+  --blue:#60a5fa;
+  --shadow:0 18px 42px rgba(0,0,0,.22);
+  --r:24px;
+  --max:840px;
+  --headerH:52px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(900px 520px at 8% -10%, rgba(250,204,21,.20), transparent 62%),
+    radial-gradient(760px 440px at 105% 0%, rgba(34,197,94,.24), transparent 58%),
+    linear-gradient(180deg,var(--bg),var(--bg2) 55%,var(--bg3) 100%);
+}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.pageHeader{
+  position:sticky;
+  top:0;
+  z-index:60;
+  min-height:var(--headerH);
+  padding:8px 10px calc(8px + env(safe-area-inset-top,0px));
+  background:rgba(11,79,49,.94);
+  border-bottom:1px solid rgba(250,204,21,.26);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.headerInner{
+  width:min(var(--max),100%);
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:8px;
+  align-items:center;
+}
+.headerBtn,.headerTitle{
+  min-height:36px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:7px 10px;
+  font-size:13px;
+  font-weight:1000;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.075);
+  white-space:nowrap;
+}
+.headerBtn.left{justify-self:start}
+.headerBtn.right{justify-self:end}
+.headerTitle{
+  color:#fffbea;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  background:rgba(250,204,21,.12);
+  border-color:rgba(250,204,21,.30);
+}
+.wrap{
+  width:min(var(--max),100%);
+  margin:0 auto;
+  padding:14px 10px 28px;
+  display:grid;
+  gap:12px;
+}
+.hero,.card,.trip,.fareCard{
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  background:
+    radial-gradient(620px 230px at 100% 0%, rgba(250,204,21,.12), transparent 70%),
+    linear-gradient(180deg,rgba(23,134,79,.96),rgba(17,107,64,.96));
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.hero,.card{padding:16px}
+.eyebrow{
+  color:#fff0a8;
+  font-size:11px;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  font-weight:1000;
+  margin-bottom:8px;
+}
+h1,h2,h3,p{margin-top:0}
+h1{
+  margin-bottom:8px;
+  font-size:clamp(34px,8vw,58px);
+  line-height:.96;
+  letter-spacing:-.055em;
+  font-weight:1000;
+}
+h2{
+  margin-bottom:8px;
+  font-size:clamp(24px,5vw,32px);
+  line-height:1.04;
+  letter-spacing:-.035em;
+  font-weight:1000;
+}
+.lead,.muted{
+  color:var(--muted);
+  font-size:16px;
+  line-height:1.42;
+  font-weight:900;
+}
+.small{font-size:13px;color:var(--soft);font-weight:900}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{
+  min-height:36px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:8px 11px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.09);
+  color:var(--muted);
+  font-size:12px;
+  font-weight:1000;
+}
+.pill.ok{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.38);color:#d9ffe8}
+.pill.warn{background:rgba(245,158,11,.16);border-color:rgba(245,158,11,.36);color:#fff0bd}
+.pill.bad{background:rgba(251,113,133,.16);border-color:rgba(251,113,133,.36);color:#ffe1e6}
+.actions,.grid2{
+  display:grid;
+  gap:9px;
+}
+.actions{margin-top:12px}
+.grid2{grid-template-columns:1fr 1fr}
+.btn{
+  min-height:56px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.09);
+  color:var(--text);
+  padding:13px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  text-align:center;
+  font-size:16px;
+  font-weight:1000;
+  box-shadow:0 12px 25px rgba(0,0,0,.15);
+}
+.btn.primary{background:linear-gradient(135deg,var(--green),var(--green2));color:#042012;border-color:transparent}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--warn));color:#241300;border-color:transparent}
+.btn.ghost{background:rgba(255,255,255,.065)}
+.btn.warn{background:rgba(250,204,21,.14);border-color:rgba(250,204,21,.32);color:#fff0a8}
+.btn.danger{background:rgba(251,113,133,.16);border-color:rgba(251,113,133,.34);color:#ffe1e6}
+.trip,.fareCard{
+  padding:14px;
+  display:grid;
+  gap:10px;
+  background:rgba(4,18,13,.18);
+}
+.tripTop,.fareTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.tripTitle,.fareName{
+  font-size:19px;
+  line-height:1.18;
+  font-weight:1000;
+}
+.meta{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.4;
+  font-weight:900;
+}
+.badge{
+  min-height:34px;
+  padding:7px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.08);
+  color:#fff0a8;
+  font-size:12px;
+  font-weight:1000;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.empty{
+  border:1px dashed rgba(255,255,255,.22);
+  border-radius:20px;
+  padding:14px;
+  color:var(--muted);
+  background:rgba(255,255,255,.055);
+  font-size:15px;
+  font-weight:900;
+  line-height:1.45;
+}
+.msg{
+  padding:12px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(4,18,13,.18);
+  color:var(--muted);
+  font-size:14px;
+  font-weight:950;
+  line-height:1.4;
+}
+.msg.ok{color:#bbf7d0}.msg.warn{color:#fde68a}.msg.bad{color:#fecaca}
+.kpiGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.kpi{
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:20px;
+  padding:14px;
+  background:rgba(4,18,13,.18);
+}
+.kpi .label{font-size:13px;color:#fff0a8;font-weight:1000;margin-bottom:7px}
+.kpi .num{font-size:38px;font-weight:1000;line-height:.95;letter-spacing:-.04em}
+.kpi .sub{font-size:12px;color:var(--muted);font-weight:900;margin-top:6px}
+.audioCoachFab{
+  position:fixed;
+  right:10px;
+  top:calc(var(--headerH) + 9px + env(safe-area-inset-top,0px));
+  z-index:90;
+  min-height:48px;
+  min-width:48px;
+  padding:9px 11px;
+  border-radius:999px;
+  border:1px solid rgba(250,204,21,.42);
+  background:linear-gradient(135deg,rgba(250,204,21,.96),rgba(245,158,11,.96));
+  color:#241300;
+  box-shadow:0 16px 34px rgba(0,0,0,.24);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  font-size:14px;
+  font-weight:1000;
+}
+.audioCoachFab .ico{font-size:20px}
+.audioCoachPanel{
+  position:fixed;
+  left:10px;
+  right:10px;
+  top:calc(var(--headerH) + 66px + env(safe-area-inset-top,0px));
+  z-index:89;
+  width:min(calc(100% - 20px),var(--max));
+  margin:0 auto;
+  display:none;
+  border-radius:24px;
+  border:1px solid rgba(250,204,21,.34);
+  background:linear-gradient(180deg,rgba(17,107,64,.98),rgba(11,79,49,.98));
+  box-shadow:0 24px 60px rgba(0,0,0,.34);
+  padding:15px;
+}
+.audioCoachPanel.open{display:block}
+.audioCoachTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.audioCoachKicker{color:#fff0a8;font-size:11px;font-weight:1000;letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}
+.audioCoachTitle{margin:0;font-size:24px;line-height:1.05;font-weight:1000;letter-spacing:-.03em}
+.audioCoachText{margin-top:9px;color:var(--muted);font-size:15px;font-weight:900;line-height:1.45}
+.audioCoachClose{
+  width:38px;height:38px;border-radius:999px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.08);font-weight:1000;
+}
+.audioCoachActions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+.audioCoachActions button{
+  min-height:48px;border-radius:17px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.085);font-weight:1000;
+}
+.audioCoachActions button.primary{background:linear-gradient(135deg,var(--gold),var(--warn));color:#241300;border-color:transparent}
+@media(max-width:560px){
+  .audioCoachFab span:not(.ico){display:none}
+  .grid2,.kpiGrid{grid-template-columns:1fr 1fr}
+  .hero,.card{padding:15px}
+  h1{font-size:36px}
+}
+</style>
+</head>
+
+<body>
+<header class="pageHeader"><div class="headerInner">
+<a class="headerBtn left" href="./dashboard-pro.html">← activité</a>
+<div class="headerTitle">MES TRAJETS</div>
+<a class="headerBtn right" id="refreshBtn" href="#">🔄 Recharger</a>
+</div></header>
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Façade téléphone</div>
+    <h1>La course. Rien d’autre.</h1>
+    <p class="lead">Ici, le chauffeur lit vite et agit. Notes, argent, profil et QR ne traînent plus sur cette page.</p>
+    <div class="row"><span class="pill" id="sessionPill">session…</span></div>
+  </section>
+
+  <section class="kpiGrid">
+    <div class="kpi"><div class="label">À traiter</div><div class="num" id="kpiAsk">0</div><div class="sub">demande / assignée</div></div>
+    <div class="kpi"><div class="label">En course</div><div class="num" id="kpiRun">0</div><div class="sub">maintenant</div></div>
+  </section>
+
+  <section class="card">
+    <h2>Courses maintenant</h2>
+    <div class="actions">
+      <button class="btn primary" id="refreshBtn2" type="button" onclick="loadTrips()">🔄 Recharger</button>
+      <a class="btn ghost" id="goTrajetsComplet" href="./trajets-complet.html">⚙️ Atelier complet</a>
+    </div>
+  </section>
+
+  <section class="actions" id="tripList">
+    <div class="empty">Lecture…</div>
+  </section>
+
+  <div class="msg" id="msg">Prêt.</div>
+</main>
+
+<button class="audioCoachFab" id="digiyAudioFab" type="button" aria-controls="digiyAudioPanel" aria-expanded="false">
+  <span class="ico">🎧</span><span>Écouter</span>
+</button>
+<section class="audioCoachPanel" id="digiyAudioPanel" aria-label="Lecteur DIGIY">
+  <div class="audioCoachTop">
+    <div>
+      <div class="audioCoachKicker">Lecteur DIGIY</div>
+      <h2 class="audioCoachTitle" id="digiyAudioTitle">DIGIY explique</h2>
+    </div>
+    <button class="audioCoachClose" id="digiyAudioClose" type="button" aria-label="Fermer">×</button>
+  </div>
+  <div class="audioCoachText" id="digiyAudioText">Écoute la consigne courte.</div>
+  <div class="audioCoachActions">
+    <button class="primary" id="digiyAudioPlay" type="button">▶ Écouter</button>
+    <button id="digiyAudioStop" type="button">⏹ Stop</button>
+  </div>
+</section>
+
+<script>
+const ROUTES = {
+  dashboard:"./dashboard-pro.html",
+  hub:"./hub.html",
+  pin:"./pin.html",
+  pay:"https://pro-pay.digiylyfe.com/",
+  trajetsComplet:"./trajets-complet.html",
+  tarifsEdition:"./tarifs-edition.html"
+};
+const $ = id => document.getElementById(id);
+function normSlug(v){return String(v||"").trim().toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"").replace(/-+/g,"-").replace(/^-|-$/g,"")}
+function normPhone(v){const d=String(v||"").replace(/[^\d]/g,""); if(!d)return""; if(d.startsWith("221")&&d.length===12)return d; if(d.length===9)return"221"+d; return d.length>=9?d:""}
+function isDriverSlug(s){return /^driver-\d{12}$/.test(normSlug(s))}
+function phoneFromDriverSlug(v){const s=normSlug(v); return isDriverSlug(s)?normPhone(s.replace("driver-","")):""}
+function canExposeSlug(v){const s=normSlug(v); return !!s && !/\d{7,}/.test(s.replace(/^driver-/,""))}
+function storageGet(k){try{return sessionStorage.getItem(k)||localStorage.getItem(k)||""}catch(_){return""}}
+function storageSet(k,v){try{sessionStorage.setItem(k,String(v));localStorage.setItem(k,String(v))}catch(_){}} 
+function getState(){
+  const qs = new URLSearchParams(location.search);
+  const guard = window.DIGIY_GUARD?.state || {};
+  const slug = normSlug(guard.slug || qs.get("slug") || storageGet("digiy_driver_last_slug") || storageGet("digiy_driver_slug") || storageGet("DIGIY_SLUG") || "");
+  const phone = normPhone(guard.phone || qs.get("phone") || qs.get("tel") || storageGet("digiy_driver_phone") || storageGet("DIGIY_DRIVER_PHONE") || phoneFromDriverSlug(slug) || "");
+  const flags = [guard.access_ok, guard.access, guard.pin_session_ok, storageGet("digiy_driver_access_ok"), storageGet("DIGIY_DRIVER_ACCESS_OK")].map(v=>String(v||"").toLowerCase());
+  const access = flags.some(v=>["true","1","yes","ok","valid"].includes(v));
+  if(slug) storageSet("digiy_driver_last_slug", slug);
+  if(phone) storageSet("digiy_driver_phone", phone);
+  return {slug,phone,access,guard};
+}
+function safeUrl(base){
+  try{
+    const st=getState();
+    const u=new URL(base, location.href);
+    if(canExposeSlug(st.slug)) u.searchParams.set("slug", st.slug);
+    u.searchParams.delete("phone"); u.searchParams.delete("tel"); u.searchParams.delete("wa");
+    if(u.origin===location.origin) return u.pathname+u.search+u.hash;
+    return u.toString();
+  }catch(_){return base}
+}
+function cleanVisibleUrl(){
+  try{
+    const u=new URL(location.href); let changed=false;
+    ["phone","tel","wa","p_phone","owner_phone","checkout_phone","subscription_phone","identifiant"].forEach(k=>{if(u.searchParams.has(k)){u.searchParams.delete(k);changed=true}});
+    const s=normSlug(u.searchParams.get("slug")||"");
+    if(s && /\d{7,}/.test(s.replace(/^driver-/,""))){u.searchParams.delete("slug");changed=true}
+    if(changed) history.replaceState({}, document.title, u.pathname+u.search+u.hash);
+  }catch(_){}
+}
+function phoneVariants(v){
+  const d=normPhone(v); const out=new Set(); if(!d)return [];
+  out.add(d); out.add("+"+d);
+  if(d.startsWith("221")&&d.length===12){out.add(d.slice(3)); out.add("+221"+d.slice(3))}
+  return Array.from(out).filter(Boolean);
+}
+function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function money(v){const n=Number(v||0);return Number.isFinite(n)&&n>0?n.toLocaleString("fr-FR")+" FCFA":"—"}
+function getClient(){
+  if(!window.supabase?.createClient)return null;
+  try{return window.supabase.createClient(window.DIGIY_SUPABASE_URL, window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON, {auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(_){return null}
+}
+function setSessionPill(){
+  const st=getState(), p=$("sessionPill"); if(!p)return;
+  if(st.access){p.textContent="● session ouverte";p.className="pill ok"}
+  else if(st.slug||st.phone){p.textContent="● compte reconnu";p.className="pill warn"}
+  else{p.textContent="● accès à ouvrir";p.className="pill bad"}
+}
+function initCommonLinks(){
+  const ids = {goDashboard:ROUTES.dashboard, goHub:ROUTES.hub, goPin:ROUTES.pin, goPay:ROUTES.pay, goTrajetsComplet:ROUTES.trajetsComplet, goTarifsEdition:ROUTES.tarifsEdition};
+  Object.entries(ids).forEach(([id,href])=>{const el=$(id); if(el) el.href = href.startsWith("http") ? href : safeUrl(href);});
+}
+function setupAudio(script){
+  const fab=$("digiyAudioFab"), panel=$("digiyAudioPanel"), closeBtn=$("digiyAudioClose"), playBtn=$("digiyAudioPlay"), stopBtn=$("digiyAudioStop"), title=$("digiyAudioTitle"), text=$("digiyAudioText");
+  if(title)title.textContent=script.title; if(text)text.textContent=script.text;
+  function open(){panel?.classList.add("open"); fab?.setAttribute("aria-expanded","true")}
+  function close(){panel?.classList.remove("open"); fab?.setAttribute("aria-expanded","false")}
+  function speak(txt){open(); if(!("speechSynthesis" in window))return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(txt||script.speak); u.lang="fr-FR"; u.rate=.86; u.pitch=1.03; speechSynthesis.speak(u)}
+  fab?.addEventListener("click",()=> panel?.classList.contains("open") ? close() : open());
+  closeBtn?.addEventListener("click",close);
+  playBtn?.addEventListener("click",()=>speak());
+  stopBtn?.addEventListener("click",()=>{"speechSynthesis" in window && speechSynthesis.cancel()});
+}
+cleanVisibleUrl();
+setSessionPill();
+initCommonLinks();
+
+const sb = getClient();
+let trips = [];
+function tripStatus(t){return String(t?.status || t?.ride_status || "requested").toLowerCase().replace("ongoing","in_progress")}
+function statusLabel(s){s=tripStatus({status:s}); return {requested:"demande",assigned:"assignée",accepted:"acceptée",in_progress:"en course",completed:"terminée",canceled:"annulée",cancelled:"annulée"}[s]||s}
+function tripWhen(t){return t?.pickup_at || t?.ride_at || t?.booking_time || t?.updated_at || t?.created_at || null}
+function fmtDate(v){if(!v)return"—"; const d=new Date(v); if(Number.isNaN(d.getTime()))return String(v); return d.toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}
+function pick(t, keys, fb="—"){for(const k of keys){const v=t?.[k]; if(v!==undefined&&v!==null&&String(v).trim())return String(v)} return fb}
+function titleTrip(t){
+  const from=pick(t,["pickup_label","pickup","from_label","departure"],"Départ");
+  const to=pick(t,["dropoff_label","dropoff","to_label","destination"],"Arrivée");
+  return from+" → "+to;
+}
+function amount(t){return Number(t?.final_price_fcfa ?? t?.price_fcfa ?? t?.amount_fcfa ?? t?.amount ?? 0) || 0}
+function visibleRows(){
+  return trips
+    .filter(t=>["requested","assigned","accepted","in_progress"].includes(tripStatus(t)))
+    .sort((a,b)=>{
+      const rank={in_progress:0,accepted:1,assigned:2,requested:3};
+      return (rank[tripStatus(a)]??9)-(rank[tripStatus(b)]??9) || (new Date(tripWhen(b)||0)-new Date(tripWhen(a)||0));
+    })
+}
+function actionButtons(t){
+  const s=tripStatus(t), id=escapeHtml(t?.id||"");
+  if(s==="requested") return `<button class="btn primary" data-action="accept" data-id="${id}">✅ Accepter</button>`;
+  if(s==="assigned"||s==="accepted") return `<button class="btn primary" data-action="start" data-id="${id}">▶️ Démarrer</button>`;
+  if(s==="in_progress") return `<button class="btn gold" data-action="finish" data-id="${id}">🏁 Terminer</button>`;
+  return `<button class="btn ghost" disabled>Lecture</button>`;
+}
+function render(){
+  const rows=visibleRows();
+  $("kpiAsk").textContent = String(rows.filter(t=>["requested","assigned","accepted"].includes(tripStatus(t))).length);
+  $("kpiRun").textContent = String(rows.filter(t=>tripStatus(t)==="in_progress").length);
+  const box=$("tripList");
+  if(!rows.length){
+    box.innerHTML = `<div class="empty">Aucune course à traiter maintenant. L’écran reste libre.</div>`;
+    return;
+  }
+  box.innerHTML = rows.slice(0,6).map(t=>`
+    <article class="trip">
+      <div class="tripTop">
+        <div>
+          <div class="tripTitle">${escapeHtml(titleTrip(t))}</div>
+          <div class="meta">📅 ${escapeHtml(fmtDate(tripWhen(t)))} · 💰 ${escapeHtml(money(amount(t)))}</div>
+        </div>
+        <div class="badge">${escapeHtml(statusLabel(tripStatus(t)))}</div>
+      </div>
+      <div class="meta">📍 ${escapeHtml(pick(t,["pickup_zone","zone"],"Zone à vérifier"))}</div>
+      <div class="actions">${actionButtons(t)}</div>
+    </article>
+  `).join("");
+}
+async function loadTrips(){
+  const st=getState();
+  const msg=$("msg");
+  if(!sb){msg.textContent="Supabase indisponible ici."; msg.className="msg bad"; return}
+  if(!st.phone){msg.textContent="Numéro chauffeur non reconnu. Reprends l’accès PIN."; msg.className="msg warn"; render(); return}
+  msg.textContent="Lecture des courses…"; msg.className="msg";
+  try{
+    const {data,error}=await sb.from("digiy_driver_trips").select("*").in("driver_phone",phoneVariants(st.phone)).order("created_at",{ascending:false}).limit(30);
+    if(error) throw error;
+    trips=Array.isArray(data)?data:[];
+    msg.textContent="Prêt. Pour le reste, ouvre l’atelier complet."; msg.className="msg ok";
+    render();
+  }catch(e){
+    console.warn(e);
+    msg.textContent="Lecture impossible ici. L’atelier complet reste disponible."; msg.className="msg bad";
+    render();
+  }
+}
+async function rpcWithFallback(names, rideId, driverPhone){
+  const funcs=Array.isArray(names)?names:[names];
+  const attempts=[
+    {p_ride_id:rideId,p_driver_phone:driverPhone},{ride_id:rideId,driver_phone:driverPhone},
+    {p_trip_id:rideId,p_driver_phone:driverPhone},{p_trip_id:rideId},{trip_id:rideId},{id:rideId,phone:driverPhone},{p_id:rideId,p_phone:driverPhone}
+  ];
+  let last=null;
+  for(const fn of funcs){
+    for(const args of attempts){
+      const {data,error}=await sb.rpc(fn,args);
+      if(!error)return data;
+      last=error;
+    }
+  }
+  throw last||new Error("rpc_failed");
+}
+document.addEventListener("click", async e=>{
+  const btn=e.target.closest("[data-action]");
+  if(!btn)return;
+  const st=getState(), id=btn.getAttribute("data-id"), action=btn.getAttribute("data-action");
+  if(!st.phone || !id){$("msg").textContent="Accès chauffeur incomplet."; $("msg").className="msg bad"; return}
+  btn.disabled=true; $("msg").textContent="Action en cours…"; $("msg").className="msg";
+  try{
+    if(action==="accept") await rpcWithFallback(["digiy_driver_accept_ride","accept_trip"],id,st.phone);
+    if(action==="start") await rpcWithFallback(["digiy_driver_start_ride","start_trip"],id,st.phone);
+    if(action==="finish") await rpcWithFallback(["digiy_driver_complete_ride","complete_trip"],id,st.phone);
+    $("msg").textContent="Action enregistrée."; $("msg").className="msg ok";
+    await loadTrips();
+  }catch(err){
+    console.warn(err);
+    $("msg").textContent="Action impossible depuis la façade. Ouvre l’atelier complet.";
+    $("msg").className="msg bad";
+  }finally{btn.disabled=false}
+});
+$("refreshBtn")?.addEventListener("click", e=>{e.preventDefault(); loadTrips()});
+setupAudio({
+  title:"Mes trajets en façade légère",
+  text:"Ici restent seulement les courses à traiter maintenant. Notes, argent et réglages sortent de cette page.",
+  speak:"Tu es dans Mes trajets. Cette façade garde seulement les courses à traiter maintenant. Lis la course, puis accepte, démarre ou termine. Les notes et Mon argent ne restent pas ici : ils ont leur porte."
+});
+loadTrips();
+</script>
+</body>
+</html>
