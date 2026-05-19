@@ -333,7 +333,7 @@ h2{
   </section>
 
   <section class="card">
-    <h2 id="driverName">Chauffeur</h2>
+    <h2 id="driverName">Mon espace chauffeur</h2>
     <div class="muted" id="driverMeta">Lecture…</div>
     <div class="actions">
       <a class="btn primary" id="goTarifsEdition" href="./tarifs-edition.html">✏️ Modifier mes tarifs</a>
@@ -456,8 +456,8 @@ setSessionPill();
 initCommonLinks();
 
 function deriveNameFromSlug(slug){
-  const s=normSlug(slug); if(!s)return"Chauffeur";
-  const tail=s.replace(/^driver-/,""); if(/^\d+$/.test(tail))return"Chauffeur "+tail.slice(-4);
+  const s=normSlug(slug); if(!s)return"Mon espace chauffeur";
+  const tail=s.replace(/^driver-/,""); if(/^\d+$/.test(tail))return"Mon espace chauffeur";
   return tail.replace(/-/g," ").replace(/\b\w/g,m=>m.toUpperCase());
 }
 function storageKey(){const st=getState(); return "digiy_driver_tarifs_" + (st.slug || "preview")}
@@ -506,4 +506,5 @@ renderTarifs();
 </script>
 </body>
 </html>
+
 
