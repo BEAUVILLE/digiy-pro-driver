@@ -1315,176 +1315,6 @@
       }
     }
 
-  
-/* ── DIGIY V4.2 — Quelques mots + lecteur métier ───────────── */
-.digiyFewWords{
-  margin-top:14px;
-  border:1px solid rgba(250,204,21,.30);
-  border-radius:22px;
-  padding:15px;
-  background:
-    radial-gradient(520px 210px at 100% 0%, rgba(250,204,21,.13), transparent 70%),
-    rgba(4,18,13,.18);
-  box-shadow:0 14px 30px rgba(0,0,0,.15);
-}
-.digiyFewWordsKicker{
-  color:#fff0a8;
-  font-size:12px;
-  font-weight:1000;
-  letter-spacing:.10em;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-.digiyFewWordsText{
-  color:var(--muted);
-  font-size:16px;
-  line-height:1.48;
-  font-weight:950;
-}
-.digiyFewWordsList{
-  display:grid;
-  gap:8px;
-  margin-top:12px;
-}
-.digiyFewWordsLine{
-  display:flex;
-  gap:9px;
-  align-items:flex-start;
-  padding:10px 11px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.13);
-  background:rgba(255,255,255,.06);
-  color:rgba(243,255,247,.92);
-  font-size:14px;
-  line-height:1.35;
-  font-weight:900;
-}
-.digiyFewWordsLine b{color:#fff0a8;font-weight:1000}
-.audioCoachFab{
-  position:fixed;
-  right:12px;
-  top:calc(12px + env(safe-area-inset-top,0px));
-  z-index:99980;
-  min-height:52px;
-  min-width:52px;
-  max-width:148px;
-  padding:10px 12px;
-  border-radius:999px;
-  border:1px solid rgba(250,204,21,.42);
-  background:linear-gradient(135deg,rgba(250,204,21,.96),rgba(245,158,11,.96));
-  color:#241300;
-  box-shadow:0 16px 34px rgba(0,0,0,.24);
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:7px;
-  font-size:14px;
-  font-weight:1000;
-}
-.audioCoachFab .ico{font-size:20px;line-height:1}
-.audioCoachPanel{
-  position:fixed;
-  left:12px;
-  right:12px;
-  top:calc(76px + env(safe-area-inset-top,0px));
-  z-index:99979;
-  width:min(calc(100% - 24px),900px);
-  margin:0 auto;
-  display:none;
-  border-radius:26px;
-  border:1px solid rgba(250,204,21,.34);
-  background:
-    radial-gradient(560px 220px at 100% 0%, rgba(250,204,21,.18), transparent 70%),
-    linear-gradient(180deg,rgba(17,107,64,.98),rgba(11,79,49,.98));
-  box-shadow:0 24px 60px rgba(0,0,0,.34);
-  padding:16px;
-}
-.audioCoachPanel.open{display:block}
-.audioCoachTop{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-}
-.audioCoachKicker{
-  color:#fff0a8;
-  font-size:11px;
-  font-weight:1000;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  margin-bottom:7px;
-}
-.audioCoachTitle{
-  margin:0;
-  font-size:24px;
-  line-height:1.05;
-  font-weight:1000;
-  letter-spacing:-.03em;
-}
-.audioCoachText{
-  margin-top:9px;
-  color:var(--muted);
-  font-size:15px;
-  font-weight:900;
-  line-height:1.45;
-}
-.audioCoachClose{
-  width:38px;
-  height:38px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.08);
-  color:var(--text);
-  font-weight:1000;
-}
-.audioCoachActions{
-  display:grid;
-  gap:9px;
-  grid-template-columns:1fr 1fr;
-  margin-top:13px;
-}
-.audioCoachActions button{
-  min-height:48px;
-  border-radius:17px;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.085);
-  color:var(--text);
-  font-weight:1000;
-}
-.audioCoachActions button.primary{
-  background:linear-gradient(135deg,var(--gold),var(--warn));
-  color:#241300;
-  border-color:transparent;
-}
-.audioCoachHint{
-  margin-top:10px;
-  padding:12px;
-  border-radius:18px;
-  border:1px dashed rgba(255,255,255,.22);
-  background:rgba(255,255,255,.06);
-  color:var(--muted);
-  font-size:13px;
-  font-weight:900;
-  line-height:1.38;
-}
-@media(max-width:560px){
-  .audioCoachFab{
-    right:9px;
-    min-width:48px;
-    min-height:48px;
-    padding:9px 10px;
-  }
-  .audioCoachFab span:not(.ico){display:none}
-  .audioCoachPanel{
-    left:10px;
-    right:10px;
-    width:calc(100% - 20px);
-    top:calc(66px + env(safe-area-inset-top,0px));
-  }
-  .audioCoachActions{grid-template-columns:1fr}
-  .digiyFewWordsText{font-size:15px}
-}
-
   </style>
 </head>
 <body>
@@ -1517,30 +1347,16 @@
         Voir les courses, lancer une action, écrire une note, puis garder l’argent lisible.
       </div>
 
-
-      <div class="digiyFewWords" id="digiyTrajetsWords">
-        <div class="digiyFewWordsKicker">Quelques mots DIGIY</div>
-        <div class="digiyFewWordsText">
-          Ici, le chauffeur ne doit pas se perdre : il lit la course, fait le bon geste, puis garde une trace.
-          Les détails d’argent restent dans PAY, DRIVER ouvre seulement la porte.
-        </div>
-        <div class="digiyFewWordsList">
-          <div class="digiyFewWordsLine"><span>1.</span><div><b>Trajets</b> — lire, accepter, démarrer, terminer.</div></div>
-          <div class="digiyFewWordsLine"><span>2.</span><div><b>Notes</b> — écrire vite : course, carburant, client, attente.</div></div>
-          <div class="digiyFewWordsLine"><span>3.</span><div><b>Mon argent</b> — simple porte vers PAY, sans menu lourd ici.</div></div>
-        </div>
-      </div>
-
       <div class="heroActions">
-        <button class="btn primary" id="btnReload" data-audio="Recharger : DIGIY relit les trajets maintenant." type="button">🔄 Recharger mes trajets</button>
-        <a class="btn" id="btnDashboard" data-audio="Retour à l’activité : l’écran court du chauffeur." href="#">🏠 Accueil</a>
-        <a class="btn" id="btnCockpit" data-audio="Plus ouvre les portes de gestion, pas le travail immédiat." href="#">⚙️ Plus</a>
+        <button class="btn primary" id="btnReload" type="button">🔄 Recharger mes trajets</button>
+        <a class="btn" id="btnDashboard" href="#">🏠 Accueil</a>
+        <a class="btn" id="btnCockpit" href="#">⚙️ Plus</a>
       </div>
 
       <div class="driverPhoneActionBlock" aria-label="Actions rapides chauffeur">
         <div class="driverPhoneActionTitle">Lecture téléphone · gestes directs</div>
         <div class="driverPhoneActionGrid">
-          <a class="driverPhoneAction primary" id="phoneGoDashboard" data-audio="Accueil : voir l’activité chauffeur en résumé." href="./dashboard-pro.html">
+          <a class="driverPhoneAction primary" id="phoneGoDashboard" href="./dashboard-pro.html">
             <span class="driverPhoneIcon">🏠</span>
             <span class="driverPhoneCopy">
               <strong>Accueil</strong>
@@ -1548,7 +1364,7 @@
             </span>
           </a>
 
-          <a class="driverPhoneAction" id="phoneGoTrips" data-audio="Trajets : lire les courses et agir au bon moment." href="#tripList">
+          <a class="driverPhoneAction" id="phoneGoTrips" href="#tripList">
             <span class="driverPhoneIcon">📋</span>
             <span class="driverPhoneCopy">
               <strong>Trajets</strong>
@@ -1556,7 +1372,7 @@
             </span>
           </a>
 
-          <a class="driverPhoneAction" id="phoneGoNew" data-audio="Nouveau : préparer une course si le rail le permet." href="#newTrip">
+          <a class="driverPhoneAction" id="phoneGoNew" href="#newTrip">
             <span class="driverPhoneIcon">➕</span>
             <span class="driverPhoneCopy">
               <strong>Nouveau</strong>
@@ -1564,7 +1380,7 @@
             </span>
           </a>
 
-          <a class="driverPhoneAction gold" id="phoneGoNotes" data-audio="Notes : écrire vite une course, une dépense ou une info client." href="#quickDriverNote">
+          <a class="driverPhoneAction gold" id="phoneGoNotes" href="#quickDriverNote">
             <span class="driverPhoneIcon">✍️</span>
             <span class="driverPhoneCopy">
               <strong>Notes</strong>
@@ -1572,7 +1388,7 @@
             </span>
           </a>
 
-          <a class="driverPhoneAction" id="phoneGoMoney" data-audio="Mon argent : porte PAY transversale. DRIVER ne remplace pas la caisse." href="https://pro-pay.digiylyfe.com/">
+          <a class="driverPhoneAction" id="phoneGoMoney" href="https://pro-pay.digiylyfe.com/admin.html">
             <span class="driverPhoneIcon">💰</span>
             <span class="driverPhoneCopy">
               <strong>Mon argent</strong>
@@ -1580,7 +1396,7 @@
             </span>
           </a>
 
-          <a class="driverPhoneAction" id="phoneGoMore" data-audio="Plus : profil, tarifs, QR et accès utiles." href="./cockpit.html">
+          <a class="driverPhoneAction" id="phoneGoMore" href="./cockpit.html">
             <span class="driverPhoneIcon">⚙️</span>
             <span class="driverPhoneCopy">
               <strong>Plus</strong>
@@ -1777,9 +1593,7 @@
       "use strict";
 
       const MODULE = "DRIVER";
-      const SUPPORT_WA =
-        "https://wa.me/221771342889?text=" +
-        encodeURIComponent("Salut DIGIY DRIVER, j'ai besoin d'aide sur mes trajets.");
+      const SUPPORT_WA = "./support.html";
 
       const ROUTES = {
         home: "./index.html",
@@ -1790,7 +1604,7 @@
         tarifs: "./tarifs.html",
         qr: "./generateur-digiy-driver.html",
         pay: "https://commencer-a-payer.digiylyfe.com/",
-        proPay: "https://pro-pay.digiylyfe.com/admin.html"
+        proPay: "https://pro-pay.digiylyfe.com/"
       };
 
       const $ = (id) => document.getElementById(id);
@@ -3192,97 +3006,9 @@
       boot(false);
     })();
   </script>
-
-<!-- DIGIY V4.2 — Lecteur qui rassure et explique le clic -->
-<button class="audioCoachFab" id="digiyAudioFab" type="button" aria-controls="digiyAudioPanel" aria-expanded="false">
-  <span class="ico">🎧</span><span>Écouter</span>
-</button>
-
-<section class="audioCoachPanel" id="digiyAudioPanel" aria-label="Lecteur DIGIY">
-  <div class="audioCoachTop">
-    <div>
-      <div class="audioCoachKicker">Lecteur DIGIY</div>
-      <h2 class="audioCoachTitle" id="digiyAudioTitle">DIGIY explique le clic</h2>
-    </div>
-    <button class="audioCoachClose" id="digiyAudioClose" type="button" aria-label="Fermer">×</button>
-  </div>
-  <div class="audioCoachText" id="digiyAudioText">
-    Clique sur écouter : DIGIY te dit quoi faire, sans charger l’écran.
-  </div>
-  <div class="audioCoachActions">
-    <button class="primary" id="digiyAudioPlay" type="button">▶ Écouter</button>
-    <button id="digiyAudioStop" type="button">⏹ Stop</button>
-  </div>
-  <div class="audioCoachHint">
-    Moins d’écrit devant, plus de voix utile au moment du geste.
-  </div>
-</section>
-
-
-<script>
-(function(){
-  const pageScript = {"title": "Mes trajets, expliqué simplement.", "text": "Ici tu lis les courses, tu fais l’action utile, puis tu notes ce qui doit rester en mémoire. Mon argent reste une porte vers PAY.", "speak": "Tu es dans Mes trajets. D’abord, lis la course. Ensuite, fais le bon geste : accepter, démarrer ou terminer. Si une info doit rester en mémoire, utilise la note rapide : course, carburant, attente ou client. Pour l’argent, DRIVER ouvre seulement la porte PAY. La caisse complète reste dans Mon argent."};
-
-  const fab = document.getElementById("digiyAudioFab");
-  const panel = document.getElementById("digiyAudioPanel");
-  const closeBtn = document.getElementById("digiyAudioClose");
-  const playBtn = document.getElementById("digiyAudioPlay");
-  const stopBtn = document.getElementById("digiyAudioStop");
-  const title = document.getElementById("digiyAudioTitle");
-  const text = document.getElementById("digiyAudioText");
-
-  if(title) title.textContent = pageScript.title || "DIGIY explique le clic";
-  if(text) text.textContent = pageScript.text || "Écoute DIGIY pour savoir quoi faire.";
-
-  function openPanel(){
-    if(!panel || !fab) return;
-    panel.classList.add("open");
-    fab.setAttribute("aria-expanded","true");
-  }
-  function closePanel(){
-    if(!panel || !fab) return;
-    panel.classList.remove("open");
-    fab.setAttribute("aria-expanded","false");
-  }
-  function canSpeak(){
-    return "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
-  }
-  function speakText(txt){
-    openPanel();
-    if(!canSpeak()){
-      if(text) text.textContent = "Ton navigateur ne donne pas encore la voix ici. Le panneau garde l’explication courte.";
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(txt || pageScript.speak || pageScript.text || "DIGIY explique le clic.");
-    u.lang = "fr-FR";
-    u.rate = 0.86;
-    u.pitch = 1.03;
-    window.speechSynthesis.speak(u);
-  }
-  function stop(){
-    if(canSpeak()) window.speechSynthesis.cancel();
-  }
-
-  if(fab) fab.addEventListener("click", function(){
-    const isOpen = panel && panel.classList.contains("open");
-    if(isOpen) closePanel(); else openPanel();
-  });
-  if(closeBtn) closeBtn.addEventListener("click", closePanel);
-  if(playBtn) playBtn.addEventListener("click", function(){ speakText(); });
-  if(stopBtn) stopBtn.addEventListener("click", stop);
-
-  document.addEventListener("click", function(e){
-    const link = e.target.closest && e.target.closest("[data-audio]");
-    if(!link) return;
-    const phrase = link.getAttribute("data-audio");
-    if(phrase) speakText(phrase);
-  });
-})();
-</script>
-
 </body>
 </html>
+
 
 
 
