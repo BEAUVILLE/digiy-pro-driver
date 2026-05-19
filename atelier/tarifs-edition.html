@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Je conduis — Tarifs</title>
   <meta name="theme-color" content="#123b2d"/>
-  <meta name="description" content="DIGIY DRIVER — Tarifs chauffeur : grille terrain, aperçu client, WhatsApp et brouillon local sécurisé."/>
+  <meta name="description" content="DIGIY DRIVER — Tarifs chauffeur : grille terrain, aperçu client et brouillon local sécurisé."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
@@ -18,7 +18,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-security-v2-20260504"></script>
+  <script src="../guard.js?v=driver-security-v2-20260504"></script>
 
   <style>
 
@@ -912,6 +912,11 @@ label{
 </style>
 </head>
 <body>
+
+  <div style="position:sticky;top:0;z-index:9999;padding:10px;background:rgba(11,79,49,.96);border-bottom:1px solid rgba(250,204,21,.25);font-family:Outfit,system-ui,sans-serif;">
+    <a href="../tarifs.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 14px;border-radius:999px;background:rgba(250,204,21,.16);color:#fff0a8;text-decoration:none;font-weight:1000;border:1px solid rgba(250,204,21,.32);">⬅️ Retour aux tarifs</a>
+  </div>
+
   <div class="wrap">
 
     <div class="top">
@@ -922,9 +927,9 @@ label{
         </div>
 
         <div class="tarifsFastRow">
-          <a class="btn" id="fastHome" href="./hub.html">🏠 Accueil</a>
-          <a class="btn" id="fastTrips" href="./trajets.html">📋 Trajets</a>
-          <a class="btn primary" id="fastProfile" href="./profil-chauffeur.html">👤 Profil</a>
+          <a class="btn" id="fastHome" href="../hub.html">🏠 Accueil</a>
+          <a class="btn" id="fastTrips" href="../trajets.html">📋 Trajets</a>
+          <a class="btn primary" id="fastProfile" href="../profil-chauffeur.html">👤 Profil</a>
           <a class="btn gold" id="fastTarifs" href="#tarifsForm">💰 Tarifs</a>
         </div>
       </div>
@@ -941,13 +946,13 @@ label{
       <div class="navbox">
         <div class="navtitle">Plus chauffeur</div>
         <div class="navgrid">
-          <a class="navbtn" id="navDashboard" href="./hub.html">🏠 Accueil</a>
-          <a class="navbtn" id="navCockpit" href="./cockpit.html">⚙️ Plus</a>
-          <a class="navbtn" id="navProfil" href="./profil-chauffeur.html">👤 Profil</a>
-          <a class="navbtn active" id="navTarifs" href="./tarifs.html">💰 Tarifs</a>
-          <a class="navbtn" id="navPin" href="./pin.html">🔐 Accès</a>
-          <a class="navbtn" id="navHome" href="./index.html">🌍 Façade</a>
-          <a class="navbtn" id="navQr" href="./generateur-digiy-driver.html">📱 Mon QR</a>
+          <a class="navbtn" id="navDashboard" href="../hub.html">🏠 Accueil</a>
+          <a class="navbtn" id="navCockpit" href="../cockpit.html">⚙️ Plus</a>
+          <a class="navbtn" id="navProfil" href="../profil-chauffeur.html">👤 Profil</a>
+          <a class="navbtn active" id="navTarifs" href="../tarifs.html">💰 Tarifs</a>
+          <a class="navbtn" id="navPin" href="../pin.html">🔐 Accès</a>
+          <a class="navbtn" id="navHome" href="../index.html">🌍 Façade</a>
+          <a class="navbtn" id="navQr" href="../generateur-digiy-driver.html">📱 Mon QR</a>
           <button class="navbtn" id="btnPay" type="button">💳 Mon abonnement</button>
         </div>
       </div>
@@ -1001,17 +1006,15 @@ label{
             </div>
           </div>
 
+          <input id="f_whatsapp" type="hidden" value=""/>
           <div class="row">
-            <div>
-              <label>WhatsApp</label>
-              <input id="f_whatsapp" placeholder="22177xxxxxxx"/>
-              <div class="hint">Ce numéro sert seulement au résumé client si tu veux l’afficher.</div>
-            </div>
             <div>
               <label>Zones</label>
               <input id="f_zones" placeholder="Saly, Petite Côte, Dakar, AIBD"/>
             </div>
           </div>
+
+          <div class="disabledNote" style="display:block">ℹ️ Le contact se règle dans le profil chauffeur. Ici, on inscrit seulement les tarifs.</div>
 
           <label>Note terrain</label>
           <textarea id="f_note" placeholder="Ex : Prix de jour, bagages légers inclus, nuit et attente selon contexte…"></textarea>
@@ -1136,11 +1139,11 @@ label{
             <div class="row">
               <div>
                 <h2>Aperçu client</h2>
-                <div class="muted">Lecture simple pour le client avant WhatsApp.</div>
+                <div class="muted">Lecture simple pour le client.</div>
               </div>
               <div style="flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap">
                 <button class="btn" id="btnCopyPublic" type="button">📋 Copier résumé</button>
-                <button class="btn gold" id="btnCopyWhatsApp" type="button">💬 Copier WhatsApp</button>
+                <button class="btn gold" id="btnCopyMessage" type="button">📋 Copier message</button>
               </div>
             </div>
 
@@ -1167,20 +1170,19 @@ label{
               </div>
 
               <div class="row" style="margin-top:12px">
-                <a class="btn ghost" id="btnBackCockpit" href="./cockpit.html">⬅️ Revenir</a>
-                <a class="btn" id="btnGoProfile" href="./profil-chauffeur.html">👤 Profil</a>
-                <a class="btn ghost" id="btnGoQr" href="./generateur-digiy-driver.html">📱 Mon QR</a>
+                <a class="btn ghost" id="btnBackCockpit" href="../cockpit.html">⬅️ Revenir</a>
+                <a class="btn" id="btnGoProfile" href="../profil-chauffeur.html">👤 Profil</a>
+                <a class="btn ghost" id="btnGoQr" href="../generateur-digiy-driver.html">📱 Mon QR</a>
               </div>
             </div>
           </div>
 
           <div class="card">
-            <h2>Envoyer au client</h2>
-            <div class="muted">Tu peux copier le texte ou ouvrir WhatsApp si le numéro est prêt.</div>
+            <h2>Texte client</h2>
+            <div class="muted">Copie le résumé propre. Le contact se gère dans le profil chauffeur, pas dans l’atelier tarifs.</div>
 
             <div class="row" style="margin-top:12px">
-              <button class="btn primary" id="btnOpenWhatsApp" type="button">🟢 Ouvrir WhatsApp</button>
-              <button class="btn warn" id="btnShareText" type="button">📨 Copier texte client</button>
+              <button class="btn primary" id="btnShareText" type="button">📨 Copier texte client</button>
             </div>
 
             <div class="hr"></div>
@@ -1199,11 +1201,11 @@ label{
 
   <nav class="bottomNav" aria-label="Navigation DRIVER">
     <div class="bottomNavInner">
-      <a id="bottomHome" href="./hub.html"><span class="ico">🏠</span><span>Accueil</span></a>
-      <a id="bottomTrips" href="./trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
-      <a id="bottomNew" href="./trajets.html#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
-      <a id="bottomNotes" href="./trajets.html#quickDriverNote"><span class="ico">✍️</span><span>Notes</span></a>
-      <a class="active" id="bottomMore" href="./profil-chauffeur.html"><span class="ico">⚙️</span><span>Plus</span></a>
+      <a id="bottomHome" href="../hub.html"><span class="ico">🏠</span><span>Accueil</span></a>
+      <a id="bottomTrips" href="../trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
+      <a id="bottomNew" href="../trajets.html#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
+      <a id="bottomNotes" href="../trajets.html#quickDriverNote"><span class="ico">✍️</span><span>Notes</span></a>
+      <a class="active" id="bottomMore" href="../profil-chauffeur.html"><span class="ico">⚙️</span><span>Plus</span></a>
     </div>
   </nav>
 
@@ -1214,13 +1216,13 @@ label{
       const TABLE = "digiy_driver_public_profiles";
       const MODULE = "DRIVER";
       const PAY_HOME = "https://commencer-a-payer.digiylyfe.com/";
-      const DASHBOARD_PAGE = "./hub.html";
-      const COCKPIT_PAGE = "./cockpit.html";
+      const DASHBOARD_PAGE = "../hub.html";
+      const COCKPIT_PAGE = "../hub.html";
       const PROFILE_PAGE = "./profil-chauffeur.html";
-      const RATES_PAGE = "./tarifs.html";
-      const PIN_PAGE = "./pin.html";
-      const HOME_PAGE = "./index.html";
-      const QR_PAGE = "./generateur-digiy-driver.html";
+      const RATES_PAGE = "../tarifs.html";
+      const PIN_PAGE = "../pin.html";
+      const HOME_PAGE = "../hub.html";
+      const QR_PAGE = "../generateur-digiy-driver.html";
 
       const $ = (id) => document.getElementById(id);
 
@@ -1455,7 +1457,7 @@ label{
         return {
           display_name: $("f_display_name").value.trim(),
           city: $("f_city").value.trim(),
-          whatsapp: normPhone($("f_whatsapp").value.trim()),
+          whatsapp: "",
           zones: csvToArray($("f_zones").value),
           note: $("f_note").value.trim(),
           fares: {
@@ -1479,7 +1481,7 @@ label{
       function loadIntoForm(data){
         $("f_display_name").value = data?.display_name || "";
         $("f_city").value = data?.city || "";
-        $("f_whatsapp").value = data?.whatsapp || "";
+        $("f_whatsapp").value = "";
         $("f_zones").value = arrayToCsv(data?.zones);
         $("f_note").value = data?.note || "";
 
@@ -1522,7 +1524,7 @@ label{
         loadIntoForm({
           display_name: ACCESS.profile?.display_name || deriveNameFromSlug(ACCESS.slug),
           city: ACCESS.profile?.city || "",
-          whatsapp: ACCESS.profile?.whatsapp || "",
+          whatsapp: "",
           zones: ACCESS.profile?.zones || [],
           note: "",
           fares: {},
@@ -1576,7 +1578,7 @@ label{
         const displayName = data.display_name || deriveNameFromSlug(ACCESS.slug);
         const city = data.city || "Sénégal";
         const zones = (data.zones || []).length ? data.zones.join(", ") : "Zones à confirmer";
-        const wa = data.whatsapp || "";
+        const wa = "";
         const fares = fareEntries(data);
 
         let txt = `🚖 ${displayName}\n`;
@@ -1593,10 +1595,6 @@ label{
 
         if (data.note){
           txt += `\n📝 ${data.note}\n`;
-        }
-
-        if (wa){
-          txt += `\nWhatsApp : +${wa}`;
         }
 
         return txt.trim();
@@ -1628,7 +1626,7 @@ label{
         const badges = [];
         if (data.city) badges.push(data.city);
         if ((data.zones || []).length) badges.push((data.zones || []).length + " zone(s)");
-        if (data.whatsapp) badges.push("WhatsApp OK");
+        
         if (entries.length) badges.push(entries.length + " tarif(s)");
 
         $("pBadges").innerHTML = badges.length
@@ -1685,10 +1683,10 @@ label{
 
         const moreLinks = {
           fastHome: DASHBOARD_PAGE,
-          fastTrips: "./trajets.html",
+          fastTrips: "../trajets.html",
           fastProfile: PROFILE_PAGE,
           bottomHome: DASHBOARD_PAGE,
-          bottomTrips: "./trajets.html",
+          bottomTrips: "../trajets.html",
           bottomMore: PROFILE_PAGE
         };
 
@@ -1702,19 +1700,15 @@ label{
         const bottomNotes = $("bottomNotes");
 
         if (fastTarifs) fastTarifs.href = "#tarifsForm";
-        if (bottomNew) bottomNew.href = pageUrl("./trajets.html", ACCESS.slug, ACCESS.phone) + "#newTrip";
-        if (bottomNotes) bottomNotes.href = pageUrl("./trajets.html", ACCESS.slug, ACCESS.phone) + "#quickDriverNote";
+        if (bottomNew) bottomNew.href = pageUrl("../trajets.html", ACCESS.slug, ACCESS.phone) + "#newTrip";
+        if (bottomNotes) bottomNotes.href = pageUrl("../trajets.html", ACCESS.slug, ACCESS.phone) + "#quickDriverNote";
 
         cleanVisibleUrl();
       }
 
       function updateActionLinks(data){
-        const wa = normPhone(data.whatsapp || "");
-        const txt = buildSummary(data);
-        $("btnOpenWhatsApp").disabled = !wa;
-        $("btnOpenWhatsApp").dataset.href = wa
-          ? `https://wa.me/${wa}?text=${encodeURIComponent(txt)}`
-          : "";
+        // Contact volontairement retiré de l’atelier tarifs.
+        // Le contact chauffeur vit dans le profil, pas dans la grille de prix.
       }
 
       function renderExtras(){
@@ -1814,7 +1808,7 @@ label{
         try{
           const { data, error } = await sb
             .from(TABLE)
-            .select("slug, display_name, city, whatsapp, photo_url, profile_url, bio, zones, tags, is_published, is_active, priority")
+            .select("slug, display_name, city, contact, photo_url, profile_url, bio, zones, tags, is_published, is_active, priority")
             .eq("slug", slug)
             .limit(1)
             .maybeSingle();
@@ -1832,7 +1826,7 @@ label{
             const merged = {
               display_name: draft?.display_name || data.display_name || deriveNameFromSlug(ACCESS.slug),
               city: draft?.city || data.city || "",
-              whatsapp: draft?.whatsapp || data.whatsapp || "",
+              whatsapp: "",
               zones: draft?.zones?.length ? draft.zones : (Array.isArray(data.zones) ? data.zones : []),
               note: draft?.note || "",
               fares: draft?.fares || {},
@@ -1935,7 +1929,7 @@ label{
 
       function bindPreview(){
         [
-          "f_display_name","f_city","f_whatsapp","f_zones","f_note",
+          "f_display_name","f_city","f_zones","f_note",
           "fare_saly_dakar","fare_saly_aibd","fare_saly_ngaparou","fare_saly_somone",
           "fare_saly_mbour","fare_dispo_4h","fare_dispo_day","fare_wait_hour"
         ].forEach(id => {
@@ -1964,13 +1958,13 @@ label{
           }
         });
 
-        $("btnCopyWhatsApp").addEventListener("click", async () => {
+        $("btnCopyMessage").addEventListener("click", async () => {
           try{
             await copyText(buildSummary(currentData()));
-            setToast("💬 Texte WhatsApp copié.", "ok");
+            setToast("📋 Message client copié.", "ok");
           }catch(e){
             console.error(e);
-            setToast("❌ Copie WhatsApp impossible.", "bad");
+            setToast("❌ Copie message impossible.", "bad");
           }
         });
 
@@ -1982,15 +1976,6 @@ label{
             console.error(e);
             setToast("❌ Copie texte impossible.", "bad");
           }
-        });
-
-        $("btnOpenWhatsApp").addEventListener("click", () => {
-          const href = $("btnOpenWhatsApp").dataset.href || "";
-          if (!href){
-            setToast("⚠️ WhatsApp absent. Mets un numéro d’abord.", "warn");
-            return;
-          }
-          window.open(href, "_blank", "noopener");
         });
 
         $("btnPay").addEventListener("click", () => {
@@ -2029,5 +2014,25 @@ label{
       });
     })();
   </script>
+
+<script>
+(function(){
+  function maskPhoneText(){
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function(n){
+      n.nodeValue = String(n.nodeValue || "")
+        .replace(/\+?\s*221[\s.-]*(7[05678])[\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}/g, "Contact masqué")
+        .replace(/\b7[05678][\s.-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}\b/g, "Contact masqué");
+    });
+  }
+  document.addEventListener("DOMContentLoaded", maskPhoneText);
+  setTimeout(maskPhoneText, 300);
+  setTimeout(maskPhoneText, 1200);
+})();
+</script>
+
 </body>
 </html>
+
