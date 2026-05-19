@@ -3,912 +3,1024 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Je conduis — Portes</title>
-  <meta name="theme-color" content="#13824d"/>
-  <meta name="description" content="DIGIY DRIVER PRO — répertoire pur des pages."/>
+  <title>Je conduis — Navigation</title>
+  <meta name="theme-color" content="#1e7a46"/>
+  <meta name="description" content="DIGIY DRIVER — Chemins chauffeur en pavés compacts pour téléphone."/>
   <meta name="robots" content="noindex,nofollow"/>
-  <meta name="digiy-build" content="driver-v4-hub-neurones"/>
+  <meta name="digiy-build" content="driver-hub-paves-mobile-grand-gras-20260519"/>
+
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+
   <script>
-    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_URL  = "https://wesqmwjjtsefyjnluosj.supabase.co";
     window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
-    window.DIGIY_MODULE = "DRIVER";
+    window.DIGIY_MODULE    = "DRIVER";
     window.DIGIY_LOGIN_URL = "./pin.html";
   </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-v4-neurones-20260519"></script>
+  <script src="./guard.js?v=driver-hub-paves-mobile-grand-gras-20260519"></script>
+
   <style>
-:root{
-  --bg:#13824d;
-  --bg2:#0f6b3e;
-  --bg3:#0b4f31;
-  --card:#17864f;
-  --card2:#116b40;
-  --ink:#f8fff9;
-  --muted:rgba(248,255,249,.82);
-  --soft:rgba(248,255,249,.66);
-  --line:rgba(255,255,255,.22);
-  --gold:#facc15;
-  --gold2:#f59e0b;
-  --green:#22c55e;
-  --red:#fb7185;
-  --blue:#60a5fa;
-  --shadow:0 18px 42px rgba(0,0,0,.22);
-  --r:24px;
-  --max:860px;
-  --headerH:52px;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;
-  min-height:100vh;
-  color:var(--ink);
-  font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-  background:
-    radial-gradient(900px 520px at 8% -10%, rgba(250,204,21,.20), transparent 62%),
-    radial-gradient(760px 440px at 105% 0%, rgba(34,197,94,.24), transparent 58%),
-    linear-gradient(180deg,var(--bg),var(--bg2) 55%,var(--bg3) 100%);
-}
-a{color:inherit;text-decoration:none}
-button{font:inherit;cursor:pointer;color:inherit}
-.pageHeader{
-  position:sticky;
-  top:0;
-  z-index:50;
-  min-height:var(--headerH);
-  padding:8px 10px calc(8px + env(safe-area-inset-top,0px));
-  background:rgba(11,79,49,.94);
-  border-bottom:1px solid rgba(250,204,21,.26);
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
-}
-.headerInner{
-  max-width:var(--max);
-  margin:0 auto;
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  gap:8px;
-  align-items:center;
-}
-.headerBtn,.headerTitle{
-  min-height:36px;
-  border-radius:999px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:7px;
-  padding:7px 10px;
-  font-size:13px;
-  font-weight:1000;
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(255,255,255,.075);
-  white-space:nowrap;
-}
-.headerBtn.left{justify-self:start}
-.headerBtn.right{justify-self:end}
-.headerTitle{
-  color:#fffbea;
-  letter-spacing:.07em;
-  text-transform:uppercase;
-  background:rgba(250,204,21,.12);
-  border-color:rgba(250,204,21,.30);
-}
-.wrap{
-  width:min(var(--max),100%);
-  margin:0 auto;
-  padding:16px 12px 32px;
-  display:grid;
-  gap:14px;
-}
-.hero,.card{
-  border:1px solid var(--line);
-  border-radius:var(--r);
-  background:
-    radial-gradient(640px 260px at 100% 0%, rgba(250,204,21,.13), transparent 72%),
-    linear-gradient(180deg,rgba(23,134,79,.96),rgba(17,107,64,.96));
-  box-shadow:var(--shadow);
-  overflow:hidden;
-}
-.hero{padding:20px;position:relative}
-.card{padding:17px}
-.logo{
-  width:92px;
-  height:auto;
-  display:block;
-  object-fit:contain;
-  margin-bottom:12px;
-  filter:drop-shadow(0 10px 20px rgba(0,0,0,.18));
-}
-.eyebrow{
-  color:#fff0a8;
-  font-size:12px;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  font-weight:1000;
-  margin-bottom:8px;
-}
-h1,h2,h3,p{margin-top:0}
-h1{
-  margin-bottom:10px;
-  font-size:clamp(38px,8vw,64px);
-  line-height:.95;
-  letter-spacing:-.055em;
-  font-weight:1000;
-}
-h2{
-  margin-bottom:8px;
-  font-size:clamp(26px,5vw,34px);
-  line-height:1.03;
-  letter-spacing:-.035em;
-  font-weight:1000;
-}
-.lead,.muted{
-  color:var(--muted);
-  font-size:17px;
-  line-height:1.42;
-  font-weight:900;
-}
-.muted.small{font-size:14px;color:var(--soft)}
-.pill{
-  min-height:38px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  padding:8px 12px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.09);
-  color:var(--muted);
-  font-size:13px;
-  font-weight:1000;
-}
-.pill.ok{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.38);color:#d9ffe8}
-.pill.warn{background:rgba(245,158,11,.16);border-color:rgba(245,158,11,.36);color:#fff0bd}
-.pill.bad{background:rgba(251,113,133,.16);border-color:rgba(251,113,133,.36);color:#ffe1e6}
-.actions,.grid2,.kpiGrid,.doorGrid{
-  display:grid;
-  gap:10px;
-}
-.actions{margin-top:16px}
-.grid2{grid-template-columns:1fr}
-.kpiGrid{grid-template-columns:1fr 1fr}
-@media(min-width:760px){
-  .actions{grid-template-columns:repeat(2,1fr)}
-  .grid2{grid-template-columns:1fr 1fr}
-  .doorGrid{grid-template-columns:1fr 1fr}
-}
-.btn,.door{
-  min-height:58px;
-  border-radius:19px;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.09);
-  color:var(--ink);
-  padding:13px 15px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  text-align:center;
-  font-size:16px;
-  font-weight:1000;
-  box-shadow:0 12px 25px rgba(0,0,0,.15);
-}
-.btn.primary{background:linear-gradient(135deg,var(--green),#16a34a);color:#042012;border-color:transparent}
-.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#241300;border-color:transparent}
-.btn.ghost{background:rgba(255,255,255,.065)}
-.btn.warn{background:rgba(250,204,21,.14);border-color:rgba(250,204,21,.32);color:#fff0a8}
-.btn.danger{background:rgba(251,113,133,.16);border-color:rgba(251,113,133,.34);color:#ffe1e6}
-.door{
-  min-height:84px;
-  align-items:flex-start;
-  justify-content:flex-start;
-  text-align:left;
-  flex-direction:column;
-}
-.door b{font-size:20px;line-height:1.12}
-.door span{font-size:14px;color:var(--muted);font-weight:900;line-height:1.35}
-.kpi{
-  border:1px solid rgba(255,255,255,.16);
-  border-radius:22px;
-  padding:16px;
-  background:rgba(4,18,13,.18);
-  min-height:128px;
-}
-.kpi .label{color:#fff0a8;font-size:14px;font-weight:1000;margin-bottom:8px}
-.kpi .num{font-size:46px;font-weight:1000;letter-spacing:-.06em;line-height:.9}
-.kpi .sub{margin-top:8px;color:var(--muted);font-size:13px;font-weight:900}
-.trip{
-  display:grid;
-  gap:9px;
-  border:1px solid rgba(250,204,21,.28);
-  border-radius:22px;
-  padding:16px;
-  background:rgba(4,18,13,.20);
-}
-.trip b{font-size:20px}
-.tripLine{color:var(--muted);font-weight:900;line-height:1.4}
-.message{
-  border:1px dashed rgba(255,255,255,.25);
-  background:rgba(255,255,255,.06);
-  border-radius:20px;
-  padding:14px;
-  color:var(--muted);
-  font-size:15px;
-  font-weight:900;
-  line-height:1.45;
-}
-.row{
-  display:flex;
-  gap:9px;
-  flex-wrap:wrap;
-  align-items:center;
-}
-hr{
-  border:0;
-  border-top:1px solid rgba(255,255,255,.16);
-  margin:12px 0;
-}
-@media(max-width:520px){
-  .wrap{padding:14px 10px 30px}
-  .hero,.card{padding:15px}
-  .headerBtn,.headerTitle{font-size:12px;padding:7px 8px}
-  h1{font-size:40px}
-  .btn{width:100%}
-  .door{min-height:76px}
-}
+    :root{
+      --bg:#1e7a46;--bg2:#155a34;--bg3:#0e4226;
+      --bar:rgba(8,50,24,.96);
+      --gold:#c4973f;--green:#22c55e;
+      --line:rgba(255,255,255,.18);
+      --text:#f0fff5;--muted:rgba(240,255,245,.55);
+      --shadow:0 16px 40px rgba(0,0,0,.2);
+      --r:14px;--max:960px;
+      --hdrH:52px;--barH:78px;
+    }
 
-/* ── DIGIY V4.1 — Lecteur discret qui explique le clic ───────── */
-.audioCoachFab{
-  position:fixed;
-  right:12px;
-  top:calc(var(--headerH) + 12px + env(safe-area-inset-top,0px));
-  z-index:90;
-  min-height:52px;
-  min-width:52px;
-  max-width:148px;
-  padding:10px 12px;
-  border-radius:999px;
-  border:1px solid rgba(250,204,21,.42);
-  background:linear-gradient(135deg,rgba(250,204,21,.96),rgba(245,158,11,.96));
-  color:#241300;
-  box-shadow:0 16px 34px rgba(0,0,0,.24);
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:7px;
-  font-size:14px;
-  font-weight:1000;
-}
-.audioCoachFab .ico{font-size:20px;line-height:1}
-.audioCoachPanel{
-  position:fixed;
-  left:12px;
-  right:12px;
-  top:calc(var(--headerH) + 76px + env(safe-area-inset-top,0px));
-  z-index:89;
-  width:min(calc(100% - 24px),var(--max));
-  margin:0 auto;
-  display:none;
-  border-radius:26px;
-  border:1px solid rgba(250,204,21,.34);
-  background:
-    radial-gradient(560px 220px at 100% 0%, rgba(250,204,21,.18), transparent 70%),
-    linear-gradient(180deg,rgba(17,107,64,.98),rgba(11,79,49,.98));
-  box-shadow:0 24px 60px rgba(0,0,0,.34);
-  padding:16px;
-}
-.audioCoachPanel.open{display:block}
-.audioCoachTop{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-}
-.audioCoachKicker{
-  color:#fff0a8;
-  font-size:11px;
-  font-weight:1000;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  margin-bottom:7px;
-}
-.audioCoachTitle{
-  margin:0;
-  font-size:24px;
-  line-height:1.05;
-  font-weight:1000;
-  letter-spacing:-.03em;
-}
-.audioCoachText{
-  margin-top:9px;
-  color:var(--muted);
-  font-size:15px;
-  font-weight:900;
-  line-height:1.45;
-}
-.audioCoachClose{
-  width:38px;
-  height:38px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.08);
-  color:var(--ink);
-  font-weight:1000;
-}
-.audioCoachActions{
-  display:grid;
-  gap:9px;
-  grid-template-columns:1fr 1fr;
-  margin-top:13px;
-}
-.audioCoachActions button{
-  min-height:48px;
-  border-radius:17px;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.085);
-  color:var(--ink);
-  font-weight:1000;
-}
-.audioCoachActions button.primary{
-  background:linear-gradient(135deg,var(--gold),var(--gold2));
-  color:#241300;
-  border-color:transparent;
-}
-.audioCoachHint{
-  margin-top:10px;
-  padding:12px;
-  border-radius:18px;
-  border:1px dashed rgba(255,255,255,.22);
-  background:rgba(255,255,255,.06);
-  color:var(--muted);
-  font-size:13px;
-  font-weight:900;
-  line-height:1.38;
-}
-@media(max-width:560px){
-  .audioCoachFab{
-    right:9px;
-    min-width:48px;
-    min-height:48px;
-    padding:9px 10px;
-  }
-  .audioCoachFab span:not(.ico){display:none}
-  .audioCoachPanel{
-    left:10px;
-    right:10px;
-    width:calc(100% - 20px);
-    top:calc(var(--headerH) + 66px + env(safe-area-inset-top,0px));
-  }
-  .audioCoachActions{grid-template-columns:1fr}
-}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
 
-  
-/* =========================================================
-   DIGIY DRIVER V4.4 — TYPOGRAPHIE TERRAIN
-   Plus grand, plus gras, plus lisible sur téléphone.
-   Moteur inchangé.
-   ========================================================= */
+    body{
+      margin:0;min-height:100dvh;color:var(--text);
+      font-family:Outfit,system-ui,-apple-system,'Segoe UI',sans-serif;
+      background:
+        radial-gradient(500px 350px at 18% 0%,rgba(74,222,128,.17),transparent 55%),
+        radial-gradient(350px 250px at 88% 8%,rgba(196,151,63,.11),transparent 50%),
+        linear-gradient(180deg,var(--bg) 0%,var(--bg2) 60%,var(--bg3) 100%);
+      padding:
+        calc(var(--hdrH) + 16px)
+        16px
+        calc(var(--barH) + env(safe-area-inset-bottom,0px) + 20px);
+    }
 
-html{
-  -webkit-text-size-adjust:100%;
-  text-size-adjust:100%;
-}
+    a{color:inherit;text-decoration:none}
+    button{font:inherit;cursor:pointer}
 
-body{
-  font-weight:800;
-  letter-spacing:-.005em;
-}
+    /* ══ HEADER ══ */
+    .topHeader{
+      position:fixed;top:0;left:0;right:0;height:var(--hdrH);z-index:100;
+      display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+      background:var(--bar);
+      border-bottom:1px solid rgba(196,151,63,.26);
+      backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    }
+    .hdrBack{
+      font-size:14px;font-weight:1000;color:rgba(240,255,245,.55);
+      padding:8px 0;white-space:nowrap;transition:color .13s;
+    }
+    .hdrBack:hover{color:var(--text)}
+    .hdrTitle{
+      font-size:12px;font-weight:1000;letter-spacing:.16em;
+      text-transform:uppercase;color:var(--gold);
+    }
+    .hdrPill{
+      display:inline-flex;align-items:center;min-height:32px;padding:6px 10px;
+      border-radius:999px;border:1px solid var(--line);
+      background:rgba(255,255,255,.08);color:var(--muted);
+      font-size:12px;font-weight:1000;white-space:nowrap;
+    }
+    .hdrPill.ok  {color:#bbf7d0;border-color:rgba(34,197,94,.38);background:rgba(34,197,94,.12)}
+    .hdrPill.warn{color:#fde68a;border-color:rgba(245,158,11,.38);background:rgba(245,158,11,.12)}
+    .hdrPill.bad {color:#fecaca;border-color:rgba(251,113,133,.38);background:rgba(251,113,133,.10)}
 
-.pageHeader{
-  min-height:58px;
-}
+    /* ══ WRAP ══ */
+    .wrap{width:min(var(--max),100%);margin:0 auto;display:grid;gap:12px}
 
-.headerBtn,
-.headerTitle{
-  min-height:42px;
-  font-size:15px;
-  font-weight:1000;
-  padding:9px 12px;
-}
+    /* ══ HUB HEAD ══ */
+    .hubHead{padding:2px 0 4px}
+    .eyebrow{
+      color:#fff0a8;font-size:11px;letter-spacing:.16em;
+      text-transform:uppercase;font-weight:1000;margin-bottom:8px;
+    }
+    h1{
+      margin:0 0 8px;font-size:clamp(32px,8vw,52px);
+      font-weight:1000;line-height:.94;letter-spacing:-.05em;
+    }
+    .hubSub{color:var(--muted);font-size:15px;font-weight:900;line-height:1.42}
 
-.eyebrow{
-  font-size:13px !important;
-  font-weight:1000 !important;
-  letter-spacing:.12em;
-}
+    /* ══ GROUPS ══ */
+    .group{display:grid;gap:8px}
+    .groupLabel{
+      font-size:10px;font-weight:1000;letter-spacing:.14em;
+      text-transform:uppercase;color:rgba(240,255,245,.40);padding:0 2px;
+    }
 
-h1{
-  font-size:clamp(42px,10vw,72px) !important;
-  line-height:.94 !important;
-  font-weight:1000 !important;
-  letter-spacing:-.06em !important;
-}
+    /* ══ DOORS ══ */
+    .doorList{display:grid;gap:7px}
 
-h2{
-  font-size:clamp(30px,7vw,42px) !important;
-  line-height:1 !important;
-  font-weight:1000 !important;
-  letter-spacing:-.045em !important;
-}
+    .door{
+      display:flex;align-items:center;gap:13px;
+      padding:14px 15px;border-radius:var(--r);
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.09);
+      box-shadow:var(--shadow);
+      transition:transform .12s ease,background .12s ease,border-color .12s ease;
+    }
+    .door:hover{
+      transform:translateY(-1px);
+      background:rgba(255,255,255,.14);
+      border-color:rgba(255,255,255,.24);
+    }
+    .door:active{transform:none}
 
-h3{
-  font-size:clamp(24px,5.6vw,32px) !important;
-  line-height:1.05 !important;
-  font-weight:1000 !important;
-}
+    .doorIcon{
+      font-size:22px;flex:0 0 auto;
+      width:44px;height:44px;border-radius:13px;
+      display:grid;place-items:center;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+    }
 
-.lead,
-.muted,
-.heroLead,
-.brandSub,
-.meta,
-.tripLine,
-.audioCoachText{
-  font-size:clamp(18px,4.4vw,23px) !important;
-  line-height:1.42 !important;
-  font-weight:950 !important;
-}
+    .doorInfo{flex:1;min-width:0}
+    .doorInfo b{
+      display:block;font-size:16px;font-weight:1000;
+      line-height:1.15;margin-bottom:3px;
+    }
+    .doorInfo span{
+      display:block;color:var(--muted);
+      font-size:12px;font-weight:900;line-height:1.35;
+    }
 
-.small,
-.kpi .sub,
-.kpiSub,
-.hint,
-.msg,
-.empty,
-.audioCoachHint{
-  font-size:16px !important;
-  line-height:1.45 !important;
-  font-weight:950 !important;
-}
+    .doorTag{
+      flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+      min-height:30px;padding:5px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);
+      font-size:10px;font-weight:1000;letter-spacing:.08em;
+      text-transform:uppercase;color:#fff0a8;
+    }
 
-.pill,
-.badge,
-.tag,
-.chip,
-.headerBtn,
-.headerTitle{
-  font-size:15px !important;
-  font-weight:1000 !important;
-}
+    /* PAY door — featured */
+    .door.payDoor{
+      border-color:rgba(196,151,63,.42);background:rgba(196,151,63,.1);
+    }
+    .door.payDoor:hover{
+      background:rgba(196,151,63,.17);border-color:rgba(196,151,63,.56);
+    }
+    .door.payDoor .doorIcon{
+      background:rgba(196,151,63,.15);border-color:rgba(196,151,63,.3);
+    }
+    .door.payDoor .doorTag{
+      color:var(--gold);border-color:rgba(196,151,63,.35);background:rgba(196,151,63,.12);
+    }
+    .payBadge{
+      display:inline-block;margin-left:7px;padding:2px 7px;
+      border-radius:999px;background:rgba(196,151,63,.22);
+      border:1px solid rgba(196,151,63,.42);
+      color:var(--gold);font-size:9px;font-weight:1000;
+      letter-spacing:.06em;text-transform:uppercase;vertical-align:middle;
+    }
 
-.btn,
-.door,
-.navbtn,
-.driverPhoneAction,
-.audioCoachActions button{
-  min-height:64px !important;
-  font-size:18px !important;
-  font-weight:1000 !important;
-  border-radius:20px !important;
-}
+    /* External door */
+    .door.extDoor .doorTag{color:rgba(240,255,245,.45);font-size:9px}
 
-.door b,
-.tripTitle,
-.fareName,
-.fareTitle,
-.fieldValue,
-.memoryItemTitle,
-.driverPhoneCopy strong{
-  font-size:clamp(21px,5vw,28px) !important;
-  line-height:1.12 !important;
-  font-weight:1000 !important;
-}
 
-.door span,
-.driverPhoneCopy span,
-.memoryItemMeta,
-.quickGuide p,
-.sectionLead{
-  font-size:17px !important;
-  line-height:1.4 !important;
-  font-weight:950 !important;
-}
+    /* ══ HUB PAVÉS — MOBILE COURT ══ */
+    .compactHub{gap:12px}
 
-.kpi{
-  min-height:142px;
-  padding:18px !important;
-}
+    .hubHead.compactHead{
+      display:grid;
+      gap:8px;
+      padding:0;
+    }
+    .compactHead .eyebrow{margin-bottom:0}
+    .compactHead h1{
+      margin:0;
+      font-size:clamp(27px,7vw,44px);
+      line-height:.96;
+    }
+    .compactHead .hubSub{
+      font-size:13px;
+      line-height:1.3;
+      max-width:720px;
+    }
 
-.kpi .label,
-.kpiLabel{
-  font-size:17px !important;
-  font-weight:1000 !important;
-}
+    .pathPanel{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:20px;
+      background:rgba(255,255,255,.07);
+      box-shadow:var(--shadow);
+      padding:10px;
+    }
 
-.kpi .num,
-.kpiValue,
-.statNumber{
-  font-size:clamp(44px,11vw,62px) !important;
-  font-weight:1000 !important;
-  line-height:.9 !important;
-}
+    .panelHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:2px 2px 10px;
+    }
+    .panelTitle{
+      font-size:11px;
+      font-weight:1000;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:#fff0a8;
+    }
+    .panelHint{
+      font-size:10px;
+      font-weight:1000;
+      color:rgba(240,255,245,.44);
+      white-space:nowrap;
+    }
 
-input,
-textarea,
-select{
-  min-height:60px !important;
-  font-size:18px !important;
-  font-weight:1000 !important;
-  line-height:1.35 !important;
-}
+    .pathGrid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:9px;
+    }
 
-textarea{
-  min-height:118px !important;
-}
+    .pathGrid .door.pave{
+      min-height:112px;
+      padding:12px;
+      border-radius:18px;
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      justify-content:space-between;
+      gap:8px;
+      box-shadow:none;
+      background:linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.065));
+    }
 
-label{
-  font-size:17px !important;
-  font-weight:1000 !important;
-}
+    .paveTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
 
-.trip,
-.fareCard,
-.card,
-.hero{
-  padding:18px !important;
-}
+    .pathGrid .doorIcon{
+      width:38px;
+      height:38px;
+      border-radius:13px;
+      font-size:21px;
+    }
 
-.audioCoachFab{
-  min-height:58px !important;
-  min-width:58px !important;
-  font-size:16px !important;
-  font-weight:1000 !important;
-}
+    .pathGrid .doorInfo b{
+      font-size:15px;
+      line-height:1.08;
+      margin-bottom:3px;
+      letter-spacing:-.01em;
+    }
 
-.audioCoachTitle{
-  font-size:30px !important;
-  font-weight:1000 !important;
-}
+    .pathGrid .doorInfo span{
+      font-size:11px;
+      line-height:1.2;
+      color:rgba(240,255,245,.62);
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
 
-@media(max-width:560px){
-  .wrap{
-    padding-left:10px !important;
-    padding-right:10px !important;
-  }
+    .pathGrid .doorTag{
+      min-height:24px;
+      padding:3px 7px;
+      font-size:8.5px;
+      letter-spacing:.07em;
+    }
 
-  .pageHeader{
-    min-height:56px;
-  }
+    .pave.hot{
+      background:linear-gradient(180deg,rgba(34,197,94,.18),rgba(255,255,255,.07));
+      border-color:rgba(34,197,94,.34);
+    }
 
-  .headerBtn,
-  .headerTitle{
-    min-height:40px;
-    font-size:14px !important;
-    padding:8px 10px;
-  }
+    .pave.gold,
+    .pathGrid .door.payDoor{
+      background:linear-gradient(180deg,rgba(196,151,63,.18),rgba(255,255,255,.07));
+      border-color:rgba(196,151,63,.42);
+    }
 
-  h1{
-    font-size:42px !important;
-  }
+    .pathGrid .door.payDoor .doorTag,
+    .pave.gold .doorTag{
+      color:var(--gold);
+      border-color:rgba(196,151,63,.35);
+      background:rgba(196,151,63,.12);
+    }
 
-  h2{
-    font-size:31px !important;
-  }
+    .pave.wide{
+      grid-column:span 2;
+      min-height:88px !important;
+    }
 
-  .lead,
-  .muted,
-  .heroLead,
-  .meta,
-  .tripLine{
-    font-size:18px !important;
-  }
+    .pave.wide .doorInfo span{
+      -webkit-line-clamp:1;
+    }
 
-  .btn,
-  .door,
-  .navbtn,
-  .driverPhoneAction{
-    min-height:66px !important;
-    font-size:18px !important;
-  }
+    @media(min-width:720px){
+      .pathGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+      .pave.wide{grid-column:span 2}
+    }
 
-  .grid2,
-  .kpiGrid{
-    grid-template-columns:1fr !important;
-  }
+    @media(max-width:380px){
+      body{padding-left:9px;padding-right:9px}
+      .pathPanel{padding:8px}
+      .pathGrid{gap:8px}
+      .pathGrid .door.pave{padding:10px;min-height:106px}
+      .pathGrid .doorInfo b{font-size:14px}
+      .pathGrid .doorInfo span{font-size:10.5px}
+      .pathGrid .doorIcon{width:35px;height:35px;font-size:19px}
+    }
 
-  .kpi .num,
-  .kpiValue,
-  .statNumber{
-    font-size:50px !important;
-  }
-}
 
-</style>
+    /* ══ BOTTOM BAR ══ */
+    .bottomBar{
+      position:fixed;bottom:0;left:0;right:0;height:var(--barH);z-index:100;
+      display:flex;align-items:center;justify-content:space-around;
+      padding:0 32px calc(8px + env(safe-area-inset-bottom,0px));
+      background:rgba(6,38,18,.97);
+      border-top:1px solid rgba(196,151,63,.18);
+      backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    }
+
+    .wbtn{
+      display:flex;flex-direction:column;align-items:center;gap:3px;
+      border:none;background:transparent;cursor:pointer;
+      padding:4px 10px;border-radius:14px;
+      transition:background .14s;-webkit-tap-highlight-color:transparent;
+    }
+    .wbtn:hover{background:rgba(255,255,255,.06)}
+    .wbtn svg{display:block;transition:transform .4s cubic-bezier(.36,.07,.19,.97)}
+    .wbtn:hover svg{transform:rotate(22deg)}
+    .wbtn.spinning svg{animation:wspin .55s cubic-bezier(.36,.07,.19,.97) forwards}
+    @keyframes wspin{0%{transform:rotate(0)}60%{transform:rotate(200deg)}100%{transform:rotate(360deg)}}
+    .wlbl{font-size:10px;font-weight:1000;letter-spacing:.08em;text-transform:uppercase}
+    .cwbtn .wlbl{color:rgba(240,255,245,.48)}
+    .pwbtn .wlbl{color:var(--gold)}
+
+    /* ══ OVERLAYS ══ */
+    .overlay{
+      position:fixed;inset:0;z-index:200;
+      display:none;flex-direction:column;
+      background:rgba(4,22,12,.98);
+      overflow-y:auto;-webkit-overflow-scrolling:touch;
+    }
+    .overlay.open{display:flex;animation:fadeOv .22s ease}
+    @keyframes fadeOv{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+
+    .ovHdr{
+      min-height:158px;flex:0 0 auto;width:100%;
+      display:flex;flex-direction:column;align-items:center;
+      justify-content:flex-end;padding:14px 16px 18px;
+      background:linear-gradient(180deg,#081a0e 0%,#040e08 100%);
+      position:relative;overflow:hidden;
+    }
+    .ovHdrGlow{position:absolute;inset:0}
+    .co .ovHdrGlow{background:radial-gradient(circle at 50% 45%,rgba(74,222,128,.12),transparent 62%)}
+    .po .ovHdrGlow{background:radial-gradient(circle at 50% 45%,rgba(196,151,63,.14),transparent 62%)}
+
+    .ovCity{position:absolute;bottom:0;left:0;right:0;z-index:0;opacity:.15}
+
+    .ovLogo{
+      width:50px;height:50px;object-fit:contain;
+      border-radius:6px;position:relative;z-index:1;margin-bottom:7px;
+    }
+    .ovLogoFb{
+      width:46px;height:46px;border-radius:50%;
+      display:grid;place-items:center;
+      font-size:20px;font-weight:1000;font-family:Georgia,serif;
+      border:2px solid;position:relative;z-index:1;margin-bottom:7px;
+    }
+    .co .ovLogoFb{color:#4ade80;border-color:#4ade80}
+    .po .ovLogoFb{color:var(--gold);border-color:var(--gold)}
+    .ovLine{width:26px;height:2px;margin-bottom:7px;position:relative;z-index:1}
+    .co .ovLine{background:rgba(74,222,128,.45)}.po .ovLine{background:rgba(196,151,63,.5)}
+    .ovTitle{
+      font-size:24px;font-weight:1000;font-family:Georgia,serif;
+      position:relative;z-index:1;
+    }
+    .co .ovTitle{color:#4ade80}.po .ovTitle{color:var(--gold)}
+    .ovSub{
+      font-size:11px;color:rgba(240,255,245,.38);font-weight:900;
+      position:relative;z-index:1;margin-top:3px;
+    }
+
+    .closeBtn{
+      position:absolute;top:12px;right:12px;z-index:30;
+      width:36px;height:36px;border-radius:50%;
+      border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);
+      color:var(--text);font-size:16px;cursor:pointer;
+      display:grid;place-items:center;font-weight:1000;transition:background .14s;
+    }
+    .closeBtn:hover{background:rgba(255,255,255,.14)}
+
+    /* ══ OV LINKS ══ */
+    .ovLinks{padding:0 16px 28px;flex:1;display:flex;flex-direction:column}
+
+    .payRow{
+      display:flex;align-items:center;gap:14px;
+      padding:14px;margin:10px 0 6px;border-radius:var(--r);
+      border:1px solid rgba(196,151,63,.4);background:rgba(196,151,63,.1);
+      color:var(--text);cursor:pointer;transition:background .13s;
+    }
+    .payRow:hover{background:rgba(196,151,63,.17)}
+    .paySep{height:1px;background:rgba(255,255,255,.07);margin:4px 0 0}
+
+    .ovLink{
+      display:flex;align-items:center;gap:14px;padding:13px 0;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      color:var(--text);cursor:pointer;
+      transition:padding-left .12s;
+      background:none;border-top:none;border-left:none;border-right:none;
+      width:100%;text-align:left;font-family:inherit;
+    }
+    .ovLink:last-child{border-bottom:none}
+    .ovLink:hover{padding-left:4px}
+
+    .ovIco{
+      width:38px;height:38px;border-radius:11px;
+      display:grid;place-items:center;font-size:17px;flex:0 0 auto;
+    }
+    .co .ovIco{background:rgba(74,222,128,.1)}
+    .po .ovIco,.payRow .ovIco{background:rgba(196,151,63,.12)}
+    .ovLbl{flex:1;font-size:15px;font-weight:1000;line-height:1.15}
+    .ovSublbl{display:block;font-size:11px;color:rgba(240,255,245,.42);font-weight:900;margin-top:2px}
+    .ovArr{font-size:13px;color:rgba(255,255,255,.25);transition:color .12s}
+    .co .ovLink:hover .ovArr{color:#4ade80}
+    .po .ovLink:hover .ovArr,.payRow:hover .ovArr{color:var(--gold)}
+
+
+
+    /* ══ RENFORT LECTURE — GRAND & GRAS ══ */
+    body{font-weight:900}
+    .hdrBack{font-size:15px;font-weight:1000}
+    .hdrTitle{font-size:13px;font-weight:1000}
+    .hdrPill{font-size:13px;font-weight:1000}
+
+    .compactHead .eyebrow,
+    .panelTitle{
+      font-size:12px;
+      font-weight:1000;
+    }
+    .compactHead h1{
+      font-size:clamp(31px,8vw,48px);
+      font-weight:1000;
+    }
+    .compactHead .hubSub{
+      font-size:15px;
+      font-weight:1000;
+      color:rgba(240,255,245,.78);
+    }
+    .panelHint{
+      font-size:11px;
+      font-weight:1000;
+      color:rgba(240,255,245,.62);
+    }
+    .pathGrid .door.pave{
+      min-height:124px;
+      padding:13px;
+    }
+    .pathGrid .doorIcon{
+      width:42px;
+      height:42px;
+      font-size:24px;
+    }
+    .pathGrid .doorInfo b{
+      font-size:18px;
+      font-weight:1000;
+      line-height:1.03;
+      letter-spacing:-.02em;
+    }
+    .pathGrid .doorInfo span{
+      font-size:13px;
+      font-weight:1000;
+      line-height:1.18;
+      color:rgba(240,255,245,.82);
+    }
+    .pathGrid .doorTag{
+      min-height:26px;
+      padding:4px 8px;
+      font-size:9.5px;
+      font-weight:1000;
+    }
+    .pave.wide{min-height:96px !important}
+
+    @media(max-width:380px){
+      .pathGrid .door.pave{min-height:118px;padding:11px}
+      .pathGrid .doorInfo b{font-size:17px}
+      .pathGrid .doorInfo span{font-size:12px}
+      .pathGrid .doorIcon{width:40px;height:40px;font-size:23px}
+      .pathGrid .doorTag{font-size:9px}
+    }
+
+    /* ══ RESPONSIVE ══ */
+    @media(max-width:520px){
+      body{padding:calc(var(--hdrH)+12px) 12px calc(var(--barH)+env(safe-area-inset-bottom,0px)+16px)}
+      .door{padding:12px 13px}
+      h1{font-size:30px}
+    }
+    @media(prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}
+      .door,.wbtn,.ovLink{transition:none}
+    }
+  </style>
 </head>
 
 <body>
 
-<script>
-window.DIGIY_AUDIO_SCRIPT = {
-  title: 'Les portes DRIVER.',
-  text: 'Le hub n’est pas une page de travail. C’est un couloir propre : tu choisis une porte, puis tu fais une seule chose.',
-  speak: 'Tu es dans les portes DRIVER. Ce n’est pas une page de travail. C’est un couloir clair. Choisis Portes DRIVER, Mes trajets, Ma session, Mes alertes, Mon profil, Mes tarifs, Mon QR, Ma fiche, Mon accès ou Mon argent.'
-};
-</script>
+  <!-- ══ TOP HEADER ══ -->
+  <header class="topHeader">
+    <a class="hdrBack" id="hdrBack" href="./dashboard-pro.html">← Mon activité</a>
+    <div class="hdrTitle">Navigation</div>
+    <div class="hdrPill warn" id="sessionPill">session…</div>
+  </header>
 
+  <!-- ══ CONTENU ══ -->
+  <div class="wrap compactHub">
 
-<header class="pageHeader">
-  <div class="headerInner">
-    <a class="headerBtn left" href="./hub.html">← portes</a>
-    <div class="headerTitle">PORTES DRIVER</div>
-    <a class="headerBtn right" id="goDashboard" data-audio="Ouvre Portes DRIVER : ici tu vois seulement ce qui demande attention maintenant." href="#">☰ portes</a>
-  </div>
-</header>
-
-<main class="wrap">
-  <section class="hero">
-    <img class="logo" src="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png" alt="DIGIY — L’écosystème direct des métiers pro"/>
-    <div class="eyebrow">Répertoire pur</div>
-    <h1>Choisis le bon geste.</h1>
-    <p class="lead">Pas de dashboard en plus. Ici, tu choisis directement la bonne pièce. Le chauffeur ne doit pas chercher.</p>
-    <div class="row"><span class="pill" id="sessionPill">session…</span></div>
-  </section>
-
-  <section class="doorGrid">
-<a class="door" id="goTrajets" data-audio="Ouvre Mes trajets : ici tu lis, acceptes, démarres ou termines une course." href="./trajets.html"><b>📋 Mes trajets</b><span>Lire, accepter, démarrer, terminer.</span></a>
-    <a class="door" id="goSession" data-audio="Ouvre Ma session : ici tu vérifies seulement ton accès." href="./session.html"><b>🔐 Ma session</b><span>Vérifier l’accès sans mélanger le reste.</span></a>
-    <a class="door" id="goAlertes" data-audio="Ouvre Mes alertes : voix, messages et lecteur DIGIY." href="./alertes.html"><b>🔔 Mes alertes</b><span>Voix, message, lecteur DIGIY.</span></a>
-    <a class="door" id="goProfil" data-audio="Ouvre Mon profil : identité chauffeur, zone et visibilité." href="./profil-chauffeur.html"><b>👤 Mon profil</b><span>Identité, zone, visibilité.</span></a>
-    <a class="door" id="goTarifs" data-audio="Ouvre Mes tarifs : ici tu vérifies tes prix." href="./tarifs.html"><b>💵 Mes tarifs</b><span>Prix chauffeur et repères client.</span></a>
-    <a class="door" id="goQr" data-audio="Ouvre Mon QR : ici tu partages la bonne porte chauffeur." href="./generateur-digiy-driver.html"><b>▣ Mon QR</b><span>Partager la bonne porte.</span></a>
-    <a class="door" id="goFiche" data-audio="Ouvre Ma fiche client : tu vois ce que le public découvre." href="./ma-fiche.html"><b>🌍 Ma fiche client</b><span>Voir ce que le public découvre.</span></a>
-    <a class="door" id="goPin" data-audio="Ouvre Mon accès : ici tu récupères le passage sécurisé." href="./pin.html"><b>🔑 Mon accès</b><span>Récupérer ou ouvrir le passage.</span></a>
-    <a class="door" id="goPay" data-audio="Ouvre Mon argent : PAY reste une porte transversale." href="https://pro-pay.digiylyfe.com/"><b>💳 Mon argent</b><span>Porte PAY transversale, sans menu DRIVER.</span></a>
-  </section>
-</main>
-<script>
-const ROUTES = {
-  index:"./index.html",
-  dashboard:"./hub.html",
-  hub:"./hub.html",
-  session:"./session.html",
-  alertes:"./alertes.html",
-  trajets:"./trajets.html",
-  notes:"./trajets.html#quickDriverNote",
-  profil:"./profil-chauffeur.html",
-  tarifs:"./tarifs.html",
-  qr:"./generateur-digiy-driver.html",
-  pin:"./pin.html",
-  fiche:"./ma-fiche.html",
-  pay:"https://pro-pay.digiylyfe.com/",
-  payStart:"https://commencer-a-payer.digiylyfe.com/"
-};
-const $ = (id) => document.getElementById(id);
-function normSlug(v){
-  return String(v || "").trim().toLowerCase()
-    .replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"")
-    .replace(/-+/g,"-").replace(/^-|-$/g,"");
-}
-function normPhone(v){
-  const d = String(v || "").replace(/[^\d]/g,"");
-  if(!d) return "";
-  if(d.startsWith("221") && d.length === 12) return d;
-  if(d.length === 9) return "221" + d;
-  return d.length >= 9 ? d : "";
-}
-function isSensitiveSlug(v){ return /\d{7,}/.test(String(v || "")); }
-function canExposeSlug(v){ const s = normSlug(v); return !!s && !isSensitiveSlug(s); }
-function phoneFromDriverSlug(v){
-  const s = normSlug(v);
-  return /^driver-\d{12}$/.test(s) ? normPhone(s.replace("driver-","")) : "";
-}
-function storageGet(key){
-  try{ return sessionStorage.getItem(key) || localStorage.getItem(key) || ""; }catch(_){ return ""; }
-}
-function storageSet(key,val){
-  try{ sessionStorage.setItem(key,String(val)); localStorage.setItem(key,String(val)); }catch(_){}
-}
-function cleanVisibleUrl(){
-  try{
-    const u = new URL(location.href);
-    let changed = false;
-    ["phone","tel","wa","p_phone","owner_phone","checkout_phone","subscription_phone","identifiant"].forEach(k=>{
-      if(u.searchParams.has(k)){ u.searchParams.delete(k); changed = true; }
-    });
-    const s = normSlug(u.searchParams.get("slug") || "");
-    if(s && isSensitiveSlug(s)){ u.searchParams.delete("slug"); changed = true; }
-    if(changed) history.replaceState({}, document.title, u.pathname + u.search + u.hash);
-  }catch(_){}
-}
-function getState(){
-  const qs = new URLSearchParams(location.search);
-  const guard = window.DIGIY_GUARD?.state || {};
-  let slug = normSlug(
-    guard.slug || qs.get("slug") ||
-    storageGet("digiy_driver_slug") ||
-    storageGet("digiy_driver_last_slug") ||
-    storageGet("DIGIY_SLUG") || ""
-  );
-  let phone = normPhone(
-    guard.phone || qs.get("phone") || qs.get("tel") ||
-    storageGet("digiy_driver_phone") ||
-    storageGet("DIGIY_DRIVER_PHONE") ||
-    phoneFromDriverSlug(slug) || ""
-  );
-  const accessFlags = [
-    guard.access_ok, guard.access, guard.pin_session_ok,
-    storageGet("digiy_driver_access_ok"),
-    storageGet("digiy_driver_pin_access"),
-    storageGet("DIGIY_DRIVER_ACCESS_OK")
-  ].map(v => String(v || "").toLowerCase());
-  const access = accessFlags.some(v => ["true","1","yes","ok","valid"].includes(v));
-  if(slug) storageSet("digiy_driver_last_slug", slug);
-  if(phone) storageSet("digiy_driver_phone", phone);
-  return {slug, phone, access, guard};
-}
-function safeUrl(base, extra={}){
-  try{
-    const s = getState().slug;
-    const u = new URL(base, location.href);
-    if(canExposeSlug(s)) u.searchParams.set("slug", s);
-    u.searchParams.delete("phone"); u.searchParams.delete("tel"); u.searchParams.delete("wa");
-    Object.entries(extra).forEach(([k,v])=>{ if(v !== undefined && v !== null && v !== "") u.searchParams.set(k,v); });
-    if(u.origin === location.origin) return u.pathname + u.search + u.hash;
-    return u.toString();
-  }catch(_){ return base; }
-}
-function setHref(id, href){
-  const el = $(id);
-  if(el) el.href = href;
-}
-function wireStandardLinks(){
-  setHref("goIndex", ROUTES.index);
-  setHref("goDashboard", safeUrl(ROUTES.dashboard));
-  setHref("goHub", safeUrl(ROUTES.hub));
-  setHref("goSession", safeUrl(ROUTES.session));
-  setHref("goAlertes", safeUrl(ROUTES.alertes));
-  setHref("goTrajets", safeUrl(ROUTES.trajets));
-  setHref("goNotes", safeUrl(ROUTES.notes));
-  setHref("goProfil", safeUrl(ROUTES.profil));
-  setHref("goTarifs", safeUrl(ROUTES.tarifs));
-  setHref("goQr", safeUrl(ROUTES.qr));
-  setHref("goPin", safeUrl(ROUTES.pin));
-  setHref("goFiche", safeUrl(ROUTES.fiche));
-  setHref("goPay", buildPayDoorUrl());
-}
-function buildPayDoorUrl(){
-  const st = getState();
-  try{
-    const u = new URL(ROUTES.pay);
-    u.searchParams.set("from","driver");
-    if(canExposeSlug(st.slug)) u.searchParams.set("slug", st.slug);
-    u.searchParams.set("return", location.origin + location.pathname);
-    return u.toString();
-  }catch(_){ return ROUTES.pay; }
-}
-function paintSessionPill(){
-  const st = getState();
-  const pill = $("sessionPill");
-  if(!pill) return;
-  if(st.access){
-    pill.textContent = "● session ouverte";
-    pill.className = "pill ok";
-  }else if(st.slug || st.phone){
-    pill.textContent = "● compte reconnu";
-    pill.className = "pill warn";
-  }else{
-    pill.textContent = "● accès à ouvrir";
-    pill.className = "pill bad";
-  }
-}
-function getClient(){
-  if(!window.supabase?.createClient) return null;
-  if(!window.DIGIY_SUPABASE_URL || !(window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON)) return null;
-  try{
-    return window.supabase.createClient(
-      window.DIGIY_SUPABASE_URL,
-      window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON,
-      { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false } }
-    );
-  }catch(_){ return null; }
-}
-cleanVisibleUrl();
-wireStandardLinks();
-paintSessionPill();
-</script>
-
-<!-- DIGIY V4.1 — Lecteur qui explique le clic -->
-<button class="audioCoachFab" id="digiyAudioFab" type="button" aria-controls="digiyAudioPanel" aria-expanded="false">
-  <span class="ico">🎧</span><span>Écouter</span>
-</button>
-
-<section class="audioCoachPanel" id="digiyAudioPanel" aria-label="Lecteur DIGIY">
-  <div class="audioCoachTop">
-    <div>
-      <div class="audioCoachKicker">Lecteur DIGIY</div>
-      <h2 class="audioCoachTitle" id="digiyAudioTitle">DIGIY explique le clic</h2>
+    <div class="hubHead compactHead">
+      <div class="eyebrow">JE CONDUIS</div>
+      <h1>Choisis ton chemin.</h1>
+      <div class="hubSub" id="hubSub">Pavés courts : le chauffeur voit, touche, agit. Moins de scroll, plus de terrain.</div>
     </div>
-    <button class="audioCoachClose" id="digiyAudioClose" type="button" aria-label="Fermer">×</button>
+
+    <section class="pathPanel" aria-label="Chemins DRIVER en pavés">
+      <div class="panelHead">
+        <div class="panelTitle">Pavés chauffeur</div>
+        <div class="panelHint">2 par 2 sur téléphone</div>
+      </div>
+
+      <div class="pathGrid">
+        <a class="door pave hot" id="doorTrajets" href="./trajets.html">
+          <div class="paveTop">
+            <div class="doorIcon">📋</div>
+            <div class="doorTag">Action</div>
+          </div>
+          <div class="doorInfo"><b>Mes trajets</b><span>Accepter · démarrer · terminer.</span></div>
+        </a>
+
+        <a class="door pave hot" id="doorNote" href="./trajets.html#quickDriverNote">
+          <div class="paveTop">
+            <div class="doorIcon">✍️</div>
+            <div class="doorTag">Trace</div>
+          </div>
+          <div class="doorInfo"><b>Nouvelle note</b><span>Course · carburant · avance.</span></div>
+        </a>
+
+        <a class="door pave" id="doorDashboard" href="./dashboard-pro.html">
+          <div class="paveTop">
+            <div class="doorIcon">🏠</div>
+            <div class="doorTag">État</div>
+          </div>
+          <div class="doorInfo"><b>Mon activité</b><span>Voir ce qui compte maintenant.</span></div>
+        </a>
+
+        <a class="door pave" id="doorAlertes" href="./alertes.html">
+          <div class="paveTop">
+            <div class="doorIcon">🔔</div>
+            <div class="doorTag">Voix</div>
+          </div>
+          <div class="doorInfo"><b>Mes alertes</b><span>Voix DIGIY · tester · activer.</span></div>
+        </a>
+
+        <a class="door pave" id="doorProfil" href="./profil-chauffeur.html">
+          <div class="paveTop">
+            <div class="doorIcon">👤</div>
+            <div class="doorTag">Profil</div>
+          </div>
+          <div class="doorInfo"><b>Mon profil</b><span>Identité · zone · visibilité.</span></div>
+        </a>
+
+        <a class="door pave gold" id="doorTarifs" href="./tarifs.html">
+          <div class="paveTop">
+            <div class="doorIcon">💰</div>
+            <div class="doorTag">Prix</div>
+          </div>
+          <div class="doorInfo"><b>Mes tarifs</b><span>Grille claire pour le client.</span></div>
+        </a>
+
+        <a class="door pave" id="doorQr" href="./generateur-digiy-driver.html">
+          <div class="paveTop">
+            <div class="doorIcon">📱</div>
+            <div class="doorTag">QR</div>
+          </div>
+          <div class="doorInfo"><b>Mon QR</b><span>Partager la bonne porte.</span></div>
+        </a>
+
+        <a class="door pave" id="doorFiche" href="./ma-fiche.html">
+          <div class="paveTop">
+            <div class="doorIcon">🌍</div>
+            <div class="doorTag">Public</div>
+          </div>
+          <div class="doorInfo"><b>Ma fiche</b><span>Vitrine chauffeur côté client.</span></div>
+        </a>
+
+        <a class="door pave" id="doorSession" href="./session.html">
+          <div class="paveTop">
+            <div class="doorIcon">🔒</div>
+            <div class="doorTag">Session</div>
+          </div>
+          <div class="doorInfo"><b>Ma session</b><span>Compte · accès · synchronisation.</span></div>
+        </a>
+
+        <a class="door pave" id="doorPin" href="./pin.html">
+          <div class="paveTop">
+            <div class="doorIcon">🔐</div>
+            <div class="doorTag">PIN</div>
+          </div>
+          <div class="doorInfo"><b>Mon accès</b><span>Récupérer l’accès protégé.</span></div>
+        </a>
+
+        <a class="door pave payDoor" href="https://pay.digiylyfe.com/">
+          <div class="paveTop">
+            <div class="doorIcon">💳</div>
+            <div class="doorTag">PAY</div>
+          </div>
+          <div class="doorInfo"><b>Mon argent</b><span>Ouvre si abonné · sinon Commencer à payer.</span></div>
+        </a>
+
+        <a class="door pave extDoor" href="https://driver.digiylyfe.com/" target="_blank" rel="noopener noreferrer">
+          <div class="paveTop">
+            <div class="doorIcon">🦅</div>
+            <div class="doorTag">↗</div>
+          </div>
+          <div class="doorInfo"><b>Galerie</b><span>Porte publique côté client.</span></div>
+        </a>
+      </div>
+    </section>
+
+
+  </div><!-- /wrap -->
+
+  <!-- ══ BOTTOM BAR ══ -->
+  <nav class="bottomBar" aria-label="Navigation rapide DRIVER">
+    <button class="wbtn cwbtn" id="btnConduite" aria-label="Menu Conduire">
+      <svg width="52" height="52" viewBox="0 0 68 68" fill="none" aria-hidden="true">
+        <circle cx="34" cy="34" r="32" fill="#091510"/>
+        <circle cx="34" cy="34" r="32" stroke="#22c55e" stroke-width="2.5" stroke-opacity=".7"/>
+        <circle cx="34" cy="34" r="22" stroke="#22c55e" stroke-width=".8" stroke-opacity=".22"/>
+        <line x1="34" y1="24" x2="34" y2="12" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".8"/>
+        <line x1="42.6" y1="39" x2="53.3" y2="44.5" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".8"/>
+        <line x1="25.4" y1="39" x2="14.7" y2="44.5" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".8"/>
+        <circle cx="34" cy="34" r="10" fill="#0f2418"/>
+        <text x="34" y="38.5" text-anchor="middle" font-size="13" font-weight="900" fill="#22c55e" font-family="Georgia,serif">D</text>
+      </svg>
+      <span class="wlbl">Conduire</span>
+    </button>
+
+    <button class="wbtn pwbtn" id="btnPilotage" aria-label="Menu Piloter">
+      <svg width="52" height="52" viewBox="0 0 68 68" fill="none" aria-hidden="true">
+        <circle cx="34" cy="34" r="32" fill="#100e05"/>
+        <circle cx="34" cy="34" r="33.5" stroke="#c4973f" stroke-width=".8" stroke-opacity=".5"/>
+        <circle cx="34" cy="34" r="32" stroke="#c4973f" stroke-width="2.5" stroke-opacity=".88"/>
+        <circle cx="34" cy="34" r="22" stroke="#c4973f" stroke-width=".8" stroke-opacity=".25"/>
+        <circle cx="2"  cy="34" r="2" fill="#c4973f" opacity=".55"/>
+        <circle cx="66" cy="34" r="2" fill="#c4973f" opacity=".55"/>
+        <line x1="34" y1="24" x2="34" y2="12" stroke="#c4973f" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".9"/>
+        <line x1="42.6" y1="39" x2="53.3" y2="44.5" stroke="#c4973f" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".9"/>
+        <line x1="25.4" y1="39" x2="14.7" y2="44.5" stroke="#c4973f" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".9"/>
+        <circle cx="34" cy="34" r="10" fill="#1a1005"/>
+        <text x="34" y="38.5" text-anchor="middle" font-size="13" font-weight="900" fill="#c4973f" font-family="Georgia,serif">D</text>
+      </svg>
+      <span class="wlbl">Piloter</span>
+    </button>
+  </nav>
+
+  <!-- ══ OVERLAY CONDUIRE ══ -->
+  <div class="overlay co" id="ovConduite" role="dialog" aria-modal="true" aria-label="Menu Conduire">
+    <div class="ovHdr">
+      <div class="ovHdrGlow"></div>
+      <svg class="ovCity" width="100%" height="55" viewBox="0 0 320 55" fill="#4ade80" preserveAspectRatio="none" aria-hidden="true">
+        <rect x="0"   y="28" width="16" height="27"/><rect x="9"   y="18" width="11" height="37"/>
+        <rect x="24"  y="33" width="14" height="22"/><rect x="42"  y="14" width="7"  height="41"/>
+        <rect x="53"  y="26" width="13" height="29"/><rect x="70"  y="9"  width="6"  height="46"/>
+        <rect x="80"  y="20" width="18" height="35"/><rect x="260" y="23" width="14" height="32"/>
+        <rect x="278" y="13" width="9"  height="42"/><rect x="292" y="28" width="16" height="27"/>
+        <rect x="308" y="18" width="12" height="37"/>
+      </svg>
+      <button class="closeBtn" id="closeConduite" aria-label="Fermer">✕</button>
+      <img class="ovLogo" id="logoC"
+           src="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png"
+           alt="DIGIY"
+           onerror="this.style.display='none';document.getElementById('logoCfb').style.display='grid'"/>
+      <div class="ovLogoFb co" id="logoCfb" style="display:none">D</div>
+      <div class="ovLine"></div>
+      <div class="ovTitle">Conduire</div>
+      <div class="ovSub">Actions terrain du quotidien</div>
+    </div>
+    <div class="ovLinks">
+      <button class="ovLink" id="ovDashboard">
+        <span class="ovIco">🏠</span>
+        <span class="ovLbl">Mon activité<span class="ovSublbl">Tableau de bord · KPIs</span></span>
+        <span class="ovArr">→</span>
+      </button>
+      <button class="ovLink" id="ovTrajets">
+        <span class="ovIco">📋</span>
+        <span class="ovLbl">Mes trajets<span class="ovSublbl">Lire · accepter · démarrer</span></span>
+        <span class="ovArr">→</span>
+      </button>
+      <button class="ovLink" id="ovNote">
+        <span class="ovIco">✍️</span>
+        <span class="ovLbl">Nouvelle note<span class="ovSublbl">Course · carburant · trace</span></span>
+        <span class="ovArr">→</span>
+      </button>
+      <button class="ovLink" id="ovLecteur">
+        <span class="ovIco">🎧</span>
+        <span class="ovLbl">Lecteur DIGIY<span class="ovSublbl">Lecture vocale de l'état terrain</span></span>
+        <span class="ovArr" id="lecArr">▶</span>
+      </button>
+      <button class="ovLink" id="ovAlerte">
+        <span class="ovIco">🔔</span>
+        <span class="ovLbl">Alerte message<span class="ovSublbl">Déclencher une alerte vocale</span></span>
+        <span class="ovArr">→</span>
+      </button>
+    </div>
   </div>
-  <div class="audioCoachText" id="digiyAudioText">
-    Clique sur écouter : DIGIY te dit quoi faire, sans charger l’écran.
+
+  <!-- ══ OVERLAY PILOTER ══ -->
+  <div class="overlay po" id="ovPilotage" role="dialog" aria-modal="true" aria-label="Menu Piloter">
+    <div class="ovHdr">
+      <div class="ovHdrGlow"></div>
+      <svg class="ovCity" width="100%" height="55" viewBox="0 0 320 55" fill="#c4973f" preserveAspectRatio="none" aria-hidden="true">
+        <rect x="0"   y="28" width="16" height="27"/><rect x="9"   y="18" width="11" height="37"/>
+        <rect x="24"  y="33" width="14" height="22"/><rect x="42"  y="14" width="7"  height="41"/>
+        <rect x="53"  y="26" width="13" height="29"/><rect x="70"  y="9"  width="6"  height="46"/>
+        <rect x="80"  y="20" width="18" height="35"/><rect x="260" y="23" width="14" height="32"/>
+        <rect x="278" y="13" width="9"  height="42"/><rect x="292" y="28" width="16" height="27"/>
+        <rect x="308" y="18" width="12" height="37"/>
+      </svg>
+      <button class="closeBtn" id="closePilotage" aria-label="Fermer">✕</button>
+      <img class="ovLogo" id="logoP"
+           src="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png"
+           alt="DIGIY"
+           onerror="this.style.display='none';document.getElementById('logoPfb').style.display='grid'"/>
+      <div class="ovLogoFb po" id="logoPfb" style="display:none">D</div>
+      <div class="ovLine"></div>
+      <div class="ovTitle">Piloter</div>
+      <div class="ovSub">Coffre · gestion · organisation</div>
+    </div>
+    <div class="ovLinks">
+      <a class="payRow" href="https://pay.digiylyfe.com/">
+        <span class="ovIco">💳</span>
+        <span class="ovLbl">Mon argent <span class="payBadge">PAY</span><span class="ovSublbl">Ouvre si abonné · sinon Commencer à payer</span></span>
+        <span class="ovArr">→</span>
+      </a>
+      <div class="paySep"></div>
+      <button class="ovLink" id="ovHubLink">
+        <span class="ovIco">🗺️</span>
+        <span class="ovLbl">Hub DRIVER<span class="ovSublbl">Répertoire complet des pages</span></span>
+        <span class="ovArr">→</span>
+      </button>
+      <button class="ovLink" id="ovSession">
+        <span class="ovIco">🔒</span>
+        <span class="ovLbl">Ma session<span class="ovSublbl">Compte · accès · synchronisation</span></span>
+        <span class="ovArr">→</span>
+      </button>
+      <button class="ovLink" id="ovAlertes">
+        <span class="ovIco">🔔</span>
+        <span class="ovLbl">Mes alertes<span class="ovSublbl">Voix DIGIY · activer · tester</span></span>
+        <span class="ovArr">→</span>
+      </button>
+      <button class="ovLink" id="ovProfil">
+        <span class="ovIco">👤</span>
+        <span class="ovLbl">Mon profil<span class="ovSublbl">Identité · zone · visibilité</span></span>
+        <span class="ovArr">→</span>
+      </button>
+      <button class="ovLink" id="ovTarifsOv">
+        <span class="ovIco">💰</span>
+        <span class="ovLbl">Mes tarifs<span class="ovSublbl">Grille terrain · prix client</span></span>
+        <span class="ovArr">→</span>
+      </button>
+      <button class="ovLink" id="ovQrOv">
+        <span class="ovIco">📱</span>
+        <span class="ovLbl">Mon QR<span class="ovSublbl">Partager la porte chauffeur</span></span>
+        <span class="ovArr">→</span>
+      </button>
+      <button class="ovLink" id="ovPinOv">
+        <span class="ovIco">🔐</span>
+        <span class="ovLbl">Mon accès<span class="ovSublbl">PIN · authentification</span></span>
+        <span class="ovArr">→</span>
+      </button>
+    </div>
   </div>
-  <div class="audioCoachActions">
-    <button class="primary" id="digiyAudioPlay" type="button">▶ Écouter</button>
-    <button id="digiyAudioStop" type="button">⏹ Stop</button>
-  </div>
-  <div class="audioCoachHint">
-    Doctrine : moins d’écrit devant, plus de voix utile au moment du geste.
-  </div>
-</section>
 
+  <script>
+    (() => {
+      "use strict";
 
-<script>
-(function(){
-  const pageScript = window.DIGIY_AUDIO_SCRIPT || {
-    title:"DIGIY explique le clic",
-    text:"Cette page reste courte. Clique sur écouter pour entendre quoi faire, sans lire un long mode d’emploi.",
-    speak:"Cette page reste courte. DIGIY explique le clic et garde le chauffeur dans son geste."
-  };
+      const ROUTES = {
+        home:      "./index.html",
+        dashboard: "./dashboard-pro.html",
+        trips:     "./trajets.html",
+        profile:   "./profil-chauffeur.html",
+        rates:     "./tarifs.html",
+        pin:       "./pin.html",
+        qr:        "./generateur-digiy-driver.html",
+        alertes:   "./alertes.html",
+        session:   "./session.html",
+        hub:       "./hub.html",
+        fiche:     "./ma-fiche.html"
+      };
 
-  const fab = document.getElementById("digiyAudioFab");
-  const panel = document.getElementById("digiyAudioPanel");
-  const closeBtn = document.getElementById("digiyAudioClose");
-  const playBtn = document.getElementById("digiyAudioPlay");
-  const stopBtn = document.getElementById("digiyAudioStop");
-  const title = document.getElementById("digiyAudioTitle");
-  const text = document.getElementById("digiyAudioText");
+      const $ = id => document.getElementById(id);
+      let slug = "", phone = "", accessOk = false, pinSessionOk = false;
+      let speechOn = false;
 
-  if(title) title.textContent = pageScript.title || "DIGIY explique le clic";
-  if(text) text.textContent = pageScript.text || "Écoute DIGIY pour savoir quoi faire.";
+      /* ── UTILS ── */
+      const normSlug  = v => String(v||"").trim().toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"").replace(/-+/g,"-").replace(/^-|-$/g,"");
+      const normPhone = v => { const d=String(v||"").replace(/[^\d]/g,""); if(!d)return ""; if(d.startsWith("221")&&d.length===12)return d; if(d.length===9)return "221"+d; return d };
+      const isSensitiveSlug = v => /\d{7,}/.test(String(v||""));
+      const canExposeSlug   = v => { const s=normSlug(v); return !!s&&!isSensitiveSlug(s) };
+      const isDriverSlug    = v => /^driver-\d{12}$/.test(normSlug(v));
+      const phoneFromSlug   = v => { const s=normSlug(v); return isDriverSlug(s)?normPhone(s.slice(7)):"" };
 
-  function openPanel(){
-    if(!panel || !fab) return;
-    panel.classList.add("open");
-    fab.setAttribute("aria-expanded","true");
-  }
-  function closePanel(){
-    if(!panel || !fab) return;
-    panel.classList.remove("open");
-    fab.setAttribute("aria-expanded","false");
-  }
-  function canSpeak(){
-    return "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
-  }
-  function speak(){
-    openPanel();
-    if(!canSpeak()){
-      if(text) text.textContent = "Ton navigateur ne donne pas encore la voix ici. Le panneau garde l’explication courte.";
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(pageScript.speak || pageScript.text || "DIGIY explique le clic.");
-    u.lang = "fr-FR";
-    u.rate = 0.86;
-    u.pitch = 1.03;
-    window.speechSynthesis.speak(u);
-  }
-  function stop(){
-    if(canSpeak()) window.speechSynthesis.cancel();
-  }
+      function storageGet(k){
+        try{ const s=sessionStorage.getItem(k); if(s)return s }catch(_){}
+        try{ const l=localStorage.getItem(k); if(l)return l }catch(_){}
+        return "";
+      }
 
-  if(fab) fab.addEventListener("click", function(){
-    const isOpen = panel && panel.classList.contains("open");
-    if(isOpen) closePanel(); else openPanel();
-  });
-  if(closeBtn) closeBtn.addEventListener("click", closePanel);
-  if(playBtn) playBtn.addEventListener("click", speak);
-  if(stopBtn) stopBtn.addEventListener("click", stop);
+      function buildSafeUrl(base, hash){
+        try{
+          const u=new URL(base,location.href);
+          u.searchParams.delete("phone"); u.searchParams.delete("tel");
+          if(canExposeSlug(slug)) u.searchParams.set("slug",slug);
+          else u.searchParams.delete("slug");
+          if(hash) u.hash=hash;
+          return u.origin===location.origin ? u.pathname+u.search+u.hash : u.toString();
+        }catch(_){ return base+(hash||"") }
+      }
 
-  document.addEventListener("click", function(e){
-    const link = e.target.closest && e.target.closest("a[data-audio]");
-    if(!link || !canSpeak()) return;
-    const phrase = link.getAttribute("data-audio");
-    if(!phrase) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(phrase);
-    u.lang = "fr-FR";
-    u.rate = 0.88;
-    u.pitch = 1.03;
-    window.speechSynthesis.speak(u);
-  });
-})();
-</script>
+      function cleanVisibleUrl(){
+        try{
+          const u=new URL(location.href); let changed=false;
+          ["phone","tel","p_phone"].forEach(k=>{ if(u.searchParams.has(k)){u.searchParams.delete(k);changed=true} });
+          const s=normSlug(u.searchParams.get("slug")||"");
+          if(s && isSensitiveSlug(s)){u.searchParams.delete("slug");changed=true}
+          if(changed)history.replaceState({},"",u.pathname+u.search+u.hash);
+        }catch(_){}
+      }
+
+      function resolveSlug(){
+        const qs=new URLSearchParams(location.search);
+        const fromUrl=normSlug(qs.get("slug")||"");
+        if(fromUrl)return fromUrl;
+        const fromGuard=normSlug(window.DIGIY_GUARD?.state?.slug||"");
+        if(fromGuard)return fromGuard;
+        return normSlug(storageGet("digiy_driver_slug")||storageGet("digiy_driver_last_slug")||storageGet("DIGIY_SLUG")||"");
+      }
+
+      function resolvePhone(){
+        const qs=new URLSearchParams(location.search);
+        const fromUrl=normPhone(qs.get("phone")||qs.get("tel")||"");
+        if(fromUrl)return fromUrl;
+        const fromGuard=normPhone(window.DIGIY_GUARD?.state?.phone||"");
+        if(fromGuard)return fromGuard;
+        return normPhone(storageGet("DIGIY_DRIVER_PHONE")||storageGet("digiy_driver_phone")||phoneFromSlug(slug)||"");
+      }
+
+      /* ── GUARD ── */
+      async function waitGuard(){
+        try{
+          const g=window.DIGIY_GUARD; if(!g)return;
+          if(typeof g.ready==="function"){ const o=g.ready({redirect:false,preserve_validation:true}); if(o?.then)await o; return }
+          if(g.ready?.then)await g.ready;
+        }catch(e){ console.warn("[HUB] guard:",e) }
+      }
+
+      async function getGuardState(){
+        const g=window.DIGIY_GUARD; if(!g)return {};
+        try{
+          if(typeof g.ready==="function"){ const o=g.ready({redirect:false,preserve_validation:true}); if(o?.then)await o }
+          else if(g.ready?.then)await g.ready;
+        }catch(_){}
+        if(typeof g.getSession==="function"){ try{ const s=g.getSession(); if(s)return s }catch(_){} }
+        return g.state||{};
+      }
+
+      /* ── UI ── */
+      function updatePill(){
+        const el=$("sessionPill"); if(!el)return;
+        if(!slug)              { el.textContent="identifiant manquant"; el.className="hdrPill bad";  return }
+        if(!isDriverSlug(slug)){ el.textContent="lien invalide";        el.className="hdrPill bad";  return }
+        if(!accessOk)          { el.textContent="accès fermé";          el.className="hdrPill warn"; return }
+        el.textContent = pinSessionOk ? "session ouverte" : "abonnement actif";
+        el.className = "hdrPill ok";
+      }
+
+      function updateHubSub(){
+        const el=$("hubSub"); if(!el)return;
+        if(!slug)              { el.textContent="Aucun identifiant chauffeur détecté."; return }
+        if(!isDriverSlug(slug)){ el.textContent="Identifiant chauffeur non reconnu."; return }
+        if(!accessOk)          { el.textContent="Accès non ouvert. Passe par Mon accès pour t'identifier."; return }
+        el.textContent="Compte reconnu. Choisis un pavé : trajet, note, profil, tarifs, QR, session ou PAY.";
+      }
+
+      function bindLinks(){
+        const map = {
+          hdrBack:       [ROUTES.dashboard, ""],
+          doorDashboard: [ROUTES.dashboard, ""],
+          doorTrajets:   [ROUTES.trips,     ""],
+          doorNote:      [ROUTES.trips,     "#quickDriverNote"],
+          doorProfil:    [ROUTES.profile,   ""],
+          doorTarifs:    [ROUTES.rates,     ""],
+          doorQr:        [ROUTES.qr,        ""],
+          doorFiche:     [ROUTES.fiche,     ""],
+          doorPin:       [ROUTES.pin,       ""],
+          doorSession:   [ROUTES.session,   ""],
+          doorAlertes:   [ROUTES.alertes,   ""],
+          ovDashboard:   [ROUTES.dashboard, ""],
+          ovTrajets:     [ROUTES.trips,     ""],
+          ovNote:        [ROUTES.trips,     "#quickDriverNote"],
+          ovHubLink:     [ROUTES.hub,       ""],
+          ovSession:     [ROUTES.session,   ""],
+          ovAlertes:     [ROUTES.alertes,   ""],
+          ovProfil:      [ROUTES.profile,   ""],
+          ovTarifsOv:    [ROUTES.rates,     ""],
+          ovQrOv:        [ROUTES.qr,        ""],
+          ovPinOv:       [ROUTES.pin,       ""],
+        };
+        Object.entries(map).forEach(([id, [base, hash]]) => {
+          const el=$(id); if(!el)return;
+          const url=buildSafeUrl(base, hash);
+          if(el.tagName==="A") el.href=url;
+          else el.onclick=()=>{ closeOverlay("ovConduite"); closeOverlay("ovPilotage"); location.href=url };
+        });
+      }
+
+      /* ── OVERLAYS ── */
+      const openOverlay  = id => $(id).classList.add("open");
+      const closeOverlay = id => $(id).classList.remove("open");
+
+      function spin(btn){
+        const svg=btn.querySelector("svg");
+        btn.classList.add("spinning");
+        svg.addEventListener("animationend",()=>btn.classList.remove("spinning"),{once:true});
+      }
+
+      $("btnConduite").addEventListener("click",()=>{ spin($("btnConduite")); openOverlay("ovConduite") });
+      $("btnPilotage").addEventListener("click",()=>{ spin($("btnPilotage")); openOverlay("ovPilotage") });
+      $("closeConduite").addEventListener("click",()=>closeOverlay("ovConduite"));
+      $("closePilotage").addEventListener("click",()=>closeOverlay("ovPilotage"));
+
+      ["ovConduite","ovPilotage"].forEach(id=>{
+        $(id).addEventListener("click",e=>{ if(e.target===$(id))closeOverlay(id) });
+      });
+      document.addEventListener("keydown",e=>{
+        if(e.key==="Escape"){ closeOverlay("ovConduite"); closeOverlay("ovPilotage") }
+      });
+
+      /* ── LECTEUR ── */
+      function stopLec(){
+        if("speechSynthesis" in window)window.speechSynthesis.cancel();
+        speechOn=false;
+        const arr=$("lecArr"); if(arr)arr.textContent="▶";
+      }
+
+      $("ovLecteur").addEventListener("click",()=>{
+        if(speechOn){ stopLec(); return }
+        closeOverlay("ovConduite");
+        speechOn=true;
+        const arr=$("lecArr"); if(arr)arr.textContent="⏹";
+        const statusText = !slug
+          ? "Aucun identifiant détecté."
+          : !isDriverSlug(slug) ? "Identifiant non reconnu."
+          : !accessOk ? "Accès non ouvert. Passe par Mon accès."
+          : pinSessionOk ? "Session ouverte. Accès complet au module chauffeur."
+          : "Abonnement actif. Module chauffeur disponible.";
+        const txt=`Hub DRIVER. ${statusText} Toutes les portes du module sont listées sur cette page.`;
+        if("speechSynthesis" in window){
+          window.speechSynthesis.cancel();
+          const u=new SpeechSynthesisUtterance(txt);
+          u.lang="fr-FR"; u.rate=0.92; u.pitch=1;
+          u.onend=stopLec;
+          window.speechSynthesis.speak(u);
+        }
+        setTimeout(stopLec,10000);
+      });
+
+      /* ── ALERTE MESSAGE ── */
+      $("ovAlerte").addEventListener("click",()=>{
+        closeOverlay("ovConduite");
+        if("speechSynthesis" in window){
+          window.speechSynthesis.cancel();
+          const u=new SpeechSynthesisUtterance("Nouvelle demande de course ! Saly Plage vers Mbour. Vingt-cinq kilomètres. Consulte tes trajets pour accepter.");
+          u.lang="fr-FR"; u.rate=0.95; u.pitch=1.05;
+          window.speechSynthesis.speak(u);
+        }
+      });
+
+      /* ── BOOT ── */
+      async function boot(){
+        cleanVisibleUrl();
+        slug  = resolveSlug();
+        phone = resolvePhone();
+
+        await waitGuard();
+        const state = await getGuardState();
+
+        if(state?.slug)  slug  = normSlug(state.slug)  || slug;
+        if(state?.phone) phone = normPhone(state.phone) || phone;
+        accessOk     = !!(state?.access_ok || state?.access || state?.pin_session_ok);
+        pinSessionOk = !!state?.pin_session_ok;
+
+        updatePill();
+        updateHubSub();
+        bindLinks();
+      }
+
+      boot();
+    })();
+  </script>
 
 </body>
 </html>
