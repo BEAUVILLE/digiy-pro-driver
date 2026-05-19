@@ -1,61 +1,61 @@
-[README (12).md](https://github.com/user-attachments/files/27980259/README.12.md)# DIGIY DRIVER PRO — V3 Architecture Volants
+# DIGIY DRIVER PRO — V4 Neurones
 
-## Vision
+## Pourquoi cette V4
 
-Cette version réorganise l’espace **DIGIY DRIVER PRO** pour alléger l’écran chauffeur.
+La V3 posait une nouvelle navigation, mais elle pouvait encore devenir une sur-couche :
+un joli couloir qui mène vers des pages toujours trop chargées.
 
-L’objectif est simple :
+La V4 corrige cela.
 
-> Le chauffeur ouvre une porte, fait une chose, puis revient.  
-> Le moteur reste puissant derrière, l’interface reste légère devant.
+Objectif :
 
-Cette V3 supprime l’effet “page fourre-tout” et remplace la navigation du bas par une logique plus claire :
-
-- **un header contextuel en haut** ;
-- **deux camemberts-volants** ;
-- **des pages dédiées par sujet** ;
-- **PAY / Mon argent comme simple porte transversale**.
+> Ne pas créer un sas devant le labyrinthe.  
+> Démonter le labyrinthe.
 
 ---
 
-## Doctrine d’interface
+## Doctrine V4
 
-### 1. Une page = un sujet
+- Une page = un seul sujet.
+- Le dashboard ne montre que l’activité immédiate.
+- Le hub est un répertoire pur, pas une page de contenu.
+- Les alertes vivent dans `alertes.html`.
+- La session vit dans `session.html`.
+- PAY reste une porte transversale, pas un menu DRIVER.
+- La bottom nav disparaît.
+- Le header contextuel remplace les menus permanents.
 
-Chaque page doit porter une seule intention principale.
+---
 
-| Page | Rôle |
+## Fichiers du noyau
+
+À poser en premier :
+
+1. `hub.html`
+2. `session.html`
+3. `alertes.html`
+4. `dashboard-pro.html`
+5. `index.html`
+6. `cockpit.html`
+
+---
+
+## Rôle des pages
+
+| Fichier | Rôle |
 |---|---|
-| `index.html` | Porte d’entrée chauffeur |
-| `dashboard-pro.html` | Activité immédiate |
-| `hub.html` | Répertoire des portes DRIVER |
+| `index.html` | Entrée courte |
+| `dashboard-pro.html` | Activité immédiate uniquement |
+| `hub.html` | Répertoire des portes |
 | `session.html` | Session et accès |
 | `alertes.html` | Voix, messages, lecteur DIGIY |
-| `trajets.html` | Gestion des trajets |
-| `profil-chauffeur.html` | Profil chauffeur |
-| `tarifs.html` | Tarifs |
-| `generateur-digiy-driver.html` | QR / partage |
-| `pin.html` | Accès sécurisé |
-| `ma-fiche.html` | Fiche client |
-| `cockpit.html` | Archive / redirection douce vers `hub.html` |
+| `cockpit.html` | Ancien cockpit archivé / redirection douce |
 
 ---
 
-## Architecture V3
+## Ce qui n’est pas touché
 
-### Fichiers créés
-
-- `hub.html`
-- `session.html`
-- `alertes.html`
-
-### Fichiers remplacés / allégés
-
-- `index.html`
-- `dashboard-pro.html`
-- `cockpit.html`
-
-### Fichiers à garder intacts pour l’instant
+À garder intact pour cette étape :
 
 - `guard.js`
 - `trajets.html`
@@ -66,51 +66,14 @@ Chaque page doit porter une seule intention principale.
 - `ma-fiche.html`
 - `claw-tools-driver.js`
 - `cockpit-stats.js`
-- `devenir-chauffeur.html`
-- `driver-zone-now.html`
-- `mes-lieux.html`
-- `support.html`
-- `redirect.html`
 
----
-
-## Les deux camemberts-volants
-
-### Volant 1 — Conduire
-
-Actions du quotidien :
-
-- Mon activité
-- Mes trajets
-- Nouvelle note
-- Actualiser
-
-### Volant 2 — Piloter
-
-Gestion du module :
-
-- Hub DRIVER
-- Ma session
-- Mes alertes
-- Mon profil
-- Mes tarifs
-- Mon QR
-- Ma fiche client
-- Mon accès
-- Mon argent
+Ces pages seront allégées ensuite une par une.
 
 ---
 
 ## PAY / Mon argent
 
-Dans DRIVER, **PAY ne devient pas un menu lourd**.
-
-PAY reste une porte transversale :
-
-> Si le professionnel est abonné, la porte PAY s’ouvre.  
-> Sinon, il est dirigé vers “Commencer à payer”.
-
-Le lien posé dans les volants doit simplement pointer vers :
+Dans DRIVER, PAY reste une simple porte :
 
 ```html
 https://pro-pay.digiylyfe.com/
@@ -118,113 +81,37 @@ https://pro-pay.digiylyfe.com/
 
 La logique d’abonnement reste côté PAY.
 
----
-
-## Dashboard V3
-
-`dashboard-pro.html` doit rester très léger.
-
-Il contient seulement :
-
-- un statut session ;
-- 2 KPIs :
-  - assignées ;
-  - en cours ;
-- la course active si elle existe ;
-- un bouton `Mes trajets` ;
-- un bouton `Actualiser`.
-
-Tout le reste part dans les pages dédiées.
+Si le pro est abonné, PAY ouvre.
+Sinon PAY redirige vers commencer à payer.
 
 ---
 
-## Alertes et lecteur DIGIY
+## Test téléphone
 
-Les alertes sont concentrées dans `alertes.html`.
+Après pose :
 
-Cette page regroupe :
-
-- alertes vocales DRIVER ;
-- alerte message ;
-- lecteur DIGIY ;
-- tests rapides.
-
-Le dashboard peut afficher une alerte courte, mais ne doit pas porter tout le système.
-
----
-
-## Navigation
-
-La bottom nav est retirée.
-
-Chaque page utilise un header contextuel court, par exemple :
-
-```text
-[ ← activité ] [ MES TRAJETS ] [ ➕ Nouveau ]
-```
-
-ou :
-
-```text
-[ ← hub ] [ MES ALERTES ] [ 🔔 Toggle ]
-```
-
-Le bas de l’écran reste libre pour la lecture.
+1. Ouvrir `index.html`
+2. Aller vers `dashboard-pro.html`
+3. Vérifier que le bas d’écran est libre
+4. Ouvrir `hub.html`
+5. Ouvrir `session.html`
+6. Ouvrir `alertes.html`
+7. Tester la voix
+8. Tester `Mes trajets`
+9. Tester `Mon argent`
+10. Vérifier que `cockpit.html` ne casse pas les anciens liens
 
 ---
 
-## Ordre de pose recommandé
+## Signature courte
 
-1. Poser `hub.html`
-2. Poser `session.html`
-3. Poser `alertes.html`
-4. Remplacer `dashboard-pro.html`
-5. Remplacer `index.html`
-6. Remplacer `cockpit.html`
-
-Ensuite seulement, patcher au fil de l’eau :
-
-- `trajets.html`
-- `profil-chauffeur.html`
-- `tarifs.html`
-- `pin.html`
-- `generateur-digiy-driver.html`
-- `ma-fiche.html`
-
----
-
-## Test terrain après pose
-
-À tester sur téléphone :
-
-1. `index.html`
-2. entrée PIN
-3. `dashboard-pro.html`
-4. ouverture volant Conduire
-5. ouverture volant Piloter
-6. accès `hub.html`
-7. accès `session.html`
-8. accès `alertes.html`
-9. lien PAY / Mon argent
-10. retour activité
-
----
-
-## Doctrine courte
-
-> DRIVER conduit.  
-> Le HUB oriente.  
-> La SESSION sécurise.  
-> Les ALERTES parlent.  
-> PAY reste une porte.  
-> Le chauffeur garde l’écran libre.
-
----
-
-## Signature
-
-DIGIY DRIVER PRO  
-**L’écosystème direct des métiers pro.**
+DRIVER conduit.
+Le HUB oriente.
+La SESSION sécurise.
+Les ALERTES parlent.
+PAY reste une porte.
+Le chauffeur garde son cerveau libre.
 
 BY DIGIYLYFE
+[README.md](https://github.com/user-attachments/files/27981306/README.md)
 
