@@ -548,6 +548,234 @@ label{
   }
 }
 
+
+
+/* ════════════════════════════════════════════════════════
+   DIGIY DRIVER — CONTENEUR MOBILE TERRAIN TARIFS
+   Gros pavés · grosse écriture · lecture téléphone
+   ════════════════════════════════════════════════════════ */
+
+:root{
+  --mobileMax:720px;
+}
+
+body{
+  font-size:21px!important;
+  font-weight:1000!important;
+  line-height:1.42!important;
+}
+
+.wrap{
+  width:min(var(--mobileMax),100%)!important;
+  max-width:var(--mobileMax)!important;
+  margin:0 auto!important;
+  padding:14px 12px 34px!important;
+  display:grid!important;
+  gap:16px!important;
+}
+
+.pageHeader{
+  height:auto!important;
+  min-height:68px!important;
+  padding:10px 10px!important;
+}
+
+.headerInner{
+  width:min(var(--mobileMax),100%)!important;
+  grid-template-columns:auto 1fr auto!important;
+}
+
+.headerBtn,
+.headerTitle{
+  min-height:52px!important;
+  border-radius:999px!important;
+  font-size:18px!important;
+  font-weight:1000!important;
+  padding:12px 16px!important;
+}
+
+.hero,
+.card,
+.kpi,
+.fareCard,
+.trip{
+  border-radius:30px!important;
+  border:2px solid rgba(255,255,255,.20)!important;
+  background:
+    radial-gradient(560px 240px at 100% 0%, rgba(250,204,21,.16), transparent 70%),
+    linear-gradient(180deg,rgba(27,139,85,.98),rgba(14,91,55,.98))!important;
+  box-shadow:0 24px 58px rgba(0,0,0,.30)!important;
+}
+
+.hero,
+.card{
+  padding:26px!important;
+}
+
+h1{
+  font-size:clamp(46px,11vw,76px)!important;
+  line-height:.94!important;
+  font-weight:1000!important;
+  letter-spacing:-.065em!important;
+}
+
+h2{
+  font-size:clamp(35px,8vw,48px)!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  letter-spacing:-.05em!important;
+}
+
+.lead,
+.muted,
+.meta,
+.msg,
+.empty{
+  font-size:22px!important;
+  line-height:1.48!important;
+  font-weight:1000!important;
+  color:rgba(248,255,249,.92)!important;
+}
+
+.pill,
+.badge{
+  min-height:48px!important;
+  font-size:18px!important;
+  font-weight:1000!important;
+  padding:10px 15px!important;
+  border-radius:999px!important;
+}
+
+.actions{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:14px!important;
+}
+
+.btn{
+  width:100%!important;
+  min-height:82px!important;
+  border-radius:26px!important;
+  font-size:23px!important;
+  font-weight:1000!important;
+  line-height:1.12!important;
+  padding:18px 20px!important;
+  justify-content:center!important;
+  border-width:2px!important;
+}
+
+.kpiGrid{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:14px!important;
+}
+
+.kpi{
+  min-height:180px!important;
+  padding:24px 18px!important;
+  display:grid!important;
+  align-content:center!important;
+  text-align:center!important;
+}
+
+.kpi .label{
+  font-size:18px!important;
+  font-weight:1000!important;
+  line-height:1.2!important;
+  color:#fff0a8!important;
+}
+
+.kpi .num{
+  margin-top:8px!important;
+  font-size:clamp(46px,12vw,72px)!important;
+  font-weight:1000!important;
+  line-height:.9!important;
+}
+
+.kpi .sub{
+  margin-top:10px!important;
+  font-size:17px!important;
+  font-weight:1000!important;
+}
+
+#fareList{
+  display:grid!important;
+  gap:14px!important;
+}
+
+.fareCard{
+  padding:22px!important;
+  min-height:116px!important;
+}
+
+.fareTop{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:12px!important;
+}
+
+.fareName{
+  font-size:clamp(28px,7vw,42px)!important;
+  font-weight:1000!important;
+  line-height:1.06!important;
+}
+
+.fareCard .badge{
+  width:100%!important;
+  justify-content:center!important;
+  font-size:24px!important;
+  min-height:62px!important;
+  color:#241300!important;
+  background:linear-gradient(135deg,#facc15,#f59e0b)!important;
+  border-color:transparent!important;
+}
+
+.audioCoachFab{
+  min-width:70px!important;
+  min-height:70px!important;
+  font-size:20px!important;
+}
+
+@media(max-width:560px){
+  body{
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+
+  .wrap{
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+
+  .headerTitle{
+    font-size:16px!important;
+  }
+
+  .headerBtn{
+    font-size:16px!important;
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+
+  .hero,
+  .card{
+    padding:22px 18px!important;
+  }
+
+  .kpiGrid{
+    grid-template-columns:1fr!important;
+  }
+
+  .kpi{
+    min-height:150px!important;
+  }
+
+  .btn{
+    min-height:78px!important;
+    font-size:21px!important;
+  }
+}
+
 </style>
 </head>
 
@@ -555,13 +783,13 @@ label{
 <header class="pageHeader"><div class="headerInner">
 <a class="headerBtn left" href="./hub.html">← portes</a>
 <div class="headerTitle">MES TARIFS</div>
-<a class="headerBtn right" id="goTarifsEdition" href="./atelier/tarifs-edition.html">✍️ Inscrire</a>
+<a class="headerBtn right" id="goTarifsEdition" href="./tarifs-edition.html">✍️ Inscrire</a>
 </div></header>
 <main class="wrap">
   <section class="hero">
     <div class="eyebrow">Façade téléphone</div>
     <h1>Voir les prix. Sans atelier.</h1>
-    <p class="lead">La page affiche les tarifs utiles. La modification et l’aperçu client restent dans l’atelier édition.</p>
+    <p class="lead">La page affiche les tarifs utiles. La modification et l’aperçu client restent dans l’édition tarifs.</p>
     <div class="row"><span class="pill" id="sessionPill">session…</span></div>
   </section>
 
@@ -569,7 +797,7 @@ label{
     <h2 id="driverName">Mon espace chauffeur</h2>
     <div class="muted" id="driverMeta">Lecture…</div>
     <div class="actions">
-      <a class="btn primary" id="goTarifsEdition" href="./atelier/tarifs-edition.html">✏️ Modifier mes tarifs</a>
+      <a class="btn primary" id="goTarifsEdition" href="./tarifs-edition.html">✏️ Modifier mes tarifs</a>
       <a class="btn ghost" href="./trajets.html">📋 Mes trajets</a>
     </div>
   </section>
@@ -583,7 +811,7 @@ label{
     <div class="empty">Lecture…</div>
   </section>
 
-  <div class="msg">Si rien ne s’affiche, ouvre Modifier : le brouillon complet est dans l’atelier.</div>
+  <div class="msg">Si rien ne s’affiche, ouvre Modifier : le brouillon complet est dans l’édition tarifs.</div>
 </main>
 
 <button class="audioCoachFab" id="digiyAudioFab" type="button" aria-controls="digiyAudioPanel" aria-expanded="false">
@@ -611,7 +839,7 @@ const ROUTES = {
   pin:"./pin.html",
   pay:"https://pro-pay.digiylyfe.com/",
   trajetsComplet:"./trajets-complet.html",
-  tarifsEdition:"./atelier/tarifs-edition.html"
+  tarifsEdition:"./tarifs-edition.html"
 };
 const $ = id => document.getElementById(id);
 function normSlug(v){return String(v||"").trim().toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"").replace(/-+/g,"-").replace(/^-|-$/g,"")}
@@ -694,7 +922,68 @@ function deriveNameFromSlug(slug){
   return tail.replace(/-/g," ").replace(/\b\w/g,m=>m.toUpperCase());
 }
 function storageKey(){const st=getState(); return "digiy_driver_tarifs_" + (st.slug || "preview")}
-function readDraft(){try{const raw=localStorage.getItem(storageKey()); return raw?JSON.parse(raw):null}catch(_){return null}}
+function readJsonSafe(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return parsed == null ? fallback : parsed;
+  }catch(_){
+    return fallback;
+  }
+}
+function readDraft(){
+  try{
+    const raw=localStorage.getItem(storageKey());
+    if(raw) return JSON.parse(raw);
+  }catch(_){}
+
+  /*
+    Compatibilité DRIVER :
+    - tarifs-edition.html écrit aussi dans DIGIY_DRIVER_TARIFS / DIGIY_DRIVER_PRICES / snapshot.
+    - tarifs.html doit savoir relire ces mémoires, pas seulement l’ancien brouillon par slug.
+  */
+  const rows =
+    readJsonSafe("DIGIY_DRIVER_TARIFS", []) ||
+    readJsonSafe("DIGIY_DRIVER_PRICES", []) ||
+    [];
+
+  if(Array.isArray(rows) && rows.length){
+    return {
+      display_name: deriveNameFromSlug(getState().slug),
+      city: "",
+      zones: [],
+      whatsapp: "",
+      fares: {},
+      extras: rows.map(r => ({
+        label: String(r.label || r.route_label || r.name || r.title || "Trajet").trim(),
+        amount: Number(r.amount || r.price_fcfa || r.price || 0) || 0,
+        note: String(r.note || r.description || r.vehicle || "").trim()
+      })).filter(r => r.label && r.amount > 0),
+      note: "Tarifs relus depuis la mémoire DRIVER."
+    };
+  }
+
+  const snapshot = readJsonSafe("DIGIY_DRIVER_SYNC_SNAPSHOT_V1", null);
+  const snapRows = snapshot?.tarifs || snapshot?.publicRoutes || snapshot?.summary?.tarifs || [];
+  if(Array.isArray(snapRows) && snapRows.length){
+    return {
+      display_name: deriveNameFromSlug(getState().slug),
+      city: "",
+      zones: [],
+      whatsapp: "",
+      fares: {},
+      extras: snapRows.map(r => ({
+        label: String(r.label || r.route_label || r.name || r.title || "Trajet").trim(),
+        amount: Number(r.amount || r.price_fcfa || r.price || 0) || 0,
+        note: String(r.note || r.description || r.vehicle || "").trim()
+      })).filter(r => r.label && r.amount > 0),
+      note: "Tarifs relus depuis le snapshot DRIVER."
+    };
+  }
+
+  return null;
+}
 function fareEntries(data){
   const f=data?.fares||{};
   const rows=[
@@ -758,8 +1047,34 @@ renderTarifs();
 })();
 </script>
 
+
+<!-- ══ DIGIY DRIVER — correction lien édition tarifs anti-404 ══ -->
+<script>
+(function(){
+  function fixTarifsEditionLinks(){
+    document.querySelectorAll('a[href="./atelier/tarifs-edition.html"], a[href="atelier/tarifs-edition.html"]').forEach(function(a){
+      a.setAttribute("href","./tarifs-edition.html");
+    });
+    document.querySelectorAll("#goTarifsEdition").forEach(function(a){
+      if(a && a.tagName === "A") a.setAttribute("href","./tarifs-edition.html");
+    });
+  }
+  document.addEventListener("DOMContentLoaded", fixTarifsEditionLinks);
+  setTimeout(fixTarifsEditionLinks, 300);
+  setTimeout(fixTarifsEditionLinks, 1200);
+})();
+</script>
+
 </body>
 </html>
+
+
+
+
+
+
+
+
 
 
 
