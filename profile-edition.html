@@ -22,6 +22,7 @@
   <script src="./guard.js?v=driver-v4-7-profil-edition"></script>
   <script src="./assets/js/digiy-module-bridge.js?v=bridge-20260520" defer></script>
   <script src="./assets/js/digiy-driver-sync-ui.js?v=driver-sync-20260520" defer></script>
+<script src="./assets/js/digiy-driver-memory-fix.js?v=driver-memory-20260520" defer></script>
 
   <style>
 
@@ -1795,5 +1796,47 @@ body{padding-bottom:24px !important;}
       });
     })();
   </script>
+
+<script>
+/* ══ DIGIY DRIVER — sécurité mémoire trajets proposés publics ══ */
+(function(){
+  function val(id){ var el=document.getElementById(id); return el ? String(el.value || "").trim() : ""; }
+
+  function readProposedRouteForm(){
+    return {
+      source:"profile-edition",
+      label: val("routeLabel") || val("route_label") || val("publicRouteLabel"),
+      amount: Number(val("priceFcfa") || val("price_fcfa") || val("routePrice") || 0) || 0,
+      vehicle: val("routeVehicle") || val("vehicleType") || val("vehicle_type"),
+      note: val("routeNote") || val("contactNote") || ""
+    };
+  }
+
+  function saveNow(){
+    var m = window.DIGIY_DRIVER_MEMORY;
+    if(!m) return;
+    var r = readProposedRouteForm();
+    if(r.label && r.amount > 0){
+      m.saveProposedRoute(r);
+    }
+  }
+
+  document.addEventListener("click", function(e){
+    var btn = e.target && e.target.closest ? e.target.closest("button,a") : null;
+    if(!btn) return;
+    if(btn.id === "btnSaveRate" || /trajet|tarif|enregistrer|sauver|garder/.test(String(btn.textContent || "").toLowerCase())){
+      setTimeout(saveNow, 0);
+    }
+  }, true);
+
+  document.addEventListener("submit", function(){
+    setTimeout(saveNow, 0);
+  }, true);
+
+  window.addEventListener("beforeunload", saveNow);
+})();
+</script>
+
 </body>
 </html>
+
