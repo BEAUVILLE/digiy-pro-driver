@@ -372,6 +372,25 @@
     }
 
 
+
+    /* ══ DIGIY DRIVER — Porte Trajets habituels ══ */
+    #doorHabitualRoutes{
+      border-color:rgba(196,151,63,.62)!important;
+      background:linear-gradient(180deg,rgba(250,204,21,.22),rgba(255,255,255,.09))!important;
+    }
+    #doorHabitualRoutes .doorIcon{
+      background:#fff7d6!important;
+      color:#171717!important;
+      border-color:rgba(196,151,63,.44)!important;
+      box-shadow:0 10px 22px rgba(0,0,0,.14);
+    }
+    #doorHabitualRoutes .doorInfo b{
+      color:#fffdf3!important;
+    }
+    #doorHabitualRoutes .doorInfo span{
+      color:rgba(255,248,220,.94)!important;
+    }
+
     /* ══ BOTTOM BAR ══ */
     .bottomBar{
       position:fixed;bottom:0;left:0;right:0;height:var(--barH);z-index:100;
@@ -644,6 +663,14 @@
           <div class="doorInfo"><b>Mon profil</b><span>Identité · zone · visibilité.</span></div>
         </a>
 
+        <a class="door pave gold" id="doorHabitualRoutes" href="./profile-edition.html#ratesBlock">
+          <div class="paveTop">
+            <div class="doorIcon">🚕</div>
+            <div class="doorTag">Programme</div>
+          </div>
+          <div class="doorInfo"><b>Trajets habituels</b><span>Saly → Dakar · AIBD · Casamance · 4x4.</span></div>
+        </a>
+
         <a class="door pave gold" id="doorTarifs" href="./tarifs-edition.html">
           <div class="paveTop">
             <div class="doorIcon">💰</div>
@@ -839,6 +866,12 @@
         <span class="ovLbl">Mon profil<span class="ovSublbl">Identité · zone · visibilité</span></span>
         <span class="ovArr">→</span>
       </button>
+
+      <button class="ovLink" id="ovHabitualRoutes">
+        <span class="ovIco">🚕</span>
+        <span class="ovLbl">Trajets habituels<span class="ovSublbl">Saly, AIBD, Dakar, Casamance, 4x4</span></span>
+        <span class="ovArr">→</span>
+      </button>
       <button class="ovLink" id="ovTarifsOv">
         <span class="ovIco">💰</span>
         <span class="ovLbl">Mes tarifs<span class="ovSublbl">Grille terrain · prix client</span></span>
@@ -867,6 +900,7 @@
         trips:     "./trajets.html",
         profile:   "./profil-chauffeur.html",
         rates:     "./tarifs-edition.html", // FIX TARIFS: bouton visible + overlay Piloter
+        habitualRoutes: "./profile-edition.html",
         pin:       "./pin.html",
         qr:        "./generateur-digiy-driver.html",
         alertes:   "./alertes.html",
@@ -976,6 +1010,7 @@
           doorTrajets:   [ROUTES.trips,     ""],
           doorNote:      [ROUTES.trips,     "#quickDriverNote"],
           doorProfil:    [ROUTES.profile,   ""],
+          doorHabitualRoutes: [ROUTES.habitualRoutes, "#ratesBlock"],
           doorTarifs:    [ROUTES.rates,     ""],
           doorQr:        [ROUTES.qr,        ""],
           doorFiche:     [ROUTES.fiche,     ""],
@@ -989,6 +1024,7 @@
           ovSession:     [ROUTES.session,   ""],
           ovAlertes:     [ROUTES.alertes,   ""],
           ovProfil:      [ROUTES.profile,   ""],
+          ovHabitualRoutes: [ROUTES.habitualRoutes, "#ratesBlock"],
           ovTarifsOv:    [ROUTES.rates,     ""],
           ovQrOv:        [ROUTES.qr,        ""],
           ovPinOv:       [ROUTES.pin,       ""],
@@ -1088,6 +1124,17 @@
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
