@@ -569,6 +569,367 @@ textarea{min-height:136px!important}
   input,textarea,select{font-size:20px!important}
 }
 
+
+
+/* ════════════════════════════════════════════════════════
+   DIGIY DRIVER — CONTENEUR MOBILE TERRAIN ÉDITION TARIFS
+   Gros pavés · gros champs · gros boutons · pro téléphone
+   ════════════════════════════════════════════════════════ */
+
+:root{
+  --mobileMax:760px;
+  --hdrH:72px!important;
+  --barH:94px!important;
+}
+
+body{
+  font-size:21px!important;
+  font-weight:1000!important;
+  line-height:1.42!important;
+  padding:calc(var(--hdrH) + 14px) 12px calc(var(--barH) + env(safe-area-inset-bottom,0px) + 22px)!important;
+}
+
+.wrap{
+  width:min(var(--mobileMax),100%)!important;
+  max-width:var(--mobileMax)!important;
+  margin:0 auto!important;
+  display:grid!important;
+  gap:16px!important;
+}
+
+.pageHeader{
+  height:var(--hdrH)!important;
+  min-height:var(--hdrH)!important;
+  padding:10px!important;
+}
+
+.headerInner{
+  width:min(var(--mobileMax),100%)!important;
+  grid-template-columns:auto 1fr auto!important;
+}
+
+.headerBtn,
+.headerTitle{
+  min-height:52px!important;
+  border-radius:999px!important;
+  font-size:18px!important;
+  font-weight:1000!important;
+  padding:12px 15px!important;
+}
+
+.heroSimple{
+  border:2px solid rgba(255,255,255,.18)!important;
+  border-radius:30px!important;
+  padding:22px!important;
+  background:
+    radial-gradient(560px 230px at 100% 0%,rgba(196,151,63,.16),transparent 70%),
+    linear-gradient(180deg,rgba(27,139,85,.96),rgba(14,91,55,.96))!important;
+  box-shadow:0 24px 58px rgba(0,0,0,.30)!important;
+}
+
+.eyebrow{
+  font-size:18px!important;
+  font-weight:1000!important;
+  line-height:1.2!important;
+}
+
+.heroSub{
+  font-size:24px!important;
+  font-weight:1000!important;
+  line-height:1.42!important;
+  color:rgba(248,255,249,.92)!important;
+}
+
+.pill{
+  min-height:54px!important;
+  font-size:19px!important;
+  font-weight:1000!important;
+  padding:12px 16px!important;
+  border-radius:999px!important;
+}
+
+.card,
+.kpi,
+.fareBox,
+.extraItem,
+.previewCard,
+.summaryBox{
+  border-radius:30px!important;
+  border:2px solid rgba(255,255,255,.20)!important;
+  background:
+    radial-gradient(560px 240px at 100% 0%, rgba(250,204,21,.14), transparent 70%),
+    linear-gradient(180deg,rgba(27,139,85,.98),rgba(14,91,55,.98))!important;
+  box-shadow:0 24px 58px rgba(0,0,0,.30)!important;
+}
+
+.card{
+  padding:26px!important;
+}
+
+h2{
+  font-size:clamp(36px,8vw,52px)!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  letter-spacing:-.055em!important;
+}
+
+h3{
+  font-size:clamp(29px,6vw,40px)!important;
+  line-height:1.03!important;
+  font-weight:1000!important;
+}
+
+.muted,
+.small,
+.disabledNote,
+.toast{
+  font-size:22px!important;
+  line-height:1.52!important;
+  font-weight:1000!important;
+  color:rgba(248,255,249,.92)!important;
+}
+
+label{
+  margin-top:18px!important;
+  margin-bottom:9px!important;
+  font-size:22px!important;
+  font-weight:1000!important;
+  color:#fff!important;
+}
+
+input,
+textarea,
+select{
+  min-height:78px!important;
+  border-radius:24px!important;
+  font-size:23px!important;
+  font-weight:1000!important;
+  padding:18px 20px!important;
+  border:2px solid rgba(255,255,255,.24)!important;
+  background:rgba(4,18,13,.24)!important;
+}
+
+textarea{
+  min-height:158px!important;
+  line-height:1.5!important;
+}
+
+.btn{
+  width:100%!important;
+  min-height:84px!important;
+  border-radius:28px!important;
+  font-size:23px!important;
+  font-weight:1000!important;
+  line-height:1.12!important;
+  padding:18px 20px!important;
+  justify-content:center!important;
+  border-width:2px!important;
+}
+
+.actionsBar{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:14px!important;
+}
+
+.kpiGrid{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:14px!important;
+}
+
+.kpi{
+  min-height:178px!important;
+  padding:24px 16px!important;
+  display:grid!important;
+  align-content:center!important;
+}
+
+.kpi .label{
+  font-size:17px!important;
+  font-weight:1000!important;
+  line-height:1.2!important;
+  color:#fff0a8!important;
+}
+
+.kpi .value{
+  margin-top:8px!important;
+  font-size:clamp(42px,11vw,68px)!important;
+  font-weight:1000!important;
+  line-height:.9!important;
+}
+
+#kpiSlug{
+  font-size:22px!important;
+  line-height:1.15!important;
+}
+
+.grid{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:16px!important;
+}
+
+.fareGrid{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:14px!important;
+}
+
+.fareBox{
+  padding:22px!important;
+}
+
+.fareTop{
+  margin-bottom:14px!important;
+}
+
+.fareTitle{
+  font-size:clamp(28px,7vw,42px)!important;
+  font-weight:1000!important;
+  line-height:1.05!important;
+}
+
+.chip{
+  min-height:38px!important;
+  font-size:15px!important;
+  font-weight:1000!important;
+  padding:8px 12px!important;
+}
+
+.prefix{
+  border-radius:24px!important;
+  border:2px solid rgba(255,255,255,.24)!important;
+}
+
+.prefix span{
+  font-size:19px!important;
+  font-weight:1000!important;
+  padding:0 18px!important;
+  color:#fff0a8!important;
+}
+
+.prefix input{
+  min-height:78px!important;
+  font-size:25px!important;
+}
+
+.extras{
+  display:grid!important;
+  gap:14px!important;
+}
+
+.extraItem{
+  padding:22px!important;
+}
+
+.previewCard{
+  padding:22px!important;
+}
+
+.pAvatar{
+  width:76px!important;
+  height:76px!important;
+  font-size:27px!important;
+}
+
+.pName{
+  font-size:clamp(31px,7vw,44px)!important;
+  font-weight:1000!important;
+  line-height:1.02!important;
+}
+
+.pMeta,
+.pBadge{
+  font-size:21px!important;
+  font-weight:1000!important;
+}
+
+.tarifLine{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:8px!important;
+  padding:18px!important;
+  border-radius:22px!important;
+  font-size:23px!important;
+  font-weight:1000!important;
+}
+
+.tarifLine .amount{
+  width:100%!important;
+  min-height:58px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:18px!important;
+  background:rgba(250,204,21,.16)!important;
+  color:#fff0a8!important;
+  font-size:25px!important;
+}
+
+.summaryBox pre{
+  font-size:22px!important;
+  font-weight:1000!important;
+  line-height:1.6!important;
+}
+
+.bottomBar{
+  height:var(--barH)!important;
+  padding-left:18px!important;
+  padding-right:18px!important;
+}
+
+.wbtn svg{
+  width:58px!important;
+  height:58px!important;
+}
+
+.wlbl{
+  font-size:14px!important;
+  font-weight:1000!important;
+}
+
+@media(max-width:560px){
+  body{
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+
+  .headerTitle{
+    font-size:16px!important;
+  }
+
+  .headerBtn{
+    font-size:16px!important;
+    padding-left:11px!important;
+    padding-right:11px!important;
+  }
+
+  .card,
+  .heroSimple{
+    padding:22px 18px!important;
+  }
+
+  .kpiGrid{
+    grid-template-columns:1fr!important;
+  }
+
+  .kpi{
+    min-height:150px!important;
+  }
+
+  .btn{
+    min-height:80px!important;
+    font-size:21px!important;
+  }
+
+  input,
+  textarea,
+  select{
+    font-size:21px!important;
+  }
+}
+
 </style>
 </head>
 
@@ -1478,8 +1839,27 @@ textarea{min-height:136px!important}
 })();
 </script>
 
+
+<!-- ══ DIGIY DRIVER — cohérence liens tarifs/profil ══ -->
+<script>
+(function(){
+  function fixLinks(){
+    document.querySelectorAll('a[href="./atelier/tarifs-edition.html"], a[href="atelier/tarifs-edition.html"]').forEach(function(a){
+      a.setAttribute("href","./tarifs-edition.html");
+    });
+    document.querySelectorAll('a[href="./profil-edition.html"], a[href="profil-edition.html"]').forEach(function(a){
+      a.setAttribute("href","./profile-edition.html");
+    });
+  }
+  document.addEventListener("DOMContentLoaded", fixLinks);
+  setTimeout(fixLinks, 300);
+})();
+</script>
+
 </body>
 </html>
+
+
 
 
 
