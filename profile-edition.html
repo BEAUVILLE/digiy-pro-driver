@@ -20,6 +20,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./guard.js?v=driver-v4-7-profil-edition"></script>
+  <script src="./assets/js/digiy-module-bridge.js?v=bridge-20260520" defer></script>
+  <script src="./assets/js/digiy-driver-sync-ui.js?v=driver-sync-20260520" defer></script>
 
   <style>
 
@@ -503,6 +505,22 @@ body{padding-bottom:24px !important;}
 .btn{min-height:64px !important;font-size:18px !important;font-weight:1000 !important;}
 .in, textarea{font-size:18px !important;font-weight:1000 !important;}
 
+
+/* ══ DRIVER — Trajets habituels publics dans l’atelier ══ */
+#ratesBlock{
+  border-color:rgba(250,204,21,.34);
+}
+#ratesBlock h2:after{
+  content:" · fiche client";
+  color:#fff0a8;
+  font-size:.55em;
+  letter-spacing:0;
+}
+#routeVehicle,
+#routeNote{
+  border-color:rgba(250,204,21,.28);
+}
+
 </style>
 </head>
 <body>
@@ -718,22 +736,34 @@ body{padding-bottom:24px !important;}
         </div>
 
         <div class="card" id="ratesBlock">
-          <h2>Tarifs actifs</h2>
+          <h2>Trajets habituels</h2>
 
           <div class="row">
             <div>
-              <div class="muted">Nom du trajet</div>
-              <input class="in" id="routeLabel" placeholder="Ex : Saly → Dakar"/>
+              <div class="muted">Trajet proposé</div>
+              <input class="in" id="routeLabel" placeholder="Ex : Saly → Dakar / Saly → Casamance"/>
             </div>
             <div>
-              <div class="muted">Prix (FCFA)</div>
+              <div class="muted">Tarif indicatif (FCFA)</div>
               <input class="in" id="priceFcfa" inputmode="numeric" placeholder="Ex : 7000"/>
             </div>
           </div>
 
           <div class="row" style="margin-top:10px">
-            <button class="btn gold" id="btnSaveRate" type="button">💰 Enregistrer le tarif</button>
-            <button class="btn" id="btnReloadRates" type="button">↻ Rafraîchir mes tarifs</button>
+            <div>
+              <div class="muted">Véhicule conseillé</div>
+              <input class="in" id="routeVehicle" placeholder="Ex : Berline / 7 places / 4x4"/>
+            </div>
+          </div>
+
+          <div style="margin-top:10px">
+            <div class="muted">Note trajet</div>
+            <textarea id="routeNote" placeholder="Ex : longue distance, bagages, piste, nuit, réservation conseillée…"></textarea>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <button class="btn gold" id="btnSaveRate" type="button">🚕 Enregistrer le trajet</button>
+            <button class="btn" id="btnReloadRates" type="button">↻ Rafraîchir mes trajets</button>
           </div>
 
           <div class="msg" id="msgRates">Prêt.</div>
@@ -1436,29 +1466,121 @@ body{padding-bottom:24px !important;}
         }
       }
 
+
+      const DRIVER_PUBLIC_ROUTES_KEY = "DIGIY_DRIVER_PUBLIC_ROUTES";
+      const DRIVER_TARIFS_KEY = "DIGIY_DRIVER_TARIFS";
+      const DRIVER_PRICES_KEY = "DIGIY_DRIVER_PRICES";
+      const DRIVER_SIGNALS_KEY = "DIGIY_DRIVER_PRO_SIGNALS";
+      const DRIVER_SNAPSHOT_KEY = "DIGIY_DRIVER_SYNC_SNAPSHOT_V1";
+
+      function driverReadJson(key, fallback){
+        try{
+          const raw = localStorage.getItem(key);
+          if(!raw) return fallback;
+          const parsed = JSON.parse(raw);
+          return parsed == null ? fallback : parsed;
+        }catch(_){
+          return fallback;
+        }
+      }
+
+      function driverWriteJson(key, value){
+        try{
+          localStorage.setItem(key, JSON.stringify(value));
+        }catch(e){
+          console.warn("[DIGIY DRIVER PROFILE] mémoire impossible:", key, e?.message || e);
+        }
+      }
+
+      function driverRememberPublicRoute(route){
+        const rows = driverReadJson(DRIVER_PUBLIC_ROUTES_KEY, []);
+        const arr = Array.isArray(rows) ? rows : [];
+        const id = route.id || String(route.label || route.route_label || "").toLowerCase().replace(/\s+/g,"-") || `${Date.now()}`;
+
+        const item = {
+          id,
+          module:"DRIVER",
+          source:"profile-edition",
+          label: route.label || route.route_label || "Trajet",
+          route_label: route.label || route.route_label || "Trajet",
+          amount: Number(route.amount || route.price_fcfa || 0) || 0,
+          price_fcfa: Number(route.amount || route.price_fcfa || 0) || 0,
+          vehicle: route.vehicle || "",
+          note: route.note || "",
+          tags: route.tags || [],
+          updated_at: new Date().toISOString()
+        };
+
+        const filtered = arr.filter(r => String(r.id || r.label || r.route_label) !== String(item.id));
+        filtered.push(item);
+
+        driverWriteJson(DRIVER_PUBLIC_ROUTES_KEY, filtered.slice(-80));
+        driverWriteJson(DRIVER_TARIFS_KEY, filtered.slice(-80));
+        driverWriteJson(DRIVER_PRICES_KEY, filtered.slice(-80));
+
+        const signals = driverReadJson(DRIVER_SIGNALS_KEY, []);
+        const signalArr = Array.isArray(signals) ? signals : [];
+        signalArr.push({
+          id:`${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          module:"DRIVER",
+          source:"profile-edition",
+          type:"tarifs",
+          label:"Trajet habituel DRIVER mis à jour",
+          message:`${item.label} · ${item.amount ? item.amount.toLocaleString("fr-FR") + " FCFA" : "tarif à confirmer"}`,
+          href:"./profil-chauffeur.html",
+          created_at:new Date().toISOString()
+        });
+        driverWriteJson(DRIVER_SIGNALS_KEY, signalArr.slice(-100));
+
+        const old = driverReadJson(DRIVER_SNAPSHOT_KEY, {});
+        driverWriteJson(DRIVER_SNAPSHOT_KEY, {
+          ...old,
+          module:"DRIVER",
+          slug: slug || old.slug || "",
+          saved_at:new Date().toISOString(),
+          tarifs: filtered.slice(-80),
+          publicRoutes: filtered.slice(-80),
+          summary:{
+            ...(old.summary || {}),
+            counts:{
+              ...((old.summary || {}).counts || {}),
+              tarifs: filtered.length
+            },
+            tarifs: filtered.slice(-80)
+          }
+        });
+
+        try{
+          window.dispatchEvent(new CustomEvent("digiy:driver:public-route:saved", { detail:item }));
+        }catch(_){}
+
+        return item;
+      }
+
+      function driverReadPublicRoutes(){
+        const rows = driverReadJson(DRIVER_PUBLIC_ROUTES_KEY, []);
+        return Array.isArray(rows) ? rows : [];
+      }
+
       function renderRates(rows){
-        const data = Array.isArray(rows) ? rows : [];
+        const localRoutes = driverReadPublicRoutes();
+        const data = (Array.isArray(rows) ? rows : []).concat(localRoutes);
 
         if (!ACCESS_OK){
-          $("ratesList").innerHTML = `<div class="empty">Aucun tarif lisible tant que l’accès n’est pas validé.</div>`;
-          return;
-        }
-
-        if (!RATES_RPC_READY){
-          $("ratesList").innerHTML = `<div class="empty">Le rail tarifs n’est pas encore branché sur ce module. On garde la page propre, sans démo.</div>`;
+          $("ratesList").innerHTML = `<div class="empty">Aucun trajet habituel lisible tant que l’accès n’est pas validé.</div>`;
           return;
         }
 
         if (!data.length){
-          $("ratesList").innerHTML = `<div class="empty">Aucun tarif actif pour l’instant.</div>`;
+          $("ratesList").innerHTML = `<div class="empty">Aucun trajet habituel actif pour l’instant.</div>`;
           return;
         }
 
         $("ratesList").innerHTML = data.map(r => `
           <div class="item">
             <div>
-              <b>${escapeHtml(r.route_label || "Trajet")}</b>
-              <div class="muted">${Number(r.price_fcfa || 0).toLocaleString("fr-FR")} FCFA</div>
+              <b>${escapeHtml(r.route_label || r.label || "Trajet")}</b>
+              <div class="muted">${Number(r.price_fcfa || r.amount || 0).toLocaleString("fr-FR")} FCFA</div>
             </div>
             <div class="actions">
               <button class="btn gold" type="button" data-disable="${escapeHtml(r.id || "")}">Désactiver</button>
@@ -1508,11 +1630,11 @@ body{padding-bottom:24px !important;}
         if (!ACCESS_OK){
           RATES_RPC_READY = true;
           renderRates([]);
-          setMsgRates("⚠️ Accès non valide pour lire les tarifs.", "bad");
+          setMsgRates("⚠️ Accès non valide pour lire les trajets habituels.", "bad");
           return;
         }
 
-        setMsgRates("⏳ Chargement des tarifs…", "warn");
+        setMsgRates("⏳ Chargement des trajets habituels…", "warn");
 
         try{
           const { data, error } = await sb.rpc("driver_list_rates_by_slug", { p_slug: slug });
@@ -1521,7 +1643,7 @@ body{padding-bottom:24px !important;}
             if (isRpcMissing(error)){
               RATES_RPC_READY = false;
               renderRates([]);
-              setMsgRates("⚠️ Rail tarifs pas encore branché. Aucune démo affichée.", "warn");
+              setMsgRates("✅ Mémoire locale des trajets habituels active.", "ok");
               return;
             }
             throw error;
@@ -1529,11 +1651,11 @@ body{padding-bottom:24px !important;}
 
           RATES_RPC_READY = true;
           renderRates(data || []);
-          setMsgRates("✅ Tarifs synchronisés.", "ok");
+          setMsgRates("✅ Trajets habituels synchronisés.", "ok");
         }catch(e){
           console.error(e);
-          setMsgRates("❌ Erreur de chargement des tarifs.", "bad");
-          $("ratesList").innerHTML = `<div class="empty">Erreur de chargement des tarifs.</div>`;
+          setMsgRates("❌ Erreur de chargement des trajets habituels.", "bad");
+          $("ratesList").innerHTML = `<div class="empty">Erreur de chargement des trajets habituels.</div>`;
         }
       }
 
@@ -1542,12 +1664,12 @@ body{padding-bottom:24px !important;}
         const priceFcfa = parseInt($("priceFcfa").value || "0", 10);
 
         if (!ACCESS_OK){
-          setMsgRates("⚠️ Accès non valide pour enregistrer un tarif.", "bad");
+          setMsgRates("⚠️ Accès non valide pour enregistrer un trajet habituel.", "bad");
           return;
         }
 
         if (!routeLabel){
-          setMsgRates("❌ Nom du trajet manquant.", "bad");
+          setMsgRates("❌ Trajet proposé manquant.", "bad");
           return;
         }
 
@@ -1557,7 +1679,7 @@ body{padding-bottom:24px !important;}
         }
 
         setActionButtonsDisabled(true);
-        setMsgRates("⏳ Enregistrement du tarif…", "warn");
+        setMsgRates("⏳ Enregistrement du trajet habituel…", "warn");
 
         try{
           const { data, error } = await sb.rpc("driver_upsert_rate_by_slug", {
@@ -1570,7 +1692,7 @@ body{padding-bottom:24px !important;}
             if (isRpcMissing(error)){
               RATES_RPC_READY = false;
               renderRates([]);
-              setMsgRates("⚠️ Fonction tarifs non branchée pour l’enregistrement.", "warn");
+              setMsgRates("⚠️ Fonction trajets habituels non branchée en base. Mémoire locale DRIVER utilisée.", "warn");
               return;
             }
             throw error;
@@ -1580,11 +1702,11 @@ body{padding-bottom:24px !important;}
 
           $("routeLabel").value = "";
           $("priceFcfa").value = "";
-          setMsgRates("✅ Tarif enregistré en base.", "ok");
+          setMsgRates("✅ Trajet habituel enregistré.", "ok");
           await loadRates();
         }catch(e){
           console.error(e);
-          setMsgRates("❌ Erreur pendant l’enregistrement du tarif.", "bad");
+          setMsgRates("❌ Erreur pendant l’enregistrement du trajet habituel.", "bad");
         }finally{
           setActionButtonsDisabled(false);
         }
