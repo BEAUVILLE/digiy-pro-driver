@@ -22,6 +22,12 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./guard.js?v=driver-tarifs-edition-v5-moule-grand-gras-sans-tel-20260519"></script>
+<script src="./assets/js/digiy-module-bridge.js?v=bridge-20260520" defer></script>
+<script src="./assets/js/digiy-driver-sync-ui.js?v=driver-sync-20260520" defer></script>
+<script>
+  window.DIGIY_MODULE = "DRIVER";
+  window.DIGIY_SYNC_MODULE = "DRIVER";
+</script>
 
 <style>
 /* ══ VARIABLES ══ */
@@ -411,6 +417,158 @@ textarea{min-height:116px}
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}.btn,.wbtn,.ovLink{transition:none}
 }
+
+/* ══ DIGIY DRIVER — GRAND TERRAIN PLUS LISIBLE ══ */
+html{font-size:22px!important}
+body{
+  font-size:20px!important;
+  font-weight:1000!important;
+  line-height:1.38!important;
+}
+.pageHeader{height:60px!important}
+body{padding-top:74px!important}
+.headerBtn,.headerTitle{
+  min-height:44px!important;
+  font-size:17px!important;
+  font-weight:1000!important;
+  padding:10px 14px!important;
+}
+.heroSub{
+  font-size:21px!important;
+  font-weight:1000!important;
+  line-height:1.48!important;
+}
+.eyebrow{
+  font-size:15px!important;
+  font-weight:1000!important;
+}
+.pill{
+  font-size:17px!important;
+  min-height:42px!important;
+  padding:10px 14px!important;
+  font-weight:1000!important;
+}
+.card{
+  padding:24px!important;
+  border-radius:24px!important;
+}
+h2{
+  font-size:clamp(31px,7vw,42px)!important;
+  font-weight:1000!important;
+  line-height:1.02!important;
+}
+h3{
+  font-size:clamp(25px,5.4vw,34px)!important;
+  font-weight:1000!important;
+}
+.muted,.small,.disabledNote,.toast{
+  font-size:19px!important;
+  font-weight:1000!important;
+  line-height:1.55!important;
+}
+label{
+  font-size:19px!important;
+  font-weight:1000!important;
+}
+input,textarea,select{
+  min-height:68px!important;
+  font-size:21px!important;
+  font-weight:1000!important;
+  border-radius:18px!important;
+}
+textarea{min-height:136px!important}
+.btn{
+  min-height:66px!important;
+  font-size:20px!important;
+  font-weight:1000!important;
+  border-radius:18px!important;
+}
+.kpi{
+  padding:16px 12px!important;
+  border-radius:20px!important;
+}
+.kpi .label{
+  font-size:15px!important;
+  font-weight:1000!important;
+}
+.kpi .value{
+  font-size:33px!important;
+  font-weight:1000!important;
+}
+#kpiSlug{
+  font-size:18px!important;
+  font-weight:1000!important;
+}
+.fareTitle{
+  font-size:20px!important;
+  font-weight:1000!important;
+}
+.chip{
+  font-size:14px!important;
+  font-weight:1000!important;
+}
+.prefix span{
+  font-size:16px!important;
+  font-weight:1000!important;
+  padding:0 14px!important;
+}
+.prefix input{min-height:64px!important}
+.tarifLine{
+  font-size:20px!important;
+  font-weight:1000!important;
+  padding:14px!important;
+  border-radius:16px!important;
+}
+.summaryBox pre{
+  font-size:20px!important;
+  font-weight:1000!important;
+  line-height:1.62!important;
+}
+.pName{
+  font-size:26px!important;
+  font-weight:1000!important;
+}
+.pMeta,.pBadge{
+  font-size:18px!important;
+  font-weight:1000!important;
+}
+.ovLbl{
+  font-size:19px!important;
+  font-weight:1000!important;
+}
+.ovSublbl{
+  font-size:16px!important;
+  font-weight:1000!important;
+}
+.wlbl{
+  font-size:13px!important;
+  font-weight:1000!important;
+}
+@media(max-width:560px){
+  html{font-size:20px!important}
+  body{
+    font-size:19px!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+  .pageHeader{height:62px!important}
+  body{padding-top:74px!important}
+  .headerInner{
+    grid-template-columns:auto 1fr auto!important;
+    gap:6px!important;
+  }
+  .headerBtn,.headerTitle{
+    font-size:15px!important;
+    min-height:42px!important;
+    padding:9px 10px!important;
+  }
+  .kpiGrid{grid-template-columns:1fr 1fr!important}
+  .fareGrid{grid-template-columns:1fr!important}
+  .card{padding:20px 16px!important}
+  .btn{width:100%}
+  input,textarea,select{font-size:20px!important}
+}
+
 </style>
 </head>
 
@@ -774,6 +932,121 @@ textarea{min-height:116px}
       const ACCESS = { slug:"", phone:"", preview:true, access_ok:false, reason:"preview", pay_url:"", profile:null };
       let extras = [];
 
+      /*
+        MÉMOIRE DRIVER — TARIFS
+        Cette page écrit les tarifs dans une mémoire commune que hub.html,
+        tarifs.html et digiy-driver-sync-ui.js peuvent relire.
+      */
+      const DRIVER_SIGNALS_KEY = "DIGIY_DRIVER_PRO_SIGNALS";
+      const DRIVER_TARIFS_KEY = "DIGIY_DRIVER_TARIFS";
+      const DRIVER_PRICES_KEY = "DIGIY_DRIVER_PRICES";
+      const DRIVER_SNAPSHOT_KEY = "DIGIY_DRIVER_SYNC_SNAPSHOT_V1";
+
+      function driverReadJson(key, fallback){
+        try{
+          const raw = localStorage.getItem(key);
+          if(!raw) return fallback;
+          const parsed = JSON.parse(raw);
+          return parsed == null ? fallback : parsed;
+        }catch(_){
+          return fallback;
+        }
+      }
+
+      function driverWriteJson(key, value){
+        try{
+          localStorage.setItem(key, JSON.stringify(value));
+        }catch(e){
+          console.warn("[DIGIY DRIVER TARIFS] mémoire locale impossible:", key, e?.message || e);
+        }
+      }
+
+      function driverPushSignal(signal){
+        const existing = driverReadJson(DRIVER_SIGNALS_KEY, []);
+        const rows = Array.isArray(existing) ? existing : [];
+
+        const item = {
+          id: signal.id || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          module: "DRIVER",
+          source: signal.source || "tarifs-edition",
+          type: signal.type || "tarifs",
+          label: signal.label || "Tarifs DRIVER mis à jour",
+          message: signal.message || signal.label || "Les tarifs DRIVER ont été modifiés.",
+          href: signal.href || "./tarifs.html",
+          created_at: signal.created_at || new Date().toISOString()
+        };
+
+        rows.push(item);
+        driverWriteJson(DRIVER_SIGNALS_KEY, rows.slice(-80));
+
+        return item;
+      }
+
+      function driverRememberTarifs(data, action){
+        const entries = fareEntries(data).map(item => ({
+          id: String(item.label || "").toLowerCase().replace(/\s+/g,"-"),
+          label: item.label,
+          amount: Number(item.amount || 0) || 0,
+          note: item.note || "",
+          module: "DRIVER",
+          source: "tarifs-edition",
+          updated_at: new Date().toISOString()
+        }));
+
+        driverWriteJson(DRIVER_TARIFS_KEY, entries);
+        driverWriteJson(DRIVER_PRICES_KEY, entries);
+
+        const oldSnapshot = driverReadJson(DRIVER_SNAPSHOT_KEY, {});
+        const oldSummary = oldSnapshot.summary || {};
+        const oldCounts = oldSummary.counts || {};
+
+        const snapshot = {
+          ...oldSnapshot,
+          module: "DRIVER",
+          slug: ACCESS.slug || oldSnapshot.slug || "",
+          saved_at: new Date().toISOString(),
+          tarifs: entries,
+          prices: entries,
+          status: oldSnapshot.status || {},
+          trips: oldSnapshot.trips || [],
+          notes: oldSnapshot.notes || [],
+          summary: {
+            ...oldSummary,
+            counts: {
+              ...oldCounts,
+              tarifs: entries.length
+            },
+            tarifs: entries
+          }
+        };
+
+        driverWriteJson(DRIVER_SNAPSHOT_KEY, snapshot);
+
+        driverPushSignal({
+          type: "tarifs",
+          source: "tarifs-edition",
+          label: action === "reset" ? "Brouillon tarifs DRIVER effacé" : "Tarifs DRIVER mis à jour",
+          message: action === "reset"
+            ? "Le brouillon des tarifs chauffeur a été effacé."
+            : `${entries.length} tarif(s) chauffeur enregistré(s).`,
+          href: "./tarifs.html"
+        });
+
+        try{
+          window.dispatchEvent(new CustomEvent("digiy:driver:tarifs:saved", {
+            detail: {
+              module: "DRIVER",
+              action,
+              slug: ACCESS.slug || "",
+              tarifs: entries,
+              count: entries.length
+            }
+          }));
+        }catch(_){}
+
+        return entries;
+      }
+
       function normSlug(v){ return String(v || "").trim().toLowerCase() }
       function phoneDigits(v){ return String(v || "").replace(/[^\d]/g, "") }
       function normPhone(v){ const d=phoneDigits(v); if(!d)return""; if(d.startsWith("221")&&d.length===12)return d; if(d.length===9)return"221"+d; return d }
@@ -908,13 +1181,38 @@ textarea{min-height:116px}
 
       function saveDraft(){
         const data=currentData();
-        try{localStorage.setItem(storageKey(),JSON.stringify(data));setToast("💾 Brouillon tarifs enregistré.","ok");refreshPreview()}catch(e){setToast("❌ Impossible d'enregistrer le brouillon.","bad")}
+
+        try{
+          localStorage.setItem(storageKey(),JSON.stringify(data));
+          const entries = driverRememberTarifs(data, "save");
+
+          setToast(`💾 Tarifs DRIVER enregistrés. ${entries.length} ligne(s) envoyée(s) au HUB.`, "ok");
+          refreshPreview();
+        }catch(e){
+          console.warn("[DIGIY DRIVER TARIFS] saveDraft error", e);
+          setToast("❌ Impossible d'enregistrer le brouillon DRIVER.","bad");
+        }
       }
 
       function resetDraft(){
-        try{localStorage.removeItem(storageKey())}catch(_){}
-        loadIntoForm({display_name:ACCESS.profile?.display_name||deriveNameFromSlug(ACCESS.slug),city:ACCESS.profile?.city||"",whatsapp:"",zones:ACCESS.profile?.zones||[],note:"",fares:{},extras:[]});
-        setToast("🧹 Brouillon effacé.","warn");
+        try{
+          localStorage.removeItem(storageKey());
+          driverWriteJson(DRIVER_TARIFS_KEY, []);
+          driverWriteJson(DRIVER_PRICES_KEY, []);
+          driverRememberTarifs({fares:{},extras:[]}, "reset");
+        }catch(_){}
+
+        loadIntoForm({
+          display_name:ACCESS.profile?.display_name||deriveNameFromSlug(ACCESS.slug),
+          city:ACCESS.profile?.city||"",
+          whatsapp:"",
+          zones:ACCESS.profile?.zones||[],
+          note:"",
+          fares:{},
+          extras:[]
+        });
+
+        setToast("🧹 Brouillon tarifs DRIVER effacé. Signal envoyé au HUB.","warn");
       }
 
       function readDraft(){
@@ -1153,7 +1451,35 @@ textarea{min-height:116px}
 })();
 </script>
 
+
+<!-- ══ SÉCURITÉ DRIVER — libellés forcés côté écran ══ -->
+<script>
+(function(){
+  const wrongUpper = "MAR" + "KET";
+  const wrongTitle = "Mar" + "ket";
+  const wrongLower = "mar" + "ket";
+
+  function forceDriverWords(){
+    try{
+      document.querySelectorAll("body *").forEach(function(el){
+        if(el.children.length) return;
+        if(!el.textContent) return;
+        el.textContent = el.textContent
+          .replace(new RegExp("\\b" + wrongUpper + "\\b","g"), "DRIVER")
+          .replace(new RegExp("\\b" + wrongTitle + "\\b","g"), "DRIVER")
+          .replace(new RegExp("\\b" + wrongLower + "\\b","g"), "driver");
+      });
+    }catch(_){}
+  }
+
+  document.addEventListener("DOMContentLoaded", forceDriverWords);
+  setTimeout(forceDriverWords, 400);
+  setTimeout(forceDriverWords, 1400);
+})();
+</script>
+
 </body>
 </html>
+
 
 
