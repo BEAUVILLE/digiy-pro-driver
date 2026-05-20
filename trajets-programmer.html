@@ -21,6 +21,7 @@
   <script src="./guard.js?v=driver-programmer-course-20260520"></script>
   <script src="./assets/js/digiy-module-bridge.js?v=bridge-20260520" defer></script>
   <script src="./assets/js/digiy-driver-sync-ui.js?v=driver-sync-20260520" defer></script>
+<script src="./assets/js/digiy-driver-memory-fix.js?v=driver-memory-20260520" defer></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -855,6 +856,65 @@ ${d.note ? "Note : " + d.note : ""}`.trim();
   });
 })();
 </script>
+
+<script>
+/* ══ DIGIY DRIVER — sécurité mémoire courses programmées ══ */
+(function(){
+  function ensureMemory(){
+    return window.DIGIY_DRIVER_MEMORY || null;
+  }
+
+  function readFormTrip(){
+    function val(id){ var el=document.getElementById(id); return el ? String(el.value || "").trim() : ""; }
+    var date = val("pickupDate") || val("date") || val("tripDate");
+    var time = val("pickupTime") || val("time") || val("tripTime");
+    var pickupAt = "";
+    if(date && time) pickupAt = date + "T" + time;
+    else pickupAt = date || time || "";
+
+    return {
+      source:"trajets-programmer",
+      client_name: val("clientName") || val("client") || val("customerName"),
+      client_phone: val("clientPhone") || val("phone"),
+      pickup_label: val("pickupLabel") || val("depart") || val("from"),
+      dropoff_label: val("dropoffLabel") || val("arrivee") || val("to"),
+      pickup_zone: val("pickupZone") || val("zone"),
+      pickup_at: pickupAt,
+      price_fcfa: Number(val("priceFcfa") || val("amount") || 0) || 0,
+      status: val("status") || "requested",
+      note: val("note") || val("driverNote")
+    };
+  }
+
+  document.addEventListener("submit", function(){
+    var m = ensureMemory();
+    if(!m) return;
+    setTimeout(function(){
+      var t = readFormTrip();
+      if(t.client_name || t.pickup_label || t.dropoff_label){
+        m.saveScheduledTrip(t);
+      }
+    }, 0);
+  }, true);
+
+  document.addEventListener("click", function(e){
+    var btn = e.target && e.target.closest ? e.target.closest("button,a") : null;
+    if(!btn) return;
+    var txt = String(btn.textContent || "").toLowerCase();
+    if(!/programmer|enregistrer|garder|sauver/.test(txt)) return;
+    var m = ensureMemory();
+    if(!m) return;
+    setTimeout(function(){
+      var t = readFormTrip();
+      if(t.client_name || t.pickup_label || t.dropoff_label){
+        m.saveScheduledTrip(t);
+      }
+    }, 60);
+  }, true);
+})();
+</script>
+
 </body>
 </html>
+
 
