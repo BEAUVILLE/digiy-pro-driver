@@ -1804,7 +1804,7 @@ textarea{
             </span>
           </a>
 
-          <a class="driverPhoneAction" id="phoneGoNew" href="#newTrip">
+          <a class="driverPhoneAction" id="phoneGoNew" href="./trajets-programmer.html">
             <span class="driverPhoneIcon">➕</span>
             <span class="driverPhoneCopy">
               <strong>Nouveau</strong>
@@ -1839,7 +1839,11 @@ textarea{
       </div>
 
       <div class="newTripHint" id="newTrip">
-        <strong>Nouveau trajet :</strong> dans cette version, le trajet se crée depuis le rail existant du chauffeur ou une demande client. Cette page sert à lire, accepter, démarrer, terminer et noter.
+        <strong>Programmer une course :</strong> cette page lit le rail chauffeur.
+        Pour créer une nouvelle course, ouvre l’atelier dédié.
+        <div style="margin-top:12px">
+          <a class="btn primary" id="btnProgrammerCourse" href="./trajets-programmer.html">➕ Programmer une course</a>
+        </div>
       </div>
 
       <div class="miniNav">
@@ -2013,8 +2017,8 @@ textarea{
   <nav class="bottomNav" aria-label="Navigation DRIVER">
     <div class="bottomNavInner">
       <a id="navHome" href="./hub.html"><span class="ico">🏠</span><span>Accueil</span></a>
-      <a class="active" id="navTrips" href="./trajets.html"><span class="ico">📋</span><span>Trajets</span></a>
-      <a id="navNew" href="#newTrip"><span class="ico">➕</span><span>Nouveau</span></a>
+      <a class="active" id="navTrips" href="./trajets-complet.html"><span class="ico">📋</span><span>Trajets</span></a>
+      <a id="navNew" href="./trajets-programmer.html"><span class="ico">➕</span><span>Nouveau</span></a>
       <a id="navNotes" href="#quickDriverNote"><span class="ico">✍️</span><span>Notes</span></a>
       <a id="navMore" href="./profil-chauffeur.html"><span class="ico">⚙️</span><span>Plus</span></a>
     </div>
@@ -2035,6 +2039,8 @@ textarea{
         profil: "./profil-chauffeur.html",
         tarifs: "./tarifs.html",
         qr: "./generateur-digiy-driver.html",
+        trips: "./trajets-complet.html",
+        programmer: "./trajets-programmer.html",
         pay: "https://commencer-a-payer.digiylyfe.com/",
         proPay: "https://pro-pay.digiylyfe.com/"
       };
@@ -2641,11 +2647,54 @@ textarea{
         }
       }
 
+      function readLocalRailTrips(){
+        const rows = driverReadJson(DRIVER_LOCAL_TRIPS_KEY, []);
+        if(!Array.isArray(rows)) return [];
+
+        return rows.map(row => {
+          const raw = row.raw && typeof row.raw === "object" ? row.raw : {};
+          return {
+            ...raw,
+            id: raw.id || row.id || `${Date.now()}-local`,
+            client_name: raw.client_name || row.client || "Client",
+            customer_name: raw.customer_name || row.client || "",
+            passenger_name: raw.passenger_name || row.client || "",
+            pickup_label: raw.pickup_label || row.from || "Départ à préciser",
+            pickup_address: raw.pickup_address || row.from || "",
+            dropoff_label: raw.dropoff_label || row.to || "Arrivée à préciser",
+            dropoff_address: raw.dropoff_address || row.to || "",
+            pickup_zone: raw.pickup_zone || row.zone || "",
+            pickup_at: raw.pickup_at || row.date || row.created_at || row.updated_at || new Date().toISOString(),
+            ride_at: raw.ride_at || row.date || "",
+            price_fcfa: Number(raw.price_fcfa ?? row.amount ?? 0) || 0,
+            amount_fcfa: Number(raw.amount_fcfa ?? row.amount ?? 0) || 0,
+            status: raw.status || row.status || "accepted",
+            created_at: raw.created_at || row.created_at || row.updated_at || new Date().toISOString(),
+            updated_at: raw.updated_at || row.updated_at || new Date().toISOString(),
+            __local_driver_memory:true
+          };
+        });
+      }
+
+      function mergeTrips(remoteRows, localRows){
+        const map = new Map();
+
+        [...(localRows || []), ...(remoteRows || [])].forEach(row => {
+          const id = String(row?.id || `${row?.client_name || "client"}-${row?.pickup_at || row?.created_at || Math.random()}`);
+          map.set(id, { ...(map.get(id) || {}), ...row });
+        });
+
+        return Array.from(map.values()).sort((a,b) => firstDate(b) - firstDate(a));
+      }
+
       async function fetchTrips(){
-        if (!sb || !phone) return [];
+        const localRows = readLocalRailTrips();
+
+        if (!sb || !phone) return localRows;
+
         try{
           const variants = phoneVariants(phone);
-          if (!variants.length) return [];
+          if (!variants.length) return localRows;
 
           const { data, error } = await sb
             .from("digiy_driver_trips")
@@ -2654,10 +2703,11 @@ textarea{
             .order("created_at", { ascending:false });
 
           if (error) throw error;
-          return Array.isArray(data) ? data : [];
+
+          return mergeTrips(Array.isArray(data) ? data : [], localRows);
         }catch(e){
           console.warn("trajets read warning:", e);
-          return [];
+          return localRows;
         }
       }
 
@@ -2900,6 +2950,7 @@ textarea{
         $("btnQr").href = withSlug(ROUTES.qr);
         $("btnPin").href = withSlug(ROUTES.pin);
 
+        const btnProgrammerCourse = $("btnProgrammerCourse");
         const phoneGoDashboard = $("phoneGoDashboard");
         const phoneGoTrips = $("phoneGoTrips");
         const phoneGoNew = $("phoneGoNew");
@@ -2907,9 +2958,10 @@ textarea{
         const phoneGoMoney = $("phoneGoMoney");
         const phoneGoMore = $("phoneGoMore");
 
+        if(btnProgrammerCourse) btnProgrammerCourse.href = withSlug(ROUTES.programmer);
         if(phoneGoDashboard) phoneGoDashboard.href = withSlug(ROUTES.dashboard);
         if(phoneGoTrips) phoneGoTrips.href = "#tripList";
-        if(phoneGoNew) phoneGoNew.href = "#newTrip";
+        if(phoneGoNew) phoneGoNew.href = withSlug(ROUTES.programmer);
         if(phoneGoNotes) phoneGoNotes.href = "#quickDriverNote";
         if(phoneGoMoney) phoneGoMoney.href = buildSafeUrl(ROUTES.proPay, { return: safeReturnUrl() });
         if(phoneGoMore) phoneGoMore.href = withSlug(ROUTES.cockpit);
@@ -2920,8 +2972,8 @@ textarea{
         const navNotes = $("navNotes");
         const navMore = $("navMore");
         if(navHome) navHome.href = withSlug(ROUTES.dashboard);
-        if(navTrips) navTrips.href = withSlug("./trajets.html");
-        if(navNew) navNew.href = "#newTrip";
+        if(navTrips) navTrips.href = withSlug(ROUTES.trips);
+        if(navNew) navNew.href = withSlug(ROUTES.programmer);
         if(navNotes) navNotes.href = "#quickDriverNote";
         if(navMore) navMore.href = withSlug(ROUTES.profil);
       }
@@ -3583,9 +3635,13 @@ textarea{
           renderHeaderState();
 
           if (!sb){
-            $("tripList").innerHTML = `<div class="empty">Connexion Supabase indisponible.</div>`;
-            $("statusList").innerHTML = `<div class="empty">Connexion indisponible.</div>`;
-            setMsg("❌ Connexion indisponible.", "bad");
+            allTrips = readLocalRailTrips();
+            buildStatusList();
+            renderKpis();
+            populateZoneFilter();
+            renderTrips();
+            $("statusList").innerHTML = `<div class="empty">Connexion Supabase indisponible. Mémoire locale DRIVER affichée si présente.</div>`;
+            setMsg("⚠️ Connexion distante indisponible · mémoire locale lue.", "warn");
             return;
           }
 
@@ -3781,6 +3837,42 @@ textarea{
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
