@@ -329,6 +329,76 @@ h2{
   .profileHead{display:grid}
   h1{font-size:42px}
 }
+
+/* ══ DRIVER — Trajets habituels publics ══ */
+.habitualRoutesBlock{
+  margin-top:14px;
+  padding:15px;
+  border-radius:22px;
+  border:1px solid rgba(250,204,21,.34);
+  background:
+    radial-gradient(520px 190px at 100% 0%, rgba(250,204,21,.13), transparent 70%),
+    rgba(4,18,13,.18);
+}
+.habitualRoutesTitle{
+  color:#fff0a8;
+  font-size:22px;
+  font-weight:1000;
+  line-height:1.1;
+  margin-bottom:6px;
+}
+.habitualRoutesLead{
+  color:var(--muted);
+  font-size:17px;
+  font-weight:950;
+  line-height:1.42;
+  margin-bottom:12px;
+}
+.habitualRoutesList{
+  display:grid;
+  gap:10px;
+}
+.habitualRouteCard{
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:20px;
+  padding:14px;
+  background:rgba(255,255,255,.075);
+}
+.habitualRouteTop{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:flex-start;
+}
+.habitualRouteName{
+  font-size:21px;
+  font-weight:1000;
+  line-height:1.15;
+}
+.habitualRoutePrice{
+  color:#bbf7d0;
+  font-size:18px;
+  font-weight:1000;
+  white-space:nowrap;
+}
+.habitualRouteMeta{
+  margin-top:7px;
+  color:var(--muted);
+  font-size:16px;
+  font-weight:950;
+  line-height:1.38;
+}
+.habitualRouteEmpty{
+  padding:14px;
+  border-radius:18px;
+  border:1px dashed rgba(255,255,255,.18);
+  color:var(--muted);
+  font-size:17px;
+  font-weight:950;
+  line-height:1.4;
+}
+
 </style>
 </head>
 <body>
@@ -336,7 +406,7 @@ h2{
   <div class="headerInner">
     <a class="headerBtn left" id="goHub" href="./hub.html">← portes</a>
     <div class="headerTitle">MON PROFIL</div>
-    <a class="headerBtn right" id="goEdition" href="./profil-edition.html">✏️ Modifier</a>
+    <a class="headerBtn right" id="goEdition" href="./profile-edition.html">✏️ Modifier</a>
   </div>
 </header>
 
@@ -376,10 +446,20 @@ h2{
         <div class="v" id="bioText">Lecture…</div>
       </div>
     </div>
+
+    <div class="habitualRoutesBlock">
+      <div class="habitualRoutesTitle">🚕 Trajets proposés</div>
+      <div class="habitualRoutesLead">
+        Ce que ce chauffeur sait faire régulièrement : trajets, longues distances, 4x4, aéroport ou zones habituelles.
+      </div>
+      <div class="habitualRoutesList" id="habitualRoutesList">
+        <div class="habitualRouteEmpty">Trajets habituels à compléter dans l’atelier profil.</div>
+      </div>
+    </div>
   </section>
 
   <section class="actions">
-    <a class="btn primary" id="goEdition" href="./profil-edition.html">✏️ Modifier mon profil</a>
+    <a class="btn primary" id="goEdition" href="./profile-edition.html">✏️ Modifier mon profil</a>
     <a class="btn gold" id="goQr" href="./generateur-digiy-driver.html">▣ Mon QR</a>
     <a class="btn ghost" id="goFiche" href="./ma-fiche.html">🌍 Ma fiche client</a>
     <a class="btn ghost" id="goHub" href="./hub.html">☰ Retour aux portes</a>
@@ -409,7 +489,7 @@ h2{
 <script>
 const ROUTES = {
   hub:"./hub.html",
-  edition:"./profil-edition.html",
+  edition:"./profile-edition.html",
   qr:"./generateur-digiy-driver.html",
   fiche:"./ma-fiche.html",
   pin:"./pin.html"
@@ -557,6 +637,69 @@ setupAudio({
   text:"Cette page présente seulement qui tu es, ton véhicule, ta zone et ta visibilité. Pour modifier, ouvre l’atelier.",
   speak:"Tu es dans Mon profil chauffeur. Cette page présente seulement l’essentiel : qui tu es, ton véhicule, ta zone et ta visibilité. Pour changer les informations, clique Modifier mon profil. Pour partager, ouvre Mon QR."
 });
+
+function moneyFcfa(v){
+  const n = Number(v || 0);
+  if(!Number.isFinite(n) || n <= 0) return "tarif à confirmer";
+  return n.toLocaleString("fr-FR") + " FCFA";
+}
+function readDriverPublicRoutes(){
+  const keys = [
+    "DIGIY_DRIVER_PUBLIC_ROUTES",
+    "DIGIY_DRIVER_TARIFS",
+    "DIGIY_DRIVER_PRICES"
+  ];
+  for(const key of keys){
+    try{
+      const rows = JSON.parse(localStorage.getItem(key) || "[]");
+      if(Array.isArray(rows) && rows.length){
+        return rows;
+      }
+    }catch(_){}
+  }
+  return [];
+}
+function renderHabitualRoutes(){
+  const box = $("habitualRoutesList");
+  if(!box) return;
+
+  const rows = readDriverPublicRoutes()
+    .map(function(row){
+      return {
+        label: String(row.label || row.route_label || row.name || row.title || "").trim(),
+        amount: Number(row.amount || row.price_fcfa || row.price || row.tarif || 0) || 0,
+        vehicle: String(row.vehicle || row.vehicle_type || row.car || "").trim(),
+        note: String(row.note || row.description || row.details || "").trim(),
+        tags: Array.isArray(row.tags) ? row.tags : []
+      };
+    })
+    .filter(function(row){ return row.label; });
+
+  if(!rows.length){
+    box.innerHTML = '<div class="habitualRouteEmpty">Trajets habituels à compléter dans l’atelier profil.</div>';
+    return;
+  }
+
+  box.innerHTML = rows.slice(0,12).map(function(row){
+    const meta = [
+      row.vehicle ? "🚙 " + row.vehicle : "",
+      row.tags && row.tags.length ? row.tags.join(" • ") : "",
+      row.note
+    ].filter(Boolean).join(" · ");
+
+    return `
+      <div class="habitualRouteCard">
+        <div class="habitualRouteTop">
+          <div class="habitualRouteName">${escapeHtml(row.label)}</div>
+          <div class="habitualRoutePrice">${escapeHtml(moneyFcfa(row.amount))}</div>
+        </div>
+        ${meta ? `<div class="habitualRouteMeta">${escapeHtml(meta)}</div>` : `<div class="habitualRouteMeta">À confirmer directement avec le chauffeur.</div>`}
+      </div>
+    `;
+  }).join("");
+}
+
+renderHabitualRoutes();
 loadProfile();
 </script>
 </body>
