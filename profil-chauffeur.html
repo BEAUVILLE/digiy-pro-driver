@@ -399,6 +399,19 @@ h2{
   line-height:1.4;
 }
 
+
+/* ══ DIGIY DRIVER — Porte inscription trajets habituels ══ */
+#goHabitualRoutes{
+  min-height:78px!important;
+  font-size:22px!important;
+  font-weight:1000!important;
+  border-radius:26px!important;
+  background:linear-gradient(135deg,#facc15,#f59e0b)!important;
+  color:#241300!important;
+  border-color:transparent!important;
+  box-shadow:0 18px 38px rgba(250,204,21,.22)!important;
+}
+
 </style>
 </head>
 <body>
@@ -460,6 +473,7 @@ h2{
 
   <section class="actions">
     <a class="btn primary" id="goEdition" href="./profile-edition.html">✏️ Modifier mon profil</a>
+    <a class="btn gold" id="goHabitualRoutes" href="./profile-edition.html#ratesBlock">🚕 Inscrire mes trajets habituels</a>
     <a class="btn gold" id="goQr" href="./generateur-digiy-driver.html">▣ Mon QR</a>
     <a class="btn ghost" id="goFiche" href="./ma-fiche.html">🌍 Ma fiche client</a>
     <a class="btn ghost" id="goHub" href="./hub.html">☰ Retour aux portes</a>
@@ -701,6 +715,34 @@ function renderHabitualRoutes(){
 
 renderHabitualRoutes();
 loadProfile();
+</script>
+<script>
+
+/* ══ DIGIY DRIVER — porte trajets habituels ══ */
+(function(){
+  function syncHabitualRoutesDoor(){
+    var a = document.getElementById("goHabitualRoutes");
+    if(!a) return;
+    try{
+      var slug = "";
+      try{
+        slug = (window.DIGIY_GUARD && window.DIGIY_GUARD.state && window.DIGIY_GUARD.state.slug) || "";
+      }catch(_){}
+      if(!slug){
+        try{ slug = localStorage.getItem("digiy_driver_last_slug") || localStorage.getItem("digiy_driver_slug") || ""; }catch(_){}
+      }
+      var u = new URL("./profile-edition.html#ratesBlock", location.href);
+      if(slug && !/\d{7,}/.test(String(slug).replace(/^driver-/,""))) u.searchParams.set("slug", slug);
+      a.href = u.pathname + u.search + u.hash;
+    }catch(_){
+      a.href = "./profile-edition.html#ratesBlock";
+    }
+  }
+  document.addEventListener("DOMContentLoaded", syncHabitualRoutesDoor);
+  setTimeout(syncHabitualRoutesDoor, 300);
+  setTimeout(syncHabitualRoutesDoor, 1200);
+})();
+
 </script>
 </body>
 </html>
