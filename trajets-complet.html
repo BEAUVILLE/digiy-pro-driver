@@ -24,6 +24,12 @@
   <script src="./assets/js/digiy-module-bridge.js?v=bridge-20260520" defer></script>
 <script src="./assets/js/digiy-driver-sync-ui.js?v=driver-sync-20260520" defer></script>
 
+  <script>
+    window.DIGIY_MODULE = "DRIVER";
+    window.DIGIY_SYNC_MODULE = "DRIVER";
+  </script>
+
+
   <style>
     :root{
       --bg:#0b1220;
@@ -1548,6 +1554,180 @@ label{
   }
 }
 
+
+/* ══ DIGIY DRIVER — TRAJETS GRAND TERRAIN PLUS LISIBLE ══ */
+html{font-size:22px!important}
+body{
+  font-size:20px!important;
+  font-weight:1000!important;
+  line-height:1.38!important;
+}
+
+.wrap{
+  padding-left:12px!important;
+  padding-right:12px!important;
+}
+
+.brandTitle{
+  font-size:clamp(30px,7vw,44px)!important;
+  font-weight:1000!important;
+  line-height:1!important;
+}
+
+.brandSub{
+  font-size:20px!important;
+  font-weight:1000!important;
+  line-height:1.4!important;
+}
+
+.pill{
+  min-height:48px!important;
+  font-size:17px!important;
+  font-weight:1000!important;
+  padding:10px 14px!important;
+}
+
+.card,
+.hero,
+.trip,
+.memoryItem,
+.quickGuide,
+.memoryBox{
+  border-radius:24px!important;
+  padding:22px!important;
+}
+
+.heroTitle{
+  font-size:clamp(42px,10vw,72px)!important;
+  font-weight:1000!important;
+  line-height:.96!important;
+}
+
+.heroLead,
+.sectionLead,
+.quickGuide p,
+.memoryHelp,
+.memoryItemMeta,
+.metaLine,
+.empty,
+.msg{
+  font-size:20px!important;
+  font-weight:1000!important;
+  line-height:1.48!important;
+}
+
+.eyebrow{
+  min-height:42px!important;
+  font-size:16px!important;
+  font-weight:1000!important;
+  padding:9px 14px!important;
+}
+
+.sectionTitle{
+  font-size:clamp(31px,7vw,44px)!important;
+  font-weight:1000!important;
+  line-height:1.02!important;
+}
+
+.btn,
+.driverPhoneAction,
+.quickExamples button,
+.memoryPayAction{
+  min-height:70px!important;
+  font-size:20px!important;
+  font-weight:1000!important;
+  border-radius:21px!important;
+}
+
+.driverPhoneCopy strong,
+.tripTitle,
+.memoryItemTitle{
+  font-size:clamp(24px,5.6vw,34px)!important;
+  font-weight:1000!important;
+  line-height:1.1!important;
+}
+
+.driverPhoneCopy span,
+.tag,
+.badge,
+.kpiLabel,
+.kpiSub{
+  font-size:17px!important;
+  font-weight:1000!important;
+  line-height:1.35!important;
+}
+
+.kpi{
+  min-height:150px!important;
+  padding:20px!important;
+}
+
+.kpiValue{
+  font-size:clamp(48px,12vw,68px)!important;
+  font-weight:1000!important;
+  line-height:.9!important;
+}
+
+.field label,
+label{
+  font-size:18px!important;
+  font-weight:1000!important;
+}
+
+.field select,
+.field input,
+.quickInput,
+input,
+textarea,
+select{
+  min-height:66px!important;
+  font-size:20px!important;
+  font-weight:1000!important;
+  border-radius:20px!important;
+}
+
+.quickInput,
+textarea{
+  min-height:136px!important;
+  line-height:1.48!important;
+}
+
+.bottomNav a{
+  min-height:68px!important;
+  font-size:13px!important;
+  font-weight:1000!important;
+}
+
+.bottomNav .ico{
+  font-size:23px!important;
+}
+
+@media(max-width:560px){
+  html{font-size:20px!important}
+  body{font-size:19px!important}
+  .wrap{padding-left:10px!important;padding-right:10px!important}
+  .heroTitle{font-size:42px!important}
+  .brandTitle{font-size:31px!important}
+  .brandSub{font-size:18px!important}
+  .heroLead,
+  .sectionLead,
+  .quickGuide p,
+  .memoryHelp,
+  .memoryItemMeta,
+  .metaLine,
+  .empty,
+  .msg{
+    font-size:18px!important;
+  }
+  .kpis{grid-template-columns:1fr!important}
+  .driverPhoneActionGrid{grid-template-columns:1fr!important}
+  .btn,
+  .driverPhoneAction{
+    width:100%;
+    min-height:72px!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1857,6 +2037,202 @@ label{
       let lastGuardState = null;
       let cockpitData = null;
       let allTrips = [];
+
+      /*
+        MÉMOIRE DRIVER — TRAJETS / NOTES
+        Cette page écrit les gestes chauffeur dans une mémoire commune :
+        - DIGIY_DRIVER_PRO_SIGNALS
+        - DIGIY_DRIVER_SYNC_SNAPSHOT_V1
+        - DIGIY_DRIVER_NOTES
+        - DIGIY_DRIVER_LOCAL_TRIPS
+
+        Le HUB et digiy-driver-sync-ui.js peuvent ensuite relire ces signaux.
+      */
+      const DRIVER_SIGNALS_KEY = "DIGIY_DRIVER_PRO_SIGNALS";
+      const DRIVER_SNAPSHOT_KEY = "DIGIY_DRIVER_SYNC_SNAPSHOT_V1";
+      const DRIVER_NOTES_KEY = "DIGIY_DRIVER_NOTES";
+      const DRIVER_LOCAL_TRIPS_KEY = "DIGIY_DRIVER_LOCAL_TRIPS";
+
+      function driverReadJson(key, fallback){
+        try{
+          const raw = localStorage.getItem(key);
+          if(!raw) return fallback;
+          const parsed = JSON.parse(raw);
+          return parsed == null ? fallback : parsed;
+        }catch(_){
+          return fallback;
+        }
+      }
+
+      function driverWriteJson(key, value){
+        try{
+          localStorage.setItem(key, JSON.stringify(value));
+        }catch(e){
+          console.warn("[DIGIY DRIVER TRAJETS] mémoire impossible:", key, e?.message || e);
+        }
+      }
+
+      function driverPushSignal(signal){
+        const current = driverReadJson(DRIVER_SIGNALS_KEY, []);
+        const rows = Array.isArray(current) ? current : [];
+
+        const item = {
+          id: signal.id || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          module: "DRIVER",
+          source: signal.source || "trajets-complet",
+          type: signal.type || "course",
+          label: signal.label || "Trajet DRIVER mis à jour",
+          message: signal.message || signal.label || "Un trajet DRIVER a été modifié.",
+          href: signal.href || "./trajets.html",
+          slug: slug || "",
+          created_at: signal.created_at || new Date().toISOString(),
+          amount: signal.amount || 0,
+          client: signal.client || "",
+          from: signal.from || "",
+          to: signal.to || "",
+          status: signal.status || ""
+        };
+
+        rows.push(item);
+        driverWriteJson(DRIVER_SIGNALS_KEY, rows.slice(-100));
+
+        return item;
+      }
+
+      function driverRememberTrip(trip, action){
+        if(!trip) return null;
+
+        const current = driverReadJson(DRIVER_LOCAL_TRIPS_KEY, []);
+        const rows = Array.isArray(current) ? current : [];
+        const id = String(trip.id || trip.uuid || trip.reference || `${Date.now()}`);
+
+        const item = {
+          id,
+          module: "DRIVER",
+          source: "trajets-complet",
+          date: tripWhen(trip) || new Date().toISOString(),
+          client: humanValue(trip.client_name || trip.customer_name || trip.passenger_name, "Client"),
+          from: humanValue(trip.pickup_label || trip.pickup_address || trip.depart_label || trip.origin_label || trip.pickup_city, ""),
+          to: humanValue(trip.dropoff_label || trip.dropoff_address || trip.arrival_label || trip.destination_label || trip.dropoff_city, ""),
+          status: tripStatus(trip) || action || "local",
+          amount: tripAmount(trip),
+          raw: trip,
+          updated_at: new Date().toISOString()
+        };
+
+        const filtered = rows.filter(row => String(row.id || "") !== id);
+        filtered.push(item);
+        driverWriteJson(DRIVER_LOCAL_TRIPS_KEY, filtered.slice(-100));
+
+        driverPushSignal({
+          type: "course",
+          source: "trajets-complet",
+          label: `Trajet DRIVER ${action || "mis à jour"}`,
+          message: `${item.client} · ${item.from || "départ"}${item.to ? " → " + item.to : ""}`,
+          href: "./trajets.html",
+          amount: item.amount,
+          client: item.client,
+          from: item.from,
+          to: item.to,
+          status: item.status
+        });
+
+        driverRefreshSnapshot();
+
+        try{
+          window.dispatchEvent(new CustomEvent("digiy:driver:trip:saved", {
+            detail: item
+          }));
+        }catch(_){}
+
+        return item;
+      }
+
+      function driverRememberNote(note){
+        const text = String(note?.text || note?.message || note || "").trim();
+        if(!text) return null;
+
+        const amountMatch = text.match(/(\d[\d\s.]*)/);
+        const amount = amountMatch ? Number(String(amountMatch[1]).replace(/\D/g,"")) || 0 : 0;
+
+        const item = {
+          id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          module: "DRIVER",
+          source: "trajets-notes",
+          type: "note",
+          label: "Note chauffeur confirmée",
+          message: text,
+          text,
+          amount,
+          href: "./trajets.html#quickDriverNote",
+          slug: slug || "",
+          created_at: new Date().toISOString()
+        };
+
+        const notes = driverReadJson(DRIVER_NOTES_KEY, []);
+        const arr = Array.isArray(notes) ? notes : [];
+        arr.push(item);
+        driverWriteJson(DRIVER_NOTES_KEY, arr.slice(-100));
+
+        driverPushSignal({
+          ...item,
+          type: amount > 0 ? "payment" : "note",
+          label: amount > 0 ? "Note argent DRIVER confirmée" : "Note DRIVER confirmée"
+        });
+
+        driverRefreshSnapshot();
+
+        try{
+          window.dispatchEvent(new CustomEvent("digiy:driver:note:saved", {
+            detail: item
+          }));
+        }catch(_){}
+
+        return item;
+      }
+
+      function driverRefreshSnapshot(){
+        const old = driverReadJson(DRIVER_SNAPSHOT_KEY, {});
+        const localTrips = driverReadJson(DRIVER_LOCAL_TRIPS_KEY, []);
+        const notes = driverReadJson(DRIVER_NOTES_KEY, []);
+        const trips = Array.isArray(localTrips) ? localTrips : [];
+        const safeNotes = Array.isArray(notes) ? notes : [];
+
+        const pendingTrips = trips.filter(t => {
+          const s = String(t.status || "").toLowerCase();
+          return !s || s.includes("requested") || s.includes("assigned") || s.includes("pending") || s.includes("demande");
+        });
+
+        const dueTrips = trips.filter(t => Number(t.amount || 0) > 0);
+
+        const snapshot = {
+          ...old,
+          module: "DRIVER",
+          slug: slug || old.slug || "",
+          saved_at: new Date().toISOString(),
+          trips,
+          notes: safeNotes,
+          tarifs: old.tarifs || [],
+          status: old.status || {},
+          summary: {
+            ...(old.summary || {}),
+            counts: {
+              ...((old.summary || {}).counts || {}),
+              trips: trips.length,
+              pendingTrips: pendingTrips.length,
+              dueTrips: dueTrips.length,
+              notes: safeNotes.length
+            },
+            pendingTrips,
+            dueTrips,
+            notes: safeNotes
+          }
+        };
+
+        driverWriteJson(DRIVER_SNAPSHOT_KEY, snapshot);
+        return snapshot;
+      }
+
       let isLoading = false;
       let refreshTimer = null;
 
@@ -3239,8 +3615,149 @@ label{
       boot(false);
     })();
   </script>
+
+<!-- ══ DIGIY DRIVER — sécurité mémoire trajets/notes ══ -->
+<script>
+(function(){
+  function pushSignal(signal){
+    try{
+      const key = "DIGIY_DRIVER_PRO_SIGNALS";
+      const rows = JSON.parse(localStorage.getItem(key) || "[]");
+      rows.push({
+        id: signal.id || String(Date.now()) + "-" + Math.random().toString(16).slice(2),
+        module: "DRIVER",
+        source: signal.source || "trajets-complet",
+        type: signal.type || "course",
+        label: signal.label || "Trajet DRIVER mis à jour",
+        message: signal.message || signal.label || "Un trajet DRIVER a été modifié.",
+        href: signal.href || "./trajets.html",
+        created_at: new Date().toISOString(),
+        amount: signal.amount || 0
+      });
+      localStorage.setItem(key, JSON.stringify(rows.slice(-100)));
+    }catch(e){}
+  }
+
+  function refreshSnapshot(){
+    try{
+      const snapshotKey = "DIGIY_DRIVER_SYNC_SNAPSHOT_V1";
+      const old = JSON.parse(localStorage.getItem(snapshotKey) || "{}");
+      const signals = JSON.parse(localStorage.getItem("DIGIY_DRIVER_PRO_SIGNALS") || "[]");
+      const notes = JSON.parse(localStorage.getItem("DIGIY_DRIVER_NOTES") || "[]");
+      const trips = JSON.parse(localStorage.getItem("DIGIY_DRIVER_LOCAL_TRIPS") || "[]");
+
+      const snapshot = {
+        ...old,
+        module: "DRIVER",
+        saved_at: new Date().toISOString(),
+        trips: Array.isArray(trips) ? trips : [],
+        notes: Array.isArray(notes) ? notes : [],
+        signals: Array.isArray(signals) ? signals : [],
+        summary:{
+          ...(old.summary || {}),
+          counts:{
+            ...((old.summary || {}).counts || {}),
+            trips: Array.isArray(trips) ? trips.length : 0,
+            notes: Array.isArray(notes) ? notes.length : 0
+          }
+        }
+      };
+
+      localStorage.setItem(snapshotKey, JSON.stringify(snapshot));
+    }catch(e){}
+  }
+
+  document.addEventListener("click", function(event){
+    const btn = event.target && event.target.closest ? event.target.closest("button,a") : null;
+    if(!btn) return;
+
+    const txt = (btn.textContent || "").trim().toLowerCase();
+
+    if(
+      txt.includes("accepter") ||
+      txt.includes("démarrer") ||
+      txt.includes("demarrer") ||
+      txt.includes("terminer") ||
+      txt.includes("annuler") ||
+      txt.includes("confirmer")
+    ){
+      pushSignal({
+        type:"course",
+        source:"trajets-complet-click",
+        label:"Action trajet DRIVER",
+        message:btn.textContent.trim(),
+        href:"./trajets.html"
+      });
+      refreshSnapshot();
+    }
+  }, true);
+
+  document.addEventListener("DOMContentLoaded", function(){
+    setTimeout(refreshSnapshot, 600);
+  });
+
+  window.addEventListener("digiy:driver:sync", refreshSnapshot);
+})();
+</script>
+
+
+<!-- ══ DIGIY DRIVER — capture note confirmée ══ -->
+<script>
+(function(){
+  function saveNote(){
+    try{
+      const input = document.getElementById("quickDriverInput");
+      const text = (input && input.value || "").trim();
+      if(!text) return;
+
+      const key = "DIGIY_DRIVER_NOTES";
+      const rows = JSON.parse(localStorage.getItem(key) || "[]");
+      const amountMatch = text.match(/(\d[\d\s.]*)/);
+      const amount = amountMatch ? Number(String(amountMatch[1]).replace(/\D/g,"")) || 0 : 0;
+
+      const item = {
+        id:String(Date.now()) + "-" + Math.random().toString(16).slice(2),
+        module:"DRIVER",
+        source:"trajets-notes",
+        type: amount > 0 ? "payment" : "note",
+        label: amount > 0 ? "Note argent DRIVER confirmée" : "Note DRIVER confirmée",
+        message:text,
+        text,
+        amount,
+        href:"./trajets.html#quickDriverNote",
+        created_at:new Date().toISOString()
+      };
+
+      rows.push(item);
+      localStorage.setItem(key, JSON.stringify(rows.slice(-100)));
+
+      const signals = JSON.parse(localStorage.getItem("DIGIY_DRIVER_PRO_SIGNALS") || "[]");
+      signals.push(item);
+      localStorage.setItem("DIGIY_DRIVER_PRO_SIGNALS", JSON.stringify(signals.slice(-100)));
+    }catch(e){}
+  }
+
+  document.addEventListener("click", function(event){
+    const btn = event.target && event.target.closest ? event.target.closest("#btnQuickConfirm") : null;
+    if(btn) saveNote();
+  }, true);
+})();
+</script>
+
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
