@@ -1728,6 +1728,25 @@ textarea{
   }
 }
 
+
+/* ══ DIGIY DRIVER — boutons historique propres ══ */
+.tripActions .btn[disabled]{
+  opacity:1!important;
+  cursor:default!important;
+}
+
+.tripActions .btn.ok[disabled]{
+  background:rgba(34,197,94,.14)!important;
+  border-color:rgba(34,197,94,.34)!important;
+  color:#bbf7d0!important;
+}
+
+.tripActions .btn.ghost[disabled]{
+  background:rgba(255,255,255,.07)!important;
+  border-color:rgba(255,255,255,.16)!important;
+  color:#dbe4ff!important;
+}
+
 </style>
 </head>
 <body>
@@ -2967,6 +2986,7 @@ textarea{
       function actionButtons(trip){
         const status = tripStatus(trip);
         const tripId = String(trip?.id || "");
+        const amount = tripAmount(trip);
         const buttons = [];
 
         if (status === "requested"){
@@ -2981,8 +3001,23 @@ textarea{
           buttons.push(`<button class="btn warn" data-action="finish" data-id="${escapeHtml(tripId)}">🏁 Terminer</button>`);
         }
 
+        /*
+          Les trajets terminés ou annulés ne sont pas bloqués :
+          ils sont simplement dans l'historique.
+          On évite donc le mot "Lecture seule", trop administratif.
+        */
         if (!buttons.length){
-          buttons.push(`<button class="btn ghost" type="button" disabled>Lecture seule</button>`);
+          if (status === "completed"){
+            buttons.push(`<button class="btn ok" type="button" disabled>✅ Terminé · historique</button>`);
+
+            if(amount > 0){
+              buttons.push(`<a class="btn gold" href="${escapeHtml(buildSafeUrl(ROUTES.proPay, { return: safeReturnUrl() }))}">💰 Voir PAY</a>`);
+            }
+          }else if(status === "canceled" || status === "cancelled"){
+            buttons.push(`<button class="btn ghost" type="button" disabled>⛔ Annulé · archive</button>`);
+          }else{
+            buttons.push(`<button class="btn ghost" type="button" disabled>👁️ Historique</button>`);
+          }
         }
 
         return buttons.join("");
@@ -3746,6 +3781,18 @@ textarea{
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
