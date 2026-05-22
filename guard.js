@@ -1,5 +1,7 @@
 // guard.js — DIGIY DRIVER PRO
 // Doctrine : PIN une seule fois -> session locale fraîche -> navigation interne directe 8h
+// Rail ABOS : accès central via digiy_has_module_access_from_abos(phone, "DRIVER")
+// Secours transition : ancien digiy_has_access si ABOS ne répond pas encore
 // Sécurité : pas de phone dans les URLs, pas de slug sensible exposé, serveur gardien
 (() => {
   "use strict";
@@ -43,7 +45,12 @@
 
     RPC: {
       VERIFY_PIN: "digiy_verify_pin",
-      HAS_ACCESS: "digiy_has_access"
+
+      // Nouveau rail central ABOS
+      HAS_MODULE_ACCESS_FROM_ABOS: "digiy_has_module_access_from_abos",
+
+      // Ancien rail gardé en secours transition
+      HAS_ACCESS_LEGACY: "digiy_has_access"
     },
 
     TABLES: {
@@ -190,10 +197,6 @@
     }
   }
 
-  function readStorage(key) {
-    return readSession(key) || readLocal(key) || "";
-  }
-
   function writeSession(key, value) {
     try {
       sessionStorage.setItem(key, value);
@@ -284,6 +287,48 @@
 
     const data = await res.json().catch(() => null);
     return { ok: res.ok, status: res.status, data };
+  }
+
+  function boolFromRpcData(data) {
+    const raw = Array.isArray(data) ? data[0] : data;
+
+    if (raw === true) return true;
+    if (raw === 1) return true;
+
+    if (typeof raw === "string") {
+      const txt = raw.trim().toLowerCase();
+
+      if (txt === "true" || txt === "t" || txt === "1" || txt === "yes" || txt === "ok") {
+        return true;
+      }
+
+      if (txt.startsWith("(")) {
+        const first = txt.replace(/^\(/, "").split(",")[0];
+        const token = String(first || "").trim().replace(/^"|"$/g, "").toLowerCase();
+        if (token === "t" || token === "true" || token === "1") return true;
+      }
+
+      return false;
+    }
+
+    if (raw && typeof raw === "object") {
+      if (raw.ok === true) return true;
+      if (raw.access === true) return true;
+      if (raw.access_ok === true) return true;
+      if (raw.has_access === true) return true;
+      if (raw.allowed === true) return true;
+      if (raw.active === true) return true;
+      if (raw.is_active === true) return true;
+      if (raw.subscribed === true) return true;
+      if (raw.valid === true) return true;
+
+      const vals = Object.values(raw);
+      if (vals.some((v) => v === true || v === 1 || v === "t" || v === "true")) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   function cleanVisibleUrl(contextSlug) {
@@ -762,7 +807,28 @@
     return null;
   }
 
-  async function checkAccess(phone) {
+  async function checkAccessFromAbos(phone) {
+    const p = normPhone(phone);
+    if (!p) return false;
+
+    const tries = [
+      { p_phone: p, p_module: MODULE },
+      { phone: p, module: MODULE },
+      { p_phone: p, p_module: MODULE_LOWER },
+      { phone: p, module: MODULE_LOWER }
+    ];
+
+    for (const body of tries) {
+      const res = await rpc(CFG.RPC.HAS_MODULE_ACCESS_FROM_ABOS, body);
+
+      if (!res.ok) continue;
+      if (boolFromRpcData(res.data)) return true;
+    }
+
+    return false;
+  }
+
+  async function checkAccessLegacy(phone) {
     const p = normPhone(phone);
     if (!p) return false;
 
@@ -774,14 +840,26 @@
     ];
 
     for (const body of tries) {
-      const res = await rpc(CFG.RPC.HAS_ACCESS, body);
-      if (!res.ok) continue;
+      const res = await rpc(CFG.RPC.HAS_ACCESS_LEGACY, body);
 
-      if (res.data === true) return true;
-      if (res.data?.ok === true) return true;
-      if (res.data?.access === true) return true;
-      if (res.data?.has_access === true) return true;
+      if (!res.ok) continue;
+      if (boolFromRpcData(res.data)) return true;
     }
+
+    return false;
+  }
+
+  async function checkAccess(phone) {
+    const p = normPhone(phone);
+    if (!p) return false;
+
+    // 1. Nouveau rail central ABOS : vérité principale.
+    const abosOk = await checkAccessFromAbos(p);
+    if (abosOk) return true;
+
+    // 2. Secours transition : ancien accès tant que tous les modules migrent.
+    const legacyOk = await checkAccessLegacy(p);
+    if (legacyOk) return true;
 
     return false;
   }
@@ -968,7 +1046,7 @@
 
     const accessOk = await checkAccess(finalPhone);
     if (!accessOk) {
-      return { ok: false, error: "Abonnement inactif." };
+      return { ok: false, error: "Abonnement DRIVER inactif." };
     }
 
     const saved = saveSession({
@@ -1191,7 +1269,7 @@
   }
 
   window.DIGIY_GUARD = {
-    VERSION: "driver-guard-security-v2-20260504",
+    VERSION: "driver-guard-abos-central-v1-20260522",
     state,
 
     ready,
@@ -1317,6 +1395,14 @@
 
     async resolveSubByPhone(phone) {
       return resolveSubByPhone(phone);
+    },
+
+    async checkAccessFromAbos(phone) {
+      return checkAccessFromAbos(phone || state.phone || "");
+    },
+
+    async checkAccessLegacy(phone) {
+      return checkAccessLegacy(phone || state.phone || "");
     },
 
     async checkAccess(phone) {
