@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#13824d"/>
   <meta name="description" content="DIGIY DRIVER PRO — session dédiée."/>
   <meta name="robots" content="noindex,nofollow"/>
-  <meta name="digiy-build" content="driver-v4-session-neurones"/>
+  <meta name="digiy-build" content="driver-v4-session-porte-oreille-20260524"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
@@ -629,8 +629,8 @@ label{
 <script>
 window.DIGIY_AUDIO_SCRIPT = {
   title: 'Ma session.',
-  text: 'Cette page vérifie seulement l’accès. Si la session est ouverte, retourne à l’activité. Sinon, ouvre avec le PIN.',
-  speak: 'Tu es dans Ma session. Ici on vérifie seulement l’accès. Si la session est ouverte, retourne à l’activité. Si l’accès est à ouvrir, clique sur le PIN.'
+  text: 'Cette page vérifie seulement l’accès. Si la session est ouverte, retourne à l’activité, aux portes ou à l’Oreille DRIVER.',
+  speak: 'Tu es dans Ma session. Ici on vérifie seulement l’accès. Si la session est ouverte, retourne aux portes ou ouvre Oreille DRIVER pour dicter une course. Si l’accès est à ouvrir, clique sur le PIN.'
 };
 </script>
 
@@ -664,6 +664,7 @@ window.DIGIY_AUDIO_SCRIPT = {
     <h2>Sorties utiles</h2>
     <div class="actions">
       <a class="btn ghost" id="goHub" data-audio="Ouvre les portes DRIVER : chaque sujet a sa page dédiée." href="./hub.html">☰ Portes</a>
+      <a class="btn gold" id="goOreille" data-audio="Ouvre Oreille DRIVER : dicter une course avec client, téléphone, départ, arrivée et tarif." href="./oreille.html">🎙️ Oreille DRIVER</a>
       <a class="btn ghost" id="goPin" data-audio="Ouvre Mon accès : ici tu récupères le passage sécurisé." href="./pin.html">🔑 PIN</a>
     </div>
   </section>
@@ -677,6 +678,7 @@ const ROUTES = {
   alertes:"./alertes.html",
   trajets:"./trajets.html",
   notes:"./trajets.html#quickDriverNote",
+  oreille:"./oreille.html",
   profil:"./profil-chauffeur.html",
   tarifs:"./tarifs.html",
   qr:"./generateur-digiy-driver.html",
@@ -771,6 +773,7 @@ function wireStandardLinks(){
   setHref("goAlertes", safeUrl(ROUTES.alertes));
   setHref("goTrajets", safeUrl(ROUTES.trajets));
   setHref("goNotes", safeUrl(ROUTES.notes));
+  setHref("goOreille", safeUrl(ROUTES.oreille));
   setHref("goProfil", safeUrl(ROUTES.profil));
   setHref("goTarifs", safeUrl(ROUTES.tarifs));
   setHref("goQr", safeUrl(ROUTES.qr));
@@ -939,6 +942,10 @@ renderSession();
 
 </body>
 </html>
+
+
+
+
 
 
 
