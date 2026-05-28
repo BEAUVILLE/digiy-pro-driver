@@ -324,6 +324,47 @@
 
     .driverPrepared.show{display:block}
 
+
+    .driverValidation{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:9px;
+    }
+
+    .driverValidateNote,
+    .driverValidatePay{
+      min-height:56px;
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:0 12px;
+      font-family:var(--fontA);
+      font-size:13px;
+      font-weight:1000;
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.16);
+    }
+
+    .driverValidateNote{
+      background:rgba(246,196,83,.12);
+      border-color:rgba(246,196,83,.34);
+      color:#fff3cf;
+    }
+
+    .driverValidatePay{
+      background:rgba(0,166,81,.16);
+      border-color:rgba(0,166,81,.36);
+      color:#dfffe9;
+    }
+
+    .driverValidatePay[disabled]{
+      opacity:.45;
+      cursor:not-allowed;
+      filter:grayscale(.35);
+    }
+
     .driverChips{
       display:flex;
       flex-wrap:wrap;
@@ -531,7 +572,16 @@
           </div>
 
           <div class="driverPrepared" data-driver-prepared>
-            Brouillon ACTION DRIVER prêt : départ, arrivée, heure, client et message seront vérifiés par le chauffeur avant validation.
+            Brouillon ACTION DRIVER prêt. Choisis ensuite : garder en note DRIVER ou envoyer vers PAY si c’est de l’argent réel.
+          </div>
+
+          <div class="driverValidation" aria-label="Validation ACTION DRIVER">
+            <button class="driverValidateNote" type="button" data-driver-save-note>
+              📝 Valider en note DRIVER
+            </button>
+            <button class="driverValidatePay" type="button" data-driver-send-pay>
+              💳 Valider vers PAY
+            </button>
           </div>
 
           <div class="driverChips">
@@ -601,27 +651,26 @@
               <em>“retour de Dakar à Saly demain 18h client confirmé”</em>
             </button>
 
-            <button class="driverModel" type="button" data-driver-template="attente client devant gare routière à 14h">
+            <button class="driverModel" type="button" data-driver-template="placer 20000 F course dans PAY" data-driver-route="PAY">
               <span class="driverModelTop">
-                <span class="driverModelIcon">⏳</span>
-                <b>Attente client</b>
+                <span class="driverModelIcon">💳</span>
+                <b>PAY · recette course</b>
               </span>
-              <em>“attente client devant gare routière à 14h”</em>
+              <em>“placer 20000 F course dans PAY”</em>
             </button>
 
-            <button class="driverModel" type="button" data-driver-template="course en attente de validation départ Mbour arrivée Somone">
+            <button class="driverModel" type="button" data-driver-template="dépense essence 6700 F" data-driver-route="PAY">
               <span class="driverModelTop">
-                <span class="driverModelIcon">✅</span>
-                <b>Validation</b>
+                <span class="driverModelIcon">⛽</span>
+                <b>PAY · dépense essence</b>
               </span>
-              <em>“course en attente de validation départ Mbour arrivée Somone”</em>
+              <em>“dépense essence 6700 F”</em>
             </button>
           </div>
 
           <div class="driverNote">
-            ACTION DRIVER prépare la course, le message et le contexte.
-            Rien n’est confirmé automatiquement :
-            le chauffeur garde la main.
+            ACTION DRIVER prépare le trajet. Pour l’argent réel, le chauffeur valide le pont PAY :
+            recette course, essence, péage ou avance. Rien n’est enregistré automatiquement.
           </div>
         </aside>
 
@@ -641,31 +690,95 @@
       const listenBtn = root.querySelector("[data-driver-listen]");
       const status = root.querySelector("[data-driver-status]");
       const prepared = root.querySelector("[data-driver-prepared]");
+      const saveNoteBtn = root.querySelector("[data-driver-save-note]");
+      const sendPayBtn = root.querySelector("[data-driver-send-pay]");
       const cards = Array.from(root.querySelectorAll("[data-driver-template]"));
 
       let recognition = null;
       let currentTemplate = voiceText ? voiceText.value.trim() : "";
+      let currentRoute = "DRIVER";
 
       function setStatus(text){
         if(status) status.textContent = text;
       }
 
-      function showPrepared(text){
+      function isPayText(text){
+        const t = String(text || "").toLowerCase();
+        return /\bpay\b|\bdépense\b|\bdepense\b|\bessence\b|\bpéage\b|\bpeage\b|\brecette\b|\bplacer\b|\bencaiss/i.test(t);
+      }
+
+      function detectPayType(text){
+        const t = String(text || "").toLowerCase();
+        if(/\bdépense\b|\bdepense\b|\bessence\b|\bpéage\b|\bpeage\b|\bcarburant\b|\bsortie\b/.test(t)) return "expense";
+        return "income";
+      }
+
+      function extractAmount(text){
+        const match = String(text || "").replace(/\s+/g," ").match(/(\d[\d\s.,]*)\s*(?:f|fcfa|xof)?/i);
+        if(!match) return null;
+        const n = Number(match[1].replace(/[^\d]/g,""));
+        return Number.isFinite(n) && n > 0 ? n : null;
+      }
+
+      function buildPayload(route, text){
+        const amount = extractAmount(text);
+        const payType = detectPayType(text);
+        return {
+          source:"DRIVER_ACTION",
+          module:"DRIVER",
+          target:route === "PAY" ? "PAY" : "DRIVER_NOTE",
+          route,
+          status:"draft_validated_by_driver",
+          requiresHumanValidation:true,
+          text:String(text || "").trim(),
+          amount,
+          currency:amount ? "XOF" : "",
+          payType,
+          category:payType === "expense" ? "Dépense chauffeur" : "Recette course",
+          createdAt:new Date().toISOString(),
+          safety:{
+            noAutoPayment:true,
+            noAutoConfirmation:true,
+            noAutoSend:true
+          }
+        };
+      }
+
+      function updatePayButton(){
+        const text = (voiceText && voiceText.value.trim()) || currentTemplate || "";
+        const payReady = currentRoute === "PAY" || isPayText(text);
+        if(sendPayBtn){
+          sendPayBtn.disabled = !payReady;
+          sendPayBtn.title = payReady ? "Valider ce brouillon vers PAY" : "PAY seulement pour recette, dépense, essence, péage ou encaissement";
+        }
+      }
+
+      function showPrepared(text, route){
         if(!prepared) return;
-        prepared.textContent = "Brouillon DRIVER prêt : " + text + ". Le chauffeur vérifie avant validation.";
+        const target = route === "PAY" || isPayText(text) ? "PAY" : "DRIVER";
+        if(target === "PAY"){
+          const amount = extractAmount(text);
+          const type = detectPayType(text) === "expense" ? "dépense" : "recette";
+          prepared.textContent = "Pont PAY prêt : " + text + ". Type : " + type + (amount ? " · montant : " + amount.toLocaleString("fr-FR") + " FCFA" : "") + ". Le chauffeur valide avant envoi.";
+        }else{
+          prepared.textContent = "Note DRIVER prête : " + text + ". Le chauffeur peut la garder en note puis ajuster/valider la course.";
+        }
         prepared.classList.add("show");
+        updatePayButton();
       }
 
       function chooseTemplate(card){
         currentTemplate = card.getAttribute("data-driver-template") || "";
+        currentRoute = card.getAttribute("data-driver-route") || (isPayText(currentTemplate) ? "PAY" : "DRIVER");
+
         if(selected) selected.textContent = "“" + currentTemplate + "”";
         if(voiceText) voiceText.value = currentTemplate;
 
         cards.forEach(btn => btn.classList.remove("isActive"));
         card.classList.add("isActive");
 
-        showPrepared(currentTemplate);
-        setStatus("Exemple chargé");
+        showPrepared(currentTemplate, currentRoute);
+        setStatus(currentRoute === "PAY" ? "Pont PAY prêt" : "Exemple chargé");
       }
 
       cards.forEach(card => {
@@ -680,9 +793,64 @@
             return;
           }
           currentTemplate = text;
+          currentRoute = isPayText(text) ? "PAY" : "DRIVER";
           if(selected) selected.textContent = "“" + currentTemplate + "”";
-          showPrepared(currentTemplate);
-          setStatus("Brouillon prêt");
+          showPrepared(currentTemplate, currentRoute);
+          setStatus(currentRoute === "PAY" ? "Pont PAY prêt" : "Brouillon prêt");
+        });
+      }
+
+      if(saveNoteBtn){
+        saveNoteBtn.addEventListener("click", () => {
+          const text = (voiceText && voiceText.value.trim()) || currentTemplate || "";
+          if(!text){
+            setStatus("Rien à valider");
+            return;
+          }
+
+          const payload = buildPayload("DRIVER", text);
+          try{
+            const key = "DIGIY_DRIVER_ACTION_NOTES";
+            const list = JSON.parse(localStorage.getItem(key) || "[]");
+            list.unshift(payload);
+            localStorage.setItem(key, JSON.stringify(list.slice(0, 80)));
+            localStorage.setItem("DIGIY_DRIVER_PENDING_NOTE", JSON.stringify(payload));
+          }catch(e){}
+
+          showPrepared(text, "DRIVER");
+          setStatus("Note DRIVER validée");
+        });
+      }
+
+      if(sendPayBtn){
+        sendPayBtn.addEventListener("click", () => {
+          const text = (voiceText && voiceText.value.trim()) || currentTemplate || "";
+          if(!text){
+            setStatus("Rien à envoyer vers PAY");
+            return;
+          }
+
+          if(!(currentRoute === "PAY" || isPayText(text))){
+            setStatus("Ce brouillon n’est pas une recette/dépense");
+            updatePayButton();
+            return;
+          }
+
+          const payload = buildPayload("PAY", text);
+          try{
+            localStorage.setItem("DIGIY_PAY_PENDING_MOVEMENT", JSON.stringify(payload));
+            localStorage.setItem("DIGIY_DRIVER_PAY_BRIDGE", JSON.stringify(payload));
+            localStorage.setItem("DIGIY_DRIVER_LATEST_ACTION", JSON.stringify(payload));
+          }catch(e){}
+
+          showPrepared(text, "PAY");
+          setStatus("Pont PAY validé");
+
+          setTimeout(() => {
+            try{
+              location.href = "./pay-transition.html#from=driver-action";
+            }catch(e){}
+          }, 420);
         });
       }
 
@@ -747,7 +915,18 @@
           }
         });
       }
+
+      if(voiceText){
+        voiceText.addEventListener("input", () => {
+          currentTemplate = voiceText.value.trim();
+          currentRoute = isPayText(currentTemplate) ? "PAY" : "DRIVER";
+          updatePayButton();
+        });
+      }
+
+      updatePayButton();
     })();
   </script>
 </body>
 </html>
+
