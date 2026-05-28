@@ -1,4 +1,31 @@
-/* DIGIY GO DRIVER — vocabulaire métier chauffeur
-   DRIVER garde la course, le trajet, le client, les messages. PAY reçoit seulement la recette finale.
-*/
-(function(){"use strict";var vocab={module:"DRIVER",label:"Je conduis",version:"driver-vocab-20260528",doctrine:"Le client ou le chauffeur parle. DRIVER prépare la course. Le chauffeur valide. PAY reçoit seulement l'argent final confirmé.",intents:{trip:["course","trajet","départ","depart","arrivée","arrivee","destination","prise en charge","pickup","retour","aller","aéroport","aeroport","AIBD"],schedule:["aujourd'hui","demain","après-demain","apres-demain","heure","h","matin","soir","maintenant"],price:["tarif","prix","montant","course à","course a","frais"],message:["message client","copier","whatsapp","sms","prévenir","prevenir"]},fields:{client:["client","nom","passager"],phone:["téléphone","telephone","tel","numéro","numero"],departure:["départ","depart","depuis","prise en charge","lieu départ"],arrival:["arrivée","arrivee","destination","vers","à","a"],time:["heure","horaire","à","a"],baggage:["bagage","valise","sac","colis"],payment:["cash","wave","orange money","carte"]},examples:["client Awa départ Saly arrivée AIBD demain 8h tarif 25000 Wave","retour aéroport ce soir 22h vers Mbour 30000 cash","course depuis hôtel Royam vers Dakar avec deux valises"],payBridge:{allowed:true,from:"DRIVER_FINAL",phrasePrefix:"recette course DRIVER",onlyAfterDriverValidation:true},safety:["aucune course confirmée automatiquement","aucun prix imposé","aucun paiement validé sans clic chauffeur"]};window.DIGIY_GO_VOCABS=window.DIGIY_GO_VOCABS||{};window.DIGIY_GO_VOCABS.DRIVER=vocab;window.DIGIY_GO_DRIVER_VOCAB=vocab;})();
+/* DIGIY GO DRIVER — vocabulaire chauffeur FR WO AR */
+(function(){"use strict";
+var vocab={
+  module:"DRIVER",
+  label:"Je conduis",
+  version:"driver-vocab-fr-wo-ar-20260528",
+  languages:["fr","wo","ar"],
+  doctrine:"Le client ou le chauffeur parle en français, wolof ou arabe. DRIVER prépare la course. Le chauffeur valide. PAY reçoit seulement l'argent final confirmé.",
+  intents:{
+    trip:["course","trajet","départ","depart","arrivée","arrivee","destination","prise en charge","pickup","retour","aller","aéroport","aeroport","AIBD","yoon","dem","dikk","jël","dellu","aeroport","رحلة","مشوار","انطلاق","وصول","وجهة","مطار","رجوع"],
+    schedule:["aujourd'hui","demain","après-demain","apres-demain","heure","matin","soir","maintenant","tay","suba","gannaaw suba","waxtu","suba si","guddi","اليوم","غدا","بعد غد","ساعة","صباح","مساء","الآن"],
+    price:["tarif","prix","montant","course à","course a","frais","njëg","fay","xaalis","سعر","ثمن","مبلغ","أجرة"],
+    message:["message client","copier","whatsapp","sms","prévenir","prevenir","bataaxal","watsap","sms","yégal","رسالة","واتساب","إس إم إس","إخبار"]
+  },
+  fields:{
+    client:["client","nom","passager","kiliyaan","tur","nit ki","زبون","اسم","راكب"],
+    phone:["téléphone","telephone","tel","numéro","numero","telefon","nimero","هاتف","رقم"],
+    departure:["départ","depart","depuis","prise en charge","lieu départ","fu mu jóge","jël","انطلاق","من","مكان الانطلاق"],
+    arrival:["arrivée","arrivee","destination","vers","à","a","fu mu dem","dikk","إلى","وجهة","وصول"],
+    time:["heure","horaire","à","a","waxtu","ساعة","وقت"],
+    baggage:["bagage","valise","sac","colis","bagaas","sakku","pake","حقيبة","شنطة","طرد"],
+    payment:["cash","wave","orange money","carte","xaalis","kesh","كاش","وايف","أورنج موني","بطاقة"]
+  },
+  examples:["client Awa départ Saly arrivée AIBD demain 8h tarif 25000 Wave","Awa jóge Saly dem AIBD suba 8h, njëg 25000 Wave","الزبونة أوا من سالي إلى المطار غدا الساعة 8، السعر 25000 وايف"],
+  payBridge:{allowed:true,from:"DRIVER_FINAL",phrasePrefix:"recette course DRIVER",onlyAfterDriverValidation:true},
+  safety:["aucune course confirmée automatiquement","aucun prix imposé","aucun paiement validé sans clic chauffeur"]
+};
+window.DIGIY_GO_VOCABS=window.DIGIY_GO_VOCABS||{};
+window.DIGIY_GO_VOCABS.DRIVER=vocab;
+window.DIGIY_GO_DRIVER_VOCAB=vocab;
+})();
