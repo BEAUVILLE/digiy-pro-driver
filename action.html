@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>DIGIY GO DRIVER — ACTION</title>
+  <title>DIGIY GO DRIVER — ACTION · FR WOLOF ARABE</title>
   <meta name="theme-color" content="#06140f" />
   <style>
     :root{
@@ -180,6 +180,32 @@
     }
 
     .driverText strong{color:#fff3cf}
+
+
+    .driverLangBar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .driverLangBtn{
+      min-height:40px;
+      border-radius:999px;
+      padding:0 13px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.07);
+      color:rgba(248,250,252,.86);
+      font-family:var(--fontA);
+      font-size:12px;
+      font-weight:1000;
+      cursor:pointer;
+    }
+
+    .driverLangBtn.isActive{
+      color:#06140f;
+      background:linear-gradient(135deg,#fff1bd,var(--gold),#22c55e);
+      border-color:rgba(246,196,83,.46);
+    }
 
     .driverVoiceBox{
       display:grid;
@@ -506,7 +532,33 @@
 
     @media(max-width:520px){
       .driverOreilleLeft,.driverOreilleRight{padding:13px;border-radius:21px}
-      .driverVoiceBox{grid-template-columns:1fr}
+  
+    .driverLangBar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .driverLangBtn{
+      min-height:40px;
+      border-radius:999px;
+      padding:0 13px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.07);
+      color:rgba(248,250,252,.86);
+      font-family:var(--fontA);
+      font-size:12px;
+      font-weight:1000;
+      cursor:pointer;
+    }
+
+    .driverLangBtn.isActive{
+      color:#06140f;
+      background:linear-gradient(135deg,#fff1bd,var(--gold),#22c55e);
+      border-color:rgba(246,196,83,.46);
+    }
+
+    .driverVoiceBox{grid-template-columns:1fr}
       .driverMic{width:78px;height:78px;border-radius:26px;font-size:38px}
       .driverModels{grid-template-columns:1fr}
       .driverBtns{grid-template-columns:1fr}
@@ -517,7 +569,7 @@
 <body>
   <main class="previewWrap">
     <div class="previewTop">
-      <strong>DIGIY GO DRIVER · ACTION</strong>
+      <strong>DIGIY GO DRIVER · ACTION multilingue</strong>
       <span>Gauche : voix + écrit · Droite : formulations DRIVER cliquables</span>
     </div>
 
@@ -535,11 +587,17 @@
             <span>DIGIY prépare.</span>
           </h1>
 
-          <p class="driverText">
+          <p class="driverText" data-i18n="lead">
             Ici, le chauffeur ou le client parle naturellement.
             <strong>Départ, arrivée, heure, date, bagage, client, message prêt.</strong>
             DIGIY prépare la course, puis le chauffeur vérifie et valide.
           </p>
+
+          <div class="driverLangBar" aria-label="Langue des exemples DRIVER">
+            <button class="driverLangBtn isActive" type="button" data-driver-lang="fr">🇫🇷 Français</button>
+            <button class="driverLangBtn" type="button" data-driver-lang="wo">🇸🇳 Wolof</button>
+            <button class="driverLangBtn" type="button" data-driver-lang="ar">🇸🇦 عربي</button>
+          </div>
 
           <div class="driverVoiceBox">
             <div class="driverMic" aria-hidden="true">🎙️</div>
@@ -596,14 +654,14 @@
         <aside class="driverOreilleRight" aria-label="Exemples métier DRIVER">
           <div class="driverOreilleRightHead">
             <div>
-              <h2>Formulations métier</h2>
-              <p>Exemples cliquables pour guider la parole du terrain.</p>
+              <h2 data-i18n="modelsTitle">Formulations métier</h2>
+              <p data-i18n="modelsSub">Exemples cliquables en français, wolof ou arabe pour guider la parole du terrain.</p>
             </div>
             <span class="driverMiniBadge">8 modèles</span>
           </div>
 
           <div class="driverModels">
-            <button class="driverModel isActive" type="button" data-driver-template="course demain 8h de Saly à Dakar client Mamadou">
+            <button class="driverModel isActive" type="button" data-driver-key="simple" data-driver-template="course demain 8h de Saly à Dakar client Mamadou">
               <span class="driverModelTop">
                 <span class="driverModelIcon">🛣️</span>
                 <b>Course simple</b>
@@ -611,7 +669,7 @@
               <em>“course demain 8h de Saly à Dakar client Mamadou”</em>
             </button>
 
-            <button class="driverModel" type="button" data-driver-template="client Awa départ hôtel Terrou Bi arrivée aéroport à 6h">
+            <button class="driverModel" type="button" data-driver-key="airport" data-driver-template="client Awa départ hôtel Terrou Bi arrivée aéroport à 6h">
               <span class="driverModelTop">
                 <span class="driverModelIcon">✈️</span>
                 <b>Hôtel → aéroport</b>
@@ -619,7 +677,7 @@
               <em>“client Awa départ hôtel Terrou Bi arrivée aéroport à 6h”</em>
             </button>
 
-            <button class="driverModel" type="button" data-driver-template="course ce soir 21h de Dakar à Saly deux personnes">
+            <button class="driverModel" type="button" data-driver-key="night" data-driver-template="course ce soir 21h de Dakar à Saly deux personnes">
               <span class="driverModelTop">
                 <span class="driverModelIcon">🌙</span>
                 <b>Course du soir</b>
@@ -627,7 +685,7 @@
               <em>“course ce soir 21h de Dakar à Saly deux personnes”</em>
             </button>
 
-            <button class="driverModel" type="button" data-driver-template="client avec deux valises départ Ngor arrivée Saly">
+            <button class="driverModel" type="button" data-driver-key="bags" data-driver-template="client avec deux valises départ Ngor arrivée Saly">
               <span class="driverModelTop">
                 <span class="driverModelIcon">🧳</span>
                 <b>Bagages</b>
@@ -635,7 +693,7 @@
               <em>“client avec deux valises départ Ngor arrivée Saly”</em>
             </button>
 
-            <button class="driverModel" type="button" data-driver-template="prépare message confirmation course pour client Mamadou demain 8h">
+            <button class="driverModel" type="button" data-driver-key="message" data-driver-template="prépare message confirmation course pour client Mamadou demain 8h">
               <span class="driverModelTop">
                 <span class="driverModelIcon">💬</span>
                 <b>Message client</b>
@@ -643,7 +701,7 @@
               <em>“prépare message confirmation course pour client Mamadou demain 8h”</em>
             </button>
 
-            <button class="driverModel" type="button" data-driver-template="retour de Dakar à Saly demain 18h client confirmé">
+            <button class="driverModel" type="button" data-driver-key="return" data-driver-template="retour de Dakar à Saly demain 18h client confirmé">
               <span class="driverModelTop">
                 <span class="driverModelIcon">↩️</span>
                 <b>Course retour</b>
@@ -651,7 +709,7 @@
               <em>“retour de Dakar à Saly demain 18h client confirmé”</em>
             </button>
 
-            <button class="driverModel" type="button" data-driver-template="placer 20000 F course dans PAY" data-driver-route="PAY">
+            <button class="driverModel" type="button" data-driver-key="payIncome" data-driver-template="placer 20000 F course dans PAY" data-driver-route="PAY">
               <span class="driverModelTop">
                 <span class="driverModelIcon">💳</span>
                 <b>PAY · recette course</b>
@@ -659,7 +717,7 @@
               <em>“placer 20000 F course dans PAY”</em>
             </button>
 
-            <button class="driverModel" type="button" data-driver-template="dépense essence 6700 F" data-driver-route="PAY">
+            <button class="driverModel" type="button" data-driver-key="payExpense" data-driver-template="dépense essence 6700 F" data-driver-route="PAY">
               <span class="driverModelTop">
                 <span class="driverModelIcon">⛽</span>
                 <b>PAY · dépense essence</b>
@@ -668,7 +726,7 @@
             </button>
           </div>
 
-          <div class="driverNote">
+          <div class="driverNote" data-i18n="note">
             ACTION DRIVER prépare le trajet. Pour l’argent réel, le chauffeur valide le pont PAY :
             recette course, essence, péage ou avance. Rien n’est enregistré automatiquement.
           </div>
@@ -693,13 +751,110 @@
       const saveNoteBtn = root.querySelector("[data-driver-save-note]");
       const sendPayBtn = root.querySelector("[data-driver-send-pay]");
       const cards = Array.from(root.querySelectorAll("[data-driver-template]"));
+      const langButtons = Array.from(root.querySelectorAll("[data-driver-lang]"));
+      const leadEl = root.querySelector("[data-i18n='lead']");
+      const modelsTitleEl = root.querySelector("[data-i18n='modelsTitle']");
+      const modelsSubEl = root.querySelector("[data-i18n='modelsSub']");
+      const noteEl = root.querySelector("[data-i18n='note']");
+
+      const DRIVER_LANG = {
+        fr:{
+          lang:"fr-FR",
+          lead:'Ici, le chauffeur ou le client parle naturellement. <strong>Départ, arrivée, heure, date, bagage, client, message prêt.</strong> DIGIY prépare la course, puis le chauffeur vérifie et valide.',
+          modelsTitle:"Formulations métier",
+          modelsSub:"Exemples cliquables en français, wolof ou arabe pour guider la parole du terrain.",
+          note:"ACTION DRIVER prépare le trajet. Pour l’argent réel, le chauffeur valide le pont PAY : recette course, essence, péage ou avance. Rien n’est enregistré automatiquement.",
+          keys:{
+            simple:{label:"Course simple", icon:"🛣️", text:"course demain 8h de Saly à Dakar client Mamadou"},
+            airport:{label:"Hôtel → aéroport", icon:"✈️", text:"client Awa départ hôtel Terrou Bi arrivée aéroport à 6h"},
+            night:{label:"Course du soir", icon:"🌙", text:"course ce soir 21h de Dakar à Saly deux personnes"},
+            bags:{label:"Bagages", icon:"🧳", text:"client avec deux valises départ Ngor arrivée Saly"},
+            message:{label:"Message client", icon:"💬", text:"prépare message confirmation course pour client Mamadou demain 8h"},
+            return:{label:"Course retour", icon:"↩️", text:"retour de Dakar à Saly demain 18h client confirmé"},
+            payIncome:{label:"PAY · recette course", icon:"💳", text:"placer 20000 F course dans PAY"},
+            payExpense:{label:"PAY · dépense essence", icon:"⛽", text:"dépense essence 6700 F"}
+          }
+        },
+        wo:{
+          lang:"fr-SN",
+          lead:'Fii, chauffeur bi wala client bi mëna wax ci lu yomb. <strong>Fu ñu jóge, fu ñu dem, waxtu, bis, bagage, client, message bu pare.</strong> DIGIY dafay waajal course bi, chauffeur bi xoolaat ba noppi mu valide.',
+          modelsTitle:"Waxinu métier",
+          modelsSub:"Royukaay yu ñu mëna clic ci wolof, français wala arabe. Pro bi mën na jël, soppi, ba noppi valide.",
+          note:"ACTION DRIVER dafay waajal trajet bi. Su dee xaalis la, chauffeur bi dafay valide pont PAY : recette course, essence, péage wala avance. Amul dara lu ñuy enregistrer automatiquement.",
+          keys:{
+            simple:{label:"Course bu yomb", icon:"🛣️", text:"course suba 8h Saly ba Dakar client Mamadou"},
+            airport:{label:"Hôtel → aéroport", icon:"✈️", text:"client Awa jóge hôtel Terrou Bi dem aéroport 6h"},
+            night:{label:"Course guddi", icon:"🌙", text:"course tey guddi 21h Dakar ba Saly ñaar nit"},
+            bags:{label:"Bagage", icon:"🧳", text:"client bi am ñaari valise jóge Ngor dem Saly"},
+            message:{label:"Message client", icon:"💬", text:"waajal message confirmation course bu client Mamadou suba 8h"},
+            return:{label:"Dellusi course", icon:"↩️", text:"retour Dakar ba Saly suba 18h client confirmé"},
+            payIncome:{label:"PAY · recette course", icon:"💳", text:"dugal 20000 F course ci PAY"},
+            payExpense:{label:"PAY · essence", icon:"⛽", text:"dépense essence 6700 F"}
+          }
+        },
+        ar:{
+          lang:"ar",
+          lead:'هنا السائق أو الزبون يتكلم ببساطة. <strong>نقطة الانطلاق، الوصول، الوقت، التاريخ، الأمتعة، الزبون، والرسالة الجاهزة.</strong> DIGIY يجهز الرحلة، والسائق يراجع ثم يؤكد.',
+          modelsTitle:"نماذج المهنة",
+          modelsSub:"أمثلة قابلة للنقر بالعربية أو الولوف أو الفرنسية. السائق يأخذ المثال، يعدله، ثم يؤكد.",
+          note:"ACTION DRIVER يجهز الرحلة. إذا كان الأمر مالاً حقيقياً، السائق يؤكد الجسر نحو PAY: دخل الرحلة، البنزين، الطريق أو سلفة. لا يتم تسجيل شيء تلقائياً.",
+          keys:{
+            simple:{label:"رحلة بسيطة", icon:"🛣️", text:"رحلة غدا الساعة 8 من سالي إلى داكار الزبون مامادو"},
+            airport:{label:"فندق → مطار", icon:"✈️", text:"الزبونة آوا من فندق Terrou Bi إلى المطار الساعة 6"},
+            night:{label:"رحلة ليلية", icon:"🌙", text:"رحلة الليلة 21h من داكار إلى سالي شخصان"},
+            bags:{label:"أمتعة", icon:"🧳", text:"زبون معه حقيبتان من Ngor إلى Saly"},
+            message:{label:"رسالة الزبون", icon:"💬", text:"جهز رسالة تأكيد الرحلة للزبون مامادو غدا 8h"},
+            return:{label:"رحلة رجوع", icon:"↩️", text:"رجوع من داكار إلى سالي غدا 18h الزبون مؤكد"},
+            payIncome:{label:"PAY · دخل الرحلة", icon:"💳", text:"ضع 20000 F رحلة في PAY"},
+            payExpense:{label:"PAY · بنزين", icon:"⛽", text:"مصروف بنزين 6700 F"}
+          }
+        }
+      };
 
       let recognition = null;
+      let currentLang = "fr";
       let currentTemplate = voiceText ? voiceText.value.trim() : "";
       let currentRoute = "DRIVER";
 
       function setStatus(text){
         if(status) status.textContent = text;
+      }
+
+      function applyLanguage(lang){
+        currentLang = DRIVER_LANG[lang] ? lang : "fr";
+        const pack = DRIVER_LANG[currentLang];
+
+        if(leadEl) leadEl.innerHTML = pack.lead;
+        if(modelsTitleEl) modelsTitleEl.textContent = pack.modelsTitle;
+        if(modelsSubEl) modelsSubEl.textContent = pack.modelsSub;
+        if(noteEl) noteEl.textContent = pack.note;
+
+        langButtons.forEach(btn => {
+          btn.classList.toggle("isActive", btn.getAttribute("data-driver-lang") === currentLang);
+        });
+
+        cards.forEach(card => {
+          const key = card.getAttribute("data-driver-key");
+          const item = pack.keys[key];
+          if(!item) return;
+
+          card.setAttribute("data-driver-template", item.text);
+
+          const icon = card.querySelector(".driverModelIcon");
+          const label = card.querySelector("b");
+          const em = card.querySelector("em");
+
+          if(icon) icon.textContent = item.icon;
+          if(label) label.textContent = item.label;
+          if(em) em.textContent = "“" + item.text + "”";
+        });
+
+        const active = cards.find(c => c.classList.contains("isActive")) || cards[0];
+        if(active) chooseTemplate(active);
+
+        if(recognition){
+          try{ recognition.lang = pack.lang || "fr-FR"; }catch(e){}
+        }
       }
 
       function isPayText(text){
@@ -869,6 +1024,13 @@
         });
       }
 
+      langButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          applyLanguage(btn.getAttribute("data-driver-lang") || "fr");
+          setStatus("Langue changée");
+        });
+      });
+
       function setupSpeech(){
         const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
         if(!SR){
@@ -877,7 +1039,7 @@
         }
 
         recognition = new SR();
-        recognition.lang = "fr-FR";
+        recognition.lang = (DRIVER_LANG[currentLang] && DRIVER_LANG[currentLang].lang) || "fr-FR";
         recognition.continuous = false;
         recognition.interimResults = true;
         recognition.maxAlternatives = 1;
@@ -924,9 +1086,11 @@
         });
       }
 
+      applyLanguage("fr");
       updatePayButton();
     })();
   </script>
 </body>
 </html>
+
 
