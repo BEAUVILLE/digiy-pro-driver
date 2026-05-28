@@ -1,31 +1,4 @@
-/* DIGIY GO DRIVER — vocabulaire chauffeur FR WO AR */
+/* DIGIY GO DRIVER — vocabulaire chauffeur FR WO AR + choix langue */
 (function(){"use strict";
-var vocab={
-  module:"DRIVER",
-  label:"Je conduis",
-  version:"driver-vocab-fr-wo-ar-20260528",
-  languages:["fr","wo","ar"],
-  doctrine:"Le client ou le chauffeur parle en français, wolof ou arabe. DRIVER prépare la course. Le chauffeur valide. PAY reçoit seulement l'argent final confirmé.",
-  intents:{
-    trip:["course","trajet","départ","depart","arrivée","arrivee","destination","prise en charge","pickup","retour","aller","aéroport","aeroport","AIBD","yoon","dem","dikk","jël","dellu","aeroport","رحلة","مشوار","انطلاق","وصول","وجهة","مطار","رجوع"],
-    schedule:["aujourd'hui","demain","après-demain","apres-demain","heure","matin","soir","maintenant","tay","suba","gannaaw suba","waxtu","suba si","guddi","اليوم","غدا","بعد غد","ساعة","صباح","مساء","الآن"],
-    price:["tarif","prix","montant","course à","course a","frais","njëg","fay","xaalis","سعر","ثمن","مبلغ","أجرة"],
-    message:["message client","copier","whatsapp","sms","prévenir","prevenir","bataaxal","watsap","sms","yégal","رسالة","واتساب","إس إم إس","إخبار"]
-  },
-  fields:{
-    client:["client","nom","passager","kiliyaan","tur","nit ki","زبون","اسم","راكب"],
-    phone:["téléphone","telephone","tel","numéro","numero","telefon","nimero","هاتف","رقم"],
-    departure:["départ","depart","depuis","prise en charge","lieu départ","fu mu jóge","jël","انطلاق","من","مكان الانطلاق"],
-    arrival:["arrivée","arrivee","destination","vers","à","a","fu mu dem","dikk","إلى","وجهة","وصول"],
-    time:["heure","horaire","à","a","waxtu","ساعة","وقت"],
-    baggage:["bagage","valise","sac","colis","bagaas","sakku","pake","حقيبة","شنطة","طرد"],
-    payment:["cash","wave","orange money","carte","xaalis","kesh","كاش","وايف","أورنج موني","بطاقة"]
-  },
-  examples:["client Awa départ Saly arrivée AIBD demain 8h tarif 25000 Wave","Awa jóge Saly dem AIBD suba 8h, njëg 25000 Wave","الزبونة أوا من سالي إلى المطار غدا الساعة 8، السعر 25000 وايف"],
-  payBridge:{allowed:true,from:"DRIVER_FINAL",phrasePrefix:"recette course DRIVER",onlyAfterDriverValidation:true},
-  safety:["aucune course confirmée automatiquement","aucun prix imposé","aucun paiement validé sans clic chauffeur"]
-};
-window.DIGIY_GO_VOCABS=window.DIGIY_GO_VOCABS||{};
-window.DIGIY_GO_VOCABS.DRIVER=vocab;
-window.DIGIY_GO_DRIVER_VOCAB=vocab;
-})();
+var vocab={module:"DRIVER",label:"Je conduis",version:"driver-lang-ui-20260528",languages:["fr","wo","ar"],doctrine:"Le client ou le chauffeur parle en français, wolof ou arabe. DRIVER prépare la course. Le chauffeur valide. PAY reçoit seulement l'argent final confirmé.",intents:{trip:["course","trajet","départ","arrivée","destination","prise en charge","retour","aéroport","AIBD","yoon","dem","dikk","jël","dellu","رحلة","مشوار","انطلاق","وصول","وجهة","مطار"],schedule:["aujourd'hui","demain","heure","matin","soir","maintenant","tay","suba","waxtu","guddi","اليوم","غدا","ساعة","صباح","مساء"],price:["tarif","prix","montant","frais","njëg","fay","xaalis","سعر","مبلغ","أجرة"],message:["message client","copier","whatsapp","sms","prévenir","bataaxal","watsap","رسالة","واتساب","إس إم إس"]},fields:{client:["client","nom","passager","kiliyaan","tur","nit ki","زبون","اسم","راكب"],phone:["téléphone","tel","numéro","telefon","nimero","هاتف","رقم"],departure:["départ","depuis","prise en charge","fu mu jóge","jël","انطلاق","من"],arrival:["arrivée","destination","vers","fu mu dem","dikk","إلى","وجهة"],time:["heure","horaire","waxtu","ساعة","وقت"],baggage:["bagage","valise","sac","colis","bagaas","sakku","حقيبة","طرد"],payment:["cash","wave","orange money","carte","xaalis","كاش","وايف","بطاقة"]},examples:["client Awa départ Saly arrivée AIBD demain 8h tarif 25000 Wave","Awa jóge Saly dem AIBD suba 8h, njëg 25000 Wave","الزبونة أوا من سالي إلى المطار غدا الساعة 8، السعر 25000 وايف"],payBridge:{allowed:true,from:"DRIVER_FINAL",phrasePrefix:"recette course DRIVER",onlyAfterDriverValidation:true},safety:["aucune course confirmée automatiquement","aucun prix imposé","aucun paiement validé sans clic chauffeur"]};
+function ui(v){var L={fr:{r:"fr-FR",d:"ltr",h:"Parle ou écris en français."},wo:{r:"fr-FR",d:"ltr",h:"Wolof : parle si le téléphone comprend, sinon écris ou dicte au clavier."},ar:{r:"ar-SA",d:"auto",h:"Parle ou écris en arabe."}};var K="DIGIY_GO_LANG_"+v.module;function cur(){return localStorage.getItem(K)||"fr"}function apply(x){localStorage.setItem(K,x);window.DIGIY_GO_LANG=x;window.DIGIY_GO_SPEECH_LANG=L[x].r;document.querySelectorAll("textarea,input").forEach(function(el){el.dir=L[x].d});var h=document.getElementById("digiyGoLangHint");if(h)h.textContent=L[x].h;document.querySelectorAll("[data-digiy-lang]").forEach(function(b){b.style.opacity=b.dataset.digiyLang===x?"1":".55"})}function patch(){["SpeechRecognition","webkitSpeechRecognition"].forEach(function(n){var O=window[n];if(!O||O.__digiyPatched)return;function W(){var rec=new O(),start=rec.start;rec.start=function(){try{rec.lang=L[cur()].r}catch(e){}return start.apply(rec,arguments)};return rec}W.__digiyPatched=true;W.prototype=O.prototype;window[n]=W})}function mount(){if(document.getElementById("digiyGoLangBox"))return;var host=document.querySelector("textarea")||document.querySelector("main")||document.body;var box=document.createElement("div");box.id="digiyGoLangBox";box.style.cssText="margin:12px 0;padding:12px;border-radius:18px;border:1px solid rgba(250,204,21,.35);background:rgba(0,0,0,.18);font-weight:1000";box.innerHTML='<div style="color:#fde68a;font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px">Langue de travail</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><button type="button" data-digiy-lang="fr">🇫🇷 Français</button><button type="button" data-digiy-lang="wo">🇸🇳 Wolof</button><button type="button" data-digiy-lang="ar">🇸🇦 العربية</button></div><div id="digiyGoLangHint" style="margin-top:8px;color:rgba(255,255,255,.78);font-size:13px"></div>';box.querySelectorAll("button").forEach(function(b){b.style.cssText="min-height:42px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.1);color:inherit;font:inherit;cursor:pointer";b.onclick=function(){apply(b.dataset.digiyLang)}});host.parentNode.insertBefore(box,host);apply(cur())}patch();if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount);else mount()}window.DIGIY_GO_VOCABS=window.DIGIY_GO_VOCABS||{};window.DIGIY_GO_VOCABS.DRIVER=vocab;window.DIGIY_GO_DRIVER_VOCAB=vocab;ui(vocab);})();
