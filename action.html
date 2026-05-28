@@ -1,550 +1,753 @@
-<!-- ═══════════════════════════════════════════════════════
-ACTION DIGIY — PROTOTYPE BLOC HUB
-Façade ludique + modèles métier à droite
-
-À coller dans BEAUVILLE/digiy-hub/index.html
-à la place du bloc :
-<section class="actionDigiyBridge" id="action-digiy" ...>
-jusqu'à son </section>.
-
-Ce bloc est autonome : STYLE + SECTION + SCRIPT.
-════════════════════════════════════════════════════════ -->
-
-<style id="action-digiy-prototype-style">
-  .actionProto{
-    margin:14px 18px 0;
-    scroll-margin-top:128px;
-  }
-
-  .actionProtoCard{
-    position:relative;
-    overflow:hidden;
-    display:grid;
-    grid-template-columns:minmax(0,1.02fr) minmax(340px,.98fr);
-    gap:14px;
-    padding:16px;
-    border-radius:28px;
-    border:1px solid rgba(246,196,83,.42);
-    background:
-      radial-gradient(720px 320px at 0% 0%,rgba(246,196,83,.24),transparent 62%),
-      radial-gradient(680px 320px at 100% 0%,rgba(0,166,81,.22),transparent 60%),
-      linear-gradient(135deg,rgba(10,30,18,.96),rgba(4,15,10,.98));
-    box-shadow:0 18px 46px rgba(0,0,0,.28);
-  }
-
-  .actionProtoCard::before{
-    content:"";
-    position:absolute;
-    inset:auto -80px -140px auto;
-    width:300px;
-    height:300px;
-    border-radius:999px;
-    background:rgba(246,196,83,.12);
-    filter:blur(2px);
-    pointer-events:none;
-  }
-
-  .actionProtoLeft,
-  .actionProtoRight{
-    position:relative;
-    z-index:1;
-    border-radius:24px;
-    border:1px solid rgba(255,255,255,.12);
-    background:rgba(255,255,255,.055);
-    padding:16px;
-  }
-
-  .actionProtoLeft{
-    display:grid;
-    gap:14px;
-    align-content:start;
-  }
-
-  .actionProtoTop{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-  }
-
-  .actionProtoKicker{
-    display:inline-flex;
-    align-items:center;
-    gap:7px;
-    min-height:30px;
-    padding:0 10px;
-    border-radius:999px;
-    border:1px solid rgba(246,196,83,.36);
-    background:rgba(246,196,83,.12);
-    color:#fff3cf;
-    font-family:var(--fontA,system-ui);
-    font-size:11px;
-    font-weight:1000;
-    letter-spacing:.11em;
-    text-transform:uppercase;
-  }
-
-  .actionProtoSafe{
-    display:inline-flex;
-    align-items:center;
-    gap:7px;
-    min-height:30px;
-    padding:0 10px;
-    border-radius:999px;
-    border:1px solid rgba(0,166,81,.34);
-    background:rgba(0,166,81,.13);
-    color:#dfffe9;
-    font-family:var(--fontA,system-ui);
-    font-size:11px;
-    font-weight:1000;
-  }
-
-  .actionProtoTitle{
-    margin:0;
-    font-family:var(--fontA,system-ui);
-    font-size:clamp(34px,5vw,58px);
-    line-height:.92;
-    letter-spacing:-.055em;
-    font-weight:1000;
-    color:#fff;
-  }
-
-  .actionProtoTitle span{
-    color:var(--gold,#f6c453);
-  }
-
-  .actionProtoText{
-    margin:0;
-    max-width:720px;
-    color:rgba(248,250,252,.80);
-    font-size:15px;
-    line-height:1.48;
-    font-weight:850;
-  }
-
-  .actionProtoText strong{
-    color:#fff3cf;
-  }
-
-  .actionProtoMicBox{
-    display:grid;
-    grid-template-columns:92px minmax(0,1fr);
-    gap:14px;
-    align-items:center;
-    padding:14px;
-    border-radius:24px;
-    border:1px solid rgba(246,196,83,.28);
-    background:
-      radial-gradient(220px 120px at 20% 20%,rgba(246,196,83,.20),transparent 65%),
-      rgba(0,0,0,.18);
-  }
-
-  .actionProtoMic{
-    width:92px;
-    height:92px;
-    border-radius:32px;
-    display:grid;
-    place-items:center;
-    font-size:44px;
-    color:#06140f;
-    background:linear-gradient(135deg,#fff1bd,var(--gold,#f6c453),#22c55e);
-    border:1px solid rgba(255,255,255,.36);
-    box-shadow:0 14px 34px rgba(0,0,0,.28);
-  }
-
-  .actionProtoSelectedLabel{
-    margin:0 0 6px;
-    color:#fff3cf;
-    font-family:var(--fontA,system-ui);
-    font-size:12px;
-    font-weight:1000;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-  }
-
-  .actionProtoSelected{
-    margin:0;
-    color:#fff;
-    font-family:var(--fontA,system-ui);
-    font-size:clamp(18px,2.4vw,26px);
-    line-height:1.12;
-    font-weight:1000;
-  }
-
-  .actionProtoBtns{
-    display:grid;
-    grid-template-columns:1.1fr .9fr;
-    gap:9px;
-  }
-
-  .actionProtoMain,
-  .actionProtoGhost{
-    min-height:54px;
-    border-radius:17px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:0 14px;
-    font-family:var(--fontA,system-ui);
-    font-size:13px;
-    font-weight:1000;
-    cursor:pointer;
-  }
-
-  .actionProtoMain{
-    color:#06140f;
-    background:linear-gradient(135deg,#fff1bd,var(--gold,#f6c453),#22c55e);
-    border:1px solid rgba(246,196,83,.54);
-    box-shadow:0 12px 26px rgba(0,0,0,.26);
-  }
-
-  .actionProtoGhost{
-    color:#fff3cf;
-    background:rgba(255,255,255,.07);
-    border:1px solid rgba(246,196,83,.26);
-  }
-
-  .actionProtoChips{
-    display:flex;
-    flex-wrap:wrap;
-    gap:7px;
-  }
-
-  .actionProtoChips span{
-    display:inline-flex;
-    align-items:center;
-    min-height:28px;
-    padding:0 9px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.13);
-    background:rgba(255,255,255,.07);
-    color:rgba(248,250,252,.86);
-    font-family:var(--fontA,system-ui);
-    font-size:10.5px;
-    font-weight:1000;
-  }
-
-  .actionProtoRightHead{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:10px;
-    margin-bottom:12px;
-  }
-
-  .actionProtoRight h3{
-    margin:0;
-    font-family:var(--fontA,system-ui);
-    font-size:clamp(22px,3vw,34px);
-    line-height:1;
-    letter-spacing:-.04em;
-    font-weight:1000;
-    color:#fff;
-  }
-
-  .actionProtoRight p{
-    margin:6px 0 0;
-    color:rgba(248,250,252,.70);
-    font-size:13px;
-    line-height:1.38;
-    font-weight:850;
-  }
-
-  .actionProtoMiniBadge{
-    flex:0 0 auto;
-    display:inline-flex;
-    align-items:center;
-    min-height:30px;
-    padding:0 10px;
-    border-radius:999px;
-    border:1px solid rgba(246,196,83,.30);
-    background:rgba(246,196,83,.10);
-    color:#fff3cf;
-    font-family:var(--fontA,system-ui);
-    font-size:11px;
-    font-weight:1000;
-  }
-
-  .actionProtoModels{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:9px;
-  }
-
-  .actionProtoModel{
-    min-height:98px;
-    text-align:left;
-    border-radius:18px;
-    border:1px solid rgba(255,255,255,.13);
-    background:rgba(255,255,255,.065);
-    color:#fff;
-    padding:11px;
-    cursor:pointer;
-    display:grid;
-    gap:6px;
-    transition:transform .14s,border-color .14s,background .14s;
-  }
-
-  .actionProtoModel:hover,
-  .actionProtoModel.isActive{
-    transform:translateY(-2px);
-    border-color:rgba(246,196,83,.46);
-    background:linear-gradient(135deg,rgba(246,196,83,.15),rgba(0,166,81,.12));
-  }
-
-  .actionProtoModelTop{
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-
-  .actionProtoModelIcon{
-    width:34px;
-    height:34px;
-    border-radius:12px;
-    display:grid;
-    place-items:center;
-    background:rgba(246,196,83,.13);
-    border:1px solid rgba(246,196,83,.20);
-    font-size:18px;
-  }
-
-  .actionProtoModel b{
-    font-family:var(--fontA,system-ui);
-    font-size:13px;
-    font-weight:1000;
-    color:#fff3cf;
-  }
-
-  .actionProtoModel em{
-    display:block;
-    color:rgba(248,250,252,.82);
-    font-style:normal;
-    font-size:12.5px;
-    line-height:1.32;
-    font-weight:850;
-  }
-
-  .actionProtoNote{
-    margin:12px 0 0;
-    padding:11px;
-    border-radius:17px;
-    border:1px solid rgba(0,166,81,.24);
-    background:rgba(0,166,81,.08);
-    color:#dfffe9;
-    font-size:12.5px;
-    line-height:1.42;
-    font-weight:850;
-  }
-
-  @media(max-width:860px){
-    .actionProto{margin:12px 12px 0}
-    .actionProtoCard{grid-template-columns:1fr;padding:12px;border-radius:24px}
-    .actionProtoBtns{grid-template-columns:1fr 1fr}
-  }
-
-  @media(max-width:520px){
-    .actionProtoLeft,.actionProtoRight{padding:13px;border-radius:21px}
-    .actionProtoMicBox{grid-template-columns:1fr}
-    .actionProtoMic{width:78px;height:78px;border-radius:26px;font-size:38px}
-    .actionProtoModels{grid-template-columns:1fr}
-    .actionProtoBtns{grid-template-columns:1fr}
-  }
-</style>
-
-<section class="actionProto" id="action-digiy" aria-label="ACTION DIGIY — porte vocale transversale">
-  <div class="actionProtoCard">
-
-    <article class="actionProtoLeft">
-      <div class="actionProtoTop">
-        <span class="actionProtoKicker">🎙️ Porte PRO · ACTION DIGIY</span>
-        <span class="actionProtoSafe">✓ Validation humaine</span>
-      </div>
-
-      <h2 class="actionProtoTitle">
-        Dis l’action.<br>
-        <span>DIGIY route.</span>
-      </h2>
-
-      <p class="actionProtoText">
-        Le pro appuie, parle simplement, et DIGIY prépare le brouillon pour le bon métier :
-        <strong>vente, argent, course, logement, réservation, annonce, devis ou emploi.</strong>
-        Rien n’est confirmé automatiquement.
-      </p>
-
-      <div class="actionProtoMicBox">
-        <div class="actionProtoMic" aria-hidden="true">🎙️</div>
-        <div>
-          <p class="actionProtoSelectedLabel">Modèle choisi</p>
-          <p class="actionProtoSelected" data-selected-template>
-            “deux serviettes de bain à 5000 cash”
-          </p>
-        </div>
-      </div>
-
-      <div class="actionProtoBtns">
-        <a class="actionProtoMain" data-open-action href="https://pro-action-digiy.digiylyfe.com/">
-          🎙️ Ouvrir ACTION DIGIY
-        </a>
-        <button class="actionProtoGhost" type="button" data-copy-template>
-          📋 Copier le modèle
-        </button>
-      </div>
-
-      <div class="actionProtoChips" aria-label="Repères ACTION DIGIY">
-        <span>Bouton volontaire</span>
-        <span>Pas d’écoute cachée</span>
-        <span>Brouillon préparé</span>
-        <span>Module réveillé</span>
-        <span>Le terrain valide</span>
-      </div>
-    </article>
-
-    <aside class="actionProtoRight" aria-label="Modèles rapides par métier">
-      <div class="actionProtoRightHead">
-        <div>
-          <h3>Modèles métier</h3>
-          <p>Le pro clique un exemple, comprend le langage attendu, puis parle à sa façon.</p>
-        </div>
-        <span class="actionProtoMiniBadge">clic rapide</span>
-      </div>
-
-      <div class="actionProtoModels">
-        <button class="actionProtoModel isActive" type="button" data-template="deux serviettes de bain à 5000 cash">
-          <span class="actionProtoModelTop">
-            <span class="actionProtoModelIcon">🧾</span>
-            <b>POS · vente</b>
-          </span>
-          <em>“deux serviettes de bain à 5000 cash”</em>
-        </button>
-
-        <button class="actionProtoModel" type="button" data-template="recette boutique 10000 Wave">
-          <span class="actionProtoModelTop">
-            <span class="actionProtoModelIcon">💳</span>
-            <b>PAY · argent</b>
-          </span>
-          <em>“recette boutique 10000 Wave”</em>
-        </button>
-
-        <button class="actionProtoModel" type="button" data-template="course demain 8h de Saly à Dakar client Mamadou">
-          <span class="actionProtoModelTop">
-            <span class="actionProtoModelIcon">🚗</span>
-            <b>DRIVER · course</b>
-          </span>
-          <em>“course demain 8h de Saly à Dakar client Mamadou”</em>
-        </button>
-
-        <button class="actionProtoModel" type="button" data-template="chambre du 25 au 27 pour deux personnes">
-          <span class="actionProtoModelTop">
-            <span class="actionProtoModelIcon">🏠</span>
-            <b>LOC · logement</b>
-          </span>
-          <em>“chambre du 25 au 27 pour deux personnes”</em>
-        </button>
-
-        <button class="actionProtoModel" type="button" data-template="fermer mes réservations du 25 au 27">
-          <span class="actionProtoModelTop">
-            <span class="actionProtoModelIcon">📅</span>
-            <b>RESA · planning</b>
-          </span>
-          <em>“fermer mes réservations du 25 au 27”</em>
-        </button>
-
-        <button class="actionProtoModel" type="button" data-template="prépare une annonce réseau pour mon cabinet cette semaine">
-          <span class="actionProtoModelTop">
-            <span class="actionProtoModelIcon">📣</span>
-            <b>RÉSEAU · visibilité</b>
-          </span>
-          <em>“prépare une annonce réseau pour mon cabinet cette semaine”</em>
-        </button>
-
-        <button class="actionProtoModel" type="button" data-template="devis réparation plomberie chez client à Mbour">
-          <span class="actionProtoModelTop">
-            <span class="actionProtoModelIcon">🏗️</span>
-            <b>BUILD · devis</b>
-          </span>
-          <em>“devis réparation plomberie chez client à Mbour”</em>
-        </button>
-
-        <button class="actionProtoModel" type="button" data-template="publier annonce serviettes de bain 5000 Wave">
-          <span class="actionProtoModelTop">
-            <span class="actionProtoModelIcon">🛍️</span>
-            <b>MARKET · annonce</b>
-          </span>
-          <em>“publier annonce serviettes de bain 5000 Wave”</em>
-        </button>
-
-        <button class="actionProtoModel" type="button" data-template="recruter serveur pour ce week-end">
-          <span class="actionProtoModelTop">
-            <span class="actionProtoModelIcon">💼</span>
-            <b>JOBS · emploi</b>
-          </span>
-          <em>“recruter serveur pour ce week-end”</em>
-        </button>
-      </div>
-
-      <div class="actionProtoNote">
-        ACTION DIGIY ne remplace pas les modules. Il enlève le détour :
-        le pro parle, DIGIY prépare, le métier contrôle, le pro valide.
-      </div>
-    </aside>
-
-  </div>
-</section>
-
-<script>
-(function(){
-  const root = document.getElementById("action-digiy");
-  if(!root) return;
-
-  const selected = root.querySelector("[data-selected-template]");
-  const copyBtn = root.querySelector("[data-copy-template]");
-  const openBtn = root.querySelector("[data-open-action]");
-  const cards = Array.from(root.querySelectorAll("[data-template]"));
-
-  let currentTemplate = selected ? selected.textContent.replace(/[“”]/g,"").trim() : "";
-
-  function buildActionUrl(template){
-    const base = "https://pro-action-digiy.digiylyfe.com/";
-    try{
-      return base + "#modele=" + encodeURIComponent(template || "");
-    }catch(e){
-      return base;
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>DIGIY GO DRIVER — ACTION</title>
+  <meta name="theme-color" content="#06140f" />
+  <style>
+    :root{
+      --bg0:#03120c;
+      --bg1:#062016;
+      --ink:#f8fafc;
+      --soft:rgba(248,250,252,.76);
+      --muted:rgba(248,250,252,.58);
+      --line:rgba(255,255,255,.13);
+      --gold:#f6c453;
+      --green:#00a651;
+      --deep:#00853f;
+      --shadow:0 18px 54px rgba(0,0,0,.34);
+      --fontA:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      --fontB:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     }
-  }
 
-  function chooseTemplate(card){
-    currentTemplate = card.getAttribute("data-template") || "";
-    if(selected) selected.textContent = "“" + currentTemplate + "”";
-    if(openBtn) openBtn.href = buildActionUrl(currentTemplate);
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--ink);
+      font-family:var(--fontB);
+      background:
+        radial-gradient(900px 520px at 8% -10%,rgba(0,166,81,.34),transparent 62%),
+        radial-gradient(760px 420px at 92% 0%,rgba(246,196,83,.18),transparent 58%),
+        linear-gradient(180deg,#075f32 0%,#062a1d 28%,#04130d 100%);
+      padding:18px;
+    }
 
-    cards.forEach(btn => btn.classList.remove("isActive"));
-    card.classList.add("isActive");
-  }
+    a{color:inherit;text-decoration:none}
+    button,textarea{font:inherit}
 
-  cards.forEach(card => {
-    card.addEventListener("click", () => chooseTemplate(card));
-  });
+    .previewWrap{
+      width:min(1180px,100%);
+      margin:0 auto;
+    }
 
-  if(openBtn){
-    openBtn.href = buildActionUrl(currentTemplate);
-  }
+    .previewTop{
+      margin-bottom:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
 
-  if(copyBtn){
-    copyBtn.addEventListener("click", async () => {
-      const oldText = copyBtn.textContent;
-      try{
-        await navigator.clipboard.writeText(currentTemplate);
-        copyBtn.textContent = "✅ Modèle copié";
-      }catch(e){
-        window.prompt("Copie le modèle :", currentTemplate);
-        copyBtn.textContent = "✅ Prêt à copier";
+    .previewTop strong{
+      font-family:var(--fontA);
+      font-size:18px;
+      font-weight:1000;
+      color:#fff3cf;
+    }
+
+    .previewTop span{
+      color:var(--soft);
+      font-weight:850;
+      font-size:13px;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       BLOC DRIVER — OREILLE MÉTIER
+       Gauche : voix + écrit façon Oreille
+       Droite : formulations métier cliquables
+    ═══════════════════════════════════════════════════════ */
+
+    .driverOreilleBlock{
+      margin:0;
+      scroll-margin-top:128px;
+    }
+
+    .driverOreilleCard{
+      position:relative;
+      overflow:hidden;
+      display:grid;
+      grid-template-columns:minmax(0,1.02fr) minmax(340px,.98fr);
+      gap:14px;
+      padding:16px;
+      border-radius:28px;
+      border:1px solid rgba(246,196,83,.42);
+      background:
+        radial-gradient(720px 320px at 0% 0%,rgba(246,196,83,.22),transparent 62%),
+        radial-gradient(680px 320px at 100% 0%,rgba(0,166,81,.22),transparent 60%),
+        linear-gradient(135deg,rgba(10,30,18,.96),rgba(4,15,10,.98));
+      box-shadow:var(--shadow);
+    }
+
+    .driverOreilleCard::before{
+      content:"";
+      position:absolute;
+      inset:auto -80px -140px auto;
+      width:300px;
+      height:300px;
+      border-radius:999px;
+      background:rgba(246,196,83,.12);
+      pointer-events:none;
+    }
+
+    .driverOreilleLeft,
+    .driverOreilleRight{
+      position:relative;
+      z-index:1;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.055);
+      padding:16px;
+    }
+
+    .driverOreilleLeft{
+      display:grid;
+      gap:14px;
+      align-content:start;
+    }
+
+    .driverOreilleTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .driverKicker{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      min-height:30px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid rgba(246,196,83,.36);
+      background:rgba(246,196,83,.12);
+      color:#fff3cf;
+      font-family:var(--fontA);
+      font-size:11px;
+      font-weight:1000;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+    }
+
+    .driverSafe{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      min-height:30px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid rgba(0,166,81,.34);
+      background:rgba(0,166,81,.13);
+      color:#dfffe9;
+      font-family:var(--fontA);
+      font-size:11px;
+      font-weight:1000;
+    }
+
+    .driverTitle{
+      margin:0;
+      font-family:var(--fontA);
+      font-size:clamp(34px,5vw,58px);
+      line-height:.92;
+      letter-spacing:-.055em;
+      font-weight:1000;
+      color:#fff;
+    }
+
+    .driverTitle span{color:var(--gold)}
+
+    .driverText{
+      margin:0;
+      max-width:720px;
+      color:rgba(248,250,252,.80);
+      font-size:15px;
+      line-height:1.48;
+      font-weight:850;
+    }
+
+    .driverText strong{color:#fff3cf}
+
+    .driverVoiceBox{
+      display:grid;
+      grid-template-columns:92px minmax(0,1fr);
+      gap:14px;
+      align-items:center;
+      padding:14px;
+      border-radius:24px;
+      border:1px solid rgba(246,196,83,.28);
+      background:
+        radial-gradient(220px 120px at 20% 20%,rgba(246,196,83,.20),transparent 65%),
+        rgba(0,0,0,.18);
+    }
+
+    .driverMic{
+      width:92px;
+      height:92px;
+      border-radius:32px;
+      display:grid;
+      place-items:center;
+      font-size:44px;
+      color:#06140f;
+      background:linear-gradient(135deg,#fff1bd,var(--gold),#22c55e);
+      border:1px solid rgba(255,255,255,.36);
+      box-shadow:0 14px 34px rgba(0,0,0,.28);
+    }
+
+    .driverSelectedLabel{
+      margin:0 0 6px;
+      color:#fff3cf;
+      font-family:var(--fontA);
+      font-size:12px;
+      font-weight:1000;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .driverSelected{
+      margin:0;
+      color:#fff;
+      font-family:var(--fontA);
+      font-size:clamp(18px,2.4vw,26px);
+      line-height:1.12;
+      font-weight:1000;
+    }
+
+    .driverTextareaWrap{
+      display:grid;
+      gap:8px;
+    }
+
+    .driverTextareaLabel{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color:#fff3cf;
+      font-family:var(--fontA);
+      font-weight:1000;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .driverStatus{
+      color:#dfffe9;
+      text-transform:none;
+      letter-spacing:0;
+      font-size:11px;
+    }
+
+    .driverTextarea{
+      width:100%;
+      min-height:116px;
+      resize:vertical;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.20);
+      color:#fff;
+      padding:14px;
+      outline:none;
+      font-size:16px;
+      line-height:1.42;
+      font-weight:850;
+    }
+
+    .driverTextarea::placeholder{color:rgba(248,250,252,.45)}
+
+    .driverBtns{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:9px;
+    }
+
+    .driverMainBtn,
+    .driverGhostBtn,
+    .driverDarkBtn{
+      min-height:54px;
+      border-radius:17px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:0 12px;
+      font-family:var(--fontA);
+      font-size:13px;
+      font-weight:1000;
+      cursor:pointer;
+      text-decoration:none;
+    }
+
+    .driverMainBtn{
+      color:#06140f;
+      background:linear-gradient(135deg,#fff1bd,var(--gold),#22c55e);
+      border:1px solid rgba(246,196,83,.54);
+      box-shadow:0 12px 26px rgba(0,0,0,.26);
+    }
+
+    .driverGhostBtn{
+      color:#fff3cf;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(246,196,83,.26);
+    }
+
+    .driverDarkBtn{
+      color:#eafff3;
+      background:rgba(0,166,81,.12);
+      border:1px solid rgba(0,166,81,.26);
+    }
+
+    .driverPrepared{
+      display:none;
+      padding:12px;
+      border-radius:18px;
+      border:1px solid rgba(0,166,81,.24);
+      background:rgba(0,166,81,.08);
+      color:#dfffe9;
+      font-size:13px;
+      line-height:1.42;
+      font-weight:850;
+    }
+
+    .driverPrepared.show{display:block}
+
+    .driverChips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+    }
+
+    .driverChips span{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 9px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.13);
+      background:rgba(255,255,255,.07);
+      color:rgba(248,250,252,.86);
+      font-family:var(--fontA);
+      font-size:10.5px;
+      font-weight:1000;
+    }
+
+    .driverOreilleRightHead{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .driverOreilleRight h3{
+      margin:0;
+      font-family:var(--fontA);
+      font-size:clamp(22px,3vw,34px);
+      line-height:1;
+      letter-spacing:-.04em;
+      font-weight:1000;
+      color:#fff;
+    }
+
+    .driverOreilleRight p{
+      margin:6px 0 0;
+      color:rgba(248,250,252,.70);
+      font-size:13px;
+      line-height:1.38;
+      font-weight:850;
+    }
+
+    .driverMiniBadge{
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid rgba(246,196,83,.30);
+      background:rgba(246,196,83,.10);
+      color:#fff3cf;
+      font-family:var(--fontA);
+      font-size:11px;
+      font-weight:1000;
+    }
+
+    .driverModels{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:9px;
+    }
+
+    .driverModel{
+      min-height:102px;
+      text-align:left;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.13);
+      background:rgba(255,255,255,.065);
+      color:#fff;
+      padding:11px;
+      cursor:pointer;
+      display:grid;
+      gap:6px;
+      transition:transform .14s,border-color .14s,background .14s;
+    }
+
+    .driverModel:hover,
+    .driverModel.isActive{
+      transform:translateY(-2px);
+      border-color:rgba(246,196,83,.46);
+      background:linear-gradient(135deg,rgba(246,196,83,.15),rgba(0,166,81,.12));
+    }
+
+    .driverModelTop{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .driverModelIcon{
+      width:34px;
+      height:34px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      background:rgba(246,196,83,.13);
+      border:1px solid rgba(246,196,83,.20);
+      font-size:18px;
+    }
+
+    .driverModel b{
+      font-family:var(--fontA);
+      font-size:13px;
+      font-weight:1000;
+      color:#fff3cf;
+    }
+
+    .driverModel em{
+      display:block;
+      color:rgba(248,250,252,.82);
+      font-style:normal;
+      font-size:12.5px;
+      line-height:1.32;
+      font-weight:850;
+    }
+
+    .driverNote{
+      margin:12px 0 0;
+      padding:11px;
+      border-radius:17px;
+      border:1px solid rgba(0,166,81,.24);
+      background:rgba(0,166,81,.08);
+      color:#dfffe9;
+      font-size:12.5px;
+      line-height:1.42;
+      font-weight:850;
+    }
+
+    @media(max-width:860px){
+      body{padding:10px}
+      .driverOreilleCard{grid-template-columns:1fr;padding:12px;border-radius:24px}
+      .driverBtns{grid-template-columns:1fr 1fr}
+    }
+
+    @media(max-width:520px){
+      .driverOreilleLeft,.driverOreilleRight{padding:13px;border-radius:21px}
+      .driverVoiceBox{grid-template-columns:1fr}
+      .driverMic{width:78px;height:78px;border-radius:26px;font-size:38px}
+      .driverModels{grid-template-columns:1fr}
+      .driverBtns{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+
+<body>
+  <main class="previewWrap">
+    <div class="previewTop">
+      <strong>DIGIY GO DRIVER · ACTION</strong>
+      <span>Gauche : voix + écrit · Droite : formulations DRIVER cliquables</span>
+    </div>
+
+    <section class="driverOreilleBlock" id="driver-oreille" aria-label="DRIVER — ACTION métier">
+      <div class="driverOreilleCard">
+
+        <article class="driverOreilleLeft">
+          <div class="driverOreilleTop">
+            <span class="driverKicker">🚗 DRIVER · ACTION métier</span>
+            <span class="driverSafe">✓ Chauffeur valide</span>
+          </div>
+
+          <h1 class="driverTitle">
+            Parle trajet.<br>
+            <span>DIGIY prépare.</span>
+          </h1>
+
+          <p class="driverText">
+            Ici, le chauffeur ou le client parle naturellement.
+            <strong>Départ, arrivée, heure, date, bagage, client, message prêt.</strong>
+            DIGIY prépare la course, puis le chauffeur vérifie et valide.
+          </p>
+
+          <div class="driverVoiceBox">
+            <div class="driverMic" aria-hidden="true">🎙️</div>
+            <div>
+              <p class="driverSelectedLabel">Formulation choisie</p>
+              <p class="driverSelected" data-driver-selected>
+                “course demain 8h de Saly à Dakar client Mamadou”
+              </p>
+            </div>
+          </div>
+
+          <div class="driverTextareaWrap">
+            <label class="driverTextareaLabel" for="driverVoiceText">
+              Ce qu’ACTION prépare
+              <span class="driverStatus" data-driver-status>Prêt</span>
+            </label>
+            <textarea class="driverTextarea" id="driverVoiceText" placeholder="Appuie sur un exemple à droite, écris, ou utilise le micro si ton navigateur l’autorise.">course demain 8h de Saly à Dakar client Mamadou</textarea>
+          </div>
+
+          <div class="driverBtns">
+            <button class="driverMainBtn" type="button" data-driver-listen>
+              🎙️ Écouter
+            </button>
+            <button class="driverGhostBtn" type="button" data-driver-prepare>
+              ⚡ Préparer
+            </button>
+            <button class="driverDarkBtn" type="button" data-driver-copy>
+              📋 Copier
+            </button>
+          </div>
+
+          <div class="driverPrepared" data-driver-prepared>
+            Brouillon ACTION DRIVER prêt : départ, arrivée, heure, client et message seront vérifiés par le chauffeur avant validation.
+          </div>
+
+          <div class="driverChips">
+            <span>Bouton volontaire</span>
+            <span>Client peut parler</span>
+            <span>Course préparée</span>
+            <span>Message prêt</span>
+            <span>Validation humaine</span>
+          </div>
+        </article>
+
+        <aside class="driverOreilleRight" aria-label="Exemples métier DRIVER">
+          <div class="driverOreilleRightHead">
+            <div>
+              <h2>Formulations métier</h2>
+              <p>Exemples cliquables pour guider la parole du terrain.</p>
+            </div>
+            <span class="driverMiniBadge">8 modèles</span>
+          </div>
+
+          <div class="driverModels">
+            <button class="driverModel isActive" type="button" data-driver-template="course demain 8h de Saly à Dakar client Mamadou">
+              <span class="driverModelTop">
+                <span class="driverModelIcon">🛣️</span>
+                <b>Course simple</b>
+              </span>
+              <em>“course demain 8h de Saly à Dakar client Mamadou”</em>
+            </button>
+
+            <button class="driverModel" type="button" data-driver-template="client Awa départ hôtel Terrou Bi arrivée aéroport à 6h">
+              <span class="driverModelTop">
+                <span class="driverModelIcon">✈️</span>
+                <b>Hôtel → aéroport</b>
+              </span>
+              <em>“client Awa départ hôtel Terrou Bi arrivée aéroport à 6h”</em>
+            </button>
+
+            <button class="driverModel" type="button" data-driver-template="course ce soir 21h de Dakar à Saly deux personnes">
+              <span class="driverModelTop">
+                <span class="driverModelIcon">🌙</span>
+                <b>Course du soir</b>
+              </span>
+              <em>“course ce soir 21h de Dakar à Saly deux personnes”</em>
+            </button>
+
+            <button class="driverModel" type="button" data-driver-template="client avec deux valises départ Ngor arrivée Saly">
+              <span class="driverModelTop">
+                <span class="driverModelIcon">🧳</span>
+                <b>Bagages</b>
+              </span>
+              <em>“client avec deux valises départ Ngor arrivée Saly”</em>
+            </button>
+
+            <button class="driverModel" type="button" data-driver-template="prépare message confirmation course pour client Mamadou demain 8h">
+              <span class="driverModelTop">
+                <span class="driverModelIcon">💬</span>
+                <b>Message client</b>
+              </span>
+              <em>“prépare message confirmation course pour client Mamadou demain 8h”</em>
+            </button>
+
+            <button class="driverModel" type="button" data-driver-template="retour de Dakar à Saly demain 18h client confirmé">
+              <span class="driverModelTop">
+                <span class="driverModelIcon">↩️</span>
+                <b>Course retour</b>
+              </span>
+              <em>“retour de Dakar à Saly demain 18h client confirmé”</em>
+            </button>
+
+            <button class="driverModel" type="button" data-driver-template="attente client devant gare routière à 14h">
+              <span class="driverModelTop">
+                <span class="driverModelIcon">⏳</span>
+                <b>Attente client</b>
+              </span>
+              <em>“attente client devant gare routière à 14h”</em>
+            </button>
+
+            <button class="driverModel" type="button" data-driver-template="course en attente de validation départ Mbour arrivée Somone">
+              <span class="driverModelTop">
+                <span class="driverModelIcon">✅</span>
+                <b>Validation</b>
+              </span>
+              <em>“course en attente de validation départ Mbour arrivée Somone”</em>
+            </button>
+          </div>
+
+          <div class="driverNote">
+            ACTION DRIVER prépare la course, le message et le contexte.
+            Rien n’est confirmé automatiquement :
+            le chauffeur garde la main.
+          </div>
+        </aside>
+
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      const root = document.getElementById("driver-oreille");
+      if(!root) return;
+
+      const selected = root.querySelector("[data-driver-selected]");
+      const voiceText = root.querySelector("#driverVoiceText");
+      const copyBtn = root.querySelector("[data-driver-copy]");
+      const prepareBtn = root.querySelector("[data-driver-prepare]");
+      const listenBtn = root.querySelector("[data-driver-listen]");
+      const status = root.querySelector("[data-driver-status]");
+      const prepared = root.querySelector("[data-driver-prepared]");
+      const cards = Array.from(root.querySelectorAll("[data-driver-template]"));
+
+      let recognition = null;
+      let currentTemplate = voiceText ? voiceText.value.trim() : "";
+
+      function setStatus(text){
+        if(status) status.textContent = text;
       }
-      setTimeout(() => { copyBtn.textContent = oldText; }, 1600);
-    });
-  }
-})();
-</script>
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>DIGIY GO DRIVER — Je conduis</title><meta name="theme-color" content="#13824d"><meta name="robots" content="noindex,nofollow"><script>window.DIGIY_SUPABASE_URL="https://wesqmwjjtsefyjnluosj.supabase.co";window.DIGIY_SUPABASE_ANON_KEY="sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";window.DIGIY_SUPABASE_ANON=window.DIGIY_SUPABASE_ANON_KEY;window.DIGIY_SUPABASE_KEY=window.DIGIY_SUPABASE_ANON_KEY;window.DIGIY_MODULE="DRIVER";window.DIGIY_ABOS_MODULE="DRIVER";window.DIGIY_LOGIN_URL="./pin.html";</script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./assets/js/digiy-abos-access.js?v=abos-20260522"></script><script src="./guard.js?v=driver-go-20260527"></script><script src="./assets/js/digiy-go-driver-vocab.js?v=20260528"></script><style>:root{--bg:#13824d;--bg2:#0f6b3e;--bg3:#08351f;--gold:#facc15;--green:#22c55e;--txt:#f8fff9;--mut:rgba(248,255,249,.72);--line:rgba(255,255,255,.18);--bar:rgba(6,38,18,.97);--h:58px;--b:76px}*{box-sizing:border-box;margin:0;padding:0}body{min-height:100dvh;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--txt);background:radial-gradient(900px 520px at 8% -10%,rgba(250,204,21,.18),transparent 62%),radial-gradient(760px 440px at 105% 0%,rgba(34,197,94,.22),transparent 58%),linear-gradient(180deg,var(--bg),var(--bg2) 56%,var(--bg3));padding:calc(var(--h) + 12px) 12px calc(var(--b) + 18px)}a{color:inherit;text-decoration:none}button,textarea{font:inherit}button{border:0;color:inherit;cursor:pointer}.top{position:fixed;top:0;left:0;right:0;height:var(--h);z-index:50;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px;background:var(--bar);border-bottom:1px solid rgba(250,204,21,.22);backdrop-filter:blur(16px)}.top a,.pill{min-height:38px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);font-size:12px;font-weight:1000;white-space:nowrap}.title{color:var(--gold);font-size:12px;font-weight:1000;letter-spacing:.13em;text-transform:uppercase;text-align:center}.wrap{width:min(980px,100%);margin:auto;display:grid;gap:12px}.card{border-radius:28px;border:1px solid var(--line);background:rgba(255,255,255,.09);box-shadow:0 18px 44px rgba(0,0,0,.24);padding:16px}.hero{min-height:calc(100dvh - var(--h) - var(--b) - 44px);display:flex;flex-direction:column;justify-content:center}.k{color:#fde68a;font-size:12px;font-weight:1000;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}h1{font-size:clamp(46px,15vw,82px);line-height:.86;letter-spacing:-.075em;font-weight:1000;margin-bottom:14px}.lead{font-size:18px;line-height:1.38;font-weight:900;color:rgba(248,255,249,.88);max-width:760px}.rule,.status{margin-top:12px;padding:12px;border-radius:18px;border:1px dashed rgba(250,204,21,.30);background:rgba(0,0,0,.20);font-size:14px;font-weight:950;line-height:1.35;color:rgba(248,255,249,.88)}.ex{margin-top:12px;padding:12px;border-radius:18px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);font-size:17px;font-weight:1000;line-height:1.3}textarea{width:100%;min-height:136px;margin-top:12px;resize:vertical;border-radius:22px;border:1px solid rgba(250,204,21,.28);background:#062615;color:#fff;padding:15px;font-size:18px;line-height:1.42;font-weight:900;outline:none}.actions,.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}.btn{min-height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);font-size:15px;font-weight:1000;line-height:1.15}.p{background:linear-gradient(135deg,#22c55e,#facc15);color:#06130e}.g{background:linear-gradient(135deg,#fde68a,#d6a63a);color:#211700}.r{background:rgba(127,29,29,.56);color:#fee2e2}.d{background:#06130e;color:#fff}.result{display:none}.result.show{display:grid;gap:10px}.card h2{font-size:28px;line-height:1;color:var(--gold);font-weight:1000;margin-bottom:6px}.card p{color:var(--mut);font-size:14px;font-weight:900;line-height:1.35;margin-bottom:8px}.mini{border-radius:18px;padding:13px;background:rgba(0,0,0,.20);border:1px solid rgba(255,255,255,.12)}.mini small{display:block;color:var(--mut);font-size:12px;font-weight:900;margin-bottom:5px}.mini b{font-size:17px;font-weight:1000;color:#fff;word-break:break-word}.msg{white-space:pre-wrap;border-radius:20px;background:#06130e;border:1px solid rgba(250,204,21,.22);padding:14px;color:#fff;font-size:15px;font-weight:900;line-height:1.42}.bottom{position:fixed;left:0;right:0;bottom:0;height:var(--b);z-index:60;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:var(--bar);border-top:1px solid rgba(250,204,21,.18)}.bottomIn{height:100%;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:min(760px,100%);margin:auto}.bottom a{border-radius:16px;display:grid;place-items:center;align-content:center;gap:3px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);color:rgba(248,255,249,.62);font-size:10px;font-weight:1000;text-align:center}.bottom a.active{background:linear-gradient(135deg,#22c55e,#facc15);color:#06130e}.bi{font-size:18px}.toast{position:fixed;left:50%;bottom:calc(var(--b) + 16px);transform:translateX(-50%) translateY(25px);opacity:0;pointer-events:none;z-index:200;width:min(540px,calc(100% - 24px));padding:13px 15px;border-radius:22px;background:#052e16;color:#fff;border:1px solid rgba(250,204,21,.25);box-shadow:0 18px 42px rgba(0,0,0,.28);font-size:14px;font-weight:1000;text-align:center;transition:.22s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}@media(max-width:620px){body{padding-left:10px;padding-right:10px}.hero{min-height:auto}.actions,.grid{grid-template-columns:1fr 1fr}h1{font-size:clamp(46px,17vw,74px)}.lead{font-size:17px}.btn{font-size:14px;min-height:56px}.bottom a{font-size:9px}}</style></head><body><header class="top"><a href="./hub.html">← HUB</a><div class="title">DIGIY GO DRIVER</div><div class="pill" id="sessionPill">DRIVER</div></header><main class="wrap"><section class="card hero"><div class="k">🚕 JE CONDUIS · ACTION VOIX</div><h1>Dis la course.</h1><div class="lead">Le client parle. Le chauffeur parle. DIGIY prépare le trajet : départ, arrivée, date, heure, tarif, mode de paiement et message client.</div><div class="rule"><b>Règle DRIVER :</b> DIGIY GO prépare. DRIVER garde la course. Le chauffeur vérifie et valide. PAY ne reçoit que l’argent final confirmé, jamais une promesse.</div><div class="ex">“Client Awa, départ Saly Carrefour, arrivée Aéroport Blaise Diagne, demain 8h, tarif 25000 Wave.”</div><textarea id="voiceText" placeholder="Parle ou écris la course ici…">Client Awa, départ Saly Carrefour, arrivée Aéroport Blaise Diagne, demain 8h, tarif 25000 Wave.</textarea><div class="actions"><button class="btn p" id="listenBtn" type="button">🎙️ Écouter</button><button class="btn r" id="stopBtn" type="button">⏹ Stop</button><button class="btn g" id="prepareBtn" type="button">⚡ Préparer course</button><button class="btn" id="clearBtn" type="button">🧹 Effacer</button></div><div class="status" id="statusBox">Prêt. Rien n’est confirmé automatiquement.</div></section><section class="card result" id="resultBox"><h2>🚕 Course préparée</h2><p>Vérifie les détails. Le chauffeur garde la main avant tout message, trajet ou paiement.</p><div class="grid"><div class="mini"><small>Client</small><b id="rClient">—</b></div><div class="mini"><small>Téléphone</small><b id="rPhone">—</b></div><div class="mini"><small>Départ</small><b id="rDeparture">—</b></div><div class="mini"><small>Arrivée</small><b id="rArrival">—</b></div><div class="mini"><small>Date / heure</small><b id="rWhen">—</b></div><div class="mini"><small>Tarif / mode</small><b id="rMoney">—</b></div></div><div class="status" id="missingBox">Contrôle en attente.</div><div class="msg" id="messageBox">Message préparé…</div><div class="actions"><button class="btn p" id="saveBtn" type="button">✅ Garder brouillon</button><button class="btn g" id="copyBtn" type="button">📋 Copier message</button><button class="btn" id="readBtn" type="button">🎧 Écouter message</button><button class="btn d" id="payBtn" type="button">💳 Préparer PAY</button></div></section><section class="card"><h2>🛡️ Doctrine</h2><p>DRIVER prépare la course, le message et la trace. Le chauffeur confirme seulement après vérification. PAY reçoit uniquement l’argent final réellement reçu.</p><div class="actions"><a class="btn" href="./oreille.html">🎙️ Oreille complète</a><a class="btn" href="./trajets.html">🚕 Mes trajets</a></div></section></main><nav class="bottom"><div class="bottomIn"><a href="./hub.html"><span class="bi">🧭</span><span>HUB</span></a><a class="active" href="./action.html"><span class="bi">🎙️</span><span>GO</span></a><a href="./trajets.html"><span class="bi">🚕</span><span>Trajets</span></a><a href="./oreille.html"><span class="bi">👂</span><span>Oreille</span></a><a href="./session.html"><span class="bi">🛡️</span><span>Session</span></a></div></nav><div class="toast" id="toast"></div><script>(function(){"use strict";const STORAGE_KEY="DIGIY_DRIVER_GO_DRAFTS",LATEST_KEY="DIGIY_DRIVER_GO_LATEST",PAY_OUTBOX_KEY="DIGIY_DRIVER_PAY_OUTBOX";const $=id=>document.getElementById(id);const e={v:$("voiceText"),l:$("listenBtn"),s:$("stopBtn"),p:$("prepareBtn"),c:$("clearBtn"),st:$("statusBox"),box:$("resultBox"),client:$("rClient"),phone:$("rPhone"),dep:$("rDeparture"),arr:$("rArrival"),when:$("rWhen"),money:$("rMoney"),miss:$("missingBox"),msg:$("messageBox"),save:$("saveBtn"),copy:$("copyBtn"),read:$("readBtn"),pay:$("payBtn"),toast:$("toast"),pill:$("sessionPill")};let rec=null,draft=null;function n(v){return String(v||"").replace(/\s+/g," ").replace(/\s+([,.!?;:])/g,"$1").trim()}function lo(v){return n(v).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}function t(m){e.toast.textContent=m;e.toast.classList.add("show");clearTimeout(t.x);t.x=setTimeout(()=>e.toast.classList.remove("show"),2200)}function st(m){e.st.textContent=m}function rj(k,f){try{const raw=localStorage.getItem(k);return raw?JSON.parse(raw):f}catch(_){return f}}function wj(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(_){}}function money(x){return Math.round(Number(x)||0).toLocaleString("fr-FR")+" F"}function cleanUrl(){try{const u=new URL(location.href);let d=false;["phone","tel","p_phone","owner_phone","driver_phone","slug","pin","token","session_token","module","return","redirect","url","from","v"].forEach(k=>{if(u.searchParams.has(k)){u.searchParams.delete(k);d=true}});if(d)history.replaceState({},document.title,u.pathname+u.search+u.hash)}catch(_){}}function field(text,labels){const clean=n(text),stop="client|nom|tel|telephone|téléphone|depart|départ|prise|arrivee|arrivée|destination|vers|date|jour|demain|heure|horaire|prix|tarif|montant|mode|paiement|cash|wave|orange|detail|détail|note|bagage|bagages|statut";for(const label of labels){const re=new RegExp("(?:^|[\\s,;|—-])"+label+"\\s*[:\\-]?\\s*([^;|\\n]+?)(?=\\s+(?:"+stop+")\\s*[:\\-]?|$)","i"),m=clean.match(re);if(m&&m[1])return n(m[1])}return""}function phone(text){const m=n(text).match(/(?:\+?\d[\d\s().-]{7,}\d)/);return m?n(m[0]):""}function client(text){const x=field(text,["client","nom"]);if(x)return x;const m=n(text).match(/\b(?:pour|avec|client)\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s'.-]{1,36})/i);return m?n(m[1]).replace(/\b(?:tel|telephone|téléphone|depart|départ|arrivee|arrivée|destination|vers|date|heure|tarif|prix|cash|wave)\b.*$/i,"").trim():""}function amount(text){const m=n(text).match(/\b(\d[\d\s.,]*)\s*(fcfa|f\s*cfa|xof|cfa|francs?|€|eur|euros?)?\b/i);return m?Number(String(m[1]).replace(/[^\d]/g,""))||0:0}function pay(text){const x=lo(text);if(x.includes("wave")||x.includes("ouve")||x.includes("oueve"))return"Wave";if(x.includes("orange"))return"Orange Money";if(x.includes("cash")||x.includes("espece")||x.includes("liquide"))return"Cash";if(x.includes("carte")||x.includes("tpe"))return"Carte";return"à préciser"}function build(text){const raw=n(text),amt=amount(raw),d={id:"DRIVER_GO_"+Date.now(),source:"DIGIY_GO_DRIVER",module:"DRIVER",rawText:raw,client:client(raw),phone:phone(raw),departure:field(raw,["depart","départ","lieu depart","lieu de départ","prise en charge","pickup","depuis","de"]),arrival:field(raw,["arrivee","arrivée","destination","vers","a","à"]),date:field(raw,["date","jour"])||(raw.match(/\b(aujourd'hui|aujourdhui|demain|après-demain|apres-demain|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|\d{1,2}[\/.-]\d{1,2}(?:[\/.-]\d{2,4})?)\b/i)||[])[1]||"",time:field(raw,["heure","horaire"])||(raw.match(/\b(\d{1,2}\s*h(?:\s*\d{2})?|\d{1,2}:\d{2})\b/i)||[])[1]||"",price:field(raw,["prix","tarif","montant"])||(amt?money(amt):""),amount:amt,paymentMode:pay(raw),detail:field(raw,["detail","détail","note","bagage","bagages","remarque"]),status:"brouillon course",createdAt:new Date().toISOString(),requiresHumanValidation:true,safety:{noAutoTripConfirmation:true,noAutoPriceConfirmation:true,noAutoPayment:true,driverKeepsTrip:true,payReceivesFinalMoneyOnly:true}};d.missing=[!d.client&&"client",!d.phone&&"téléphone",!d.departure&&"départ",!d.arrival&&"arrivée",!d.date&&"date",!d.time&&"heure",!d.price&&"tarif"].filter(Boolean);d.message=["🚕 DRIVER — Course préparée","Client : "+(d.client||"à préciser"),"Téléphone : "+(d.phone||"à préciser"),"Départ : "+(d.departure||"à préciser"),"Arrivée : "+(d.arrival||"à préciser"),"Date : "+(d.date||"à préciser"),"Heure : "+(d.time||"à préciser"),"Tarif : "+(d.price||"à préciser"),"Mode : "+(d.paymentMode||"à préciser"),d.detail?"Détail : "+d.detail:"Détail : à préciser","","Validation chauffeur obligatoire. Rien n’est confirmé automatiquement."].join("\n");d.payText=d.amount?"recette course DRIVER "+Math.round(d.amount)+" "+(d.paymentMode&&d.paymentMode!=="à préciser"?d.paymentMode:"Cash")+" — "+([d.departure,d.arrival].filter(Boolean).join(" → ")||"course DRIVER"):"";return d}function render(d){draft=d;e.box.classList.add("show");e.client.textContent=d.client||"à préciser";e.phone.textContent=d.phone||"à préciser";e.dep.textContent=d.departure||"à préciser";e.arr.textContent=d.arrival||"à préciser";e.when.textContent=[d.date,d.time].filter(Boolean).join(" · ")||"à préciser";e.money.textContent=[d.price,d.paymentMode].filter(Boolean).join(" · ")||"à préciser";e.miss.textContent=d.missing.length?"À compléter : "+d.missing.join(", ")+".":"Course complète à vérifier avant validation.";e.msg.textContent=d.message;st("Course préparée. Vérifie avant message, trajet ou paiement.");e.box.scrollIntoView({behavior:"smooth",block:"start"})}function prepare(){if(!e.v.value.trim()){t("Parle ou écris une course.");return}render(build(e.v.value));t("Course DRIVER préparée.")}function copyText(txt,msg){txt=n(txt);if(!txt){t("Rien à copier.");return}navigator.clipboard&&navigator.clipboard.writeText(txt).then(()=>t(msg||"Copié.")).catch(()=>prompt("Copie le texte :",txt))}function speak(txt){if(!("speechSynthesis"in window)){t("Lecture non disponible.");return}try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang="fr-FR";u.rate=.86;u.pitch=1.02;const voices=speechSynthesis.getVoices()||[],fr=voices.find(v=>/^fr/i.test(v.lang));if(fr)u.voice=fr;speechSynthesis.speak(u);t("Lecture lancée.")}catch(_){t("Lecture impossible.")}}function setupSpeech(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){e.l.textContent="🎙️ Micro non dispo";return}rec=new SR();rec.lang="fr-FR";rec.continuous=true;rec.interimResults=true;let buf="";rec.onstart=()=>{buf="";st("J’écoute… dis la course.");t("Micro ouvert.")};rec.onresult=ev=>{let fin="",inter="";for(let i=ev.resultIndex;i<ev.results.length;i++){const tr=ev.results[i][0].transcript;if(ev.results[i].isFinal)fin+=tr+" ";else inter+=tr}if(fin.trim())buf=(buf+" "+fin).trim();const vis=(buf+" "+inter).trim();if(vis)e.v.value=vis};rec.onend=()=>{st("Écoute terminée.");if(e.v.value.trim())prepare()};rec.onerror=()=>st("Micro interrompu. Tu peux écrire.")}cleanUrl();setupSpeech();try{e.pill.textContent=localStorage.getItem("DIGIY_DRIVER_SESSION")?"session OK":"DRIVER"}catch(_){}e.l.onclick=()=>{if(!rec){t("Micro non disponible ici.");return}try{e.v.value="";rec.start()}catch(_){t("Micro déjà ouvert.")}};e.s.onclick=()=>{try{rec&&rec.stop()}catch(_){}try{speechSynthesis&&speechSynthesis.cancel()}catch(_){}st("Stop.")};e.p.onclick=prepare;e.c.onclick=()=>{e.v.value="";e.box.classList.remove("show");draft=null;st("Prêt. Rien n’est confirmé automatiquement.")};e.save.onclick=()=>{if(!draft)prepare();if(!draft)return;const list=rj(STORAGE_KEY,[]);list.unshift({...draft,status:"draft_saved",savedAt:new Date().toISOString()});wj(STORAGE_KEY,list.slice(0,120));wj(LATEST_KEY,draft);t("Brouillon course gardé.")};e.copy.onclick=()=>{if(!draft)prepare();if(draft)copyText(draft.message,"Message course copié.")};e.read.onclick=()=>{if(!draft)prepare();if(draft)speak(draft.message)};e.pay.onclick=()=>{if(!draft)prepare();if(!draft)return;if(!draft.amount){t("Tarif manquant : PAY attend un argent réel validé.");return}const out=rj(PAY_OUTBOX_KEY,[]);out.unshift({id:"DRIVER_PAY_OUTBOX_"+Date.now(),source:"DRIVER",status:"prepared_not_validated",payText:draft.payText,draftId:draft.id,amount:draft.amount,mode:draft.paymentMode,createdAt:new Date().toISOString(),safety:{noAutoPayment:true,driverValidationRequired:true}});wj(PAY_OUTBOX_KEY,out.slice(0,80));copyText(draft.payText,"Phrase PAY copiée. Colle-la dans PAY après argent reçu.")}})();</script></body></html>
+
+      function showPrepared(text){
+        if(!prepared) return;
+        prepared.textContent = "Brouillon DRIVER prêt : " + text + ". Le chauffeur vérifie avant validation.";
+        prepared.classList.add("show");
+      }
+
+      function chooseTemplate(card){
+        currentTemplate = card.getAttribute("data-driver-template") || "";
+        if(selected) selected.textContent = "“" + currentTemplate + "”";
+        if(voiceText) voiceText.value = currentTemplate;
+
+        cards.forEach(btn => btn.classList.remove("isActive"));
+        card.classList.add("isActive");
+
+        showPrepared(currentTemplate);
+        setStatus("Exemple chargé");
+      }
+
+      cards.forEach(card => {
+        card.addEventListener("click", () => chooseTemplate(card));
+      });
+
+      if(prepareBtn){
+        prepareBtn.addEventListener("click", () => {
+          const text = (voiceText && voiceText.value.trim()) || currentTemplate || "";
+          if(!text){
+            setStatus("Écris ou clique un exemple");
+            return;
+          }
+          currentTemplate = text;
+          if(selected) selected.textContent = "“" + currentTemplate + "”";
+          showPrepared(currentTemplate);
+          setStatus("Brouillon prêt");
+        });
+      }
+
+      if(copyBtn){
+        copyBtn.addEventListener("click", async () => {
+          const text = (voiceText && voiceText.value.trim()) || currentTemplate || "";
+          const oldText = copyBtn.textContent;
+          try{
+            await navigator.clipboard.writeText(text);
+            copyBtn.textContent = "✅ Copié";
+          }catch(e){
+            window.prompt("Copie l’exemple :", text);
+            copyBtn.textContent = "✅ Prêt";
+          }
+          setTimeout(() => { copyBtn.textContent = oldText; }, 1500);
+        });
+      }
+
+      function setupSpeech(){
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if(!SR){
+          if(listenBtn) listenBtn.textContent = "🎙️ Micro non dispo";
+          return;
+        }
+
+        recognition = new SR();
+        recognition.lang = "fr-FR";
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => setStatus("J’écoute...");
+        recognition.onerror = () => setStatus("Micro fragile");
+        recognition.onend = () => setStatus("Prêt");
+
+        recognition.onresult = (event) => {
+          let text = "";
+          for(let i = event.resultIndex; i < event.results.length; i++){
+            text += event.results[i][0].transcript;
+          }
+          text = text.trim();
+          if(text && voiceText){
+            voiceText.value = text;
+            currentTemplate = text;
+            if(selected) selected.textContent = "“" + text + "”";
+          }
+        };
+      }
+
+      setupSpeech();
+
+      if(listenBtn){
+        listenBtn.addEventListener("click", () => {
+          if(!recognition){
+            setStatus("Micro non disponible");
+            return;
+          }
+          try{
+            recognition.start();
+          }catch(e){
+            setStatus("Micro déjà lancé");
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
