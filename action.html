@@ -419,7 +419,7 @@
       margin-bottom:12px;
     }
 
-    .driverOreilleRight h3{
+    .driverOreilleRight h2{
       margin:0;
       font-family:var(--fontA);
       font-size:clamp(22px,3vw,34px);
@@ -857,14 +857,35 @@
         }
       }
 
+      function normalizeMoneyWords(text){
+        return String(text || "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g,"");
+      }
+
       function isPayText(text){
-        const t = String(text || "").toLowerCase();
-        return /\bpay\b|\bdépense\b|\bdepense\b|\bessence\b|\bpéage\b|\bpeage\b|\brecette\b|\bplacer\b|\bencaiss/i.test(t);
+        const t = normalizeMoneyWords(text);
+
+        return (
+          /\bpay\b|\bdepense\b|\bessence\b|\bpeage\b|\brecette\b|\bplacer\b|\bencaiss|\bcarburant\b|\bsortie\b/.test(t) ||
+          /\bdugal\b|\bxaalis\b|\bfay\b|\bdugg\b|\bgen+n\b|\bj[eë]nd\b|\bbor\b|\bwar na fay\b/.test(t) ||
+          /دخل|مدخول|قبض|مصروف|بنزين|خرج|شراء|دين|مستحق|وايف|كاش/.test(String(text || ""))
+        );
       }
 
       function detectPayType(text){
-        const t = String(text || "").toLowerCase();
-        if(/\bdépense\b|\bdepense\b|\bessence\b|\bpéage\b|\bpeage\b|\bcarburant\b|\bsortie\b/.test(t)) return "expense";
+        const t = normalizeMoneyWords(text);
+        const raw = String(text || "");
+
+        if(
+          /\bdepense\b|\bessence\b|\bpeage\b|\bcarburant\b|\bsortie\b|\bfournisseur\b|\bloyer\b/.test(t) ||
+          /\bgen+n\b|\bj[eë]nd\b/.test(t) ||
+          /مصروف|بنزين|خرج|شراء/.test(raw)
+        ){
+          return "expense";
+        }
+
         return "income";
       }
 
@@ -1092,5 +1113,8 @@
   </script>
 </body>
 </html>
+
+
+
 
 
