@@ -303,7 +303,7 @@
     .driverMainBtn,
     .driverGhostBtn,
     .driverDarkBtn{
-      min-height:54px;
+      min-height:46px;
       border-radius:17px;
       display:flex;
       align-items:center;
@@ -359,7 +359,7 @@
 
     .driverValidateNote,
     .driverValidatePay{
-      min-height:56px;
+      min-height:42px;
       border-radius:18px;
       display:flex;
       align-items:center;
@@ -459,7 +459,7 @@
     }
 
     .driverModel{
-      min-height:102px;
+      min-height:82px;
       text-align:left;
       border-radius:18px;
       border:1px solid rgba(255,255,255,.13);
@@ -531,7 +531,7 @@
     }
 
     @media(max-width:520px){
-      .driverOreilleLeft,.driverOreilleRight{padding:13px;border-radius:21px}
+      .driverOreilleLeft,.driverOreilleRight{padding:12px;border-radius:20px}
   
     .driverLangBar{
       display:flex;
@@ -558,10 +558,14 @@
       border-color:rgba(246,196,83,.46);
     }
 
-    .driverVoiceBox{grid-template-columns:1fr}
-      .driverMic{width:78px;height:78px;border-radius:26px;font-size:38px}
-      .driverModels{grid-template-columns:1fr}
-      .driverBtns{grid-template-columns:1fr}
+    .driverVoiceBox{grid-template-columns:64px minmax(0,1fr);gap:10px;padding:10px}
+      .driverMic{width:64px;height:64px;border-radius:22px;font-size:32px}
+      .driverModels{grid-template-columns:1fr 1fr;gap:7px}
+      .driverBtns{grid-template-columns:1fr 1fr}
+      .driverValidateNote,.driverValidatePay{min-height:38px;font-size:11px;padding:0 6px}
+      .driverModel{min-height:70px;padding:8px;border-radius:15px}
+      .driverModel em{font-size:11px;line-height:1.2}
+      .driverChips{display:none}
     }
   </style>
 </head>
@@ -712,12 +716,12 @@
               <em>“retour de Dakar à Saly demain 18h client confirmé”</em>
             </button>
 
-            <button class="driverModel" type="button" data-driver-key="payIncome" data-driver-template="placer 20000 F course dans PAY" data-driver-route="PAY">
+            <button class="driverModel" type="button" data-driver-key="payIncome" data-driver-template="recette course DRIVER 20000 Wave" data-driver-route="PAY">
               <span class="driverModelTop">
                 <span class="driverModelIcon">💳</span>
                 <b>PAY · recette course</b>
               </span>
-              <em>“placer 20000 F course dans PAY”</em>
+              <em>“recette course DRIVER 20000 Wave”</em>
             </button>
 
             <button class="driverModel" type="button" data-driver-key="payExpense" data-driver-template="dépense essence 6700 F" data-driver-route="PAY">
@@ -775,7 +779,7 @@
             bags:{label:"Bagages", icon:"🧳", text:"client avec deux valises départ Ngor arrivée Saly"},
             message:{label:"Message client", icon:"💬", text:"prépare message confirmation course pour client Mamadou demain 8h"},
             return:{label:"Course retour", icon:"↩️", text:"retour de Dakar à Saly demain 18h client confirmé"},
-            payIncome:{label:"PAY · recette course", icon:"💳", text:"placer 20000 F course dans PAY"},
+            payIncome:{label:"PAY · recette course", icon:"💳", text:"recette course DRIVER 20000 Wave"},
             payExpense:{label:"PAY · dépense essence", icon:"⛽", text:"dépense essence 6700 F"}
           }
         },
@@ -792,7 +796,7 @@
             bags:{label:"Bagage", icon:"🧳", text:"client bi am ñaari valise jóge Ngor dem Saly"},
             message:{label:"Message client", icon:"💬", text:"waajal message confirmation course bu client Mamadou suba 8h"},
             return:{label:"Dellusi course", icon:"↩️", text:"retour Dakar ba Saly suba 18h client confirmé"},
-            payIncome:{label:"PAY · recette course", icon:"💳", text:"dugal 20000 F course ci PAY"},
+            payIncome:{label:"PAY · recette course", icon:"💳", text:"recette course DRIVER 20000 Wave"},
             payExpense:{label:"PAY · essence", icon:"⛽", text:"dépense essence 6700 F"}
           }
         },
@@ -809,7 +813,7 @@
             bags:{label:"أمتعة", icon:"🧳", text:"زبون معه حقيبتان من Ngor إلى Saly"},
             message:{label:"رسالة الزبون", icon:"💬", text:"جهز رسالة تأكيد الرحلة للزبون مامادو غدا 8h"},
             return:{label:"رحلة رجوع", icon:"↩️", text:"رجوع من داكار إلى سالي غدا 18h الزبون مؤكد"},
-            payIncome:{label:"PAY · دخل الرحلة", icon:"💳", text:"ضع 20000 F رحلة في PAY"},
+            payIncome:{label:"PAY · دخل الرحلة", icon:"💳", text:"recette course DRIVER 20000 Wave"},
             payExpense:{label:"PAY · بنزين", icon:"⛽", text:"مصروف بنزين 6700 F"}
           }
         }
@@ -893,6 +897,16 @@
         return "income";
       }
 
+      function detectChannel(text){
+        const t = normalizeMoneyWords(text);
+        const raw = String(text || "");
+        if(t.includes("wave") || t.includes("ouev") || raw.includes("وايف")) return "Wave";
+        if(t.includes("orange")) return "Orange Money";
+        if(t.includes("carte")) return "Carte";
+        if(t.includes("cash") || t.includes("espece") || t.includes("liquide") || raw.includes("كاش")) return "Cash";
+        return "Wave";
+      }
+
       function extractAmount(text){
         const match = String(text || "").replace(/\s+/g," ").match(/(\d[\d\s.,]*)\s*(?:f|fcfa|xof)?/i);
         if(!match) return null;
@@ -902,24 +916,39 @@
 
       function buildPayload(route, text){
         const amount = extractAmount(text);
-        const payType = detectPayType(text);
+        const cleanText = String(text || "").trim();
+        const payType = detectPayType(cleanText);
+        const channel = detectChannel(cleanText);
+        const category = payType === "expense" ? (
+          normalizeMoneyWords(cleanText).includes("essence") || normalizeMoneyWords(cleanText).includes("carburant")
+            ? "Essence DRIVER"
+            : normalizeMoneyWords(cleanText).includes("peage")
+              ? "Péage DRIVER"
+              : "Dépense chauffeur DRIVER"
+        ) : "Recette course DRIVER";
         return {
-          source:"DRIVER_ACTION",
+          source:"DRIVER",
           module:"DRIVER",
           target:route === "PAY" ? "PAY" : "DRIVER_NOTE",
           route,
           status:"draft_validated_by_driver",
           requiresHumanValidation:true,
-          text:String(text || "").trim(),
+          text:cleanText,
+          note:cleanText,
           amount,
           currency:amount ? "XOF" : "",
+          channel,
+          who:"Client DRIVER",
           payType,
-          category:payType === "expense" ? "Dépense chauffeur" : "Recette course",
+          type:payType,
+          typeLabel:payType === "expense" ? "Dépense" : "Recette",
+          category,
           createdAt:new Date().toISOString(),
           safety:{
             noAutoPayment:true,
             noAutoConfirmation:true,
-            noAutoSend:true
+            noAutoSend:true,
+            humanValidationRequired:true
           }
         };
       }
@@ -1028,7 +1057,7 @@
 
           setTimeout(() => {
             try{
-              location.href = "./pay-transition.html#from=driver-action";
+              location.href = "./pay-transition.html?from=DRIVER#from=driver-action";
             }catch(e){}
           }, 420);
         });
@@ -1135,6 +1164,14 @@
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
 
 
 
