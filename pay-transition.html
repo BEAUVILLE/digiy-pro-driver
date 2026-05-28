@@ -2,35 +2,142 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>DRIVER vers PAY</title>
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#13824d">
 <style>
-body{margin:0;min-height:100vh;font-family:system-ui;background:linear-gradient(180deg,#13824d,#0b3b24);color:white;padding:18px;display:grid;place-items:center}.card{width:min(680px,100%);border:1px solid rgba(255,255,255,.2);border-radius:28px;background:rgba(255,255,255,.09);padding:20px;box-shadow:0 18px 44px rgba(0,0,0,.25)}.k{color:#fde68a;font-size:12px;font-weight:1000;letter-spacing:.14em;text-transform:uppercase}h1{font-size:clamp(42px,12vw,74px);line-height:.9;margin:10px 0;font-weight:1000;letter-spacing:-.07em}p{font-weight:900;line-height:1.4;color:rgba(255,255,255,.85)}textarea,input{width:100%;border-radius:18px;border:1px solid rgba(250,204,21,.35);background:#062612;color:white;padding:13px;font:900 16px system-ui;margin-top:10px}label{display:block;margin-top:10px;color:#fde68a;font-weight:1000}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn,a.btn{min-height:56px;border-radius:18px;border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;background:rgba(255,255,255,.1);color:white;text-decoration:none;font-weight:1000;margin-top:10px}.go{background:linear-gradient(135deg,#22c55e,#facc15);color:#06130e}.gold{background:#d6a63a;color:#111}.small{font-size:13px;color:rgba(255,255,255,.72);margin-top:10px}@media(max-width:560px){.grid{grid-template-columns:1fr}}
+:root{--bg:#13824d;--bg2:#0b3b24;--gold:#facc15;--green:#22c55e;--txt:#fff;--mut:rgba(255,255,255,.78);--line:rgba(255,255,255,.18);--dark:#062612}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(800px 420px at 10% 0%,rgba(250,204,21,.20),transparent 60%),linear-gradient(180deg,var(--bg),var(--bg2));color:var(--txt);padding:18px;display:grid;place-items:center}a{color:inherit;text-decoration:none}button,input,textarea,select{font:inherit}.card{width:min(760px,100%);border:1px solid var(--line);border-radius:28px;background:rgba(255,255,255,.09);padding:20px;box-shadow:0 18px 44px rgba(0,0,0,.25)}.k{color:#fde68a;font-size:12px;font-weight:1000;letter-spacing:.14em;text-transform:uppercase}h1{font-size:clamp(42px,12vw,74px);line-height:.9;margin:10px 0;font-weight:1000;letter-spacing:-.07em}p{font-weight:900;line-height:1.4;color:var(--mut)}label{display:block;margin-top:10px;color:#fde68a;font-weight:1000;font-size:13px;letter-spacing:.06em;text-transform:uppercase}textarea,input,select{width:100%;border-radius:18px;border:1px solid rgba(250,204,21,.35);background:var(--dark);color:white;padding:13px;font:900 16px system-ui;margin-top:8px;outline:none}textarea{min-height:106px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn,a.btn{min-height:56px;border-radius:18px;border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;background:rgba(255,255,255,.1);color:white;text-decoration:none;font-weight:1000;margin-top:10px;cursor:pointer}.go{background:linear-gradient(135deg,#22c55e,#facc15);color:#06130e}.gold{background:#d6a63a;color:#111}.red{background:rgba(127,29,29,.52);color:#fee2e2}.mini{margin-top:12px;padding:12px;border-radius:18px;border:1px solid rgba(250,204,21,.24);background:rgba(0,0,0,.18);font-weight:900;color:rgba(255,255,255,.86);line-height:1.38}.small{font-size:13px;color:rgba(255,255,255,.72);margin-top:10px;font-weight:850}.pill{display:inline-flex;align-items:center;gap:7px;margin-top:10px;min-height:32px;border-radius:999px;padding:0 10px;border:1px solid rgba(250,204,21,.32);background:rgba(250,204,21,.12);color:#fde68a;font-weight:1000;font-size:12px}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(22px);opacity:0;pointer-events:none;width:min(520px,calc(100% - 24px));padding:13px 15px;border-radius:20px;background:#052e16;border:1px solid rgba(250,204,21,.25);box-shadow:0 18px 40px rgba(0,0,0,.24);font-weight:1000;text-align:center;transition:.2s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}@media(max-width:560px){body{padding:10px}.card{padding:16px;border-radius:24px}.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main class="card">
-<div class="k">🚕 DRIVER → PAY</div>
-<h1>Argent final.</h1>
-<p>DRIVER garde la course. PAY reçoit seulement la recette réellement reçue ou prête à encaisser.</p>
-<label>Montant</label><input id="amount" inputmode="numeric" placeholder="25000">
-<label>Mode</label><input id="mode" placeholder="Wave / Cash / Orange Money / Carte" value="Wave">
-<label>Client / origine</label><input id="client" placeholder="Client DRIVER" value="Client DRIVER">
-<label>Route</label><input id="route" placeholder="Saly → AIBD" value="Course DRIVER">
-<label>Phrase PAY</label><textarea id="phrase">recette course DRIVER 25000 Wave</textarea>
-<div class="grid"><button class="btn gold" id="copy" type="button">📋 Copier phrase PAY</button><a class="btn go" href="https://pro-pay.digiylyfe.com/action.html">💳 Ouvrir PAY</a></div>
-<a class="btn" href="./action.html">← Retour DIGIY GO DRIVER</a>
-<div class="small">Validation humaine obligatoire dans PAY. Aucun paiement n’est confirmé automatiquement.</div>
+  <div class="k">🚕 DRIVER → PAY</div>
+  <h1>Argent final.</h1>
+  <p>DRIVER garde la course. PAY reçoit seulement l’argent réel : recette course, essence, péage, avance ou dépense chauffeur. Validation humaine obligatoire.</p>
+
+  <span class="pill" id="sourcePill">Pont prêt</span>
+
+  <label>Type</label>
+  <select id="type">
+    <option value="income">Recette course</option>
+    <option value="expense">Dépense chauffeur</option>
+  </select>
+
+  <label>Montant</label>
+  <input id="amount" inputmode="numeric" placeholder="20000">
+
+  <label>Mode</label>
+  <input id="mode" placeholder="Wave / Cash / Orange Money / Carte" value="Wave">
+
+  <label>Client / origine</label>
+  <input id="client" placeholder="Client DRIVER" value="Client DRIVER">
+
+  <label>Catégorie</label>
+  <input id="category" placeholder="Recette course / Essence / Péage" value="Recette course DRIVER">
+
+  <label>Phrase PAY</label>
+  <textarea id="phrase">recette course DRIVER 20000 Wave</textarea>
+
+  <div class="mini" id="resume">Brouillon PAY à vérifier avant envoi.</div>
+
+  <div class="grid">
+    <button class="btn gold" id="copy" type="button">📋 Copier phrase PAY</button>
+    <a class="btn go" id="openPay" href="https://pro-pay.digiylyfe.com/driver-bridge.html">💳 Ouvrir validation PAY</a>
+  </div>
+  <div class="grid">
+    <a class="btn" href="./action.html">← Retour ACTION DRIVER</a>
+    <button class="btn red" id="clearBridge" type="button">🧹 Nettoyer pont</button>
+  </div>
+
+  <div class="small">Le pont ne valide rien seul. Il transporte le brouillon vers PAY, puis le pro confirme dans PAY.</div>
 </main>
+<div class="toast" id="toast"></div>
 <script>
 (function(){
-function $(id){return document.getElementById(id)}
-function clean(n){return String(n||'').replace(/[^0-9]/g,'')||'0'}
-function refresh(){var a=clean($('amount').value||'25000'),m=$('mode').value||'Cash',r=$('route').value||'Course DRIVER';$('phrase').value='recette course DRIVER '+a+' '+m+' — '+r}
-['amount','mode','route'].forEach(function(id){$(id).addEventListener('input',refresh)});
-$('copy').onclick=function(){refresh();navigator.clipboard&&navigator.clipboard.writeText($('phrase').value)};
-refresh();
+  "use strict";
+  const $=id=>document.getElementById(id);
+  const els={type:$("type"),amount:$("amount"),mode:$("mode"),client:$("client"),category:$("category"),phrase:$("phrase"),openPay:$("openPay"),copy:$("copy"),clearBridge:$("clearBridge"),resume:$("resume"),sourcePill:$("sourcePill"),toast:$("toast")};
+  const KEYS=["DIGIY_DRIVER_PAY_BRIDGE","DIGIY_PAY_PENDING_MOVEMENT","DIGIY_DRIVER_LATEST_ACTION"];
+
+  function toast(msg){els.toast.textContent=msg;els.toast.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>els.toast.classList.remove("show"),2200)}
+  function cleanAmount(v){return String(v||"").replace(/[^0-9]/g,"")||""}
+  function money(n){return (Number(n)||0).toLocaleString("fr-FR")+" F"}
+  function readJSON(key){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):null}catch(_){return null}}
+  function norm(v){return String(v||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
+  function detectType(text, payload){
+    const t=norm(text||payload?.text||payload?.note||payload?.rawText||"");
+    const p=String(payload?.payType||payload?.type||"").toLowerCase();
+    if(p.includes("expense")||t.includes("depense")||t.includes("essence")||t.includes("carburant")||t.includes("peage")) return "expense";
+    return "income";
+  }
+  function extractAmount(text,payload){
+    if(payload && Number(payload.amount)>0) return String(Math.round(Number(payload.amount)));
+    const m=String(text||"").match(/(\d[\d\s.,]*)\s*(?:f|fcfa|xof)?/i);
+    return m?cleanAmount(m[1]):"";
+  }
+  function detectMode(text,payload){
+    if(payload?.channel) return payload.channel;
+    const t=norm(text);
+    if(t.includes("wave")||t.includes("ouev")||t.includes("ouve")) return "Wave";
+    if(t.includes("orange")) return "Orange Money";
+    if(t.includes("carte")) return "Carte";
+    if(t.includes("cash")||t.includes("espece")||t.includes("liquide")) return "Cash";
+    return "Cash";
+  }
+  function buildPhrase(){
+    const type=els.type.value;
+    const amount=cleanAmount(els.amount.value)||"0";
+    const mode=els.mode.value||"Cash";
+    const cat=els.category.value|| (type==="expense"?"Dépense chauffeur":"Recette course DRIVER");
+    return (type==="expense"?"dépense ":"recette ")+cat+" "+amount+" "+mode;
+  }
+  function buildPayUrl(){
+    const q=new URLSearchParams();
+    q.set("from","DRIVER");
+    q.set("type",els.type.value||"income");
+    q.set("amount",cleanAmount(els.amount.value)||"0");
+    q.set("channel",els.mode.value||"Cash");
+    q.set("who",els.client.value||"DRIVER");
+    q.set("category",els.category.value||"Recette course DRIVER");
+    q.set("note",els.phrase.value||buildPhrase());
+    q.set("proofRef","DRIVER-PAY-"+Date.now());
+    return "https://pro-pay.digiylyfe.com/driver-bridge.html?"+q.toString();
+  }
+  function refresh(){
+    els.amount.value=cleanAmount(els.amount.value);
+    els.phrase.value=buildPhrase();
+    els.openPay.href=buildPayUrl();
+    const typeLabel=els.type.value==="expense"?"Dépense chauffeur":"Recette course";
+    els.resume.textContent=typeLabel+" · "+money(els.amount.value||0)+" · "+(els.mode.value||"Cash")+" · "+(els.client.value||"DRIVER")+". Le pro validera dans PAY.";
+  }
+  function loadPayload(){
+    let payload=null, source="manuel";
+    for(const key of KEYS){const val=readJSON(key);if(val){payload=val;source=key;break;}}
+    try{
+      const q=new URLSearchParams(location.search);
+      if(q.get("amount")||q.get("note")){
+        payload={amount:q.get("amount"),channel:q.get("channel"),who:q.get("who"),category:q.get("category"),note:q.get("note"),type:q.get("type")};
+        source="url";
+      }
+    }catch(_){ }
+    if(!payload){refresh();return;}
+    const text=payload.text||payload.note||payload.rawText||payload.commandText||"";
+    const type=detectType(text,payload);
+    els.type.value=type;
+    els.amount.value=extractAmount(text,payload)||"";
+    els.mode.value=detectMode(text,payload);
+    els.client.value=payload.who||payload.client||payload.origin||"DRIVER";
+    els.category.value=payload.category|| (type==="expense"?"Dépense chauffeur":"Recette course DRIVER");
+    els.phrase.value=text||buildPhrase();
+    els.sourcePill.textContent="Brouillon reçu · "+source;
+    refresh();
+    toast("Brouillon DRIVER reçu dans le pont PAY.");
+  }
+  ["type","amount","mode","client","category"].forEach(id=>els[id].addEventListener("input",refresh));
+  els.copy.onclick=function(){refresh();navigator.clipboard?.writeText(els.phrase.value).then(()=>toast("Phrase PAY copiée.")).catch(()=>prompt("Copie la phrase PAY :",els.phrase.value))};
+  els.clearBridge.onclick=function(){KEYS.forEach(k=>localStorage.removeItem(k));toast("Pont DRIVER → PAY nettoyé.")};
+  loadPayload();
 })();
 </script>
 </body>
