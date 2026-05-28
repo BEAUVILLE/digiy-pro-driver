@@ -296,7 +296,7 @@
 
     .driverBtns{
       display:grid;
-      grid-template-columns:1fr 1fr 1fr;
+      grid-template-columns:repeat(4,minmax(0,1fr));
       gap:9px;
     }
 
@@ -627,6 +627,9 @@
             <button class="driverDarkBtn" type="button" data-driver-copy>
               📋 Copier
             </button>
+            <button class="driverDarkBtn" type="button" data-driver-clear>
+              🧹 Effacer
+            </button>
           </div>
 
           <div class="driverPrepared" data-driver-prepared>
@@ -744,6 +747,7 @@
       const selected = root.querySelector("[data-driver-selected]");
       const voiceText = root.querySelector("#driverVoiceText");
       const copyBtn = root.querySelector("[data-driver-copy]");
+      const clearBtn = root.querySelector("[data-driver-clear]");
       const prepareBtn = root.querySelector("[data-driver-prepare]");
       const listenBtn = root.querySelector("[data-driver-listen]");
       const status = root.querySelector("[data-driver-status]");
@@ -1045,6 +1049,24 @@
         });
       }
 
+      if(clearBtn){
+        clearBtn.addEventListener("click", () => {
+          currentTemplate = "";
+          currentRoute = "DRIVER";
+
+          if(voiceText) voiceText.value = "";
+          if(selected) selected.textContent = "—";
+          if(prepared){
+            prepared.classList.remove("show");
+            prepared.textContent = "Brouillon ACTION DRIVER prêt. Choisis ensuite : garder en note DRIVER ou envoyer vers PAY si c’est de l’argent réel.";
+          }
+
+          cards.forEach(btn => btn.classList.remove("isActive"));
+          updatePayButton();
+          setStatus("Effacé. Prêt pour une nouvelle action.");
+        });
+      }
+
       langButtons.forEach(btn => {
         btn.addEventListener("click", () => {
           applyLanguage(btn.getAttribute("data-driver-lang") || "fr");
@@ -1113,6 +1135,9 @@
   </script>
 </body>
 </html>
+
+
+
 
 
 
