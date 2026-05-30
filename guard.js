@@ -6,7 +6,19 @@
 (() => {
   "use strict";
 
-  const CFG = {
+  
+  // PATCH AUDIT DRIVER 20260530 — timeout anti-moulinage Supabase/VPS
+  const DRIVER_FETCH_TIMEOUT_MS = 2500;
+  async function digiyTimedFetch(url, options, timeoutMs) {
+    const controller = new AbortController();
+    const timer = setTimeout(function(){ controller.abort(); }, timeoutMs || DRIVER_FETCH_TIMEOUT_MS);
+    try {
+      return await fetch(url, Object.assign({}, options || {}, { signal: controller.signal }));
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+const CFG = {
     SUPABASE_URL:
       window.DIGIY_SUPABASE_URL ||
       "https://wesqmwjjtsefyjnluosj.supabase.co",
@@ -22,7 +34,7 @@
     SESSION_MAX_AGE_MS: 8 * 60 * 60 * 1000,
 
     PIN_PATH: window.DIGIY_LOGIN_URL || "./pin.html",
-    PAY_URL: window.DIGIY_PAY_URL || "https://commencer-a-payer.digiylyfe.com/",
+    PAY_URL: window.DIGIY_PAY_URL || "https://pro-pay.digiylyfe.com/module-bridge.html",
 
     ALLOW_PREVIEW_WITHOUT_IDENTITY: false,
 
@@ -268,7 +280,7 @@
   }
 
   async function rpc(name, body) {
-    const res = await fetch(`${CFG.SUPABASE_URL}/rest/v1/rpc/${name}`, {
+    const res = await digiyTimedFetch(`${CFG.SUPABASE_URL}/rest/v1/rpc/${name}`, {
       method: "POST",
       headers: jsonHeaders(),
       body: JSON.stringify(body || {})
@@ -280,7 +292,7 @@
 
   async function tableGet(table, paramsObj) {
     const params = new URLSearchParams(paramsObj || {});
-    const res = await fetch(`${CFG.SUPABASE_URL}/rest/v1/${table}?${params.toString()}`, {
+    const res = await digiyTimedFetch(`${CFG.SUPABASE_URL}/rest/v1/${table}?${params.toString()}`, {
       method: "GET",
       headers: getHeaders()
     });
