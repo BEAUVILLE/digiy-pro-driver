@@ -629,7 +629,7 @@
 
           <div class="driverTextareaWrap">
             <label class="driverTextareaLabel" for="driverVoiceText">
-              Ce qu’ACTION prépare
+              Fiche course à préparer
               <span class="driverStatus" data-driver-status>Prêt</span>
             </label>
             <textarea class="driverTextarea" id="driverVoiceText" placeholder="Appuie sur un exemple à droite, écris, ou utilise le micro si ton navigateur l’autorise.">course demain 8h de Saly à Dakar client Mamadou</textarea>
@@ -640,7 +640,7 @@
               🎙️ Écouter
             </button>
             <button class="driverGhostBtn" type="button" data-driver-prepare>
-              ⚡ Préparer
+              ✨ Préparer la course
             </button>
             <button class="driverDarkBtn" type="button" data-driver-copy>
               📋 Copier
@@ -651,22 +651,22 @@
           </div>
 
           <div class="driverPrepared" data-driver-prepared>
-            Brouillon ACTION DRIVER prêt. Choisis ensuite : garder en note DRIVER ou envoyer vers PAY si c’est de l’argent réel.
+            Fiche course DRIVER prête. Le chauffeur vérifie, puis enregistre la course ou prépare PAY si c’est de l’argent réel.
           </div>
 
           <div class="driverValidation" aria-label="Validation ACTION DRIVER">
             <button class="driverValidateNote" type="button" data-driver-save-note>
-              📝 Valider en note DRIVER
+              📝 Enregistrer course
             </button>
             <button class="driverValidatePay" type="button" data-driver-send-pay>
-              💳 Valider vers PAY
+              💳 Préparer PAY
             </button>
           </div>
 
           <div class="driverChips">
             <span>Bouton volontaire</span>
             <span>Client peut parler</span>
-            <span>Course préparée</span>
+            <span>Fiche course préparée</span>
             <span>Message prêt</span>
             <span>Validation humaine</span>
           </div>
@@ -928,9 +928,155 @@
         return Number.isFinite(n) && n > 0 ? n : null;
       }
 
+
+      function cleanWord(text){
+        return String(text || "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g,"")
+          .replace(/[’']/g," ")
+          .replace(/\s+/g," ")
+          .trim();
+      }
+
+      function trimField(value){
+        return String(value || "")
+          .replace(/\b(?:client|depart|départ|arrivee|arrivée|destination|a|à|heure|demain|aujourd'hui|aujourdhui|ce soir|matin|tarif|prix|wave|cash|orange|bagage|valise|personnes?)\b.*$/i,"")
+          .replace(/[.,;:|]+$/,"")
+          .trim();
+      }
+
+      function wordNumber(text){
+        const t = cleanWord(text);
+        const map = {
+          "un":1,"une":1,"deux":2,"trois":3,"quatre":4,"cinq":5,
+          "six":6,"sept":7,"huit":8,"neuf":9,"dix":10
+        };
+        const m = t.match(/\b(\d{1,2}|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\s+(?:personnes?|clients?|passagers?|bagages?|valises?)\b/);
+        if(!m) return null;
+        return /^\d+$/.test(m[1]) ? Number(m[1]) : map[m[1]] || null;
+      }
+
+      function extractClient(text){
+        const clean = String(text || "");
+        const m = clean.match(/\bclient\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s'.-]{1,48})/i)
+               || clean.match(/\b(?:pour|avec)\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s'.-]{1,48})/i);
+        return m ? trimField(m[1]) : "";
+      }
+
+      function extractRoute(text){
+        const clean = String(text || "").replace(/\s+/g," ").trim();
+        let from = "", to = "";
+        let m = clean.match(/\b(?:de|depuis|départ)\s+(.+?)\s+(?:à|a|vers|jusqu(?:'|’)à|arrivée|arrivee|destination)\s+(.+?)(?=\s+(?:client|demain|aujourd'hui|aujourdhui|ce soir|à\s*\d|a\s*\d|\d{1,2}h|prix|tarif|wave|cash|orange|bagage|valise|personnes?)\b|$)/i);
+        if(m){ from = trimField(m[1]); to = trimField(m[2]); }
+        if(!from){
+          m = clean.match(/\b(?:depart|départ)\s+(.+?)(?=\s+(?:arrivee|arrivée|destination|vers|à|a)\b|$)/i);
+          if(m) from = trimField(m[1]);
+        }
+        if(!to){
+          m = clean.match(/\b(?:arrivee|arrivée|destination|vers)\s+(.+?)(?=\s+(?:client|demain|aujourd'hui|aujourdhui|ce soir|à\s*\d|a\s*\d|\d{1,2}h|prix|tarif|wave|cash|orange|bagage|valise|personnes?)\b|$)/i);
+          if(m) to = trimField(m[1]);
+        }
+        return { from: from || "Départ à préciser", to: to || "Arrivée à préciser" };
+      }
+
+      function extractWhen(text){
+        const clean = String(text || "");
+        const natural = clean.match(/\b(aujourd'hui|aujourdhui|demain|après-demain|apres-demain|ce soir|ce matin|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\b/i);
+        const hour = clean.match(/\b(?:à|a|vers)?\s*(\d{1,2})(?:h|:)(\d{2})?\b/i);
+        const date = clean.match(/\b(\d{1,2}[\/.-]\d{1,2}(?:[\/.-]\d{2,4})?)\b/i);
+        const time = hour ? (String(hour[1]).padStart(2,"0") + ":" + String(hour[2] || "00").padStart(2,"0")) : "";
+        return {
+          date_label: date ? date[1] : (natural ? natural[1] : ""),
+          time_label: time,
+          display: [date ? date[1] : (natural ? natural[1] : ""), time].filter(Boolean).join(" ")
+        };
+      }
+
+      function buildTripDraft(text, amount){
+        const route = extractRoute(text);
+        const when = extractWhen(text);
+        const t = cleanWord(text);
+        const bags = (String(text||"").match(/\b(\d{1,2})\s*(?:bagages?|valises?)\b/i) || [])[1] || (/\b(valise|bagage)\b/.test(t) ? "à vérifier" : "");
+        const pax = wordNumber(text) || "";
+        const pay = detectChannel(text);
+        const id = "driver_action_" + Date.now();
+        return {
+          id,
+          local_id: id,
+          source: "ACTION_DRIVER",
+          status: "requested",
+          ride_status: "requested",
+          client_name: extractClient(text) || "Client à préciser",
+          pickup_label: route.from,
+          dropoff_label: route.to,
+          departure: route.from,
+          destination: route.to,
+          pickup_at: when.display || "",
+          ride_at: when.display || "",
+          pickup_zone: route.from,
+          passengers: pax,
+          bags,
+          amount_fcfa: amount || 0,
+          price_fcfa: amount || 0,
+          payment_mode: pay,
+          note: String(text || "").trim(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          requiresHumanValidation: true,
+          safety: {
+            noAutoConfirmation: true,
+            noAutoPayment: true,
+            driverValidationRequired: true
+          }
+        };
+      }
+
+      function pushLocalTrip(payload){
+        if(!payload) return;
+        const trip = payload.tripDraft || payload.driver_draft || payload;
+        ["DIGIY_DRIVER_ACTION_TRIPS","DIGIY_DRIVER_TRIPS_LOCAL","digiy_driver_trips"].forEach(function(key){
+          try{
+            const list = JSON.parse(localStorage.getItem(key) || "[]");
+            const arr = Array.isArray(list) ? list : [];
+            arr.unshift(trip);
+            localStorage.setItem(key, JSON.stringify(arr.slice(0,80)));
+          }catch(e){}
+        });
+        try{ localStorage.setItem("DIGIY_DRIVER_PENDING_TRIP", JSON.stringify(trip)); }catch(e){}
+        try{ localStorage.setItem("DIGIY_DRIVER_LATEST_ACTION", JSON.stringify(payload)); }catch(e){}
+      }
+
+      function applyModeFromUrl(){
+        try{
+          const mode = new URL(location.href).searchParams.get("mode") || "";
+          const templates = {
+            course: "course demain 8h de Saly à Dakar client Mamadou",
+            trajet: "course demain 8h de Saly à Dakar client Mamadou",
+            aeroport: "client Awa départ hôtel Terrou Bi arrivée aéroport à 6h",
+            retour: "retour de Dakar à Saly demain 18h client confirmé",
+            tarif: "préparer tarif trajet Saly Dakar",
+            message: "prépare message confirmation course pour client Mamadou demain 8h",
+            pay: "recette course DRIVER 20000 Wave",
+            paiement: "recette course DRIVER 20000 Wave",
+            depense: "dépense essence 6700 F"
+          };
+          const text = templates[mode];
+          if(text && voiceText){
+            currentTemplate = text;
+            currentRoute = isPayText(text) ? "PAY" : "DRIVER";
+            voiceText.value = text;
+            if(selected) selected.textContent = "“" + text + "”";
+            showPrepared(text, currentRoute);
+            setStatus("Mode " + mode + " chargé");
+          }
+        }catch(e){}
+      }
+
       function buildPayload(route, text){
         const amount = extractAmount(text);
         const cleanText = String(text || "").trim();
+        const tripDraft = buildTripDraft(cleanText, amount);
         const payType = detectPayType(cleanText);
         const channel = detectChannel(cleanText);
         const category = payType === "expense" ? (
@@ -958,6 +1104,9 @@
           typeLabel:payType === "expense" ? "Dépense" : "Recette",
           category,
           createdAt:new Date().toISOString(),
+          driver_draft: tripDraft,
+          tripDraft: tripDraft,
+          trip_id: tripDraft.id,
           safety:{
             noAutoPayment:true,
             noAutoConfirmation:true,
@@ -1038,6 +1187,7 @@
             list.unshift(payload);
             localStorage.setItem(key, JSON.stringify(list.slice(0, 80)));
             localStorage.setItem("DIGIY_DRIVER_PENDING_NOTE", JSON.stringify(payload));
+            pushLocalTrip(payload);
           }catch(e){}
 
           showPrepared(text, "DRIVER");
@@ -1101,7 +1251,7 @@
           if(selected) selected.textContent = "—";
           if(prepared){
             prepared.classList.remove("show");
-            prepared.textContent = "Brouillon ACTION DRIVER prêt. Choisis ensuite : garder en note DRIVER ou envoyer vers PAY si c’est de l’argent réel.";
+            prepared.textContent = "Fiche course DRIVER prête. Le chauffeur vérifie, puis enregistre la course ou prépare PAY si c’est de l’argent réel.";
           }
 
           cards.forEach(btn => btn.classList.remove("isActive"));
@@ -1174,10 +1324,45 @@
 
       applyLanguage("fr");
       updatePayButton();
+      applyModeFromUrl();
     })();
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
