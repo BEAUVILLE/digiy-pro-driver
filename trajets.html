@@ -656,6 +656,60 @@ function titleTrip(t){
 }
 function amount(t){return Number(t?.final_price_fcfa??t?.price_fcfa??t?.amount_fcfa??t?.amount??0)||0}
 
+
+function readLocalJson(key){
+  try{
+    const raw = localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  }catch(_){ return []; }
+}
+
+function normalizeLocalTrip(t){
+  const draft = t?.tripDraft || t?.driver_draft || t || {};
+  return {
+    ...draft,
+    id: draft.id || draft.local_id || ("local_" + Math.random().toString(36).slice(2)),
+    status: draft.status || draft.ride_status || "requested",
+    ride_status: draft.ride_status || draft.status || "requested",
+    pickup_label: draft.pickup_label || draft.departure || draft.from || "Départ à préciser",
+    dropoff_label: draft.dropoff_label || draft.destination || draft.to || "Arrivée à préciser",
+    pickup_at: draft.pickup_at || draft.ride_at || draft.date_label || draft.created_at || new Date().toISOString(),
+    amount_fcfa: Number(draft.amount_fcfa || draft.price_fcfa || draft.amount || 0) || 0,
+    pickup_zone: draft.pickup_zone || draft.departure || draft.pickup_label || "Zone à vérifier",
+    source: draft.source || "local_action"
+  };
+}
+
+function readLocalDriverTrips(){
+  const keys = ["DIGIY_DRIVER_TRIPS_LOCAL","DIGIY_DRIVER_ACTION_TRIPS","digiy_driver_trips"];
+  const seen = new Set();
+  const rows = [];
+  keys.forEach(key => {
+    readLocalJson(key).forEach(item => {
+      const row = normalizeLocalTrip(item);
+      const id = String(row.id || row.local_id || row.note || "");
+      if(!id || seen.has(id)) return;
+      seen.add(id);
+      rows.push(row);
+    });
+  });
+  return rows;
+}
+
+function mergeDriverTrips(cloud, local){
+  const seen = new Set();
+  return []
+    .concat(Array.isArray(local)?local:[])
+    .concat(Array.isArray(cloud)?cloud:[])
+    .filter(row => {
+      const id = String(row?.id || row?.local_id || row?.created_at || Math.random());
+      if(seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+}
+
 function visibleRows(){
   return trips
     .filter(t=>["requested","assigned","accepted","in_progress"].includes(tripStatus(t)))
@@ -696,18 +750,20 @@ function render(){
 
 async function loadTrips(){
   const st=getState(),msg=$("msg");
-  if(!sb){msg.textContent="Supabase indisponible.";msg.className="msg bad";return}
-  if(!st.phone){msg.textContent="Numéro chauffeur non reconnu. Reprends l'accès PIN.";msg.className="msg warn";render();return}
+  if(!sb){trips=readLocalDriverTrips();msg.textContent=trips.length?"Lecture locale ACTION DRIVER.":"Supabase indisponible.";msg.className=trips.length?"msg ok":"msg bad";render();return}
+  if(!st.phone){trips=readLocalDriverTrips();msg.textContent=trips.length?"Lecture locale ACTION DRIVER.":"Numéro chauffeur non reconnu. Reprends l'accès PIN.";msg.className=trips.length?"msg ok":"msg warn";render();return}
   msg.textContent="Lecture…";msg.className="msg";
   try{
     const {data,error}=await sb.from("digiy_driver_trips").select("*").in("driver_phone",phoneVariants(st.phone)).order("created_at",{ascending:false}).limit(30);
     if(error)throw error;
-    trips=Array.isArray(data)?data:[];
+    trips=mergeDriverTrips(Array.isArray(data)?data:[], readLocalDriverTrips());
     msg.textContent="";msg.className="msg";
     render();
   }catch(e){
     console.warn(e);
-    msg.textContent="Lecture impossible. L'atelier complet reste disponible.";msg.className="msg bad";
+    trips=readLocalDriverTrips();
+    msg.textContent=trips.length?"Lecture cloud impossible. Courses locales affichées.":"Lecture impossible. L'atelier complet reste disponible.";
+    msg.className=trips.length?"msg ok":"msg bad";
     render();
   }
 }
@@ -803,6 +859,11 @@ loadTrips();
 
 </body>
 </html>
+
+
+
+
+
 
 
 
