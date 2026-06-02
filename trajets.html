@@ -682,17 +682,40 @@ function normalizeLocalTrip(t){
 }
 
 function readLocalDriverTrips(){
-  const keys = ["DIGIY_DRIVER_TRIPS_LOCAL","DIGIY_DRIVER_ACTION_TRIPS","digiy_driver_trips"];
+  /* DIGIY DRIVER — lecture unifiée locale
+     ACTION peut écrire dans les anciennes clés, mais aussi dans la mémoire officielle PRO.
+     Cette page relit tout le registre local, puis dédouble par id.
+  */
+  const keys = [
+    "DIGIY_DRIVER_PRO_SCHEDULED_TRIPS",
+    "DIGIY_DRIVER_PRO_LOCAL_TRIPS",
+    "DIGIY_DRIVER_SCHEDULED_TRIPS",
+    "DIGIY_DRIVER_LOCAL_TRIPS",
+    "DIGIY_DRIVER_TRIPS_LOCAL",
+    "DIGIY_DRIVER_ACTION_TRIPS",
+    "digiy_driver_trips"
+  ];
   const seen = new Set();
   const rows = [];
+
+  function push(item){
+    const row = normalizeLocalTrip(item);
+    const id = String(row.id || row.local_id || row.note || row.created_at || "");
+    if(!id || seen.has(id)) return;
+    seen.add(id);
+    rows.push(row);
+  }
+
+  try{
+    if(window.DIGIY_DRIVER_PRO_MEMORY && typeof window.DIGIY_DRIVER_PRO_MEMORY.readScheduledTrips === "function"){
+      (window.DIGIY_DRIVER_PRO_MEMORY.readScheduledTrips() || []).forEach(push);
+    }else if(window.DIGIY_DRIVER_MEMORY && typeof window.DIGIY_DRIVER_MEMORY.readScheduledTrips === "function"){
+      (window.DIGIY_DRIVER_MEMORY.readScheduledTrips() || []).forEach(push);
+    }
+  }catch(e){}
+
   keys.forEach(key => {
-    readLocalJson(key).forEach(item => {
-      const row = normalizeLocalTrip(item);
-      const id = String(row.id || row.local_id || row.note || "");
-      if(!id || seen.has(id)) return;
-      seen.add(id);
-      rows.push(row);
-    });
+    readLocalJson(key).forEach(push);
   });
   return rows;
 }
@@ -859,6 +882,17 @@ loadTrips();
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
