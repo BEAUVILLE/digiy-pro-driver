@@ -740,12 +740,12 @@
           <div class="doorInfo"><b>Mes trajets</b><span>Accepter · démarrer · terminer.</span></div>
         </a>
 
-        <a class="door pave hot" id="doorNote" href="./trajets.html#quickDriverNote">
+        <a class="door pave hot" id="doorAction" href="./action.html?mode=course">
           <div class="paveTop">
-            <div class="doorIcon">✍️</div>
-            <div class="doorTag">Trace</div>
+            <div class="doorIcon">🎙️</div>
+            <div class="doorTag">GO</div>
           </div>
-          <div class="doorInfo"><b>Nouvelle note</b><span>Course · carburant · avance.</span></div>
+          <div class="doorInfo"><b>DIGIY GO DRIVER</b><span>Client parle. Course préparée.</span></div>
         </a>
 
         <a class="door pave gold" id="doorOreille" href="./oreille.html">
@@ -753,7 +753,7 @@
             <div class="doorIcon">🎙️</div>
             <div class="doorTag">Oreille</div>
           </div>
-          <div class="doorInfo"><b>Oreille DRIVER</b><span>Dicter une course : client, départ, arrivée, tarif.</span></div>
+          <div class="doorInfo"><b>Oreille DRIVER</b><span>Parler, formuler, copier.</span></div>
         </a>
 
         <a class="door pave" id="doorDashboard" href="./dashboard-pro.html">
@@ -1020,6 +1020,7 @@
         home:      "./index.html",
         dashboard: "./dashboard-pro.html",
         trips:     "./trajets.html",
+        action:    "./action.html",
         oreille:   "./oreille.html",
         profile:   "./profil-chauffeur.html",
         rates:     "./tarifs-edition.html", // FIX TARIFS: bouton visible + overlay Piloter
@@ -1131,7 +1132,7 @@
           hdrBack:       [ROUTES.dashboard, ""],
           doorDashboard: [ROUTES.dashboard, ""],
           doorTrajets:   [ROUTES.trips,     ""],
-          doorNote:      [ROUTES.trips,     "#quickDriverNote"],
+          doorAction:    ["./action.html?mode=course", ""],
           doorOreille:   [ROUTES.oreille,   ""],
           doorProfil:    [ROUTES.profile,   ""],
           doorHabitualRoutes: [ROUTES.habitualRoutes, "#ratesBlock"],
@@ -1143,7 +1144,7 @@
           doorAlertes:   [ROUTES.alertes,   ""],
           ovDashboard:   [ROUTES.dashboard, ""],
           ovTrajets:     [ROUTES.trips,     ""],
-          ovNote:        [ROUTES.trips,     "#quickDriverNote"],
+          ovNote:        ["./action.html?mode=course", ""],
           ovOreille:     [ROUTES.oreille,   ""],
           ovHubLink:     [ROUTES.hub,       ""],
           ovSession:     [ROUTES.session,   ""],
@@ -1355,6 +1356,177 @@
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
