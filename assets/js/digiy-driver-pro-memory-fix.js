@@ -1,1429 +1,171 @@
-<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-
-  <title>DIGIY GO DRIVER — ACTION · FR WOLOF ARABE</title>
-
-  <meta name="theme-color" content="#06140f" />
-
-  <style>
-    :root{
-      --bg0:#03120c;
-      --bg1:#062016;
-      --ink:#f8fafc;
-      --soft:rgba(248,250,252,.76);
-      --muted:rgba(248,250,252,.58);
-      --line:rgba(255,255,255,.13);
-      --gold:#f6c453;
-      --green:#00a651;
-      --deep:#00853f;
-      --shadow:0 18px 54px rgba(0,0,0,.34);
-      --fontA:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      --fontB:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    }
-
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100vh;
-      color:var(--ink);
-      font-family:var(--fontB);
-      background:
-        radial-gradient(900px 520px at 8% -10%,rgba(0,166,81,.34),transparent 62%),
-        radial-gradient(760px 420px at 92% 0%,rgba(246,196,83,.18),transparent 58%),
-        linear-gradient(180deg,#075f32 0%,#062a1d 28%,#04130d 100%);
-      padding:18px;
-    }
-
-    a{color:inherit;text-decoration:none}
-    button,textarea{font:inherit}
-
-    .previewWrap{
-      width:min(1180px,100%);
-      margin:0 auto;
-    }
-
-    .previewTop{
-      margin-bottom:12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .previewTop strong{
-      font-family:var(--fontA);
-      font-size:18px;
-      font-weight:1000;
-      color:#fff3cf;
-    }
-
-    .previewTop span{
-      color:var(--soft);
-      font-weight:850;
-      font-size:13px;
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       BLOC DRIVER — OREILLE MÉTIER
-       Gauche : voix + écrit façon Oreille
-       Droite : formulations métier cliquables
-    ═══════════════════════════════════════════════════════ */
-
-    .driverOreilleBlock{
-      margin:0;
-      scroll-margin-top:128px;
-    }
-
-    .driverOreilleCard{
-      position:relative;
-      overflow:hidden;
-      display:grid;
-      grid-template-columns:minmax(0,1.02fr) minmax(340px,.98fr);
-      gap:14px;
-      padding:16px;
-      border-radius:28px;
-      border:1px solid rgba(246,196,83,.42);
-      background:
-        radial-gradient(720px 320px at 0% 0%,rgba(246,196,83,.22),transparent 62%),
-        radial-gradient(680px 320px at 100% 0%,rgba(0,166,81,.22),transparent 60%),
-        linear-gradient(135deg,rgba(10,30,18,.96),rgba(4,15,10,.98));
-      box-shadow:var(--shadow);
-    }
-
-    .driverOreilleCard::before{
-      content:"";
-      position:absolute;
-      inset:auto -80px -140px auto;
-      width:300px;
-      height:300px;
-      border-radius:999px;
-      background:rgba(246,196,83,.12);
-      pointer-events:none;
-    }
-
-    .driverOreilleLeft,
-    .driverOreilleRight{
-      position:relative;
-      z-index:1;
-      border-radius:24px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.055);
-      padding:16px;
-    }
-
-    .driverOreilleLeft{
-      display:grid;
-      gap:14px;
-      align-content:start;
-    }
-
-    .driverOreilleTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-
-    .driverKicker{
-      display:inline-flex;
-      align-items:center;
-      gap:7px;
-      min-height:30px;
-      padding:0 10px;
-      border-radius:999px;
-      border:1px solid rgba(246,196,83,.36);
-      background:rgba(246,196,83,.12);
-      color:#fff3cf;
-      font-family:var(--fontA);
-      font-size:11px;
-      font-weight:1000;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-    }
-
-    .driverSafe{
-      display:inline-flex;
-      align-items:center;
-      gap:7px;
-      min-height:30px;
-      padding:0 10px;
-      border-radius:999px;
-      border:1px solid rgba(0,166,81,.34);
-      background:rgba(0,166,81,.13);
-      color:#dfffe9;
-      font-family:var(--fontA);
-      font-size:11px;
-      font-weight:1000;
-    }
-
-    .driverTitle{
-      margin:0;
-      font-family:var(--fontA);
-      font-size:clamp(34px,5vw,58px);
-      line-height:.92;
-      letter-spacing:-.055em;
-      font-weight:1000;
-      color:#fff;
-    }
-
-    .driverTitle span{color:var(--gold)}
-
-    .driverText{
-      margin:0;
-      max-width:720px;
-      color:rgba(248,250,252,.80);
-      font-size:15px;
-      line-height:1.48;
-      font-weight:850;
-    }
-
-    .driverText strong{color:#fff3cf}
-
-
-    .driverLangBar{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-
-    .driverLangBtn{
-      min-height:40px;
-      border-radius:999px;
-      padding:0 13px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.07);
-      color:rgba(248,250,252,.86);
-      font-family:var(--fontA);
-      font-size:12px;
-      font-weight:1000;
-      cursor:pointer;
-    }
-
-    .driverLangBtn.isActive{
-      color:#06140f;
-      background:linear-gradient(135deg,#fff1bd,var(--gold),#22c55e);
-      border-color:rgba(246,196,83,.46);
-    }
-
-    .driverVoiceBox{
-      display:grid;
-      grid-template-columns:92px minmax(0,1fr);
-      gap:14px;
-      align-items:center;
-      padding:14px;
-      border-radius:24px;
-      border:1px solid rgba(246,196,83,.28);
-      background:
-        radial-gradient(220px 120px at 20% 20%,rgba(246,196,83,.20),transparent 65%),
-        rgba(0,0,0,.18);
-    }
-
-    .driverMic{
-      width:92px;
-      height:92px;
-      border-radius:32px;
-      display:grid;
-      place-items:center;
-      font-size:44px;
-      color:#06140f;
-      background:linear-gradient(135deg,#fff1bd,var(--gold),#22c55e);
-      border:1px solid rgba(255,255,255,.36);
-      box-shadow:0 14px 34px rgba(0,0,0,.28);
-    }
-
-    .driverSelectedLabel{
-      margin:0 0 6px;
-      color:#fff3cf;
-      font-family:var(--fontA);
-      font-size:12px;
-      font-weight:1000;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-    }
-
-    .driverSelected{
-      margin:0;
-      color:#fff;
-      font-family:var(--fontA);
-      font-size:clamp(18px,2.4vw,26px);
-      line-height:1.12;
-      font-weight:1000;
-    }
-
-    .driverTextareaWrap{
-      display:grid;
-      gap:8px;
-    }
-
-    .driverTextareaLabel{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      color:#fff3cf;
-      font-family:var(--fontA);
-      font-weight:1000;
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-    }
-
-    .driverStatus{
-      color:#dfffe9;
-      text-transform:none;
-      letter-spacing:0;
-      font-size:11px;
-    }
-
-    .driverTextarea{
-      width:100%;
-      min-height:116px;
-      resize:vertical;
-      border-radius:22px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.20);
-      color:#fff;
-      padding:14px;
-      outline:none;
-      font-size:16px;
-      line-height:1.42;
-      font-weight:850;
-    }
-
-    .driverTextarea::placeholder{color:rgba(248,250,252,.45)}
-
-    .driverBtns{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:9px;
-    }
-
-    .driverMainBtn,
-    .driverGhostBtn,
-    .driverDarkBtn{
-      min-height:46px;
-      border-radius:17px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:0 12px;
-      font-family:var(--fontA);
-      font-size:13px;
-      font-weight:1000;
-      cursor:pointer;
-      text-decoration:none;
-    }
-
-    .driverMainBtn{
-      color:#06140f;
-      background:linear-gradient(135deg,#fff1bd,var(--gold),#22c55e);
-      border:1px solid rgba(246,196,83,.54);
-      box-shadow:0 12px 26px rgba(0,0,0,.26);
-    }
-
-    .driverGhostBtn{
-      color:#fff3cf;
-      background:rgba(255,255,255,.07);
-      border:1px solid rgba(246,196,83,.26);
-    }
-
-    .driverDarkBtn{
-      color:#eafff3;
-      background:rgba(0,166,81,.12);
-      border:1px solid rgba(0,166,81,.26);
-    }
-
-    .driverPrepared{
-      display:none;
-      padding:12px;
-      border-radius:18px;
-      border:1px solid rgba(0,166,81,.24);
-      background:rgba(0,166,81,.08);
-      color:#dfffe9;
-      font-size:13px;
-      line-height:1.42;
-      font-weight:850;
-    }
-
-    .driverPrepared.show{display:block}
-
-
-    .driverValidation{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:9px;
-    }
-
-    .driverValidateNote,
-    .driverValidatePay{
-      min-height:42px;
-      border-radius:18px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:0 12px;
-      font-family:var(--fontA);
-      font-size:13px;
-      font-weight:1000;
-      cursor:pointer;
-      border:1px solid rgba(255,255,255,.16);
-    }
-
-    .driverValidateNote{
-      background:rgba(246,196,83,.12);
-      border-color:rgba(246,196,83,.34);
-      color:#fff3cf;
-    }
-
-    .driverValidatePay{
-      background:rgba(0,166,81,.16);
-      border-color:rgba(0,166,81,.36);
-      color:#dfffe9;
-    }
-
-    .driverValidatePay[disabled]{
-      opacity:.45;
-      cursor:not-allowed;
-      filter:grayscale(.35);
-    }
-
-    .driverChips{
-      display:flex;
-      flex-wrap:wrap;
-      gap:7px;
-    }
-
-    .driverChips span{
-      display:inline-flex;
-      align-items:center;
-      min-height:28px;
-      padding:0 9px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.13);
-      background:rgba(255,255,255,.07);
-      color:rgba(248,250,252,.86);
-      font-family:var(--fontA);
-      font-size:10.5px;
-      font-weight:1000;
-    }
-
-    .driverOreilleRightHead{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:12px;
-    }
-
-    .driverOreilleRight h2{
-      margin:0;
-      font-family:var(--fontA);
-      font-size:clamp(22px,3vw,34px);
-      line-height:1;
-      letter-spacing:-.04em;
-      font-weight:1000;
-      color:#fff;
-    }
-
-    .driverOreilleRight p{
-      margin:6px 0 0;
-      color:rgba(248,250,252,.70);
-      font-size:13px;
-      line-height:1.38;
-      font-weight:850;
-    }
-
-    .driverMiniBadge{
-      flex:0 0 auto;
-      display:inline-flex;
-      align-items:center;
-      min-height:30px;
-      padding:0 10px;
-      border-radius:999px;
-      border:1px solid rgba(246,196,83,.30);
-      background:rgba(246,196,83,.10);
-      color:#fff3cf;
-      font-family:var(--fontA);
-      font-size:11px;
-      font-weight:1000;
-    }
-
-    .driverModels{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:9px;
-    }
-
-    .driverModel{
-      min-height:82px;
-      text-align:left;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.13);
-      background:rgba(255,255,255,.065);
-      color:#fff;
-      padding:11px;
-      cursor:pointer;
-      display:grid;
-      gap:6px;
-      transition:transform .14s,border-color .14s,background .14s;
-    }
-
-    .driverModel:hover,
-    .driverModel.isActive{
-      transform:translateY(-2px);
-      border-color:rgba(246,196,83,.46);
-      background:linear-gradient(135deg,rgba(246,196,83,.15),rgba(0,166,81,.12));
-    }
-
-    .driverModelTop{
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-
-    .driverModelIcon{
-      width:34px;
-      height:34px;
-      border-radius:12px;
-      display:grid;
-      place-items:center;
-      background:rgba(246,196,83,.13);
-      border:1px solid rgba(246,196,83,.20);
-      font-size:18px;
-    }
-
-    .driverModel b{
-      font-family:var(--fontA);
-      font-size:13px;
-      font-weight:1000;
-      color:#fff3cf;
-    }
-
-    .driverModel em{
-      display:block;
-      color:rgba(248,250,252,.82);
-      font-style:normal;
-      font-size:12.5px;
-      line-height:1.32;
-      font-weight:850;
-    }
-
-    .driverNote{
-      margin:12px 0 0;
-      padding:11px;
-      border-radius:17px;
-      border:1px solid rgba(0,166,81,.24);
-      background:rgba(0,166,81,.08);
-      color:#dfffe9;
-      font-size:12.5px;
-      line-height:1.42;
-      font-weight:850;
-    }
-
-    @media(max-width:860px){
-      body{padding:10px}
-      .driverOreilleCard{grid-template-columns:1fr;padding:12px;border-radius:24px}
-      .driverBtns{grid-template-columns:1fr 1fr}
-    }
-
-    @media(max-width:520px){
-      .driverOreilleLeft,.driverOreilleRight{padding:12px;border-radius:20px}
-  
-    .driverLangBar{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-
-    .driverLangBtn{
-      min-height:40px;
-      border-radius:999px;
-      padding:0 13px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.07);
-      color:rgba(248,250,252,.86);
-      font-family:var(--fontA);
-      font-size:12px;
-      font-weight:1000;
-      cursor:pointer;
-    }
-
-    .driverLangBtn.isActive{
-      color:#06140f;
-      background:linear-gradient(135deg,#fff1bd,var(--gold),#22c55e);
-      border-color:rgba(246,196,83,.46);
-    }
-
-    .driverVoiceBox{grid-template-columns:64px minmax(0,1fr);gap:10px;padding:10px}
-      .driverMic{width:64px;height:64px;border-radius:22px;font-size:32px}
-      .driverModels{grid-template-columns:1fr 1fr;gap:7px}
-      .driverBtns{grid-template-columns:1fr 1fr}
-      .driverValidateNote,.driverValidatePay{min-height:38px;font-size:11px;padding:0 6px}
-      .driverModel{min-height:70px;padding:8px;border-radius:15px}
-      .driverModel em{font-size:11px;line-height:1.2}
-      .driverChips{display:none}
-    }
-  </style>
-
-  <script>
-    window.DIGIY_MODULE = "DRIVER";
-    window.DIGIY_LOGIN_URL = "./pin.html";
-    window.DIGIY_SUPABASE_URL = window.DIGIY_SUPABASE_URL || "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
-    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-guard-20260531"></script>
-  <script src="./assets/js/digiy-driver-pro-memory-fix.js?v=driver-pro-memory-20260602"></script>
-</head>
-
-<body>
-  <main class="previewWrap">
-    <div class="previewTop">
-      <strong>DIGIY GO DRIVER · ACTION multilingue</strong>
-      <span>Gauche : voix + écrit · Droite : formulations DRIVER cliquables</span>
-    </div>
-
-    <section class="driverOreilleBlock" id="driver-oreille" aria-label="DRIVER — ACTION métier">
-      <div class="driverOreilleCard">
-
-        <article class="driverOreilleLeft">
-          <div class="driverOreilleTop">
-            <span class="driverKicker">🚗 DRIVER · ACTION métier</span>
-            <span class="driverSafe">✓ Chauffeur valide</span>
-          </div>
-
-          <h1 class="driverTitle">
-            Parle trajet.<br>
-            <span>DIGIY prépare.</span>
-          </h1>
-
-          <p class="driverText" data-i18n="lead">
-            Ici, le chauffeur ou le client parle naturellement.
-            <strong>Départ, arrivée, heure, date, bagage, client, message prêt.</strong>
-            DIGIY prépare la course, puis le chauffeur vérifie et valide.
-          </p>
-
-          <div class="driverLangBar" aria-label="Langue des exemples DRIVER">
-            <button class="driverLangBtn isActive" type="button" data-driver-lang="fr">🇫🇷 Français</button>
-            <button class="driverLangBtn" type="button" data-driver-lang="wo">🇸🇳 Wolof</button>
-            <button class="driverLangBtn" type="button" data-driver-lang="ar">🇸🇦 عربي</button>
-          </div>
-
-          <div class="driverVoiceBox">
-            <div class="driverMic" aria-hidden="true">🎙️</div>
-            <div>
-              <p class="driverSelectedLabel">Formulation choisie</p>
-              <p class="driverSelected" data-driver-selected>
-                “course demain 8h de Saly à Dakar client Mamadou”
-              </p>
-            </div>
-          </div>
-
-          <div class="driverTextareaWrap">
-            <label class="driverTextareaLabel" for="driverVoiceText">
-              Fiche course à préparer
-              <span class="driverStatus" data-driver-status>Prêt</span>
-            </label>
-            <textarea class="driverTextarea" id="driverVoiceText" placeholder="Appuie sur un exemple à droite, écris, ou utilise le micro si ton navigateur l’autorise.">course demain 8h de Saly à Dakar client Mamadou</textarea>
-          </div>
-
-          <div class="driverBtns">
-            <button class="driverMainBtn" type="button" data-driver-listen>
-              🎙️ Écouter
-            </button>
-            <button class="driverGhostBtn" type="button" data-driver-prepare>
-              ✨ Préparer la course
-            </button>
-            <button class="driverDarkBtn" type="button" data-driver-copy>
-              📋 Copier
-            </button>
-            <button class="driverDarkBtn" type="button" data-driver-clear>
-              🧹 Effacer
-            </button>
-          </div>
-
-          <div class="driverPrepared" data-driver-prepared>
-            Fiche course DRIVER prête. Le chauffeur vérifie, puis enregistre la course ou prépare PAY si c’est de l’argent réel.
-          </div>
-
-          <div class="driverValidation" aria-label="Validation ACTION DRIVER">
-            <button class="driverValidateNote" type="button" data-driver-save-note>
-              📝 Enregistrer course
-            </button>
-            <button class="driverValidatePay" type="button" data-driver-send-pay>
-              💳 Préparer PAY
-            </button>
-          </div>
-
-          <div class="driverChips">
-            <span>Bouton volontaire</span>
-            <span>Client peut parler</span>
-            <span>Fiche course préparée</span>
-            <span>Message prêt</span>
-            <span>Validation humaine</span>
-          </div>
-        </article>
-
-        <aside class="driverOreilleRight" aria-label="Exemples métier DRIVER">
-          <div class="driverOreilleRightHead">
-            <div>
-              <h2 data-i18n="modelsTitle">Formulations métier</h2>
-              <p data-i18n="modelsSub">Exemples cliquables en français, wolof ou arabe pour guider la parole du terrain.</p>
-            </div>
-            <span class="driverMiniBadge">8 modèles</span>
-          </div>
-
-          <div class="driverModels">
-            <button class="driverModel isActive" type="button" data-driver-key="simple" data-driver-template="course demain 8h de Saly à Dakar client Mamadou">
-              <span class="driverModelTop">
-                <span class="driverModelIcon">🛣️</span>
-                <b>Course simple</b>
-              </span>
-              <em>“course demain 8h de Saly à Dakar client Mamadou”</em>
-            </button>
-
-            <button class="driverModel" type="button" data-driver-key="airport" data-driver-template="client Awa départ hôtel Terrou Bi arrivée aéroport à 6h">
-              <span class="driverModelTop">
-                <span class="driverModelIcon">✈️</span>
-                <b>Hôtel → aéroport</b>
-              </span>
-              <em>“client Awa départ hôtel Terrou Bi arrivée aéroport à 6h”</em>
-            </button>
-
-            <button class="driverModel" type="button" data-driver-key="night" data-driver-template="course ce soir 21h de Dakar à Saly deux personnes">
-              <span class="driverModelTop">
-                <span class="driverModelIcon">🌙</span>
-                <b>Course du soir</b>
-              </span>
-              <em>“course ce soir 21h de Dakar à Saly deux personnes”</em>
-            </button>
-
-            <button class="driverModel" type="button" data-driver-key="bags" data-driver-template="client avec deux valises départ Ngor arrivée Saly">
-              <span class="driverModelTop">
-                <span class="driverModelIcon">🧳</span>
-                <b>Bagages</b>
-              </span>
-              <em>“client avec deux valises départ Ngor arrivée Saly”</em>
-            </button>
-
-            <button class="driverModel" type="button" data-driver-key="message" data-driver-template="prépare message confirmation course pour client Mamadou demain 8h">
-              <span class="driverModelTop">
-                <span class="driverModelIcon">💬</span>
-                <b>Message client</b>
-              </span>
-              <em>“prépare message confirmation course pour client Mamadou demain 8h”</em>
-            </button>
-
-            <button class="driverModel" type="button" data-driver-key="return" data-driver-template="retour de Dakar à Saly demain 18h client confirmé">
-              <span class="driverModelTop">
-                <span class="driverModelIcon">↩️</span>
-                <b>Course retour</b>
-              </span>
-              <em>“retour de Dakar à Saly demain 18h client confirmé”</em>
-            </button>
-
-            <button class="driverModel" type="button" data-driver-key="payIncome" data-driver-template="recette course DRIVER 20000 Wave" data-driver-route="PAY">
-              <span class="driverModelTop">
-                <span class="driverModelIcon">💳</span>
-                <b>PAY · recette course</b>
-              </span>
-              <em>“recette course DRIVER 20000 Wave”</em>
-            </button>
-
-            <button class="driverModel" type="button" data-driver-key="payExpense" data-driver-template="dépense essence 6700 F" data-driver-route="PAY">
-              <span class="driverModelTop">
-                <span class="driverModelIcon">⛽</span>
-                <b>PAY · dépense essence</b>
-              </span>
-              <em>“dépense essence 6700 F”</em>
-            </button>
-          </div>
-
-          <div class="driverNote" data-i18n="note">
-            ACTION DRIVER prépare le trajet. Pour l’argent réel, le chauffeur valide le pont PAY :
-            recette course, essence, péage ou avance. Rien n’est enregistré automatiquement.
-          </div>
-        </aside>
-
-      </div>
-    </section>
-  </main>
-
-  <script>
-    (function(){
-      const root = document.getElementById("driver-oreille");
-      if(!root) return;
-
-      const selected = root.querySelector("[data-driver-selected]");
-      const voiceText = root.querySelector("#driverVoiceText");
-      const copyBtn = root.querySelector("[data-driver-copy]");
-      const clearBtn = root.querySelector("[data-driver-clear]");
-      const prepareBtn = root.querySelector("[data-driver-prepare]");
-      const listenBtn = root.querySelector("[data-driver-listen]");
-      const status = root.querySelector("[data-driver-status]");
-      const prepared = root.querySelector("[data-driver-prepared]");
-      const saveNoteBtn = root.querySelector("[data-driver-save-note]");
-      const sendPayBtn = root.querySelector("[data-driver-send-pay]");
-      const cards = Array.from(root.querySelectorAll("[data-driver-template]"));
-      const langButtons = Array.from(root.querySelectorAll("[data-driver-lang]"));
-      const leadEl = root.querySelector("[data-i18n='lead']");
-      const modelsTitleEl = root.querySelector("[data-i18n='modelsTitle']");
-      const modelsSubEl = root.querySelector("[data-i18n='modelsSub']");
-      const noteEl = root.querySelector("[data-i18n='note']");
-
-      const DRIVER_LANG = {
-        fr:{
-          lang:"fr-FR",
-          lead:'Ici, le chauffeur ou le client parle naturellement. <strong>Départ, arrivée, heure, date, bagage, client, message prêt.</strong> DIGIY prépare la course, puis le chauffeur vérifie et valide.',
-          modelsTitle:"Formulations métier",
-          modelsSub:"Exemples cliquables en français, wolof ou arabe pour guider la parole du terrain.",
-          note:"ACTION DRIVER prépare le trajet. Pour l’argent réel, le chauffeur valide le pont PAY : recette course, essence, péage ou avance. Rien n’est enregistré automatiquement.",
-          keys:{
-            simple:{label:"Course simple", icon:"🛣️", text:"course demain 8h de Saly à Dakar client Mamadou"},
-            airport:{label:"Hôtel → aéroport", icon:"✈️", text:"client Awa départ hôtel Terrou Bi arrivée aéroport à 6h"},
-            night:{label:"Course du soir", icon:"🌙", text:"course ce soir 21h de Dakar à Saly deux personnes"},
-            bags:{label:"Bagages", icon:"🧳", text:"client avec deux valises départ Ngor arrivée Saly"},
-            message:{label:"Message client", icon:"💬", text:"prépare message confirmation course pour client Mamadou demain 8h"},
-            return:{label:"Course retour", icon:"↩️", text:"retour de Dakar à Saly demain 18h client confirmé"},
-            payIncome:{label:"PAY · recette course", icon:"💳", text:"recette course DRIVER 20000 Wave"},
-            payExpense:{label:"PAY · dépense essence", icon:"⛽", text:"dépense essence 6700 F"}
-          }
-        },
-        wo:{
-          lang:"fr-SN",
-          lead:'Fii, chauffeur bi wala client bi mëna wax ci lu yomb. <strong>Fu ñu jóge, fu ñu dem, waxtu, bis, bagage, client, message bu pare.</strong> DIGIY dafay waajal course bi, chauffeur bi xoolaat ba noppi mu valide.',
-          modelsTitle:"Waxinu métier",
-          modelsSub:"Royukaay yu ñu mëna clic ci wolof, français wala arabe. Pro bi mën na jël, soppi, ba noppi valide.",
-          note:"ACTION DRIVER dafay waajal trajet bi. Su dee xaalis la, chauffeur bi dafay valide pont PAY : recette course, essence, péage wala avance. Amul dara lu ñuy enregistrer automatiquement.",
-          keys:{
-            simple:{label:"Course bu yomb", icon:"🛣️", text:"course suba 8h Saly ba Dakar client Mamadou"},
-            airport:{label:"Hôtel → aéroport", icon:"✈️", text:"client Awa jóge hôtel Terrou Bi dem aéroport 6h"},
-            night:{label:"Course guddi", icon:"🌙", text:"course tey guddi 21h Dakar ba Saly ñaar nit"},
-            bags:{label:"Bagage", icon:"🧳", text:"client bi am ñaari valise jóge Ngor dem Saly"},
-            message:{label:"Message client", icon:"💬", text:"waajal message confirmation course bu client Mamadou suba 8h"},
-            return:{label:"Dellusi course", icon:"↩️", text:"retour Dakar ba Saly suba 18h client confirmé"},
-            payIncome:{label:"PAY · recette course", icon:"💳", text:"recette course DRIVER 20000 Wave"},
-            payExpense:{label:"PAY · essence", icon:"⛽", text:"dépense essence 6700 F"}
-          }
-        },
-        ar:{
-          lang:"ar",
-          lead:'هنا السائق أو الزبون يتكلم ببساطة. <strong>نقطة الانطلاق، الوصول، الوقت، التاريخ، الأمتعة، الزبون، والرسالة الجاهزة.</strong> DIGIY يجهز الرحلة، والسائق يراجع ثم يؤكد.',
-          modelsTitle:"نماذج المهنة",
-          modelsSub:"أمثلة قابلة للنقر بالعربية أو الولوف أو الفرنسية. السائق يأخذ المثال، يعدله، ثم يؤكد.",
-          note:"ACTION DRIVER يجهز الرحلة. إذا كان الأمر مالاً حقيقياً، السائق يؤكد الجسر نحو PAY: دخل الرحلة، البنزين، الطريق أو سلفة. لا يتم تسجيل شيء تلقائياً.",
-          keys:{
-            simple:{label:"رحلة بسيطة", icon:"🛣️", text:"رحلة غدا الساعة 8 من سالي إلى داكار الزبون مامادو"},
-            airport:{label:"فندق → مطار", icon:"✈️", text:"الزبونة آوا من فندق Terrou Bi إلى المطار الساعة 6"},
-            night:{label:"رحلة ليلية", icon:"🌙", text:"رحلة الليلة 21h من داكار إلى سالي شخصان"},
-            bags:{label:"أمتعة", icon:"🧳", text:"زبون معه حقيبتان من Ngor إلى Saly"},
-            message:{label:"رسالة الزبون", icon:"💬", text:"جهز رسالة تأكيد الرحلة للزبون مامادو غدا 8h"},
-            return:{label:"رحلة رجوع", icon:"↩️", text:"رجوع من داكار إلى سالي غدا 18h الزبون مؤكد"},
-            payIncome:{label:"PAY · دخل الرحلة", icon:"💳", text:"recette course DRIVER 20000 Wave"},
-            payExpense:{label:"PAY · بنزين", icon:"⛽", text:"مصروف بنزين 6700 F"}
-          }
-        }
-      };
-
-      let recognition = null;
-      let currentLang = "fr";
-      let currentTemplate = voiceText ? voiceText.value.trim() : "";
-      let currentRoute = "DRIVER";
-
-      function setStatus(text){
-        if(status) status.textContent = text;
-      }
-
-      function applyLanguage(lang){
-        currentLang = DRIVER_LANG[lang] ? lang : "fr";
-        const pack = DRIVER_LANG[currentLang];
-
-        if(leadEl) leadEl.innerHTML = pack.lead;
-        if(modelsTitleEl) modelsTitleEl.textContent = pack.modelsTitle;
-        if(modelsSubEl) modelsSubEl.textContent = pack.modelsSub;
-        if(noteEl) noteEl.textContent = pack.note;
-
-        langButtons.forEach(btn => {
-          btn.classList.toggle("isActive", btn.getAttribute("data-driver-lang") === currentLang);
-        });
-
-        cards.forEach(card => {
-          const key = card.getAttribute("data-driver-key");
-          const item = pack.keys[key];
-          if(!item) return;
-
-          card.setAttribute("data-driver-template", item.text);
-
-          const icon = card.querySelector(".driverModelIcon");
-          const label = card.querySelector("b");
-          const em = card.querySelector("em");
-
-          if(icon) icon.textContent = item.icon;
-          if(label) label.textContent = item.label;
-          if(em) em.textContent = "“" + item.text + "”";
-        });
-
-        const active = cards.find(c => c.classList.contains("isActive")) || cards[0];
-        if(active) chooseTemplate(active);
-
-        if(recognition){
-          try{ recognition.lang = pack.lang || "fr-FR"; }catch(e){}
-        }
-      }
-
-      function normalizeMoneyWords(text){
-        return String(text || "")
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g,"");
-      }
-
-      function isPayText(text){
-        const t = normalizeMoneyWords(text);
-
-        return (
-          /\bpay\b|\bdepense\b|\bessence\b|\bpeage\b|\brecette\b|\bplacer\b|\bencaiss|\bcarburant\b|\bsortie\b/.test(t) ||
-          /\bdugal\b|\bxaalis\b|\bfay\b|\bdugg\b|\bgen+n\b|\bj[eë]nd\b|\bbor\b|\bwar na fay\b/.test(t) ||
-          /دخل|مدخول|قبض|مصروف|بنزين|خرج|شراء|دين|مستحق|وايف|كاش/.test(String(text || ""))
-        );
-      }
-
-      function detectPayType(text){
-        const t = normalizeMoneyWords(text);
-        const raw = String(text || "");
-
-        if(
-          /\bdepense\b|\bessence\b|\bpeage\b|\bcarburant\b|\bsortie\b|\bfournisseur\b|\bloyer\b/.test(t) ||
-          /\bgen+n\b|\bj[eë]nd\b/.test(t) ||
-          /مصروف|بنزين|خرج|شراء/.test(raw)
-        ){
-          return "expense";
-        }
-
-        return "income";
-      }
-
-      function detectChannel(text){
-        const t = normalizeMoneyWords(text);
-        const raw = String(text || "");
-        if(t.includes("wave") || t.includes("ouev") || raw.includes("وايف")) return "Wave";
-        if(t.includes("orange")) return "Orange Money";
-        if(t.includes("carte")) return "Carte";
-        if(t.includes("cash") || t.includes("espece") || t.includes("liquide") || raw.includes("كاش")) return "Cash";
-        return "Wave";
-      }
-
-      function extractAmount(text){
-        const match = String(text || "").replace(/\s+/g," ").match(/(\d[\d\s.,]*)\s*(?:f|fcfa|xof)?/i);
-        if(!match) return null;
-        const n = Number(match[1].replace(/[^\d]/g,""));
-        return Number.isFinite(n) && n > 0 ? n : null;
-      }
-
-
-      function cleanWord(text){
-        return String(text || "")
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g,"")
-          .replace(/[’']/g," ")
-          .replace(/\s+/g," ")
-          .trim();
-      }
-
-      function trimField(value){
-        return String(value || "")
-          .replace(/\b(?:client|depart|départ|arrivee|arrivée|destination|a|à|heure|demain|aujourd'hui|aujourdhui|ce soir|matin|tarif|prix|wave|cash|orange|bagage|valise|personnes?)\b.*$/i,"")
-          .replace(/[.,;:|]+$/,"")
-          .trim();
-      }
-
-      function wordNumber(text){
-        const t = cleanWord(text);
-        const map = {
-          "un":1,"une":1,"deux":2,"trois":3,"quatre":4,"cinq":5,
-          "six":6,"sept":7,"huit":8,"neuf":9,"dix":10
-        };
-        const m = t.match(/\b(\d{1,2}|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\s+(?:personnes?|clients?|passagers?|bagages?|valises?)\b/);
-        if(!m) return null;
-        return /^\d+$/.test(m[1]) ? Number(m[1]) : map[m[1]] || null;
-      }
-
-      function extractClient(text){
-        const clean = String(text || "");
-        const m = clean.match(/\bclient\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s'.-]{1,48})/i)
-               || clean.match(/\b(?:pour|avec)\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s'.-]{1,48})/i);
-        return m ? trimField(m[1]) : "";
-      }
-
-      function extractRoute(text){
-        const clean = String(text || "").replace(/\s+/g," ").trim();
-        let from = "", to = "";
-        let m = clean.match(/\b(?:de|depuis|départ)\s+(.+?)\s+(?:à|a|vers|jusqu(?:'|’)à|arrivée|arrivee|destination)\s+(.+?)(?=\s+(?:client|demain|aujourd'hui|aujourdhui|ce soir|à\s*\d|a\s*\d|\d{1,2}h|prix|tarif|wave|cash|orange|bagage|valise|personnes?)\b|$)/i);
-        if(m){ from = trimField(m[1]); to = trimField(m[2]); }
-        if(!from){
-          m = clean.match(/\b(?:depart|départ)\s+(.+?)(?=\s+(?:arrivee|arrivée|destination|vers|à|a)\b|$)/i);
-          if(m) from = trimField(m[1]);
-        }
-        if(!to){
-          m = clean.match(/\b(?:arrivee|arrivée|destination|vers)\s+(.+?)(?=\s+(?:client|demain|aujourd'hui|aujourdhui|ce soir|à\s*\d|a\s*\d|\d{1,2}h|prix|tarif|wave|cash|orange|bagage|valise|personnes?)\b|$)/i);
-          if(m) to = trimField(m[1]);
-        }
-        return { from: from || "Départ à préciser", to: to || "Arrivée à préciser" };
-      }
-
-      function extractWhen(text){
-        const clean = String(text || "");
-        const natural = clean.match(/\b(aujourd'hui|aujourdhui|demain|après-demain|apres-demain|ce soir|ce matin|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\b/i);
-        const hour = clean.match(/\b(?:à|a|vers)?\s*(\d{1,2})(?:h|:)(\d{2})?\b/i);
-        const date = clean.match(/\b(\d{1,2}[\/.-]\d{1,2}(?:[\/.-]\d{2,4})?)\b/i);
-        const time = hour ? (String(hour[1]).padStart(2,"0") + ":" + String(hour[2] || "00").padStart(2,"0")) : "";
-        return {
-          date_label: date ? date[1] : (natural ? natural[1] : ""),
-          time_label: time,
-          display: [date ? date[1] : (natural ? natural[1] : ""), time].filter(Boolean).join(" ")
-        };
-      }
-
-      function buildTripDraft(text, amount){
-        const route = extractRoute(text);
-        const when = extractWhen(text);
-        const t = cleanWord(text);
-        const bags = (String(text||"").match(/\b(\d{1,2})\s*(?:bagages?|valises?)\b/i) || [])[1] || (/\b(valise|bagage)\b/.test(t) ? "à vérifier" : "");
-        const pax = wordNumber(text) || "";
-        const pay = detectChannel(text);
-        const id = "driver_action_" + Date.now();
-        return {
-          id,
-          local_id: id,
-          source: "ACTION_DRIVER",
-          status: "requested",
-          ride_status: "requested",
-          client_name: extractClient(text) || "Client à préciser",
-          pickup_label: route.from,
-          dropoff_label: route.to,
-          departure: route.from,
-          destination: route.to,
-          pickup_at: when.display || "",
-          ride_at: when.display || "",
-          pickup_zone: route.from,
-          passengers: pax,
-          bags,
-          amount_fcfa: amount || 0,
-          price_fcfa: amount || 0,
-          payment_mode: pay,
-          note: String(text || "").trim(),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          requiresHumanValidation: true,
-          safety: {
-            noAutoConfirmation: true,
-            noAutoPayment: true,
-            driverValidationRequired: true
-          }
-        };
-      }
-
-      function pushLocalTrip(payload){
-        if(!payload) return;
-        const trip = payload.tripDraft || payload.driver_draft || payload;
-        ["DIGIY_DRIVER_ACTION_TRIPS","DIGIY_DRIVER_TRIPS_LOCAL","digiy_driver_trips"].forEach(function(key){
-          try{
-            const list = JSON.parse(localStorage.getItem(key) || "[]");
-            const arr = Array.isArray(list) ? list : [];
-            arr.unshift(trip);
-            localStorage.setItem(key, JSON.stringify(arr.slice(0,80)));
-          }catch(e){}
-        });
-        try{ localStorage.setItem("DIGIY_DRIVER_PENDING_TRIP", JSON.stringify(trip)); }catch(e){}
-        try{ localStorage.setItem("DIGIY_DRIVER_LATEST_ACTION", JSON.stringify(payload)); }catch(e){}
-
-        /* DIGIY DRIVER — mémoire officielle PRO
-           ACTION garde aussi la fiche course dans le registre DRIVER PRO.
-           Ainsi trajets.html, profil, tarifs et futurs ponts cloud lisent la même vérité.
-        */
-        try{
-          if(window.DIGIY_DRIVER_PRO_MEMORY && typeof window.DIGIY_DRIVER_PRO_MEMORY.saveScheduledTrip === "function"){
-            window.DIGIY_DRIVER_PRO_MEMORY.saveScheduledTrip(trip);
-          }else if(window.DIGIY_DRIVER_MEMORY && typeof window.DIGIY_DRIVER_MEMORY.saveScheduledTrip === "function"){
-            window.DIGIY_DRIVER_MEMORY.saveScheduledTrip(trip);
-          }else{
-            const proKey = "DIGIY_DRIVER_PRO_SCHEDULED_TRIPS";
-            const legacyKey = "DIGIY_DRIVER_SCHEDULED_TRIPS";
-            [proKey, legacyKey].forEach(function(key){
-              try{
-                const rows = JSON.parse(localStorage.getItem(key) || "[]");
-                const arr = Array.isArray(rows) ? rows : [];
-                arr.unshift(trip);
-                const seen = new Set();
-                const clean = arr.filter(function(row){
-                  const id = String(row && (row.id || row.local_id || row.created_at || row.note) || "");
-                  if(!id || seen.has(id)) return false;
-                  seen.add(id);
-                  return true;
-                });
-                localStorage.setItem(key, JSON.stringify(clean.slice(0,150)));
-              }catch(e){}
-            });
-          }
-        }catch(e){}
-      }
-
-      function applyModeFromUrl(){
-        try{
-          const mode = new URL(location.href).searchParams.get("mode") || "";
-          const templates = {
-            course: "course demain 8h de Saly à Dakar client Mamadou",
-            trajet: "course demain 8h de Saly à Dakar client Mamadou",
-            aeroport: "client Awa départ hôtel Terrou Bi arrivée aéroport à 6h",
-            retour: "retour de Dakar à Saly demain 18h client confirmé",
-            tarif: "préparer tarif trajet Saly Dakar",
-            message: "prépare message confirmation course pour client Mamadou demain 8h",
-            pay: "recette course DRIVER 20000 Wave",
-            paiement: "recette course DRIVER 20000 Wave",
-            depense: "dépense essence 6700 F"
-          };
-          const text = templates[mode];
-          if(text && voiceText){
-            currentTemplate = text;
-            currentRoute = isPayText(text) ? "PAY" : "DRIVER";
-            voiceText.value = text;
-            if(selected) selected.textContent = "“" + text + "”";
-            showPrepared(text, currentRoute);
-            setStatus("Mode " + mode + " chargé");
-          }
-        }catch(e){}
-      }
-
-      function buildPayload(route, text){
-        const amount = extractAmount(text);
-        const cleanText = String(text || "").trim();
-        const tripDraft = buildTripDraft(cleanText, amount);
-        const payType = detectPayType(cleanText);
-        const channel = detectChannel(cleanText);
-        const category = payType === "expense" ? (
-          normalizeMoneyWords(cleanText).includes("essence") || normalizeMoneyWords(cleanText).includes("carburant")
-            ? "Essence DRIVER"
-            : normalizeMoneyWords(cleanText).includes("peage")
-              ? "Péage DRIVER"
-              : "Dépense chauffeur DRIVER"
-        ) : "Recette course DRIVER";
-        return {
-          source:"DRIVER",
-          module:"DRIVER",
-          target:route === "PAY" ? "PAY" : "DRIVER_NOTE",
-          route,
-          status:"draft_validated_by_driver",
-          requiresHumanValidation:true,
-          text:cleanText,
-          note:cleanText,
-          amount,
-          currency:amount ? "XOF" : "",
-          channel,
-          who:"Client DRIVER",
-          payType,
-          type:payType,
-          typeLabel:payType === "expense" ? "Dépense" : "Recette",
-          category,
-          createdAt:new Date().toISOString(),
-          driver_draft: tripDraft,
-          tripDraft: tripDraft,
-          trip_id: tripDraft.id,
-          safety:{
-            noAutoPayment:true,
-            noAutoConfirmation:true,
-            noAutoSend:true,
-            humanValidationRequired:true
-          }
-        };
-      }
-
-      function updatePayButton(){
-        const text = (voiceText && voiceText.value.trim()) || currentTemplate || "";
-        const payReady = currentRoute === "PAY" || isPayText(text);
-        if(sendPayBtn){
-          sendPayBtn.disabled = !payReady;
-          sendPayBtn.title = payReady ? "Valider ce brouillon vers PAY" : "PAY seulement pour recette, dépense, essence, péage ou encaissement";
-        }
-      }
-
-      function showPrepared(text, route){
-        if(!prepared) return;
-        const target = route === "PAY" || isPayText(text) ? "PAY" : "DRIVER";
-        if(target === "PAY"){
-          const amount = extractAmount(text);
-          const type = detectPayType(text) === "expense" ? "dépense" : "recette";
-          prepared.textContent = "Pont PAY prêt : " + text + ". Type : " + type + (amount ? " · montant : " + amount.toLocaleString("fr-FR") + " FCFA" : "") + ". Le chauffeur valide avant envoi.";
-        }else{
-          prepared.textContent = "Note DRIVER prête : " + text + ". Le chauffeur peut la garder en note puis ajuster/valider la course.";
-        }
-        prepared.classList.add("show");
-        updatePayButton();
-      }
-
-      function chooseTemplate(card){
-        currentTemplate = card.getAttribute("data-driver-template") || "";
-        currentRoute = card.getAttribute("data-driver-route") || (isPayText(currentTemplate) ? "PAY" : "DRIVER");
-
-        if(selected) selected.textContent = "“" + currentTemplate + "”";
-        if(voiceText) voiceText.value = currentTemplate;
-
-        cards.forEach(btn => btn.classList.remove("isActive"));
-        card.classList.add("isActive");
-
-        showPrepared(currentTemplate, currentRoute);
-        setStatus(currentRoute === "PAY" ? "Pont PAY prêt" : "Exemple chargé");
-      }
-
-      cards.forEach(card => {
-        card.addEventListener("click", () => chooseTemplate(card));
-      });
-
-      if(prepareBtn){
-        prepareBtn.addEventListener("click", () => {
-          const text = (voiceText && voiceText.value.trim()) || currentTemplate || "";
-          if(!text){
-            setStatus("Écris ou clique un exemple");
-            return;
-          }
-          currentTemplate = text;
-          currentRoute = isPayText(text) ? "PAY" : "DRIVER";
-          if(selected) selected.textContent = "“" + currentTemplate + "”";
-          showPrepared(currentTemplate, currentRoute);
-          setStatus(currentRoute === "PAY" ? "Pont PAY prêt" : "Brouillon prêt");
-        });
-      }
-
-      if(saveNoteBtn){
-        saveNoteBtn.addEventListener("click", () => {
-          const text = (voiceText && voiceText.value.trim()) || currentTemplate || "";
-          if(!text){
-            setStatus("Rien à valider");
-            return;
-          }
-
-          const payload = buildPayload("DRIVER", text);
-          try{
-            const key = "DIGIY_DRIVER_ACTION_NOTES";
-            const list = JSON.parse(localStorage.getItem(key) || "[]");
-            list.unshift(payload);
-            localStorage.setItem(key, JSON.stringify(list.slice(0, 80)));
-            localStorage.setItem("DIGIY_DRIVER_PENDING_NOTE", JSON.stringify(payload));
-            pushLocalTrip(payload);
-          }catch(e){}
-
-          showPrepared(text, "DRIVER");
-          setStatus("Note DRIVER validée");
-        });
-      }
-
-      if(sendPayBtn){
-        sendPayBtn.addEventListener("click", () => {
-          const text = (voiceText && voiceText.value.trim()) || currentTemplate || "";
-          if(!text){
-            setStatus("Rien à envoyer vers PAY");
-            return;
-          }
-
-          if(!(currentRoute === "PAY" || isPayText(text))){
-            setStatus("Ce brouillon n’est pas une recette/dépense");
-            updatePayButton();
-            return;
-          }
-
-          const payload = buildPayload("PAY", text);
-          try{
-            localStorage.setItem("DIGIY_PAY_PENDING_MOVEMENT", JSON.stringify(payload));
-            localStorage.setItem("DIGIY_DRIVER_PAY_BRIDGE", JSON.stringify(payload));
-            localStorage.setItem("DIGIY_DRIVER_LATEST_ACTION", JSON.stringify(payload));
-          }catch(e){}
-
-          showPrepared(text, "PAY");
-          setStatus("Pont PAY validé");
-
-          setTimeout(() => {
-            try{
-              location.href = "./pay-transition.html?from=DRIVER#from=driver-action";
-            }catch(e){}
-          }, 420);
-        });
-      }
-
-      if(copyBtn){
-        copyBtn.addEventListener("click", async () => {
-          const text = (voiceText && voiceText.value.trim()) || currentTemplate || "";
-          const oldText = copyBtn.textContent;
-          try{
-            await navigator.clipboard.writeText(text);
-            copyBtn.textContent = "✅ Copié";
-          }catch(e){
-            window.prompt("Copie l’exemple :", text);
-            copyBtn.textContent = "✅ Prêt";
-          }
-          setTimeout(() => { copyBtn.textContent = oldText; }, 1500);
-        });
-      }
-
-      if(clearBtn){
-        clearBtn.addEventListener("click", () => {
-          currentTemplate = "";
-          currentRoute = "DRIVER";
-
-          if(voiceText) voiceText.value = "";
-          if(selected) selected.textContent = "—";
-          if(prepared){
-            prepared.classList.remove("show");
-            prepared.textContent = "Fiche course DRIVER prête. Le chauffeur vérifie, puis enregistre la course ou prépare PAY si c’est de l’argent réel.";
-          }
-
-          cards.forEach(btn => btn.classList.remove("isActive"));
-          updatePayButton();
-          setStatus("Effacé. Prêt pour une nouvelle action.");
-        });
-      }
-
-      langButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-          applyLanguage(btn.getAttribute("data-driver-lang") || "fr");
-          setStatus("Langue changée");
-        });
-      });
-
-      function setupSpeech(){
-        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if(!SR){
-          if(listenBtn) listenBtn.textContent = "🎙️ Micro non dispo";
-          return;
-        }
-
-        recognition = new SR();
-        recognition.lang = (DRIVER_LANG[currentLang] && DRIVER_LANG[currentLang].lang) || "fr-FR";
-        recognition.continuous = false;
-        recognition.interimResults = true;
-        recognition.maxAlternatives = 1;
-
-        recognition.onstart = () => setStatus("J’écoute...");
-        recognition.onerror = () => setStatus("Micro fragile");
-        recognition.onend = () => setStatus("Prêt");
-
-        recognition.onresult = (event) => {
-          let text = "";
-          for(let i = event.resultIndex; i < event.results.length; i++){
-            text += event.results[i][0].transcript;
-          }
-          text = text.trim();
-          if(text && voiceText){
-            voiceText.value = text;
-            currentTemplate = text;
-            if(selected) selected.textContent = "“" + text + "”";
-          }
-        };
-      }
-
-      setupSpeech();
-
-      if(listenBtn){
-        listenBtn.addEventListener("click", () => {
-          if(!recognition){
-            setStatus("Micro non disponible");
-            return;
-          }
-          try{
-            recognition.start();
-          }catch(e){
-            setStatus("Micro déjà lancé");
-          }
-        });
-      }
-
-      if(voiceText){
-        voiceText.addEventListener("input", () => {
-          currentTemplate = voiceText.value.trim();
-          currentRoute = isPayText(currentTemplate) ? "PAY" : "DRIVER";
-          updatePayButton();
-        });
-      }
-
-      applyLanguage("fr");
-      updatePayButton();
-      applyModeFromUrl();
-    })();
-  </script>
-</body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* DIGIY DRIVER — mémoire PRO officielle
+   Rôle : vrai fichier JS de mémoire locale pour ACTION DRIVER / trajets.
+   Doctrine : DRIVER prépare la course, le chauffeur vérifie et valide. Rien n'est confirmé automatiquement.
+*/
+(function(){
+  "use strict";
+
+  var VERSION = "driver-pro-memory-official-20260606";
+  var NS = "DIGIY_DRIVER_PRO";
+  var KEYS = {
+    session: NS + "_SESSION",
+    scheduled: NS + "_SCHEDULED_TRIPS",
+    notes: NS + "_ACTION_NOTES",
+    payDrafts: NS + "_PAY_DRAFTS",
+    latest: NS + "_LATEST_ACTION"
+  };
+  var MIRROR_TRIP_KEYS = [
+    "DIGIY_DRIVER_PRO_SCHEDULED_TRIPS",
+    "DIGIY_DRIVER_SCHEDULED_TRIPS",
+    "DIGIY_DRIVER_ACTION_TRIPS",
+    "DIGIY_DRIVER_TRIPS_LOCAL",
+    "digiy_driver_trips"
+  ];
+
+  function now(){ return new Date().toISOString(); }
+  function id(prefix){ return String(prefix || "driver") + "_" + Date.now() + "_" + Math.random().toString(16).slice(2,8); }
+  function read(key, fallback){ try{ var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch(_){ return fallback; } }
+  function write(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); return true; }catch(_){ return false; } }
+  function list(key){ var rows = read(key, []); return Array.isArray(rows) ? rows : []; }
+  function text(v){ return String(v || "").trim(); }
+  function amountFrom(v){ var m = String(v || "").replace(/\s+/g," ").match(/(\d[\d\s.,]*)\s*(?:f|fcfa|xof)?/i); if(!m) return null; var n = Number(String(m[1]).replace(/[^\d]/g,"")); return Number.isFinite(n) && n > 0 ? n : null; }
+  function norm(v){ return String(v || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
+  function channelFrom(v){ var t = norm(v); if(t.indexOf("wave") >= 0 || t.indexOf("ouev") >= 0) return "Wave"; if(t.indexOf("orange") >= 0) return "Orange Money"; if(t.indexOf("carte") >= 0) return "Carte"; if(t.indexOf("cash") >= 0 || t.indexOf("espece") >= 0 || t.indexOf("liquide") >= 0) return "Cash"; return ""; }
+  function isExpense(v){ var t = norm(v); return /depense|essence|peage|carburant|sortie|fournisseur|achat/.test(t); }
+
+  function tripId(row){ return String(row && (row.id || row.local_id || row.trip_id || row.created_at || row.createdAt || row.note || row.text) || ""); }
+  function dedupe(rows, limit){
+    var seen = {};
+    return (Array.isArray(rows) ? rows : []).filter(function(row){
+      var k = tripId(row) || id("tmp");
+      if(seen[k]) return false;
+      seen[k] = true;
+      return true;
+    }).slice(0, Number(limit || 150));
+  }
+  function normalizeTrip(input){
+    var src = input && typeof input === "object" ? input : {note:text(input)};
+    var note = text(src.note || src.text || src.raw_text || src.clean_text || src.message || "");
+    var created = src.created_at || src.createdAt || now();
+    var amount = Number(src.amount_fcfa || src.price_fcfa || src.amount || amountFrom(note) || 0) || 0;
+    return Object.assign({}, src, {
+      id: src.id || src.local_id || src.trip_id || id("driver_trip"),
+      local_id: src.local_id || src.id || src.trip_id || id("driver_trip"),
+      module: "DRIVER",
+      source: src.source || "DIGIY_DRIVER_PRO_MEMORY",
+      status: src.status || src.ride_status || "requested",
+      ride_status: src.ride_status || src.status || "requested",
+      client_name: src.client_name || src.client || "Client à préciser",
+      pickup_label: src.pickup_label || src.departure || src.pickup_zone || "Départ à préciser",
+      dropoff_label: src.dropoff_label || src.destination || "Arrivée à préciser",
+      departure: src.departure || src.pickup_label || src.pickup_zone || "Départ à préciser",
+      destination: src.destination || src.dropoff_label || "Arrivée à préciser",
+      pickup_at: src.pickup_at || src.ride_at || "",
+      ride_at: src.ride_at || src.pickup_at || "",
+      amount_fcfa: amount,
+      price_fcfa: amount,
+      payment_mode: src.payment_mode || src.channel || channelFrom(note),
+      note: note,
+      text: src.text || note,
+      requiresHumanValidation: src.requiresHumanValidation !== false,
+      created_at: created,
+      createdAt: src.createdAt || created,
+      updated_at: now(),
+      safety: Object.assign({
+        noAutoConfirmation: true,
+        noAutoPayment: true,
+        driverValidationRequired: true,
+        humanValidationRequired: true
+      }, src.safety || {})
+    });
+  }
+  function saveToKey(key, row, limit){
+    var rows = list(key);
+    rows.unshift(row);
+    write(key, dedupe(rows, limit || 150));
+    return row;
+  }
+  function mirrorTrip(row){
+    MIRROR_TRIP_KEYS.forEach(function(key){ saveToKey(key, row, 150); });
+    try{ localStorage.setItem("DIGIY_DRIVER_PENDING_TRIP", JSON.stringify(row)); }catch(_){ }
+    try{ localStorage.setItem("DIGIY_DRIVER_LATEST_ACTION", JSON.stringify(row)); }catch(_){ }
+  }
+
+  function saveScheduledTrip(trip){
+    var row = normalizeTrip(trip);
+    saveToKey(KEYS.scheduled, row, 180);
+    mirrorTrip(row);
+    try{ window.dispatchEvent(new CustomEvent("digiy:driver:trip-saved", {detail:row})); }catch(_){ }
+    return row;
+  }
+  function saveActionNote(input){
+    var row = normalizeTrip(input);
+    row.kind = "Note DRIVER";
+    saveToKey(KEYS.notes, row, 180);
+    try{ localStorage.setItem("DIGIY_DRIVER_PENDING_NOTE", JSON.stringify(row)); }catch(_){ }
+    try{ window.dispatchEvent(new CustomEvent("digiy:driver:note-saved", {detail:row})); }catch(_){ }
+    return row;
+  }
+  function savePayDraft(input){
+    var src = input && typeof input === "object" ? input : {text:text(input)};
+    var raw = text(src.text || src.note || src.raw_text || src.clean_text || "");
+    var amount = Number(src.amount || src.amount_fcfa || amountFrom(raw) || 0) || 0;
+    var row = Object.assign({}, src, {
+      id: src.id || id("driver_pay"),
+      module: "DRIVER",
+      source: src.source || "DIGIY_DRIVER_PRO_MEMORY",
+      target: "PAY",
+      text: raw,
+      note: raw,
+      amount: amount || null,
+      currency: amount ? "XOF" : "",
+      channel: src.channel || channelFrom(raw),
+      payType: src.payType || (isExpense(raw) ? "expense" : "income"),
+      category: src.category || (isExpense(raw) ? "Dépense chauffeur DRIVER" : "Recette course DRIVER"),
+      status: src.status || "draft_validated_by_driver",
+      requiresHumanValidation: true,
+      createdAt: src.createdAt || now(),
+      updated_at: now(),
+      safety: Object.assign({noAutoPayment:true,noAutoConfirmation:true,humanValidationRequired:true}, src.safety || {})
+    });
+    saveToKey(KEYS.payDrafts, row, 120);
+    try{ localStorage.setItem("DIGIY_PAY_PENDING_MOVEMENT", JSON.stringify(row)); }catch(_){ }
+    try{ localStorage.setItem("DIGIY_DRIVER_PAY_BRIDGE", JSON.stringify(row)); }catch(_){ }
+    try{ localStorage.setItem("DIGIY_DRIVER_LATEST_ACTION", JSON.stringify(row)); }catch(_){ }
+    try{ window.dispatchEvent(new CustomEvent("digiy:driver:pay-draft-saved", {detail:row})); }catch(_){ }
+    return row;
+  }
+  function rememberSession(session){
+    var row = Object.assign({}, session || {}, {module:"DRIVER", source:"DIGIY_DRIVER_PRO_MEMORY", updated_at:now()});
+    write(KEYS.session, row);
+    return row;
+  }
+  function clear(kind){
+    var map = {scheduled:KEYS.scheduled, trips:KEYS.scheduled, notes:KEYS.notes, pay:KEYS.payDrafts, payDrafts:KEYS.payDrafts};
+    if(!map[kind]) return false;
+    write(map[kind], []);
+    return true;
+  }
+
+  var API = {
+    version: VERSION,
+    keys: Object.assign({}, KEYS),
+    rememberSession: rememberSession,
+    session: function(){ return read(KEYS.session, {}); },
+    saveScheduledTrip: saveScheduledTrip,
+    saveTrip: saveScheduledTrip,
+    scheduledTrips: function(){ return list(KEYS.scheduled); },
+    trips: function(){ return list(KEYS.scheduled); },
+    saveActionNote: saveActionNote,
+    saveNote: saveActionNote,
+    notes: function(){ return list(KEYS.notes); },
+    savePayDraft: savePayDraft,
+    payDrafts: function(){ return list(KEYS.payDrafts); },
+    latest: function(){ return read("DIGIY_DRIVER_LATEST_ACTION", null); },
+    clear: clear
+  };
+
+  window.DIGIY_DRIVER_PRO_MEMORY = API;
+  window.DIGIY_DRIVER_MEMORY = window.DIGIY_DRIVER_MEMORY || API;
+  try{ window.dispatchEvent(new CustomEvent("digiy:driver-pro-memory-ready", {detail:{version:VERSION}})); }catch(_){ }
+})();
