@@ -812,6 +812,14 @@
           <div class="doorInfo"><b>Ma fiche chauffeur</b><span>Carte pro, contact, QR client.</span></div>
         </a>
 
+        <a class="door pave gold" id="doorLexique" href="./lexique-driver.html">
+          <div class="paveTop">
+            <div class="doorIcon">🇸🇳</div>
+            <div class="doorTag">Wolof</div>
+          </div>
+          <div class="doorInfo"><b>Lexique Wolof</b><span>Phrases utiles chauffeur · client · paiement.</span></div>
+        </a>
+
         <a class="door pave" id="doorSession" href="./session.html">
           <div class="paveTop">
             <div class="doorIcon">🔒</div>
@@ -926,6 +934,11 @@
         <span class="ovLbl">Oreille DRIVER<span class="ovSublbl">Dicter · formuler · ranger une course</span></span>
         <span class="ovArr">→</span>
       </button>
+      <a class="ovLink" id="ovLexique" href="./lexique-driver.html">
+        <span class="ovIco">🇸🇳</span>
+        <span class="ovLbl">Lexique Wolof<span class="ovSublbl">Phrases chauffeur · client · paiement</span></span>
+        <span class="ovArr">→</span>
+      </a>
       <button class="ovLink" id="ovLecteur">
         <span class="ovIco">🎧</span>
         <span class="ovLbl">Lecteur DIGIY<span class="ovSublbl">Lecture vocale de l'état terrain</span></span>
@@ -1030,7 +1043,8 @@
         alertes:   "./alertes.html",
         session:   "./session.html",
         hub:       "./hub.html",
-        fiche:     "./ma-fiche.html"
+        fiche:     "./ma-fiche.html",
+        lexique:   "./lexique-driver.html"
       };
 
       const $ = id => document.getElementById(id);
@@ -1139,6 +1153,7 @@
           doorTarifs:    [ROUTES.rates,     ""],
           doorQr:        [ROUTES.qr,        ""],
           doorFiche:     [ROUTES.fiche,     ""],
+          doorLexique:   [ROUTES.lexique,   ""],
           doorPin:       [ROUTES.pin,       ""],
           doorSession:   [ROUTES.session,   ""],
           doorAlertes:   [ROUTES.alertes,   ""],
@@ -1146,6 +1161,7 @@
           ovTrajets:     [ROUTES.trips,     ""],
           ovNote:        ["./action.html?mode=course", ""],
           ovOreille:     [ROUTES.oreille,   ""],
+          ovLexique:     [ROUTES.lexique,   ""],
           ovHubLink:     [ROUTES.hub,       ""],
           ovSession:     [ROUTES.session,   ""],
           ovAlertes:     [ROUTES.alertes,   ""],
@@ -1356,6 +1372,349 @@
 <script src="./assets/js/action-digiy-pro-orient.js?v=action-digiy-pro-orient-20260606" defer></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
