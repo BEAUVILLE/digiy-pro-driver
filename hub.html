@@ -4,12 +4,12 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 
-  <title>Je conduis — Navigation</title>
+  <title>Je conduis — Menu direct</title>
 
   <meta name="theme-color" content="#1e7a46"/>
-  <meta name="description" content="DIGIY DRIVER — Chemins chauffeur en pavés compacts pour téléphone."/>
+  <meta name="description" content="DIGIY DRIVER — menu direct chauffeur : parler, noter, trajets, piloter."/>
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
-  <meta name="digiy-build" content="driver-hub-paves-mobile-grand-gras-20260519"/>
+  <meta name="digiy-build" content="driver-index-menu-compact-plus-20260612"/>
 
   <link rel="preload" as="image" href="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -106,6 +106,125 @@
       font-weight:1000;line-height:.94;letter-spacing:-.05em;
     }
     .hubSub{color:var(--muted);font-size:15px;font-weight:900;line-height:1.42}
+
+
+
+    /* ══ DÉPART RAPIDE — DRIVER ══ */
+    .quickStart{
+      display:grid;
+      gap:10px;
+      padding:12px;
+      border-radius:22px;
+      border:1px solid rgba(250,204,21,.32);
+      background:
+        radial-gradient(560px 210px at 100% 0%,rgba(250,204,21,.16),transparent 70%),
+        linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.065));
+      box-shadow:var(--shadow);
+    }
+    .quickHead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .quickKicker{
+      color:#fff0a8;
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      margin-bottom:4px;
+    }
+    .quickTitle{
+      margin:0;
+      color:#fff;
+      font-size:clamp(25px,6.6vw,39px);
+      line-height:.96;
+      letter-spacing:-.045em;
+      font-weight:1000;
+    }
+    .quickHint{
+      color:rgba(240,255,245,.72);
+      font-size:12px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+    .quickGrid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:9px;
+    }
+    .quickBtn{
+      min-height:94px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.15);
+      background:rgba(255,255,255,.09);
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:8px;
+      padding:13px;
+      box-shadow:0 14px 30px rgba(0,0,0,.16);
+      transition:transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .quickBtn:hover{
+      transform:translateY(-1px);
+      background:rgba(255,255,255,.14);
+      border-color:rgba(255,255,255,.25);
+    }
+    .quickBtn:active{transform:none}
+    .quickBtn.main{
+      background:linear-gradient(135deg,rgba(34,197,94,.30),rgba(250,204,21,.22));
+      border-color:rgba(34,197,94,.40);
+    }
+    .quickIcon{
+      width:43px;
+      height:43px;
+      border-radius:15px;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,.11);
+      border:1px solid rgba(255,255,255,.15);
+      font-size:23px;
+    }
+    .quickBtn b{
+      display:block;
+      color:#fff;
+      font-size:19px;
+      line-height:1.02;
+      letter-spacing:-.02em;
+      font-weight:1000;
+    }
+    .quickBtn > span:not(.quickIcon){
+      display:block;
+      color:rgba(240,255,245,.78);
+      font-size:13px;
+      line-height:1.22;
+      font-weight:1000;
+    }
+
+    .quickBtn .quickIcon{
+      color:#fff;
+      font-size:24px;
+      line-height:1;
+    }
+    @media(max-width:620px){
+      .quickGrid{grid-template-columns:1fr}
+      .quickBtn{
+        min-height:76px;
+        display:grid;
+        grid-template-columns:48px 1fr;
+        align-items:center;
+        justify-content:initial;
+      }
+      .quickBtn b{font-size:21px}
+      .quickBtn > span:not(.quickIcon){font-size:14px}
+      .quickIcon{grid-row:span 2}
+      .quickHint{white-space:normal}
+    }
+
 
     /* ══ GROUPS ══ */
     .group{display:grid;gap:8px}
@@ -670,6 +789,70 @@
       .digiyReaderActions button{width:100%}
     }
 
+
+    /* ══ DRIVER INDEX COMPACT — UNE PAGE, PLUS DE CATALOGUE ══ */
+    :root{--barH:70px}
+    body{
+      padding:
+        calc(var(--hdrH) + 10px)
+        10px
+        calc(var(--barH) + env(safe-area-inset-bottom,0px) + 10px);
+    }
+    .wrap.compactHub{gap:9px}
+    .hubHead.compactHead{gap:3px}
+    .compactHead .eyebrow{font-size:11px;margin:0;color:#fff0a8}
+    .compactHead h1{font-size:clamp(27px,7vw,40px);margin:0;line-height:.92}
+    .compactHead .hubSub{font-size:13px;line-height:1.25;color:rgba(240,255,245,.76)}
+    .quickStart{padding:10px;border-radius:18px;gap:8px}
+    .quickHead{align-items:center}
+    .quickKicker{font-size:11px;margin:0}
+    .quickTitle{font-size:clamp(20px,5.2vw,30px)}
+    .quickHint{font-size:10px;color:rgba(240,255,245,.62)}
+    .quickGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+    .quickBtn{
+      min-height:84px;
+      padding:9px 7px;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      border-radius:17px;
+      gap:5px;
+    }
+    .quickIcon{width:34px;height:34px;border-radius:12px;font-size:19px}
+    .quickBtn b{font-size:14px;line-height:1.02}
+    .quickBtn > span:not(.quickIcon){font-size:10px;line-height:1.08;color:rgba(240,255,245,.70)}
+    .pathPanel{padding:9px;border-radius:18px}
+    .panelHead{padding:0 1px 7px}
+    .panelTitle{font-size:11px}
+    .panelHint{font-size:10px}
+    .pathGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .pathGrid .door.pave{
+      min-height:88px!important;
+      padding:10px!important;
+      border-radius:16px;
+      gap:6px;
+      justify-content:space-between;
+    }
+    .pathGrid .doorIcon{width:34px!important;height:34px!important;border-radius:11px;font-size:18px!important}
+    .pathGrid .doorInfo b{font-size:15px!important;line-height:1.02!important;margin:0 0 2px}
+    .pathGrid .doorInfo span{font-size:10.5px!important;line-height:1.12!important;-webkit-line-clamp:1!important;color:rgba(240,255,245,.75)!important}
+    .pathGrid .doorTag{min-height:22px!important;padding:3px 6px!important;font-size:8px!important}
+    .bottomBar{height:var(--barH);padding:0 26px calc(6px + env(safe-area-inset-bottom,0px))}
+    .wbtn svg{width:46px;height:46px}.wlbl{font-size:9px}
+    .digiyReader{display:none!important}
+    @media(min-width:720px){.pathGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:420px){
+      body{padding-left:8px;padding-right:8px}
+      .compactHead .hubSub{display:none}
+      .quickStart{padding:8px}
+      .quickHead{display:none}
+      .quickBtn{min-height:80px}
+      .quickBtn > span:not(.quickIcon){display:none}
+      .quickBtn b{font-size:13px}
+      .pathGrid .door.pave{min-height:82px!important;padding:9px!important}
+      .pathGrid .doorInfo b{font-size:14px!important}
+    }
+
   </style>
 </head>
 
@@ -678,7 +861,7 @@
   <!-- ══ TOP HEADER ══ -->
   <header class="topHeader">
     <a class="hdrBack" id="hdrBack" href="./dashboard-pro.html">← Mon activité</a>
-    <div class="hdrTitle">Navigation</div>
+    <div class="hdrTitle">Menu direct</div>
     <div class="hdrPill warn" id="sessionPill">session…</div>
   </header>
 
@@ -687,90 +870,47 @@
 
     <div class="hubHead compactHead">
       <div class="eyebrow">JE CONDUIS</div>
-      <h1>Choisis ton chemin.</h1>
-      <div class="hubSub" id="hubSub">Pavés courts : le chauffeur voit, touche, agit. Moins de scroll, plus de terrain.</div>
+      <h1>Je conduis.</h1>
+      <div class="hubSub" id="hubSub">Parle, note ou ouvre tes trajets. Le reste est rangé dans Plus.</div>
     </div>
 
 
-    <section class="digiyReader" aria-label="Lecteur DIGIY DRIVER">
-      <div class="digiyReaderTop">
+    <section class="quickStart" aria-label="Départ rapide DRIVER">
+      <div class="quickHead">
         <div>
-          <div class="digiyReaderKicker">🎧 Lecteur DIGIY · DRIVER</div>
-          <h2>Comprendre le module.</h2>
+          <div class="quickKicker">Départ rapide</div>
+          <h2 class="quickTitle">Que veux-tu faire ?</h2>
         </div>
-        <div class="digiyReaderActions">
-          <button class="main" id="digiyDriverAudioPlay" type="button">▶ Écouter</button>
-          <button class="stop" id="digiyDriverAudioStop" type="button">⏹ Stop</button>
-        </div>
+        <div class="quickHint">actions directes</div>
       </div>
-      <div class="digiyReaderText" id="digiyDriverAudioText">
-        DRIVER aide le chauffeur à gérer ses trajets, notes, alertes, tarifs, QR, fiche chauffeur,
-        Oreille DRIVER et traces vers PAY. Le chauffeur parle ou clique, DIGIY prépare, le terrain valide.
+
+      <div class="quickGrid">
+        <a class="quickBtn main" id="quickCourse" href="./oreille.html?mode=course">
+          <span class="quickIcon">🎙️</span>
+          <b>Parler course</b>
+          <span>Client · départ · arrivée.</span>
+        </a>
+        <a class="quickBtn" id="quickNote" href="./oreille.html?mode=note">
+          <span class="quickIcon">✍️</span>
+          <b>Note rapide</b>
+          <span>Carburant · rappel · trace.</span>
+        </a>
+        <a class="quickBtn" id="quickTrips" href="./trajets.html">
+          <span class="quickIcon">📋</span>
+          <b>Trajets</b>
+          <span>Voir · accepter · démarrer.</span>
+        </a>
       </div>
-      <div class="digiyReaderStatus" id="digiyDriverAudioStatus">Prêt à lire · indications courtes</div>
     </section>
 
 
     <section class="pathPanel" aria-label="Chemins DRIVER en pavés">
       <div class="panelHead">
-        <div class="panelTitle">Pavés chauffeur</div>
-        <div class="panelHint">2 par 2 sur téléphone</div>
+        <div class="panelTitle">Pilotage direct</div>
+        <div class="panelHint">6 portes utiles</div>
       </div>
 
       <div class="pathGrid">
-        <a class="door pave gold blasonDoor" href="https://digiylyfe.com/" aria-label="DIGIYLYFE Métiers pro">
-          <div class="paveTop">
-            <img
-              class="blasonLogoImg"
-              src="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png"
-              alt="DIGIYLYFE — Métiers pro"
-              loading="lazy"
-              decoding="async"
-            />
-            <div class="doorTag">DIGIY</div>
-          </div>
-          <div class="doorInfo"><b>Métiers pro</b><span>Le blason commun des portes métier.</span></div>
-        </a>
-
-        <a class="door pave hot driverMainClair" id="doorTrajets" href="./trajets.html">
-          <div class="paveTop">
-            <div class="doorIcon">📋</div>
-            <div class="doorTag">Action</div>
-          </div>
-          <div class="doorInfo"><b>Mes trajets</b><span>Accepter · démarrer · terminer.</span></div>
-        </a>
-
-        <a class="door pave hot" id="doorAction" href="./action.html?mode=course">
-          <div class="paveTop">
-            <div class="doorIcon">🎙️</div>
-            <div class="doorTag">GO</div>
-          </div>
-          <div class="doorInfo"><b>DIGIY GO DRIVER</b><span>Client parle. Course préparée.</span></div>
-        </a>
-
-        <a class="door pave gold" id="doorOreille" href="./oreille.html">
-          <div class="paveTop">
-            <div class="doorIcon">🎙️</div>
-            <div class="doorTag">Oreille</div>
-          </div>
-          <div class="doorInfo"><b>Oreille DRIVER</b><span>Parler, formuler, copier.</span></div>
-        </a>
-
-        <a class="door pave" id="doorDashboard" href="./dashboard-pro.html">
-          <div class="paveTop">
-            <div class="doorIcon">🏠</div>
-            <div class="doorTag">État</div>
-          </div>
-          <div class="doorInfo"><b>Mon activité</b><span>Voir ce qui compte maintenant.</span></div>
-        </a>
-
-        <a class="door pave" id="doorAlertes" href="./alertes.html">
-          <div class="paveTop">
-            <div class="doorIcon">🔔</div>
-            <div class="doorTag">Voix</div>
-          </div>
-          <div class="doorInfo"><b>Mes alertes</b><span>Voix DIGIY · tester · activer.</span></div>
-        </a>
 
         <a class="door pave" id="doorProfil" href="./profil-chauffeur.html">
           <div class="paveTop">
@@ -778,14 +918,6 @@
             <div class="doorTag">Profil</div>
           </div>
           <div class="doorInfo"><b>Mon profil</b><span>Identité · zone · visibilité.</span></div>
-        </a>
-
-        <a class="door pave gold" id="doorHabitualRoutes" href="./profile-edition.html#ratesBlock">
-          <div class="paveTop">
-            <div class="doorIcon">🚕</div>
-            <div class="doorTag">Programme</div>
-          </div>
-          <div class="doorInfo"><b>Trajets habituels</b><span>Saly → Dakar · AIBD · Casamance · 4x4.</span></div>
         </a>
 
         <a class="door pave gold" id="doorTarifs" href="./tarifs-edition.html">
@@ -812,30 +944,6 @@
           <div class="doorInfo"><b>Ma fiche chauffeur</b><span>Carte pro, contact, QR client.</span></div>
         </a>
 
-        <a class="door pave gold" id="doorLexique" href="https://driver-client.digiylyfe.com/lexique-driver.html?v=lexique-driver-v2-mobile-20260607">
-          <div class="paveTop">
-            <div class="doorIcon">🇸🇳</div>
-            <div class="doorTag">Wolof</div>
-          </div>
-          <div class="doorInfo"><b>Lexique Wolof</b><span>Phrases utiles chauffeur · client · paiement.</span></div>
-        </a>
-
-        <a class="door pave" id="doorSession" href="./session.html">
-          <div class="paveTop">
-            <div class="doorIcon">🔒</div>
-            <div class="doorTag">Session</div>
-          </div>
-          <div class="doorInfo"><b>Ma session</b><span>Compte · accès · synchronisation.</span></div>
-        </a>
-
-        <a class="door pave" id="doorPin" href="./pin.html">
-          <div class="paveTop">
-            <div class="doorIcon">🔐</div>
-            <div class="doorTag">PIN</div>
-          </div>
-          <div class="doorInfo"><b>Mon accès</b><span>Récupérer l’accès protégé.</span></div>
-        </a>
-
         <a class="door pave payDoor" href="https://pay.digiylyfe.com/">
           <div class="paveTop">
             <div class="doorIcon">💳</div>
@@ -844,7 +952,7 @@
           <div class="doorInfo"><b>Mon argent</b><span>Ouvre si abonné · sinon Commencer à payer.</span></div>
         </a>
 
-        <a class="door pave extDoor" href="https://driver.digiylyfe.com/" target="_blank" rel="noopener noreferrer">
+        <a class="door pave extDoor" href="https://galerie-chauffeurs.digiylyfe.com/" target="_blank" rel="noopener noreferrer">
           <div class="paveTop">
             <div class="doorIcon">🦅</div>
             <div class="doorTag">↗</div>
@@ -873,7 +981,7 @@
       <span class="wlbl">Conduire</span>
     </button>
 
-    <button class="wbtn pwbtn" id="btnPilotage" aria-label="Menu Piloter">
+    <button class="wbtn pwbtn" id="btnPilotage" aria-label="Menu Plus">
       <svg width="52" height="52" viewBox="0 0 68 68" fill="none" aria-hidden="true">
         <circle cx="34" cy="34" r="32" fill="#100e05"/>
         <circle cx="34" cy="34" r="33.5" stroke="#c4973f" stroke-width=".8" stroke-opacity=".5"/>
@@ -887,7 +995,7 @@
         <circle cx="34" cy="34" r="10" fill="#1a1005"/>
         <text x="34" y="38.5" text-anchor="middle" font-size="13" font-weight="900" fill="#c4973f" font-family="Georgia,serif">D</text>
       </svg>
-      <span class="wlbl">Piloter</span>
+      <span class="wlbl">Plus</span>
     </button>
   </nav>
 
@@ -926,12 +1034,12 @@
       </button>
       <button class="ovLink" id="ovNote">
         <span class="ovIco">✍️</span>
-        <span class="ovLbl">Nouvelle note<span class="ovSublbl">Course · carburant · trace</span></span>
+        <span class="ovLbl">Note rapide<span class="ovSublbl">Carburant · client · rappel · trace</span></span>
         <span class="ovArr">→</span>
       </button>
       <button class="ovLink" id="ovOreille">
         <span class="ovIco">🎙️</span>
-        <span class="ovLbl">Oreille DRIVER<span class="ovSublbl">Dicter · formuler · ranger une course</span></span>
+        <span class="ovLbl">Parler une course<span class="ovSublbl">Client · départ · arrivée · tarif</span></span>
         <span class="ovArr">→</span>
       </button>
       <a class="ovLink" id="ovLexique" href="https://driver-client.digiylyfe.com/lexique-driver.html?v=lexique-driver-v2-mobile-20260607">
@@ -939,11 +1047,6 @@
         <span class="ovLbl">Lexique Wolof<span class="ovSublbl">Phrases chauffeur · client · paiement</span></span>
         <span class="ovArr">→</span>
       </a>
-      <button class="ovLink" id="ovLecteur">
-        <span class="ovIco">🎧</span>
-        <span class="ovLbl">Lecteur DIGIY<span class="ovSublbl">Lecture vocale de l'état terrain</span></span>
-        <span class="ovArr" id="lecArr">▶</span>
-      </button>
       <button class="ovLink" id="ovAlerte">
         <span class="ovIco">🔔</span>
         <span class="ovLbl">Alerte message<span class="ovSublbl">Déclencher une alerte vocale</span></span>
@@ -953,7 +1056,7 @@
   </div>
 
   <!-- ══ OVERLAY PILOTER ══ -->
-  <div class="overlay po" id="ovPilotage" role="dialog" aria-modal="true" aria-label="Menu Piloter">
+  <div class="overlay po" id="ovPilotage" role="dialog" aria-modal="true" aria-label="Menu Plus">
     <div class="ovHdr">
       <div class="ovHdrGlow"></div>
       <svg class="ovCity" width="100%" height="55" viewBox="0 0 320 55" fill="#c4973f" preserveAspectRatio="none" aria-hidden="true">
@@ -971,8 +1074,8 @@
            onerror="this.style.display='none';document.getElementById('logoPfb').style.display='grid'"/>
       <div class="ovLogoFb po" id="logoPfb" style="display:none">D</div>
       <div class="ovLine"></div>
-      <div class="ovTitle">Piloter</div>
-      <div class="ovSub">Coffre · gestion · organisation</div>
+      <div class="ovTitle">Plus</div>
+      <div class="ovSub">Lire · réglages · accès</div>
     </div>
     <div class="ovLinks">
       <a class="payRow" href="https://pay.digiylyfe.com/">
@@ -981,9 +1084,14 @@
         <span class="ovArr">→</span>
       </a>
       <div class="paySep"></div>
+      <button class="ovLink" id="ovLecteur">
+        <span class="ovIco">🎧</span>
+        <span class="ovLbl">Comprendre DRIVER<span class="ovSublbl">Petite lecture vocale, rangée dans Plus</span></span>
+        <span class="ovArr" id="lecArr">▶</span>
+      </button>
       <button class="ovLink" id="ovHubLink">
         <span class="ovIco">🗺️</span>
-        <span class="ovLbl">Hub DRIVER<span class="ovSublbl">Répertoire complet des pages</span></span>
+        <span class="ovLbl">Menu complet<span class="ovSublbl">Toutes les anciennes portes si besoin</span></span>
         <span class="ovArr">→</span>
       </button>
       <button class="ovLink" id="ovSession">
@@ -1138,12 +1246,15 @@
         if(!slug)              { el.textContent="Aucun identifiant chauffeur détecté."; return }
         if(!isDriverSlug(slug)){ el.textContent="Identifiant chauffeur non reconnu."; return }
         if(!accessOk)          { el.textContent="Accès non ouvert. Passe par Mon accès pour t'identifier."; return }
-        el.textContent="Compte reconnu. Choisis un pavé : trajet, oreille, note, profil, tarifs, QR, session ou PAY.";
+        el.textContent="Compte reconnu. Utilise le départ rapide, puis les portes de pilotage si besoin.";
       }
 
       function bindLinks(){
         const map = {
           hdrBack:       [ROUTES.dashboard, ""],
+          quickCourse:   ["./oreille.html?mode=course", ""],
+          quickNote:     ["./oreille.html?mode=note", ""],
+          quickTrips:    [ROUTES.trips,     ""],
           doorDashboard: [ROUTES.dashboard, ""],
           doorTrajets:   [ROUTES.trips,     ""],
           doorAction:    ["./action.html?mode=course", ""],
@@ -1159,8 +1270,8 @@
           doorAlertes:   [ROUTES.alertes,   ""],
           ovDashboard:   [ROUTES.dashboard, ""],
           ovTrajets:     [ROUTES.trips,     ""],
-          ovNote:        ["./action.html?mode=course", ""],
-          ovOreille:     [ROUTES.oreille,   ""],
+          ovNote:        ["./oreille.html?mode=note", ""],
+          ovOreille:     ["./oreille.html?mode=course", ""],
           ovLexique:     [ROUTES.lexique,   ""],
           ovHubLink:     [ROUTES.hub,       ""],
           ovSession:     [ROUTES.session,   ""],
@@ -1369,8 +1480,11 @@
   window.addEventListener("pagehide", stopSpeech);
 })();
 </script>
+<script src="./assets/js/action-digiy-pro-orient.js?v=action-digiy-pro-orient-20260606" defer></script>
 </body>
 </html>
+
+
 
 
 
