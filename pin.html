@@ -266,6 +266,25 @@ document.addEventListener("keydown",e=>{
 
 $("btnEnter").addEventListener("click",doLogin);
 
+async function checkAbos(sb,phone){
+  const tries=[
+    ["digiy_has_module_access_from_abos",{p_phone:phone,p_module:MODULE}],
+    ["digiy_has_module_access_from_abos",{phone:phone,module:MODULE}],
+    ["digiy_has_access",{p_phone:phone,p_module:MODULE}]
+  ];
+  for(const[fn,args]of tries){
+    try{
+      const{data,error}=await sb.rpc(fn,args);
+      if(error)continue;
+      const raw=Array.isArray(data)?data[0]:data;
+      if(raw===true||raw===1)return true;
+      if(typeof raw==="string"&&/^(t|true|1|yes|ok)$/i.test(raw.trim()))return true;
+      if(raw&&typeof raw==="object"&&Object.values(raw).some(v=>v===true||v===1||v==="t"||v==="true"))return true;
+    }catch(_){}
+  }
+  return false;
+}
+
 async function doLogin(){
   if(pin.length!==4)return;
   $("btnEnter").disabled=true;
@@ -284,6 +303,15 @@ async function doLogin(){
       showSt("status2","❌ Code incorrect.\nVérifie tes 4 chiffres et réessaie.","err");
       return;
     }
+    /* PIN valide -> vérification ABOS réelle avant d'ouvrir la session (rail LOC appliqué à DRIVER) */
+    showSt("status2","⏳ Vérification de l'abonnement…","spin");
+    const hasAccess=await checkAbos(sb,confirmedPhone);
+    if(!hasAccess){
+      pin="";updateDots();updateEnterBtn();
+      $("btnEnter").disabled=false;
+      showSt("status2","❌ Abonnement DRIVER inactif.\nContacte DIGIY pour réactiver ton accès.","err");
+      return;
+    }
     const rpcSlug=row?.slug||row?.identifiant||"";
     const finalSlug=rpcSlug||slug(confirmedPhone);
     writeSession(confirmedPhone,finalSlug,row?.session_token||"");
@@ -299,5 +327,8 @@ async function doLogin(){
 </script>
 </body>
 </html>
+
+
+
 
 
