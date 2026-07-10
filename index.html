@@ -13,7 +13,7 @@
 </script>
 <script src="./guard.js?v=20260706"></script>
 <meta name="description" content="DIGIY DRIVER PRO — courses, trajets, fiche chauffeur avec QR intégré, QR seul, PAY et données.">
-<meta name="digiy-build" content="driver-pro-index-fiche-qr-carre-20260618">
+<meta name="digiy-build" content="driver-pro-lot-verite-course-20260710">
 <script>
 window.DIGIY_MODULE="DRIVER";window.DIGIY_ABOS_MODULE="DRIVER";window.DIGIY_MODULE_LABEL="Je conduis";window.DIGIY_LOGIN_URL="./pin.html";window.DIGIY_PAY_URL="https://pay.digiylyfe.com/";window.DIGIY_PUBLIC_BASE_URL="https://driver-client.digiylyfe.com/";
 </script>
@@ -34,23 +34,45 @@ window.DIGIY_MODULE="DRIVER";window.DIGIY_ABOS_MODULE="DRIVER";window.DIGIY_MODU
    guard.js considère index.html comme porte publique (isPublicEntryPage -> redirect:false).
    Le cockpit exige donc lui-même une session PIN valide avant de démarrer. */
 function __digiyStartDriverApp(){
-const $=id=>document.getElementById(id);const LS_T='digiy_driver_trips_v1',LS_D='digiy_driver_profile_v1';let trips=load(LS_T,[]),driver=Object.assign({name:'Mon chauffeur',zone:'',car:'',publicLink:'https://driver-client.digiylyfe.com/'},load(LS_D,{}));function load(k,f){try{return JSON.parse(localStorage.getItem(k)||'')||f}catch(e){return f}}function save(){localStorage.setItem(LS_T,JSON.stringify(trips));localStorage.setItem(LS_D,JSON.stringify(driver))}function uid(){return'driver_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}function fmt(n){return Number(n||0).toLocaleString('fr-FR')}function money(n){return fmt(n)+' FCFA'}function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),1700)}function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}function stats(){const ok=trips.filter(t=>/confirm|pay/i.test(t.status)).length,paid=trips.filter(t=>/pay/i.test(t.status)).reduce((a,b)=>a+Number(b.amount||0),0),debt=trips.filter(t=>/recevoir/i.test(t.status)).reduce((a,b)=>a+Number(b.amount||0),0);return{ok,paid,debt}}function renderStats(){const s=stats();$('statCount').textContent=fmt(trips.length);$('statOk').textContent=fmt(s.ok);$('statMoney').textContent=fmt(s.paid);$('statDebt').textContent=fmt(s.debt)}function renderTrips(){if(!trips.length){$('tripList').innerHTML='<div class="item"><b>Aucune course</b><small>Ajoute une course pour démarrer.</small></div>';return}$('tripList').innerHTML=trips.map(t=>'<div class="item"><div class="itemTop"><div><b>'+esc(t.client)+'</b><small>'+esc(t.from)+' → '+esc(t.to)+' · '+money(t.amount)+'</small><small>'+esc(t.note||'')+'</small></div><span class="tag">'+esc(t.status)+'</span></div><div class="btns"><button class="btn" onclick="setStatus(\''+t.id+'\',\'Confirmée\')">Confirmer</button><button class="btn" onclick="setStatus(\''+t.id+'\',\'Payée\')">Payée</button><button class="btn red" onclick="removeTrip(\''+t.id+'\')">Retirer</button></div></div>').join('')}function renderDriver(){if($('driverName'))$('driverName').value=driver.name||'';if($('driverZone'))$('driverZone').value=driver.zone||'';if($('driverCar'))$('driverCar').value=driver.car||'';if($('driverPublic'))$('driverPublic').value=driver.publicLink||''}function renderPay(){const s=stats();$('paySummary').textContent='Recettes payées : '+money(s.paid)+'\nÀ recevoir : '+money(s.debt)+'\nCourses : '+trips.length+'\n\nPaiement direct au chauffeur. DIGIY ne prend pas de commission.'}function render(){renderStats();renderTrips();renderDriver();renderPay()}function setStatus(id,st){const t=trips.find(x=>x.id===id);if(t){t.status=st;save();render();toast(st)}}function removeTrip(id){trips=trips.filter(t=>t.id!==id);save();render();toast('Course retirée')}function saveDriver(){driver={name:$('driverName').value.trim()||'Mon chauffeur',zone:$('driverZone').value.trim(),car:$('driverCar').value.trim(),publicLink:$('driverPublic').value.trim()||'https://driver-client.digiylyfe.com/'};save();render();toast('Chauffeur enregistré')}function exportData(){const blob=new Blob([JSON.stringify({driver,trips},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='digiy-driver-export.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}function importData(e){const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result||'{}');if(d.driver)driver=Object.assign(driver,d.driver);if(Array.isArray(d.trips))trips=d.trips;save();render();toast('Import OK')}catch(_){toast('Import impossible')}};r.readAsText(f)}function resetAll(){if(!confirm('Réinitialiser les données locales DRIVER ?'))return;trips=[];save();render();toast('Réinitialisé')}$('rideForm').addEventListener('submit',e=>{e.preventDefault();trips.unshift({id:uid(),client:$('clientName').value.trim()||'Client',phone:$('clientPhone').value.trim(),from:$('from').value.trim()||'Départ',to:$('to').value.trim()||'Arrivée',amount:Number($('amount').value||0),status:$('status').value,note:$('note').value.trim(),createdAt:new Date().toISOString()});e.target.reset();$('amount').value='0';save();render();toast('Course ajoutée')});render();
+const $=id=>document.getElementById(id);const LS_T='digiy_driver_trips_v1',LS_D='digiy_driver_profile_v1';let trips=load(LS_T,[]),driver=Object.assign({name:'Mon chauffeur',zone:'',car:'',publicLink:'https://driver-client.digiylyfe.com/'},load(LS_D,{}));function load(k,f){try{return JSON.parse(localStorage.getItem(k)||'')||f}catch(e){return f}}function save(){localStorage.setItem(LS_T,JSON.stringify(trips));localStorage.setItem(LS_D,JSON.stringify(driver))}function uid(){return'driver_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}function fmt(n){return Number(n||0).toLocaleString('fr-FR')}function money(n){return fmt(n)+' FCFA'}function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),1700)}function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}function stats(){const ok=trips.filter(t=>/confirm|pay/i.test(t.status)).length,paid=trips.filter(t=>/pay/i.test(t.status)).reduce((a,b)=>a+Number(b.amount||0),0),debt=trips.filter(t=>/recevoir/i.test(t.status)).reduce((a,b)=>a+Number(b.amount||0),0);return{ok,paid,debt}}function renderStats(){const s=stats();$('statCount').textContent=fmt(trips.length);$('statOk').textContent=fmt(s.ok);$('statMoney').textContent=fmt(s.paid);$('statDebt').textContent=fmt(s.debt)}function renderTrips(){
+  if(!trips.length){$('tripList').innerHTML='<div class="item"><b>Aucune course</b><small>Ajoute une course pour démarrer.</small></div>';return}
+  $('tripList').innerHTML=trips.map(t=>{
+    const phone=String(t.phone||'').trim();
+    const wa=phone?'<a class="btn green" target="_blank" rel="noopener" href="https://wa.me/'+phone.replace(/[^\d]/g,'')+'">💬 Client</a>':'';
+    return '<div class="item"><div class="itemTop"><div><b>'+esc(t.client)+'</b><small>'+esc(t.from)+' → '+esc(t.to)+' · '+money(t.amount)+'</small>'+(phone?'<small>📞 '+esc(phone)+'</small>':'')+'<small>'+esc(t.note||'')+'</small></div><span class="tag">'+esc(t.status)+'</span></div><div class="btns">'+wa+'<button class="btn" onclick="setStatus(\''+t.id+'\',\'Confirmée\')">Confirmer</button><button class="btn" onclick="setStatus(\''+t.id+'\',\'Payée\')">Payée</button><button class="btn red" onclick="removeTrip(\''+t.id+'\')">Retirer</button></div></div>';
+  }).join('')
+}function renderDriver(){if($('driverName'))$('driverName').value=driver.name||'';if($('driverZone'))$('driverZone').value=driver.zone||'';if($('driverCar'))$('driverCar').value=driver.car||'';if($('driverPublic'))$('driverPublic').value=driver.publicLink||''}function renderPay(){const s=stats();$('paySummary').textContent='Recettes payées : '+money(s.paid)+'\nÀ recevoir : '+money(s.debt)+'\nCourses : '+trips.length+'\n\nPaiement direct au chauffeur. DIGIY ne prend pas de commission.'}function render(){renderStats();renderTrips();renderDriver();renderPay()}function setStatus(id,st){const t=trips.find(x=>x.id===id);if(t){t.status=st;save();render();toast(st)}}function removeTrip(id){trips=trips.filter(t=>t.id!==id);save();render();toast('Course retirée')}function saveDriver(){driver={name:$('driverName').value.trim()||'Mon chauffeur',zone:$('driverZone').value.trim(),car:$('driverCar').value.trim(),publicLink:$('driverPublic').value.trim()||'https://driver-client.digiylyfe.com/'};save();render();toast('Chauffeur enregistré')}function exportData(){const blob=new Blob([JSON.stringify({driver,trips},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='digiy-driver-export.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}function importData(e){const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result||'{}');if(d.driver)driver=Object.assign(driver,d.driver);if(Array.isArray(d.trips))trips=d.trips;save();render();toast('Import OK')}catch(_){toast('Import impossible')}};r.readAsText(f)}function resetAll(){if(!confirm('Réinitialiser les données locales DRIVER ?'))return;trips=[];save();render();toast('Réinitialisé')}$('rideForm').addEventListener('submit',e=>{e.preventDefault();trips.unshift({id:uid(),client:$('clientName').value.trim()||'Client',phone:$('clientPhone').value.trim(),from:$('from').value.trim()||'Départ',to:$('to').value.trim()||'Arrivée',amount:Number($('amount').value||0),status:$('status').value,note:$('note').value.trim(),createdAt:new Date().toISOString()});e.target.reset();$('amount').value='0';save();render();toast('Course ajoutée')});render();
 
 /* ── PONT ride_requests · DIGIY DRIVER PRO ──
    Lecture via RPC digiy_driver_pending_rides (SECURITY DEFINER côté Supabase),
    prise via digiy_driver_take_ride. Aucun select direct : la table reste fermée RLS. */
 const REQ_URL="https://wesqmwjjtsefyjnluosj.supabase.co";
 const REQ_KEY="sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
-let reqCache=[],reqKnown=new Set(),reqFirstLoad=true;
+let reqCache=[],reqKnown=new Set(),reqFirstLoad=true,reqTaking=new Set();
+
+async function reqGuardToken(){
+  try{
+    let v="";
+    if(window.DIGIY_GUARD && typeof window.DIGIY_GUARD.getAccessToken === "function") v=await window.DIGIY_GUARD.getAccessToken();
+    if(!v && window.DIGIY_GUARD && typeof window.DIGIY_GUARD.getSession === "function"){
+      const s=await window.DIGIY_GUARD.getSession();
+      v=s && (s.access_token || (s.session && s.session.access_token) || "");
+    }
+    /* Uniquement un vrai JWT Supabase ; un jeton PIN propriétaire ne doit pas remplacer l'anon key. */
+    if(v && String(v).split(".").length===3) return String(v);
+  }catch(_){}
+  return REQ_KEY;
+}
 
 async function reqRpc(fn,body){
-  const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),4000);
+  const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),6000);
   try{
+    const token=await reqGuardToken();
     const r=await fetch(REQ_URL+"/rest/v1/rpc/"+fn,{method:"POST",signal:ctl.signal,
-      headers:{apikey:REQ_KEY,Authorization:"Bearer "+REQ_KEY,"Content-Type":"application/json",Accept:"application/json"},
+      headers:{apikey:REQ_KEY,Authorization:"Bearer "+token,"Content-Type":"application/json",Accept:"application/json"},
       body:JSON.stringify(body||{})});
     const d=await r.json().catch(()=>null);
-    return{ok:r.ok,data:d};
+    return{ok:r.ok,status:r.status,data:d};
   }finally{clearTimeout(t)}
 }
 
@@ -69,7 +91,10 @@ window.DIGIY_DRIVER_VOICE={say:reqVoice};
 function renderRequests(){
   const el=$("reqList");
   if(!reqCache.length){el.innerHTML='<div class="item"><b>Aucune demande en attente</b><small>Les nouvelles demandes clients apparaîtront ici.</small></div>';return}
-  el.innerHTML=reqCache.map(r=>'<div class="item"><div class="itemTop"><div><b>'+esc(r.pickup_address||r.pickup_text||'Départ')+' → '+esc(r.dropoff_address||r.dropoff_text||'Arrivée')+'</b><small>'+money(r.price||r.price_xof||0)+' · '+esc(r.vehicle_type||'eco')+' · '+(r.distance?Number(r.distance).toFixed(1)+' km':'')+'</small><small>📞 '+esc(r.client_phone||'')+'</small></div><span class="tag">new</span></div><div class="btns"><button class="btn gold" onclick="takeRequest(\''+esc(r.id)+'\')">✅ Prendre</button><a class="btn green" target="_blank" rel="noopener" href="https://wa.me/'+String(r.client_phone||'').replace(/[^\d]/g,'')+'">💬 WhatsApp</a></div></div>').join('')
+  el.innerHTML=reqCache.map(r=>{
+    const taking=reqTaking.has(String(r.id));
+    return '<div class="item"><div class="itemTop"><div><b>'+esc(r.pickup_address||r.pickup_text||'Départ')+' → '+esc(r.dropoff_address||r.dropoff_text||'Arrivée')+'</b><small>'+money(r.price||r.price_xof||0)+' · '+esc(r.vehicle_type||'eco')+' · '+(r.distance?Number(r.distance).toFixed(1)+' km':'')+'</small><small>🔒 Téléphone protégé jusqu’à attribution</small></div><span class="tag">new</span></div><div class="btns"><button class="btn gold" '+(taking?'disabled':'')+' onclick="takeRequest(\''+esc(r.id)+'\')">'+(taking?'⏳ Attribution…':'✅ Prendre')+'</button></div></div>';
+  }).join('')
 }
 
 async function loadRequests(manual){
@@ -92,13 +117,45 @@ async function loadRequests(manual){
 }
 
 async function takeRequest(id){
-  const r=reqCache.find(x=>String(x.id)===String(id));if(!r)return;
-  trips.unshift({id:uid(),client:'Client direct',phone:r.client_phone||'',from:r.pickup_address||r.pickup_text||'Départ',to:r.dropoff_address||r.dropoff_text||'Arrivée',amount:Number(r.price||r.price_xof||0),status:'Confirmée',note:(r.vehicle_type||'')+(r.note?' · '+r.note:''),createdAt:new Date().toISOString()});
-  save();render();
-  reqCache=reqCache.filter(x=>String(x.id)!==String(id));renderRequests();
-  $("reqState").textContent=reqCache.length+" en attente";
-  toast("Course prise ✅");
-  try{await reqRpc("digiy_driver_take_ride",{p_id:id})}catch(_){}
+  id=String(id);
+  if(reqTaking.has(id))return;
+  const r=reqCache.find(x=>String(x.id)===id);if(!r)return;
+  reqTaking.add(id);renderRequests();
+  $("reqState").textContent="Attribution en cours…";
+  try{
+    const res=await reqRpc("digiy_driver_take_ride",{p_id:r.id});
+    const d=res && res.data;
+    const explicitFailure=!res || !res.ok || d===false || (d && typeof d==="object" && !Array.isArray(d) && (d.ok===false || d.success===false || d.error));
+    if(explicitFailure){
+      toast("Course non attribuée — réessayer");
+      $("reqState").textContent=reqCache.length+" en attente";
+      return;
+    }
+
+    /* Contrôle secondaire : une course attribuée ne doit plus être dans la file. */
+    const check=await reqRpc("digiy_driver_pending_rides",{}).catch(()=>null);
+    if(check && check.ok && Array.isArray(check.data)){
+      if(check.data.some(x=>String(x.id)===id)){
+        reqCache=check.data;
+        toast("Attribution refusée — course encore disponible");
+        $("reqState").textContent=reqCache.length+" en attente";
+        return;
+      }
+      reqCache=check.data;
+    }else{
+      reqCache=reqCache.filter(x=>String(x.id)!==id);
+    }
+
+    trips.unshift({id:uid(),serverRideId:r.id,client:'Client direct',phone:r.client_phone||'',from:r.pickup_address||r.pickup_text||'Départ',to:r.dropoff_address||r.dropoff_text||'Arrivée',amount:Number(r.price||r.price_xof||0),status:'Confirmée',note:(r.vehicle_type||'')+(r.note?' · '+r.note:''),createdAt:new Date().toISOString()});
+    save();render();renderRequests();
+    $("reqState").textContent=reqCache.length+" en attente";
+    toast("Course attribuée ✅");
+  }catch(_){
+    toast("Course non attribuée — réseau indisponible");
+    $("reqState").textContent=reqCache.length+" en attente";
+  }finally{
+    reqTaking.delete(id);renderRequests();
+  }
 }
 
 loadRequests(false);
