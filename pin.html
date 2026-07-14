@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Accès • DIGIY</title>
+  <title>Accès Je conduis • DIGIY</title>
   <meta name="theme-color" content="#020617"/>
 
   <!-- CONFIG — changer ces 5 lignes par module -->
@@ -81,9 +81,9 @@ window.DIGIY_SLUG_PREFIX  = "driver";
 <div class="card">
 
   <div class="header">
-    <span class="ico" id="moduleIcon">🏠</span>
+    <span class="ico" id="moduleIcon">🚗</span>
     <div class="badge">🔑 Accès DIGIY</div>
-    <div class="title" id="moduleLabel">Je loue</div>
+    <div class="title" id="moduleLabel">Je conduis</div>
   </div>
 
   <div class="steps">
@@ -146,7 +146,7 @@ window.DIGIY_SLUG_PREFIX  = "driver";
 <script>
 (function(){
 "use strict";
-const MODULE=((window.DIGIY_MODULE)||"LOC").toUpperCase();
+const MODULE=((window.DIGIY_MODULE)||"DRIVER").toUpperCase();
 const MODULE_LABEL=window.DIGIY_MODULE_LABEL||MODULE;
 const MODULE_ICON=window.DIGIY_MODULE_ICON||"∞";
 const INDEX_URL=window.DIGIY_INDEX_URL||"./index.html";
@@ -154,7 +154,7 @@ const SLUG_PREFIX=(window.DIGIY_SLUG_PREFIX||MODULE.toLowerCase()).replace(/_/g,
 const MAX_AGE=8*60*60*1000;
 const mod=MODULE.toLowerCase();
 const SKEYS=[`digiy_${mod}_session`,`digiy_${mod}_guard_session`,`digiy_guard_${mod}_session`];
-const PKEYS=[`digiy_${mod}_phone`,`digiy_${mod}_last_phone`,"DIGIY_LOC_HUB_PHONE","digiy_phone"];
+const PKEYS=[`digiy_${mod}_phone`,`digiy_${mod}_last_phone`,"DIGIY_DRIVER_HUB_PHONE","digiy_phone"];
 const SLKEYS=[`digiy_${mod}_last_slug`,`digiy_${mod}_slug`,"digiy_last_slug"];
 
 const $=id=>document.getElementById(id);
@@ -303,7 +303,7 @@ async function doLogin(){
       showSt("status2","❌ Code incorrect.\nVérifie tes 4 chiffres et réessaie.","err");
       return;
     }
-    /* PIN valide -> vérification ABOS réelle avant d'ouvrir la session (rail LOC appliqué à DRIVER) */
+    /* PIN valide -> vérification ABOS réelle avant d'ouvrir la session DRIVER */
     showSt("status2","⏳ Vérification de l'abonnement…","spin");
     const hasAccess=await checkAbos(sb,confirmedPhone);
     if(!hasAccess){
