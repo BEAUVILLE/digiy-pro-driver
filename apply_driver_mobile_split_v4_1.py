@@ -958,29 +958,44 @@ SESSION_HTML = f'''<!doctype html>
 
 
 def patch_hub(text: str) -> str:
-    text = replace_once(text, '<div class="panelHint">6 portes utiles</div>',
-                        '<div class="panelHint">8 portes utiles</div>',
-                        "hub/panelHint")
+    # Relie le hub sans dépendre d'un texte ou d'un espacement exact.
 
-    text = replace_once(text,
-                        'id="doorProfil" href="./profil-chauffeur.html"',
-                        'id="doorProfil" href="./profil-driver.html"',
-                        "hub/doorProfil")
+    # Indication visuelle facultative : certaines versions n'ont pas ce bloc.
+    text = re.sub(
+        r'(<div\s+class=["\']panelHint["\']>\s*)\d+\s+portes\s+utiles(\s*</div>)',
+        r'\g<1>8 portes utiles\g<2>',
+        text,
+        count=1,
+        flags=re.I,
+    )
 
-    text = replace_once(text,
-                        'id="doorTarifs" href="./tarifs-edition.html"',
-                        'id="doorTarifs" href="./tarifs-driver.html"',
-                        "hub/doorTarifs")
+    def set_anchor_href(source: str, anchor_id: str, href: str) -> str:
+        pattern = re.compile(
+            rf'<a\b(?=[^>]*\bid=["\']{re.escape(anchor_id)}["\'])[^>]*>',
+            re.I,
+        )
+        match = pattern.search(source)
+        if not match:
+            raise PatchError(f"hub/{anchor_id}: pavé introuvable")
+        tag = match.group(0)
+        if re.search(r'\bhref=["\'][^"\']*["\']', tag, flags=re.I):
+            patched_tag = re.sub(
+                r'\bhref=["\'][^"\']*["\']',
+                f'href="{href}"',
+                tag,
+                count=1,
+                flags=re.I,
+            )
+        else:
+            patched_tag = tag[:-1] + f' href="{href}">'
+        return source[:match.start()] + patched_tag + source[match.end():]
 
-    rates_block = '''        <a class="door pave gold" id="doorTarifs" href="./tarifs-driver.html">
-          <div class="paveTop">
-            <div class="doorIcon">💰</div>
-            <div class="doorTag">Prix</div>
-          </div>
-          <div class="doorInfo"><b>Mes tarifs</b><span>Grille claire pour le client.</span></div>
-        </a>'''
+    text = set_anchor_href(text, "doorProfil", "./profil-driver.html")
+    text = set_anchor_href(text, "doorTarifs", "./tarifs-driver.html")
 
-    extra_doors = rates_block + '''
+    # Ajout idempotent des deux petites portes après le pavé Tarifs.
+    if 'id="doorVisibilite"' not in text and "id='doorVisibilite'" not in text:
+        extra_doors = '''
 
         <a class="door pave" id="doorVisibilite" href="./visibilite-driver.html">
           <div class="paveTop">
@@ -998,16 +1013,40 @@ def patch_hub(text: str) -> str:
           <div class="doorInfo"><b>Ma session</b><span>Vérifier ou fermer l’accès sur cet appareil.</span></div>
         </a>'''
 
-    text = replace_once(text, rates_block, extra_doors, "hub/portes supplémentaires")
+        tariffs_anchor = re.compile(
+            r'(<a\b(?=[^>]*\bid=["\']doorTarifs["\'])[^>]*>.*?</a>)',
+            re.I | re.S,
+        )
+        match = tariffs_anchor.search(text)
+        if not match:
+            raise PatchError("hub/portes supplémentaires: bloc Tarifs introuvable")
+        text = text[:match.end()] + extra_doors + text[match.end():]
+    elif 'id="doorSession"' not in text and "id='doorSession'" not in text:
+        raise PatchError("hub incomplet: visibilité présente mais session absente")
 
-    replacements = {
-        'profile:   "./profil-chauffeur.html"': 'profile:   "./profil-driver.html"',
-        'rates:     "./tarifs-edition.html"': 'rates:     "./tarifs-driver.html"',
-        'habitualRoutes: "./profile-edition.html"': 'habitualRoutes: "./tarifs-driver.html"',
-        'session:   "./session.html"': 'session:   "./session-driver.html"',
+    # Routes JavaScript : remplacement tolérant aux espaces et aux anciennes cibles.
+    route_targets = {
+        "profile": "./profil-driver.html",
+        "rates": "./tarifs-driver.html",
+        "habitualRoutes": "./tarifs-driver.html",
+        "session": "./session-driver.html",
     }
-    for old,new in replacements.items():
-        text = replace_once(text,old,new,f"hub/routes/{old.split(':')[0].strip()}")
+    for key, target in route_targets.items():
+        pattern = re.compile(
+            rf'(\b{re.escape(key)}\s*:\s*["\'])[^"\']+(["\'])'
+        )
+        if pattern.search(text):
+            text = pattern.sub(rf'\g<1>{target}\g<2>', text, count=1)
+
+    required_links = [
+        "./profil-driver.html",
+        "./tarifs-driver.html",
+        "./visibilite-driver.html",
+        "./session-driver.html",
+    ]
+    missing = [link for link in required_links if link not in text]
+    if missing:
+        raise PatchError("hub non relié : " + ", ".join(missing))
 
     return text
 
