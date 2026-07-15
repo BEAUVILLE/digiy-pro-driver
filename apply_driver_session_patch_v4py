@@ -1,0 +1,1109 @@
+#!/usr/bin/env python3
+# DIGIY PRO DRIVER — découpage mobile sécurisé V4
+#
+# Usage:
+#   python3 apply_driver_mobile_split_v4.py /chemin/vers/digiy-pro-driver
+#
+# Prérequis:
+# - patch session V2 appliqué ;
+# - patch profil V3 appliqué ;
+# - nouvelles RPC driver_session_* présentes dans Supabase.
+#
+# Le script :
+# - garde profile-edition.html comme atelier de secours ;
+# - crée 4 petites pages mobiles indépendantes ;
+# - crée une couche API/session commune très courte ;
+# - relie le hub aux nouvelles portes ;
+# - ne fait aucun commit et aucun push.
+
+from __future__ import annotations
+
+import re
+import shutil
+import sys
+from pathlib import Path
+
+
+class PatchError(RuntimeError):
+    pass
+
+
+def write_backup(path: Path) -> Path | None:
+    if not path.exists():
+        return None
+    backup = path.with_suffix(path.suffix + ".bak-mobile-split-v4")
+    shutil.copy2(path, backup)
+    return backup
+
+
+def replace_once(text: str, old: str, new: str, label: str) -> str:
+    count = text.count(old)
+    if count != 1:
+        raise PatchError(f"{label}: attendu 1 bloc, trouvé {count}")
+    return text.replace(old, new, 1)
+
+
+MOBILE_CSS = r'''/* DIGIY DRIVER — pages mobiles sécurisées */
+:root{
+  --bg:#092b20;
+  --bg2:#123b2d;
+  --card:#174735;
+  --line:rgba(255,255,255,.16);
+  --text:#f4fff8;
+  --muted:rgba(244,255,248,.72);
+  --green:#22c55e;
+  --gold:#facc15;
+  --red:#ef4444;
+  --blue:#60a5fa;
+  --shadow:0 18px 46px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100dvh;
+  color:var(--text);
+  background:
+    radial-gradient(600px 330px at 10% -5%,rgba(34,197,94,.22),transparent 65%),
+    linear-gradient(180deg,var(--bg2),var(--bg));
+  font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  padding:74px 14px 96px;
+}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.shell{width:min(620px,100%);margin:0 auto}
+.topbar{
+  position:fixed;inset:0 0 auto 0;height:60px;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:0 14px;background:rgba(5,31,22,.94);
+  border-bottom:1px solid var(--line);backdrop-filter:blur(16px)
+}
+.topbar a{font-weight:900;color:var(--muted)}
+.topbar strong{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#fff0a8}
+.status{
+  min-height:34px;display:inline-flex;align-items:center;padding:7px 10px;
+  border-radius:999px;border:1px solid var(--line);font-size:12px;font-weight:900;color:var(--muted)
+}
+.status.ok{color:#bbf7d0;border-color:rgba(34,197,94,.42);background:rgba(34,197,94,.12)}
+.status.bad{color:#fecaca;border-color:rgba(239,68,68,.42);background:rgba(239,68,68,.12)}
+.hero{margin:4px 0 14px}
+.hero h1{margin:0 0 7px;font-size:clamp(31px,9vw,48px);line-height:.96;letter-spacing:-.045em}
+.hero p{margin:0;color:var(--muted);font-weight:800;line-height:1.45}
+.card{
+  margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:24px;
+  background:linear-gradient(180deg,rgba(23,71,53,.96),rgba(14,54,39,.96));
+  box-shadow:var(--shadow)
+}
+.card h2{margin:0 0 12px;font-size:23px;letter-spacing:-.025em}
+.muted{color:var(--muted);font-weight:800;line-height:1.4}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.tab{
+  min-height:48px;border-radius:15px;border:1px solid var(--line);
+  background:rgba(255,255,255,.07);color:var(--muted);font-weight:950
+}
+.tab.active{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.42);color:#d7ffe3}
+.panel{display:none}.panel.active{display:block}
+.field{display:grid;gap:6px;margin-top:12px}
+.field label{font-size:13px;font-weight:950;color:var(--muted)}
+.input,textarea{
+  width:100%;border:1px solid rgba(255,255,255,.22);border-radius:16px;
+  padding:14px;background:rgba(0,0,0,.18);color:var(--text);
+  font-weight:850;outline:none
+}
+.input:focus,textarea:focus{border-color:rgba(34,197,94,.58);box-shadow:0 0 0 3px rgba(34,197,94,.12)}
+textarea{min-height:104px;resize:vertical}
+.grid2{display:grid;gap:10px}
+.checks{display:grid;gap:10px;margin-top:14px}
+.check{
+  display:flex;align-items:center;gap:10px;padding:12px;border-radius:16px;
+  border:1px solid var(--line);background:rgba(255,255,255,.06);font-weight:900
+}
+.check input{width:20px;height:20px;accent-color:var(--green)}
+.btn{
+  min-height:52px;border-radius:17px;border:1px solid var(--line);
+  padding:13px 15px;background:rgba(255,255,255,.08);color:var(--text);
+  font-weight:1000;display:inline-flex;align-items:center;justify-content:center;gap:8px
+}
+.btn.primary{background:linear-gradient(135deg,var(--green),#16a34a);color:#052414;border-color:transparent}
+.btn.gold{background:rgba(250,204,21,.17);border-color:rgba(250,204,21,.38);color:#fff2aa}
+.btn.danger{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.38);color:#fecaca}
+.btn.blue{background:rgba(96,165,250,.15);border-color:rgba(96,165,250,.38);color:#dbeafe}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.message{min-height:22px;margin-top:12px;font-weight:900;line-height:1.4}
+.message.ok{color:#86efac}.message.bad{color:#fca5a5}.message.warn{color:#fde68a}
+.rateList{display:grid;gap:9px;margin-top:12px}
+.rate{
+  display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+  padding:14px;border-radius:18px;border:1px solid var(--line);background:rgba(0,0,0,.15)
+}
+.rate strong{display:block;font-size:17px}.rate span{display:block;margin-top:3px;color:#d7ffe3;font-weight:950}
+.rate .btn{min-height:42px;padding:9px 11px}
+.empty{padding:15px;border:1px dashed var(--line);border-radius:18px;color:var(--muted);font-weight:850}
+.summary{
+  display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px
+}
+.metric{padding:14px;border-radius:18px;border:1px solid var(--line);background:rgba(0,0,0,.14)}
+.metric small{display:block;color:var(--muted);font-weight:900}.metric b{display:block;margin-top:4px;font-size:20px}
+.bigChoice{display:grid;gap:10px;margin-top:14px}
+.bigChoice .btn{min-height:68px;font-size:18px}
+.bottom{
+  position:fixed;inset:auto 0 0 0;z-index:45;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:4px;
+  padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));
+  background:rgba(5,31,22,.96);border-top:1px solid var(--line);backdrop-filter:blur(16px)
+}
+.bottom a{display:grid;place-items:center;gap:2px;min-height:54px;border-radius:14px;color:var(--muted);font-size:11px;font-weight:950}
+.bottom a.active{background:rgba(34,197,94,.15);color:#d7ffe3}
+.bottom i{font-style:normal;font-size:20px}
+.stickyAction{
+  position:sticky;bottom:76px;z-index:20;margin-top:14px;padding-top:8px;
+  background:linear-gradient(180deg,transparent,rgba(9,43,32,.96) 28%)
+}
+.stickyAction .btn{width:100%;min-height:58px;font-size:17px}
+@media(min-width:560px){
+  .grid2{grid-template-columns:1fr 1fr}
+}
+@media(max-width:410px){
+  .actions{grid-template-columns:1fr}
+  .tabs{grid-template-columns:1fr}
+  .summary{grid-template-columns:1fr}
+}
+'''
+
+SECURE_API_JS = r'''(() => {
+  "use strict";
+
+  const CFG = {
+    url: window.DIGIY_SUPABASE_URL || "https://wesqmwjjtsefyjnluosj.supabase.co",
+    key: window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON || "",
+    pin: window.DIGIY_LOGIN_URL || "./pin.html",
+    sessionKeys: [
+      "digiy_driver_session",
+      "digiy_driver_guard_session",
+      "digiy_guard_driver_session",
+      "DIGIY_DRIVER_PIN_SESSION",
+      "DIGIY_PIN_SESSION",
+      "DIGIY_ACCESS",
+      "DIGIY_SESSION_DRIVER",
+      "digiy_guard_session"
+    ]
+  };
+
+  let client = null;
+
+  function parseJson(raw){
+    try{return JSON.parse(raw)}catch(_){return null}
+  }
+
+  function parseTime(value){
+    if(value == null || value === "") return 0;
+    if(typeof value === "number") return value < 100000000000 ? value * 1000 : value;
+    if(/^\d+$/.test(String(value))) {
+      const n = Number(value);
+      return n < 100000000000 ? n * 1000 : n;
+    }
+    const n = Date.parse(String(value));
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function readStoredSession(){
+    for(const key of CFG.sessionKeys){
+      for(const storage of [sessionStorage, localStorage]){
+        try{
+          const parsed = parseJson(storage.getItem(key) || "");
+          if(!parsed || typeof parsed !== "object") continue;
+          const moduleName = String(parsed.module || parsed.module_code || "DRIVER").toUpperCase();
+          if(moduleName !== "DRIVER") continue;
+          const token = String(parsed.session_token || parsed.token || "").trim();
+          const expiresAt = parseTime(parsed.expires_at || parsed.expiresAt || 0);
+          if(!token) continue;
+          if(expiresAt && Date.now() >= expiresAt) continue;
+          return {
+            key,
+            token,
+            slug:String(parsed.slug || "").trim(),
+            phone:String(parsed.phone || "").replace(/\D/g,""),
+            expiresAt,
+            raw:parsed
+          };
+        }catch(_){}
+      }
+    }
+    return null;
+  }
+
+  function clearStoredSession(){
+    for(const key of CFG.sessionKeys){
+      try{sessionStorage.removeItem(key)}catch(_){}
+      try{localStorage.removeItem(key)}catch(_){}
+    }
+  }
+
+  function getClient(){
+    if(client) return client;
+    if(!window.supabase?.createClient) throw new Error("supabase_absent");
+    if(!CFG.url || !CFG.key) throw new Error("supabase_config_absente");
+    client = window.supabase.createClient(CFG.url, CFG.key, {
+      auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
+    });
+    return client;
+  }
+
+  function sessionError(code){
+    const e = new Error(code || "invalid_or_expired_session");
+    e.code = code || "invalid_or_expired_session";
+    return e;
+  }
+
+  function responseCode(data){
+    return String(data?.reason || data?.error || "").trim();
+  }
+
+  function assertServerOk(data){
+    if(data?.ok === false){
+      const code = responseCode(data) || "operation_refusee";
+      if(code === "invalid_or_expired_session") throw sessionError(code);
+      const e = new Error(code);
+      e.code = code;
+      throw e;
+    }
+    return data;
+  }
+
+  async function rpc(name, args){
+    const sb = getClient();
+    const {data,error} = await sb.rpc(name,args);
+    if(error) throw error;
+    return assertServerOk(data);
+  }
+
+  function requireSession(){
+    const session = readStoredSession();
+    if(session) return session;
+    clearStoredSession();
+    location.replace(CFG.pin);
+    return null;
+  }
+
+  function token(){
+    return readStoredSession()?.token || "";
+  }
+
+  async function getCockpit(){
+    const t = token();
+    if(!t) throw sessionError();
+    return rpc("driver_session_get_cockpit",{p_token:t});
+  }
+
+  async function saveProfile(payload){
+    const t = token();
+    if(!t) throw sessionError();
+    return rpc("driver_session_save_profile",{p_token:t,...payload});
+  }
+
+  async function listRates(){
+    const t = token();
+    if(!t) throw sessionError();
+    return rpc("driver_session_list_rates",{p_token:t});
+  }
+
+  function ratesFrom(data){
+    if(Array.isArray(data)) return data;
+    if(Array.isArray(data?.rates)) return data.rates;
+    if(Array.isArray(data?.items)) return data.items;
+    if(Array.isArray(data?.data)) return data.data;
+    return [];
+  }
+
+  async function upsertRate(routeLabel,priceFcfa){
+    const t = token();
+    if(!t) throw sessionError();
+    return rpc("driver_session_upsert_rate",{
+      p_token:t,
+      p_route_label:String(routeLabel || "").trim().replace(/\s+/g," "),
+      p_price_fcfa:Number(priceFcfa || 0)
+    });
+  }
+
+  async function disableRate(rateId){
+    const t = token();
+    if(!t) throw sessionError();
+    return rpc("driver_session_disable_rate",{p_token:t,p_rate_id:rateId});
+  }
+
+  function profilePayload(profile, overrides){
+    const p = profile || {};
+    return {
+      p_business_name:p.business_name || p.driver_name || "",
+      p_driver_name:p.driver_name || p.business_name || "",
+      p_city:p.city || "",
+      p_zones:p.zones || "",
+      p_address:p.address || "",
+      p_whatsapp:p.whatsapp || "",
+      p_vehicle_type:p.vehicle_type || "",
+      p_vehicle_label:p.vehicle_label || "",
+      p_vehicle_plate:p.vehicle_plate || "",
+      p_photo_url:p.photo_url || "",
+      p_cover_url:p.cover_url || "",
+      p_description:p.description || "",
+      p_priority:Number(p.priority || 100),
+      p_is_published:!!p.is_published,
+      p_is_active:p.is_active !== false,
+      ...(overrides || {})
+    };
+  }
+
+  async function logout(){
+    const t = token();
+    try{
+      if(t) await rpc("driver_revoke_session",{p_token:t});
+    }catch(_){}
+    clearStoredSession();
+    location.replace(CFG.pin);
+  }
+
+  function handleError(error, messageEl){
+    console.error(error);
+    const code = String(error?.code || error?.message || "");
+    if(code.includes("invalid_or_expired_session")){
+      clearStoredSession();
+      if(messageEl){
+        messageEl.textContent = "❌ Session expirée. Retour à la porte PIN…";
+        messageEl.className = "message bad";
+      }
+      setTimeout(() => location.replace(CFG.pin), 700);
+      return true;
+    }
+    if(messageEl){
+      messageEl.textContent = "❌ Erreur : " + (error?.message || "opération impossible");
+      messageEl.className = "message bad";
+    }
+    return false;
+  }
+
+  function formatFcfa(value){
+    return Number(value || 0).toLocaleString("fr-FR") + " FCFA";
+  }
+
+  window.DIGIY_DRIVER_SECURE = {
+    readStoredSession,
+    clearStoredSession,
+    requireSession,
+    getCockpit,
+    saveProfile,
+    listRates,
+    ratesFrom,
+    upsertRate,
+    disableRate,
+    profilePayload,
+    logout,
+    handleError,
+    formatFcfa
+  };
+})();
+'''
+
+COMMON_HEAD = '''  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_LOGIN_URL = "./pin.html";
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="./assets/css/driver-mobile.css?v=mobile-v4"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/driver-secure-api.js?v=mobile-v4"></script>'''
+
+BOTTOM_PROFILE = '''  <nav class="bottom">
+    <a href="./hub.html"><i>🏠</i>Portes</a>
+    <a class="active" href="./profil-driver.html"><i>👤</i>Profil</a>
+    <a href="./tarifs-driver.html"><i>💰</i>Tarifs</a>
+    <a href="./session-driver.html"><i>🔒</i>Session</a>
+  </nav>'''
+
+BOTTOM_RATES = '''  <nav class="bottom">
+    <a href="./hub.html"><i>🏠</i>Portes</a>
+    <a href="./profil-driver.html"><i>👤</i>Profil</a>
+    <a class="active" href="./tarifs-driver.html"><i>💰</i>Tarifs</a>
+    <a href="./session-driver.html"><i>🔒</i>Session</a>
+  </nav>'''
+
+BOTTOM_VISIBILITY = '''  <nav class="bottom">
+    <a href="./hub.html"><i>🏠</i>Portes</a>
+    <a href="./profil-driver.html"><i>👤</i>Profil</a>
+    <a href="./tarifs-driver.html"><i>💰</i>Tarifs</a>
+    <a class="active" href="./visibilite-driver.html"><i>👁️</i>Visible</a>
+  </nav>'''
+
+BOTTOM_SESSION = '''  <nav class="bottom">
+    <a href="./hub.html"><i>🏠</i>Portes</a>
+    <a href="./profil-driver.html"><i>👤</i>Profil</a>
+    <a href="./tarifs-driver.html"><i>💰</i>Tarifs</a>
+    <a class="active" href="./session-driver.html"><i>🔒</i>Session</a>
+  </nav>'''
+
+PROFILE_HTML = f'''<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Mon profil chauffeur • DIGIY</title>
+  <meta name="robots" content="noindex,nofollow,noarchive"/>
+  <meta name="theme-color" content="#092b20"/>
+{COMMON_HEAD}
+</head>
+<body>
+  <header class="topbar">
+    <a href="./hub.html">← Portes</a>
+    <strong>Profil chauffeur</strong>
+    <span class="status" id="sessionState">session…</span>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <h1>Mon profil</h1>
+      <p>Une seule partie à la fois. Enregistre sans traverser un long atelier.</p>
+    </section>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="identity" type="button">Identité</button>
+      <button class="tab" data-tab="zone" type="button">Zone</button>
+      <button class="tab" data-tab="contact" type="button">Contact</button>
+    </div>
+
+    <section class="card panel active" id="panel-identity">
+      <h2>Identité & véhicule</h2>
+      <div class="field"><label for="displayName">Nom affiché</label><input class="input" id="displayName"/></div>
+      <div class="field"><label for="vehicleType">Type de véhicule</label><input class="input" id="vehicleType" placeholder="Berline, 7 places, 4x4…"/></div>
+      <div class="grid2">
+        <div class="field"><label for="vehicleBrand">Marque</label><input class="input" id="vehicleBrand"/></div>
+        <div class="field"><label for="vehicleModel">Modèle</label><input class="input" id="vehicleModel"/></div>
+        <div class="field"><label for="vehicleYear">Année</label><input class="input" id="vehicleYear" inputmode="numeric"/></div>
+        <div class="field"><label for="vehicleColor">Couleur</label><input class="input" id="vehicleColor"/></div>
+      </div>
+      <div class="checks">
+        <label class="check"><input id="hasAc" type="checkbox"/> Climatisation</label>
+      </div>
+    </section>
+
+    <section class="card panel" id="panel-zone">
+      <h2>Zone de travail</h2>
+      <div class="field"><label for="city">Ville principale</label><input class="input" id="city" placeholder="Saly"/></div>
+      <div class="field"><label for="zones">Zones couvertes</label><textarea id="zones" placeholder="Saly, Mbour, Somone, AIBD…"></textarea></div>
+      <div class="checks">
+        <label class="check"><input id="airportOk" type="checkbox"/> Transferts aéroport</label>
+        <label class="check"><input id="longDistanceOk" type="checkbox"/> Longues distances</label>
+      </div>
+    </section>
+
+    <section class="card panel" id="panel-contact">
+      <h2>Contact & présentation</h2>
+      <div class="field"><label for="whatsapp">WhatsApp</label><input class="input" id="whatsapp" inputmode="tel"/></div>
+      <div class="field"><label for="contactNote">Note contact</label><input class="input" id="contactNote" placeholder="Disponible sur réservation"/></div>
+      <div class="field"><label for="bio">Bio</label><textarea id="bio"></textarea></div>
+      <div class="actions">
+        <a class="btn blue" href="./visibilite-driver.html">👁️ Visibilité</a>
+        <a class="btn gold" href="./tarifs-driver.html">💰 Mes tarifs</a>
+      </div>
+    </section>
+
+    <div class="message" id="message">Chargement du profil…</div>
+    <div class="stickyAction">
+      <button class="btn primary" id="saveBtn" type="button">💾 Enregistrer mon profil</button>
+    </div>
+  </main>
+
+{BOTTOM_PROFILE}
+
+<script>
+(() => {{
+  "use strict";
+  const api = window.DIGIY_DRIVER_SECURE;
+  const $ = id => document.getElementById(id);
+  const META_PREFIX = "__DIGIY_DRIVER_META__:";
+  let cockpit = null;
+
+  function readMeta(address){{
+    const raw = String(address || "");
+    if(!raw.startsWith(META_PREFIX)) return {{}};
+    try{{return JSON.parse(raw.slice(META_PREFIX.length)) || {{}}}}catch(_){{return {{}}}}
+  }}
+
+  function buildMeta(){{
+    return META_PREFIX + JSON.stringify({{
+      vehicle_brand:$("vehicleBrand").value.trim(),
+      vehicle_model:$("vehicleModel").value.trim(),
+      vehicle_year:$("vehicleYear").value.trim(),
+      vehicle_color:$("vehicleColor").value.trim(),
+      has_ac:$("hasAc").checked,
+      airport_ok:$("airportOk").checked,
+      long_distance_ok:$("longDistanceOk").checked,
+      contact_note:$("contactNote").value.trim()
+    }});
+  }}
+
+  function vehicleLabel(){{
+    return [
+      $("vehicleType").value.trim(),
+      $("vehicleBrand").value.trim(),
+      $("vehicleModel").value.trim(),
+      $("vehicleYear").value.trim(),
+      $("vehicleColor").value.trim(),
+      $("hasAc").checked ? "Clim" : ""
+    ].filter(Boolean).join(" • ");
+  }}
+
+  function showMessage(text,type){{
+    $("message").textContent = text;
+    $("message").className = "message " + (type || "");
+  }}
+
+  function fill(data){{
+    cockpit = data;
+    const p = data?.profile || {{}};
+    const meta = readMeta(p.address);
+    $("displayName").value = p.driver_name || p.business_name || "";
+    $("vehicleType").value = p.vehicle_type || "";
+    $("vehicleBrand").value = meta.vehicle_brand || "";
+    $("vehicleModel").value = meta.vehicle_model || "";
+    $("vehicleYear").value = meta.vehicle_year || "";
+    $("vehicleColor").value = meta.vehicle_color || "";
+    $("hasAc").checked = !!meta.has_ac;
+    $("city").value = p.city || "";
+    $("zones").value = p.zones || "";
+    $("airportOk").checked = !!meta.airport_ok;
+    $("longDistanceOk").checked = !!meta.long_distance_ok;
+    $("whatsapp").value = p.whatsapp || data?.phone || "";
+    $("contactNote").value = meta.contact_note || "";
+    $("bio").value = p.description || "";
+  }}
+
+  async function load(){{
+    if(!api.requireSession()) return;
+    $("sessionState").textContent = "session ouverte";
+    $("sessionState").className = "status ok";
+    try{{
+      const data = await api.getCockpit();
+      fill(data);
+      showMessage("✅ Profil chargé.","ok");
+    }}catch(error){{
+      api.handleError(error,$("message"));
+    }}
+  }}
+
+  async function save(){{
+    if(!cockpit?.profile) return;
+    const btn = $("saveBtn");
+    btn.disabled = true;
+    showMessage("⏳ Enregistrement…","warn");
+    const p = cockpit.profile;
+    const name = $("displayName").value.trim();
+    try{{
+      await api.saveProfile({{
+        p_business_name:name,
+        p_driver_name:name,
+        p_city:$("city").value.trim(),
+        p_zones:$("zones").value.trim(),
+        p_address:buildMeta(),
+        p_whatsapp:$("whatsapp").value.replace(/\\D/g,""),
+        p_vehicle_type:$("vehicleType").value.trim(),
+        p_vehicle_label:vehicleLabel(),
+        p_vehicle_plate:p.vehicle_plate || "",
+        p_photo_url:p.photo_url || "",
+        p_cover_url:p.cover_url || "",
+        p_description:$("bio").value.trim(),
+        p_priority:Number(p.priority || 100),
+        p_is_published:!!p.is_published,
+        p_is_active:p.is_active !== false
+      }});
+      await load();
+      showMessage("✅ Profil enregistré dans Supabase.","ok");
+    }}catch(error){{
+      api.handleError(error,$("message"));
+    }}finally{{
+      btn.disabled = false;
+    }}
+  }}
+
+  document.querySelectorAll("[data-tab]").forEach(btn => {{
+    btn.addEventListener("click",() => {{
+      document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active",x===btn));
+      document.querySelectorAll(".panel").forEach(x => x.classList.toggle("active",x.id==="panel-"+btn.dataset.tab));
+      scrollTo({{top:0,behavior:"smooth"}});
+    }});
+  }});
+
+  $("saveBtn").addEventListener("click",save);
+  load();
+}})();
+</script>
+</body>
+</html>
+'''
+
+RATES_HTML = f'''<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Mes tarifs chauffeur • DIGIY</title>
+  <meta name="robots" content="noindex,nofollow,noarchive"/>
+  <meta name="theme-color" content="#092b20"/>
+{COMMON_HEAD}
+</head>
+<body>
+  <header class="topbar">
+    <a href="./hub.html">← Portes</a>
+    <strong>Tarifs directs</strong>
+    <span class="status" id="sessionState">session…</span>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <h1>Mes tarifs</h1>
+      <p>Ajoute, relis et désactive tes prix sans traverser le profil.</p>
+    </section>
+
+    <section class="card">
+      <h2>Ajouter un trajet</h2>
+      <div class="field"><label for="routeLabel">Trajet</label><input class="input" id="routeLabel" placeholder="Saly → Dakar"/></div>
+      <div class="field"><label for="priceFcfa">Prix FCFA</label><input class="input" id="priceFcfa" inputmode="numeric" placeholder="32000"/></div>
+      <button class="btn primary" id="saveRateBtn" type="button" style="width:100%;margin-top:14px">🚕 Enregistrer ce tarif</button>
+      <div class="message" id="message">Chargement…</div>
+    </section>
+
+    <section class="card">
+      <h2>Tarifs actifs</h2>
+      <div class="summary">
+        <div class="metric"><small>Nombre</small><b id="rateCount">0</b></div>
+        <div class="metric"><small>Prix minimum</small><b id="rateMin">—</b></div>
+      </div>
+      <div class="rateList" id="rateList"><div class="empty">Chargement…</div></div>
+    </section>
+  </main>
+
+{BOTTOM_RATES}
+
+<script>
+(() => {{
+  "use strict";
+  const api = window.DIGIY_DRIVER_SECURE;
+  const $ = id => document.getElementById(id);
+  let rows = [];
+
+  function showMessage(text,type){{
+    $("message").textContent = text;
+    $("message").className = "message " + (type || "");
+  }}
+
+  function render(){{
+    $("rateCount").textContent = String(rows.length);
+    const prices = rows.map(r => Number(r.price_fcfa || 0)).filter(n => n > 0);
+    $("rateMin").textContent = prices.length ? api.formatFcfa(Math.min(...prices)) : "—";
+    const list = $("rateList");
+    list.innerHTML = "";
+    if(!rows.length){{
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "Aucun tarif actif.";
+      list.appendChild(empty);
+      return;
+    }}
+    rows.forEach(r => {{
+      const item = document.createElement("div");
+      item.className = "rate";
+      const info = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = r.route_label || "Trajet";
+      const price = document.createElement("span");
+      price.textContent = api.formatFcfa(r.price_fcfa);
+      info.append(title,price);
+      const disable = document.createElement("button");
+      disable.className = "btn danger";
+      disable.type = "button";
+      disable.textContent = "Désactiver";
+      disable.addEventListener("click",() => disableRate(r.id,disable));
+      item.append(info,disable);
+      list.appendChild(item);
+    }});
+  }}
+
+  async function load(){{
+    if(!api.requireSession()) return;
+    $("sessionState").textContent = "session ouverte";
+    $("sessionState").className = "status ok";
+    try{{
+      const data = await api.listRates();
+      rows = api.ratesFrom(data).filter(r => r?.is_active !== false);
+      render();
+      showMessage("✅ Tarifs synchronisés avec Supabase.","ok");
+    }}catch(error){{
+      api.handleError(error,$("message"));
+    }}
+  }}
+
+  async function saveRate(){{
+    const label = $("routeLabel").value.trim().replace(/\\s+/g," ");
+    const price = Number(String($("priceFcfa").value || "").replace(/\\D/g,""));
+    if(label.length < 2) return showMessage("❌ Indique le trajet.","bad");
+    if(!Number.isFinite(price) || price <= 0) return showMessage("❌ Prix invalide.","bad");
+    const btn = $("saveRateBtn");
+    btn.disabled = true;
+    showMessage("⏳ Enregistrement…","warn");
+    try{{
+      await api.upsertRate(label,price);
+      $("routeLabel").value = "";
+      $("priceFcfa").value = "";
+      await load();
+      showMessage("✅ Tarif enregistré.","ok");
+    }}catch(error){{
+      api.handleError(error,$("message"));
+    }}finally{{
+      btn.disabled = false;
+    }}
+  }}
+
+  async function disableRate(id,btn){{
+    btn.disabled = true;
+    showMessage("⏳ Désactivation…","warn");
+    try{{
+      await api.disableRate(id);
+      await load();
+      showMessage("✅ Tarif désactivé.","ok");
+    }}catch(error){{
+      api.handleError(error,$("message"));
+      btn.disabled = false;
+    }}
+  }}
+
+  $("saveRateBtn").addEventListener("click",saveRate);
+  load();
+}})();
+</script>
+</body>
+</html>
+'''
+
+VISIBILITY_HTML = f'''<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Visibilité chauffeur • DIGIY</title>
+  <meta name="robots" content="noindex,nofollow,noarchive"/>
+  <meta name="theme-color" content="#092b20"/>
+{COMMON_HEAD}
+</head>
+<body>
+  <header class="topbar">
+    <a href="./hub.html">← Portes</a>
+    <strong>Visibilité</strong>
+    <span class="status" id="sessionState">session…</span>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <h1>Ma visibilité</h1>
+      <p>Un écran, une décision : apparaître ou rester masqué.</p>
+    </section>
+
+    <section class="card">
+      <h2>État actuel</h2>
+      <div class="metric">
+        <small>Profil chauffeur</small>
+        <b id="visibilityText">Chargement…</b>
+      </div>
+      <div class="bigChoice">
+        <button class="btn primary" id="publishBtn" type="button">✅ Publier mon profil</button>
+        <button class="btn danger" id="hideBtn" type="button">🙈 Masquer mon profil</button>
+      </div>
+      <div class="message" id="message">Chargement…</div>
+    </section>
+  </main>
+
+{BOTTOM_VISIBILITY}
+
+<script>
+(() => {{
+  "use strict";
+  const api = window.DIGIY_DRIVER_SECURE;
+  const $ = id => document.getElementById(id);
+  let cockpit = null;
+
+  function showMessage(text,type){{
+    $("message").textContent = text;
+    $("message").className = "message " + (type || "");
+  }}
+
+  function render(){{
+    const visible = !!cockpit?.profile?.is_published;
+    $("visibilityText").textContent = visible ? "Publié — visible côté client" : "Masqué — non visible côté client";
+    $("publishBtn").disabled = visible;
+    $("hideBtn").disabled = !visible;
+  }}
+
+  async function load(){{
+    if(!api.requireSession()) return;
+    $("sessionState").textContent = "session ouverte";
+    $("sessionState").className = "status ok";
+    try{{
+      cockpit = await api.getCockpit();
+      render();
+      showMessage("✅ État synchronisé.","ok");
+    }}catch(error){{
+      api.handleError(error,$("message"));
+    }}
+  }}
+
+  async function setVisibility(value){{
+    if(!cockpit?.profile) return;
+    $("publishBtn").disabled = true;
+    $("hideBtn").disabled = true;
+    showMessage("⏳ Mise à jour…","warn");
+    try{{
+      await api.saveProfile(api.profilePayload(cockpit.profile,{{p_is_published:value}}));
+      await load();
+      showMessage(value ? "✅ Profil publié." : "✅ Profil masqué.","ok");
+    }}catch(error){{
+      api.handleError(error,$("message"));
+      render();
+    }}
+  }}
+
+  $("publishBtn").addEventListener("click",() => setVisibility(true));
+  $("hideBtn").addEventListener("click",() => setVisibility(false));
+  load();
+}})();
+</script>
+</body>
+</html>
+'''
+
+SESSION_HTML = f'''<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Ma session chauffeur • DIGIY</title>
+  <meta name="robots" content="noindex,nofollow,noarchive"/>
+  <meta name="theme-color" content="#092b20"/>
+{COMMON_HEAD}
+</head>
+<body>
+  <header class="topbar">
+    <a href="./hub.html">← Portes</a>
+    <strong>Session DRIVER</strong>
+    <span class="status" id="sessionState">session…</span>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <h1>Ma session</h1>
+      <p>Vérifie l’accès ou ferme-le proprement sur cet appareil.</p>
+    </section>
+
+    <section class="card">
+      <h2>Accès sécurisé</h2>
+      <div class="summary">
+        <div class="metric"><small>Compte</small><b id="accountText">—</b></div>
+        <div class="metric"><small>Expiration</small><b id="expiryText">—</b></div>
+      </div>
+      <div class="field">
+        <label>Jeton</label>
+        <div class="input" id="tokenText">Masqué</div>
+      </div>
+      <div class="bigChoice">
+        <a class="btn blue" href="./hub.html">🏠 Retour aux portes</a>
+        <button class="btn danger" id="logoutBtn" type="button">🔒 Fermer cette session</button>
+      </div>
+      <div class="message" id="message">Session locale détectée.</div>
+    </section>
+  </main>
+
+{BOTTOM_SESSION}
+
+<script>
+(() => {{
+  "use strict";
+  const api = window.DIGIY_DRIVER_SECURE;
+  const $ = id => document.getElementById(id);
+  const session = api.requireSession();
+
+  if(session){{
+    $("sessionState").textContent = "session ouverte";
+    $("sessionState").className = "status ok";
+    const phone = String(session.phone || "");
+    $("accountText").textContent = phone ? "•••• " + phone.slice(-4) : "DRIVER";
+    $("expiryText").textContent = session.expiresAt
+      ? new Date(session.expiresAt).toLocaleString("fr-FR",{{dateStyle:"short",timeStyle:"short"}})
+      : "8 h maximum";
+    $("tokenText").textContent = "••••••••" + String(session.token || "").slice(-6);
+  }}
+
+  $("logoutBtn").addEventListener("click",async () => {{
+    $("logoutBtn").disabled = true;
+    $("message").textContent = "⏳ Fermeture de la session…";
+    $("message").className = "message warn";
+    await api.logout();
+  }});
+}})();
+</script>
+</body>
+</html>
+'''
+
+
+def patch_hub(text: str) -> str:
+    text = replace_once(text, '<div class="panelHint">6 portes utiles</div>',
+                        '<div class="panelHint">8 portes utiles</div>',
+                        "hub/panelHint")
+
+    text = replace_once(text,
+                        'id="doorProfil" href="./profil-chauffeur.html"',
+                        'id="doorProfil" href="./profil-driver.html"',
+                        "hub/doorProfil")
+
+    text = replace_once(text,
+                        'id="doorTarifs" href="./tarifs-edition.html"',
+                        'id="doorTarifs" href="./tarifs-driver.html"',
+                        "hub/doorTarifs")
+
+    rates_block = '''        <a class="door pave gold" id="doorTarifs" href="./tarifs-driver.html">
+          <div class="paveTop">
+            <div class="doorIcon">💰</div>
+            <div class="doorTag">Prix</div>
+          </div>
+          <div class="doorInfo"><b>Mes tarifs</b><span>Grille claire pour le client.</span></div>
+        </a>'''
+
+    extra_doors = rates_block + '''
+
+        <a class="door pave" id="doorVisibilite" href="./visibilite-driver.html">
+          <div class="paveTop">
+            <div class="doorIcon">👁️</div>
+            <div class="doorTag">Visible</div>
+          </div>
+          <div class="doorInfo"><b>Ma visibilité</b><span>Publier ou masquer sans toucher au profil.</span></div>
+        </a>
+
+        <a class="door pave" id="doorSession" href="./session-driver.html">
+          <div class="paveTop">
+            <div class="doorIcon">🔒</div>
+            <div class="doorTag">Session</div>
+          </div>
+          <div class="doorInfo"><b>Ma session</b><span>Vérifier ou fermer l’accès sur cet appareil.</span></div>
+        </a>'''
+
+    text = replace_once(text, rates_block, extra_doors, "hub/portes supplémentaires")
+
+    replacements = {
+        'profile:   "./profil-chauffeur.html"': 'profile:   "./profil-driver.html"',
+        'rates:     "./tarifs-edition.html"': 'rates:     "./tarifs-driver.html"',
+        'habitualRoutes: "./profile-edition.html"': 'habitualRoutes: "./tarifs-driver.html"',
+        'session:   "./session.html"': 'session:   "./session-driver.html"',
+    }
+    for old,new in replacements.items():
+        text = replace_once(text,old,new,f"hub/routes/{old.split(':')[0].strip()}")
+
+    return text
+
+
+def main() -> int:
+    if len(sys.argv) != 2:
+        print("Usage: python3 apply_driver_mobile_split_v4.py /chemin/vers/digiy-pro-driver")
+        return 2
+
+    root = Path(sys.argv[1]).expanduser().resolve()
+    hub = root / "hub.html"
+    monolith = root / "profile-edition.html"
+
+    if not hub.is_file():
+        raise PatchError(f"Fichier absent : {hub}")
+    if not monolith.is_file():
+        raise PatchError(f"Fichier absent : {monolith}")
+
+    monolith_text = monolith.read_text(encoding="utf-8")
+    required = [
+        'driver_session_get_cockpit',
+        'driver_session_save_profile',
+        'driver_session_list_rates',
+        'driver_session_upsert_rate',
+        'driver_session_disable_rate',
+    ]
+    missing = [name for name in required if name not in monolith_text]
+    if missing:
+        raise PatchError("Les patchs V2/V3 ne sont pas complets : " + ", ".join(missing))
+
+    targets = {
+        root / "assets/css/driver-mobile.css": MOBILE_CSS,
+        root / "assets/js/driver-secure-api.js": SECURE_API_JS,
+        root / "profil-driver.html": PROFILE_HTML,
+        root / "tarifs-driver.html": RATES_HTML,
+        root / "visibilite-driver.html": VISIBILITY_HTML,
+        root / "session-driver.html": SESSION_HTML,
+    }
+
+    hub_original = hub.read_text(encoding="utf-8")
+    hub_patched = patch_hub(hub_original)
+
+    # Le monobloc reste disponible, mais son bouton Tarifs rejoint la page courte.
+    monolith_patched = monolith_text.replace(
+        'tarifs: "./tarifs.html"',
+        'tarifs: "./tarifs-driver.html"',
+        1
+    )
+
+    backup_paths = []
+    for path in [hub, monolith, *targets.keys()]:
+        b = write_backup(path)
+        if b:
+            backup_paths.append(b)
+
+    for path, content in targets.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+
+    hub.write_text(hub_patched, encoding="utf-8")
+    monolith.write_text(monolith_patched, encoding="utf-8")
+
+    validations = {
+        "hub profil mobile": './profil-driver.html' in hub_patched,
+        "hub tarifs mobile": './tarifs-driver.html' in hub_patched,
+        "hub visibilité": './visibilite-driver.html' in hub_patched,
+        "hub session": './session-driver.html' in hub_patched,
+        "API cockpit": 'driver_session_get_cockpit' in SECURE_API_JS,
+        "API profil": 'driver_session_save_profile' in SECURE_API_JS,
+        "API tarifs": 'driver_session_list_rates' in SECURE_API_JS,
+        "API révocation": 'driver_revoke_session' in SECURE_API_JS,
+    }
+    failed = [name for name,ok in validations.items() if not ok]
+    if failed:
+        raise PatchError("Validation V4 échouée : " + ", ".join(failed))
+
+    print("PATCH MOBILE V4 APPLIQUÉ — aucun commit, aucun push.")
+    print("Nouvelles portes :")
+    for path in targets:
+        print(f"  - {path}")
+    print("Fichiers reliés :")
+    print(f"  - {hub}")
+    print(f"  - {monolith} (atelier de secours conservé)")
+    if backup_paths:
+        print("Sauvegardes :")
+        for path in backup_paths:
+            print(f"  - {path}")
+    print()
+    print("Test : python3 -m http.server 8080")
+    print("Puis ouvrir : http://127.0.0.1:8080/hub.html?v=mobile-v4")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except PatchError as exc:
+        print(f"ERREUR PATCH MOBILE V4 : {exc}", file=sys.stderr)
+        raise SystemExit(1)
