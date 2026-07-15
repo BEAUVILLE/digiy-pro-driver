@@ -1,181 +1,31 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>DIGIY DRIVER PRO — Stable</title>
-<meta name="theme-color" content="#1e7a46">
-<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
-<script>
-  /* Rail DIGIY canonique : LOGIN_URL d'abord, anti-flash, puis guard */
-  window.DIGIY_LOGIN_URL = "./pin.html";
-  document.documentElement.style.visibility = "hidden";
-</script>
-<script src="./guard.js?v=20260706"></script>
-<meta name="description" content="DIGIY DRIVER PRO — courses, trajets, fiche chauffeur avec QR intégré, QR seul, option PRO CARNET et données.">
-<meta name="digiy-build" content="driver-pro-liens-pro-carnet-corriges-20260712">
-<script>
-window.DIGIY_MODULE="DRIVER";window.DIGIY_ABOS_MODULE="DRIVER";window.DIGIY_MODULE_LABEL="Je conduis";window.DIGIY_LOGIN_URL="./pin.html";window.DIGIY_CARNET_INSCRIPTION_URL="https://digiy-carnet-pro.digiylyfe.com/inscription-pay.html";window.DIGIY_PAY_URL=window.DIGIY_CARNET_INSCRIPTION_URL;/* alias technique historique */window.DIGIY_PUBLIC_BASE_URL="https://driver-client.digiylyfe.com/";
-</script>
-<style>
-:root{--bg:#f4efe2;--paper:#fffaf0;--ink:#10251c;--muted:#66746e;--green:#1e7a46;--green2:#155a34;--gold:#c4973f;--gold2:#fff0a8;--line:rgba(16,37,28,.13);--shadow:0 20px 56px rgba(6,59,43,.16);--max:1080px;--bottom:86px;--font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100svh;font-family:var(--font);color:var(--ink);font-weight:850;background:radial-gradient(900px 520px at 6% -8%,rgba(196,151,63,.22),transparent 58%),radial-gradient(900px 520px at 105% 0%,rgba(30,122,70,.16),transparent 54%),linear-gradient(180deg,#fff8ea 0%,#f3ecd9 55%,#eadfc8 100%);padding-bottom:calc(var(--bottom) + env(safe-area-inset-bottom,0px) + 14px)}a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}button{cursor:pointer}.wrap{width:min(var(--max),calc(100% - 24px));margin:0 auto}.top{position:sticky;top:0;z-index:70;background:rgba(255,248,234,.94);border-bottom:1px solid rgba(16,37,28,.10);backdrop-filter:blur(14px)}.topin{min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0}.brand b{display:block;color:var(--green);font-size:17px;letter-spacing:-.03em;font-weight:1000}.brand span{display:block;color:var(--muted);font-size:12px;margin-top:3px;font-weight:900}.toplinks{display:flex;gap:8px;flex-wrap:wrap}.pill{min-height:40px;border-radius:999px;border:1px solid rgba(30,122,70,.14);background:#fff;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:1000;color:var(--green);box-shadow:0 8px 20px rgba(6,59,43,.08)}.pill.gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#2d2308;border:0}.hero{padding:16px 0 10px}.heroCard{border-radius:32px;padding:22px;background:radial-gradient(circle at 88% 12%,rgba(196,151,63,.34),transparent 25%),linear-gradient(135deg,#104024,#1e7a46 58%,#22a663);color:#fff;box-shadow:var(--shadow)}.kicker{display:inline-flex;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:1000}.hero h1{margin:14px 0 8px;font-size:clamp(36px,7vw,70px);line-height:.95;letter-spacing:-.055em}.hero p{margin:0;color:rgba(255,255,255,.88);line-height:1.55;max-width:78ch}.doors{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:9px;margin-top:15px}.door{min-height:88px;border-radius:20px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px;padding:10px;color:#fff}.door strong{font-size:25px}.door b{font-size:13px;font-weight:1000}.door small{font-size:10.5px;color:rgba(255,255,255,.78);font-weight:900}.door.gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#2d2308;border:0}.door.gold small{color:rgba(45,35,8,.75)}.panel{border:1px solid var(--line);border-radius:26px;background:rgba(255,250,240,.86);box-shadow:0 12px 30px rgba(6,59,43,.10);padding:15px;margin-bottom:12px}.panel h2{margin:0 0 10px;color:var(--green);font-size:26px;line-height:1;font-weight:1000;letter-spacing:-.03em}.panel p{margin:0 0 12px;color:var(--muted);line-height:1.5;font-size:14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{padding:12px;border-radius:18px;background:#fff;border:1px solid var(--line)}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.stat b{display:block;margin-top:4px;font-size:24px;color:var(--green)}.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;color:var(--green);font-weight:1000;letter-spacing:.06em;text-transform:uppercase}.input,.select,.area{width:100%;min-height:48px;border-radius:16px;border:1px solid rgba(16,37,28,.15);background:#fff;color:var(--ink);padding:10px 12px;outline:none;font-weight:900}.area{min-height:92px;resize:vertical;line-height:1.45}.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.btn{min-height:50px;border-radius:16px;border:1px solid rgba(30,122,70,.14);background:#fff;color:var(--green);font-weight:1000;display:inline-flex;align-items:center;justify-content:center;text-align:center;padding:0 14px}.btn.gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#2d2308;border:0}.btn.green{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:0}.btn.red{background:rgba(180,35,24,.09);border-color:rgba(180,35,24,.15);color:#b42318}.list{display:grid;gap:8px}.item{border:1px solid var(--line);border-radius:18px;background:#fff;padding:12px}.itemTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.item b{color:var(--ink)}.item small{display:block;color:var(--muted);line-height:1.45;margin-top:4px}.tag{border-radius:999px;border:1px solid rgba(196,151,63,.35);background:rgba(196,151,63,.12);color:#7a5616;padding:6px 9px;font-size:11px;font-weight:1000;white-space:nowrap}.preview{white-space:pre-wrap;border:1px solid rgba(196,151,63,.25);border-radius:18px;background:#fff;padding:12px;color:#3d2f11;line-height:1.45;min-height:140px}.sectionTitle{padding-top:76px;margin-top:-64px}.bottom{position:fixed;left:0;right:0;bottom:0;z-index:80;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));height:var(--bottom);background:rgba(255,248,234,.97);border-top:1px solid rgba(16,37,28,.10);backdrop-filter:blur(12px)}.bottomin{width:min(820px,100%);height:100%;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.bottom a{border-radius:15px;display:grid;place-items:center;align-content:center;gap:2px;text-align:center;color:rgba(16,37,28,.65);font-size:11px;font-weight:1000}.bottom .active{background:linear-gradient(135deg,var(--green),var(--gold2));color:#052215}.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(18px);opacity:0;z-index:100;border-radius:999px;background:rgba(0,0,0,.82);color:#fff;padding:12px 16px;font-weight:1000;transition:.18s;pointer-events:none}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}footer{padding:18px 0 34px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:1020px){.doors{grid-template-columns:repeat(4,1fr)}}@media(max-width:900px){.grid{grid-template-columns:1fr}}@media(max-width:560px){.toplinks{display:none}.doors{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.form{grid-template-columns:1fr}.heroCard{padding:16px}.door{min-height:82px}}
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+
+  <title>DIGIY DRIVER — Accès chauffeur</title>
+  <meta name="description" content="Accès sécurisé à l’espace chauffeur DIGIY DRIVER."/>
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
+  <meta name="theme-color" content="#0b3b29"/>
+
+  <script>
+    /*
+      Porte canonique DRIVER :
+      index.html ne contient plus le cockpit complet.
+      Le hub simple reste protégé par guard.js.
+    */
+    window.location.replace("./hub.html");
+  </script>
+
+  <noscript>
+    <meta http-equiv="refresh" content="0;url=./hub.html"/>
+  </noscript>
 </head>
 <body>
-<header class="top"><div class="wrap topin"><a class="brand" href="#top"><b>DIGIY DRIVER PRO</b><span>Courses · fiche QR intégrée</span></a><div class="toplinks"><a class="pill gold" href="#ride">➕ Course</a><a class="pill gold" href="./fiche.html">🪪 Fiche QR</a><a class="pill gold" href="./qr.html">🔳 QR seul</a><a class="pill" href="#plus">☰ Plus</a></div></div></header>
-<main class="wrap" id="top">
-<section class="hero"><div class="heroCard"><span class="kicker">DRIVER V2 · fiche chauffeur avec QR intégré</span><h1>Je conduis. Je partage. Je garde la main.</h1><p>Chaque chauffeur peut avoir sa fiche DRIVER : zones, véhicule, trajets, WhatsApp public, identifiant client et QR intégré. Le QR seul reste disponible pour impression rapide.</p><nav class="doors"><a class="door gold" href="#ride"><strong>➕</strong><b>Course</b><small>nouvelle demande</small></a><a class="door" href="#trips"><strong>🚗</strong><b>Trajets</b><small>historique</small></a><a class="door" href="#driver"><strong>👤</strong><b>Chauffeur</b><small>admin</small></a><a class="door" href="#carnet"><strong>📒</strong><b>PRO CARNET</b><small>option séparée</small></a><a class="door gold" href="./fiche.html"><strong>🪪</strong><b>Fiche QR</b><small>QR intégré</small></a><a class="door gold" href="./qr.html"><strong>🔳</strong><b>QR seul</b><small>impression</small></a><a class="door" href="#data"><strong>🛡️</strong><b>Données</b><small>export</small></a><a class="door" href="https://digiylyfe.com/"><strong>🦅</strong><b>DIGIY</b><small>retour</small></a></nav></div></section>
-<section class="panel"><div class="stats"><div class="stat"><span>Courses</span><b id="statCount">0</b></div><div class="stat"><span>Confirmées</span><b id="statOk">0</b></div><div class="stat"><span>Recettes</span><b id="statMoney">0</b></div><div class="stat"><span>À recevoir</span><b id="statDebt">0</b></div></div></section>
-<section class="grid"><div class="panel sectionTitle" id="ride"><h2>➕ Nouvelle course</h2><p>Client, départ, arrivée, montant, statut. Le chauffeur confirme.</p><form class="form" id="rideForm"><div class="field"><label>Client</label><input class="input" id="clientName" placeholder="Nom client" required></div><div class="field"><label>Téléphone</label><input class="input" id="clientPhone" placeholder="WhatsApp" inputmode="tel"></div><div class="field"><label>Départ</label><input class="input" id="from" placeholder="AIBD, Saly..."></div><div class="field"><label>Arrivée</label><input class="input" id="to" placeholder="Dakar, Mbour..."></div><div class="field"><label>Montant</label><input class="input" id="amount" type="number" min="0" value="0"></div><div class="field"><label>Statut</label><select class="select" id="status"><option>Demande</option><option>Confirmée</option><option>Payée</option><option>À recevoir</option></select></div><div class="field full"><label>Note</label><textarea class="area" id="note" placeholder="Note courte"></textarea></div><div class="field full"><button class="btn gold" type="submit">Ajouter la course</button></div></form></div><div class="panel sectionTitle" id="driver"><h2>👤 Chauffeur / admin</h2><p>Pour la visibilité client, ouvre la fiche QR chauffeur.</p><div class="form"><div class="field"><label>Nom chauffeur</label><input class="input" id="driverName" placeholder="Nom visible"></div><div class="field"><label>Zone</label><input class="input" id="driverZone" placeholder="Saly, AIBD..."></div><div class="field"><label>Véhicule</label><input class="input" id="driverCar" placeholder="Berline, 7 places..."></div><div class="field"><label>Lien public</label><input class="input" id="driverPublic" placeholder="https://driver-client.digiylyfe.com/"></div><div class="field full"><button class="btn gold" onclick="saveDriver()" type="button">Enregistrer chauffeur</button></div></div><div class="btns"><a class="btn gold" href="./fiche.html">🪪 Ouvrir fiche QR</a><a class="btn" href="./qr.html">🔳 Ouvrir QR seul</a></div></div></section>
-<section class="grid" id="plus"><div class="panel sectionTitle" id="requests"><h2>📥 Demandes clients</h2><p>Les demandes envoyées depuis la page client arrivent ici. Un tap : la demande devient une course.</p><div class="btns"><button class="btn gold" onclick="loadRequests(true)" type="button">🔄 Actualiser</button><span class="tag" id="reqState">—</span></div><div class="list" id="reqList"></div></div><div class="panel sectionTitle" id="trips"><h2>🚗 Trajets</h2><div class="list" id="tripList"></div></div><div class="panel sectionTitle" id="carnet"><h2>📒 PRO CARNET · abonnement séparé</h2><p>DRIVER PRO garde ici les recettes payées et les montants à recevoir. PRO CARNET n’est pas inclus automatiquement dans l’abonnement DRIVER.</p><div class="preview" id="paySummary"></div><div class="btns"><a class="btn gold" href="https://digiy-carnet-pro.digiylyfe.com/inscription-pay.html" target="_blank" rel="noopener noreferrer">📒 S’inscrire à PRO CARNET</a></div></div><div class="panel sectionTitle" id="data"><h2>🛡️ Données</h2><p>Export/import local pour sauvegarde terrain.</p><div class="btns"><button class="btn" onclick="exportData()">Exporter</button><label class="btn">Importer<input type="file" accept="application/json" hidden onchange="importData(event)"></label><button class="btn red" onclick="resetAll()">Réinitialiser</button></div></div></section>
-</main><footer class="wrap">DIGIY DRIVER PRO · Courses · fiche chauffeur avec QR intégré · paiement direct au chauffeur.</footer><nav class="bottom"><div class="bottomin"><a class="active" href="#ride"><span>➕</span><span>Course</span></a><a href="#trips"><span>🚗</span><span>Trajets</span></a><a href="./fiche.html"><span>🪪</span><span>Fiche QR</span></a><a href="./qr.html"><span>🔳</span><span>QR seul</span></a><a href="#driver"><span>👤</span><span>Chauffeur</span></a></div></nav><div class="toast" id="toast">OK</div>
-<script>
-/* ── VERROU DRIVER PRO ──
-   guard.js considère index.html comme porte publique (isPublicEntryPage -> redirect:false).
-   Le cockpit exige donc lui-même une session PIN valide avant de démarrer. */
-function __digiyStartDriverApp(){
-const $=id=>document.getElementById(id);const LS_T='digiy_driver_trips_v1',LS_D='digiy_driver_profile_v1';let trips=load(LS_T,[]),driver=Object.assign({name:'Mon chauffeur',zone:'',car:'',publicLink:'https://driver-client.digiylyfe.com/'},load(LS_D,{}));function load(k,f){try{return JSON.parse(localStorage.getItem(k)||'')||f}catch(e){return f}}function save(){localStorage.setItem(LS_T,JSON.stringify(trips));localStorage.setItem(LS_D,JSON.stringify(driver))}function uid(){return'driver_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}function fmt(n){return Number(n||0).toLocaleString('fr-FR')}function money(n){return fmt(n)+' FCFA'}function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),1700)}function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}function stats(){const ok=trips.filter(t=>/confirm|pay/i.test(t.status)).length,paid=trips.filter(t=>/pay/i.test(t.status)).reduce((a,b)=>a+Number(b.amount||0),0),debt=trips.filter(t=>/recevoir/i.test(t.status)).reduce((a,b)=>a+Number(b.amount||0),0);return{ok,paid,debt}}function renderStats(){const s=stats();$('statCount').textContent=fmt(trips.length);$('statOk').textContent=fmt(s.ok);$('statMoney').textContent=fmt(s.paid);$('statDebt').textContent=fmt(s.debt)}function renderTrips(){
-  if(!trips.length){$('tripList').innerHTML='<div class="item"><b>Aucune course</b><small>Ajoute une course pour démarrer.</small></div>';return}
-  $('tripList').innerHTML=trips.map(t=>{
-    const phone=String(t.phone||'').trim();
-    const wa=phone?'<a class="btn green" target="_blank" rel="noopener" href="https://wa.me/'+phone.replace(/[^\d]/g,'')+'">💬 Client</a>':'';
-    return '<div class="item"><div class="itemTop"><div><b>'+esc(t.client)+'</b><small>'+esc(t.from)+' → '+esc(t.to)+' · '+money(t.amount)+'</small>'+(phone?'<small>📞 '+esc(phone)+'</small>':'')+'<small>'+esc(t.note||'')+'</small></div><span class="tag">'+esc(t.status)+'</span></div><div class="btns">'+wa+'<button class="btn" onclick="setStatus(\''+t.id+'\',\'Confirmée\')">Confirmer</button><button class="btn" onclick="setStatus(\''+t.id+'\',\'Payée\')">Payée</button><button class="btn red" onclick="removeTrip(\''+t.id+'\')">Retirer</button></div></div>';
-  }).join('')
-}function renderDriver(){if($('driverName'))$('driverName').value=driver.name||'';if($('driverZone'))$('driverZone').value=driver.zone||'';if($('driverCar'))$('driverCar').value=driver.car||'';if($('driverPublic'))$('driverPublic').value=driver.publicLink||''}function renderPay(){const s=stats();$('paySummary').textContent='Recettes payées dans DRIVER PRO : '+money(s.paid)+'\nÀ recevoir : '+money(s.debt)+'\nCourses : '+trips.length+'\n\nPaiement direct au chauffeur. PRO CARNET est un abonnement séparé. DIGIY ne prend pas de commission.'}function render(){renderStats();renderTrips();renderDriver();renderPay()}function setStatus(id,st){const t=trips.find(x=>x.id===id);if(t){t.status=st;save();render();toast(st)}}function removeTrip(id){trips=trips.filter(t=>t.id!==id);save();render();toast('Course retirée')}function saveDriver(){driver={name:$('driverName').value.trim()||'Mon chauffeur',zone:$('driverZone').value.trim(),car:$('driverCar').value.trim(),publicLink:$('driverPublic').value.trim()||'https://driver-client.digiylyfe.com/'};save();render();toast('Chauffeur enregistré')}function exportData(){const blob=new Blob([JSON.stringify({driver,trips},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='digiy-driver-export.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}function importData(e){const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result||'{}');if(d.driver)driver=Object.assign(driver,d.driver);if(Array.isArray(d.trips))trips=d.trips;save();render();toast('Import OK')}catch(_){toast('Import impossible')}};r.readAsText(f)}function resetAll(){if(!confirm('Réinitialiser les données locales DRIVER ?'))return;trips=[];save();render();toast('Réinitialisé')}$('rideForm').addEventListener('submit',e=>{e.preventDefault();trips.unshift({id:uid(),client:$('clientName').value.trim()||'Client',phone:$('clientPhone').value.trim(),from:$('from').value.trim()||'Départ',to:$('to').value.trim()||'Arrivée',amount:Number($('amount').value||0),status:$('status').value,note:$('note').value.trim(),createdAt:new Date().toISOString()});e.target.reset();$('amount').value='0';save();render();toast('Course ajoutée')});render();
-
-/* ── PONT ride_requests · DIGIY DRIVER PRO ──
-   Lecture via RPC digiy_driver_pending_rides (SECURITY DEFINER côté Supabase),
-   prise via digiy_driver_take_ride. Aucun select direct : la table reste fermée RLS. */
-const REQ_URL="https://wesqmwjjtsefyjnluosj.supabase.co";
-const REQ_KEY="sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
-let reqCache=[],reqKnown=new Set(),reqFirstLoad=true,reqTaking=new Set();
-
-async function reqGuardToken(){
-  try{
-    let v="";
-    if(window.DIGIY_GUARD && typeof window.DIGIY_GUARD.getAccessToken === "function") v=await window.DIGIY_GUARD.getAccessToken();
-    if(!v && window.DIGIY_GUARD && typeof window.DIGIY_GUARD.getSession === "function"){
-      const s=await window.DIGIY_GUARD.getSession();
-      v=s && (s.access_token || (s.session && s.session.access_token) || "");
-    }
-    /* Uniquement un vrai JWT Supabase ; un jeton PIN propriétaire ne doit pas remplacer l'anon key. */
-    if(v && String(v).split(".").length===3) return String(v);
-  }catch(_){}
-  return REQ_KEY;
-}
-
-async function reqRpc(fn,body){
-  const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),6000);
-  try{
-    const token=await reqGuardToken();
-    const r=await fetch(REQ_URL+"/rest/v1/rpc/"+fn,{method:"POST",signal:ctl.signal,
-      headers:{apikey:REQ_KEY,Authorization:"Bearer "+token,"Content-Type":"application/json",Accept:"application/json"},
-      body:JSON.stringify(body||{})});
-    const d=await r.json().catch(()=>null);
-    return{ok:r.ok,status:r.status,data:d};
-  }finally{clearTimeout(t)}
-}
-
-function reqVoice(msg){
-  try{
-    if(!window.speechSynthesis)return;
-    const u=new SpeechSynthesisUtterance(msg);u.lang="fr-FR";
-    const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith("fr")&&/male|homme|thomas|paul|nicolas/i.test(v.name))
-          ||speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith("fr"));
-    if(v)u.voice=v;
-    speechSynthesis.cancel();speechSynthesis.speak(u);
-  }catch(_){}
-}
-window.DIGIY_DRIVER_VOICE={say:reqVoice};
-
-function renderRequests(){
-  const el=$("reqList");
-  if(!reqCache.length){el.innerHTML='<div class="item"><b>Aucune demande en attente</b><small>Les nouvelles demandes clients apparaîtront ici.</small></div>';return}
-  el.innerHTML=reqCache.map(r=>{
-    const taking=reqTaking.has(String(r.id));
-    return '<div class="item"><div class="itemTop"><div><b>'+esc(r.pickup_address||r.pickup_text||'Départ')+' → '+esc(r.dropoff_address||r.dropoff_text||'Arrivée')+'</b><small>'+money(r.price||r.price_xof||0)+' · '+esc(r.vehicle_type||'eco')+' · '+(r.distance?Number(r.distance).toFixed(1)+' km':'')+'</small><small>🔒 Téléphone protégé jusqu’à attribution</small></div><span class="tag">new</span></div><div class="btns"><button class="btn gold" '+(taking?'disabled':'')+' onclick="takeRequest(\''+esc(r.id)+'\')">'+(taking?'⏳ Attribution…':'✅ Prendre')+'</button></div></div>';
-  }).join('')
-}
-
-async function loadRequests(manual){
-  const st=$("reqState");
-  try{
-    const res=await reqRpc("digiy_driver_pending_rides",{});
-    if(!res.ok||!Array.isArray(res.data)){st.textContent=manual?"Service indisponible":"—";return}
-    reqCache=res.data;
-    st.textContent=reqCache.length+" en attente";
-    const fresh=reqCache.filter(r=>!reqKnown.has(r.id));
-    reqCache.forEach(r=>reqKnown.add(r.id));
-    if(fresh.length&&!reqFirstLoad){
-      const f=fresh[0];
-      reqVoice("Nouvelle course. "+(f.pickup_address||"Départ")+" vers "+(f.dropoff_address||"arrivée")+". "+fmt(f.price||0)+" francs.");
-      toast("📥 "+fresh.length+" nouvelle(s) demande(s)");
-    }
-    reqFirstLoad=false;
-    renderRequests();
-  }catch(_){st.textContent=manual?"Hors ligne":"—"}
-}
-
-async function takeRequest(id){
-  id=String(id);
-  if(reqTaking.has(id))return;
-  const r=reqCache.find(x=>String(x.id)===id);if(!r)return;
-  reqTaking.add(id);renderRequests();
-  $("reqState").textContent="Attribution en cours…";
-  try{
-    const res=await reqRpc("digiy_driver_take_ride",{p_id:r.id});
-    const d=res && res.data;
-    const explicitFailure=!res || !res.ok || d===false || (d && typeof d==="object" && !Array.isArray(d) && (d.ok===false || d.success===false || d.error));
-    if(explicitFailure){
-      toast("Course non attribuée — réessayer");
-      $("reqState").textContent=reqCache.length+" en attente";
-      return;
-    }
-
-    /* Contrôle secondaire : une course attribuée ne doit plus être dans la file. */
-    const check=await reqRpc("digiy_driver_pending_rides",{}).catch(()=>null);
-    if(check && check.ok && Array.isArray(check.data)){
-      if(check.data.some(x=>String(x.id)===id)){
-        reqCache=check.data;
-        toast("Attribution refusée — course encore disponible");
-        $("reqState").textContent=reqCache.length+" en attente";
-        return;
-      }
-      reqCache=check.data;
-    }else{
-      reqCache=reqCache.filter(x=>String(x.id)!==id);
-    }
-
-    trips.unshift({id:uid(),serverRideId:r.id,client:'Client direct',phone:r.client_phone||'',from:r.pickup_address||r.pickup_text||'Départ',to:r.dropoff_address||r.dropoff_text||'Arrivée',amount:Number(r.price||r.price_xof||0),status:'Confirmée',note:(r.vehicle_type||'')+(r.note?' · '+r.note:''),createdAt:new Date().toISOString()});
-    save();render();renderRequests();
-    $("reqState").textContent=reqCache.length+" en attente";
-    toast("Course attribuée ✅");
-  }catch(_){
-    toast("Course non attribuée — réseau indisponible");
-    $("reqState").textContent=reqCache.length+" en attente";
-  }finally{
-    reqTaking.delete(id);renderRequests();
-  }
-}
-
-loadRequests(false);
-setInterval(()=>{if(!document.hidden)loadRequests(false)},60000);
-}
-
-(async function(){
-  try{
-    if(!window.DIGIY_GUARD){ location.replace("./pin.html"); return; }
-    await window.DIGIY_GUARD.ready({ redirect:false });
-    if(!window.DIGIY_GUARD.isAuthenticated()){
-      window.DIGIY_GUARD.goPin();
-      return;
-    }
-    document.documentElement.style.visibility = "";
-    __digiyStartDriverApp();
-  }catch(_e){
-    location.replace("./pin.html");
-  }
-})();
-</script>
+  <p>
+    Ouverture de DIGIY DRIVER…
+    <a href="./hub.html">Continuer</a>
+  </p>
 </body>
 </html>
