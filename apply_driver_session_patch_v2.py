@@ -2,7 +2,7 @@
 # DIGIY PRO DRIVER — raccordement session serveur + tarifs sécurisés.
 #
 # Usage:
-#   python3 apply_driver_session_patch.py /chemin/vers/digiy-pro-driver
+#   python3 apply_driver_session_patch_v2.py /chemin/vers/digiy-pro-driver
 #
 # Le script sauvegarde les trois fichiers, applique le patch, vérifie que les
 # anciennes RPC tarifs ont disparu de l'éditeur, puis s'arrête sans commit/push.
@@ -40,7 +40,7 @@ def backup(path: Path) -> Path:
 
 
 def patch_pin(text: str) -> str:
-    old_write = '''function writeSession(phone,sl,token){
+    old_write = """function writeSession(phone,sl,token){
   const now=Date.now();
   const sess=JSON.stringify({slug:sl,phone,module:MODULE,validated_at:now,expires_at:now+MAX_AGE,session_token:token||"",access:true,access_ok:true});
   SKEYS.forEach(k=>{ls(k,sess);ss(k,sess)});
@@ -50,9 +50,9 @@ def patch_pin(text: str) -> str:
     try{const m=JSON.parse(ls("digiy_module_slugs")||"{}")||{};m[MODULE]=sl;ls("digiy_module_slugs",JSON.stringify(m))}catch(_){}
     ls("digiy_slug",sl);
   }
-}'''
+}"""
 
-    new_write = '''function writeSession(phone,sl,token,expiresAt){
+    new_write = """function writeSession(phone,sl,token,expiresAt){
   const now=Date.now();
   const parsedExpires=Date.parse(String(expiresAt||""));
   const finalExpires=Number.isFinite(parsedExpires)&&parsedExpires>now
@@ -77,14 +77,14 @@ def patch_pin(text: str) -> str:
     try{const m=JSON.parse(ls("digiy_module_slugs")||"{}")||{};m[MODULE]=sl;ls("digiy_module_slugs",JSON.stringify(m))}catch(_){}
     ls("digiy_slug",sl);
   }
-}'''
+}"""
     text = replace_once(text, old_write, new_write, "pin.html/writeSession")
 
-    old_redirect = '''function redirect(sl){
+    old_redirect = """function redirect(sl){
   try{const u=new URL(INDEX_URL,location.href);if(sl)u.searchParams.set("slug",sl);u.searchParams.delete("phone");location.replace(u.toString())}
   catch(_){location.replace(INDEX_URL)}
-}'''
-    new_redirect = '''function redirect(sl){
+}"""
+    new_redirect = """function redirect(sl){
   try{
     const u=new URL(INDEX_URL,location.href);
     if(sl&&!/\\d{7,}/.test(String(sl)))u.searchParams.set("slug",sl);
@@ -95,55 +95,29 @@ def patch_pin(text: str) -> str:
   }catch(_){
     location.replace(INDEX_URL);
   }
-}'''
+}"""
     text = replace_once(text, old_redirect, new_redirect, "pin.html/redirect")
 
-    text = regex_once(
-        text,
-        r'\nasync function checkAbos\(sb,phone\)\{.*?\n\}\n\nasync function doLogin\(\)\{',
-        '\nasync function doLogin(){',
-        "pin.html/suppression checkAbos",
-    )
+    new_login = """async function doLogin(){
+  if(pin.length!==4)return;
+  $("btnEnter").disabled=true;
+  showSt("status2","⏳ Vérification sécurisée…","spin");
 
-    old_login = '''    const sb=getSb();
-    const{data,error}=await sb.rpc("digiy_verify_pin",{p_phone:confirmedPhone,p_module:MODULE,p_pin:pin});
-    if(error)throw new Error(error.message||"Erreur serveur");
-    /* Le RPC retourne un tableau → on prend la première ligne */
-    const row=Array.isArray(data)?data[0]:data;
-    const ok=row===true||row?.ok===true||row?.access===true||row?.status==="ok";
-    if(!ok){
-      pin="";updateDots();updateEnterBtn();
-      for(let i=0;i<4;i++)$("d"+i).classList.add("err");
-      shake($("pinDots"));
-      showSt("status2","❌ Code incorrect.\\nVérifie tes 4 chiffres et réessaie.","err");
-      return;
-    }
-    /* PIN valide -> vérification ABOS réelle avant d'ouvrir la session DRIVER */
-    showSt("status2","⏳ Vérification de l'abonnement…","spin");
-    const hasAccess=await checkAbos(sb,confirmedPhone);
-    if(!hasAccess){
-      pin="";updateDots();updateEnterBtn();
-      $("btnEnter").disabled=false;
-      showSt("status2","❌ Abonnement DRIVER inactif.\\nContacte DIGIY pour réactiver ton accès.","err");
-      return;
-    }
-    const rpcSlug=row?.slug||row?.identifiant||"";
-    const finalSlug=rpcSlug||slug(confirmedPhone);
-    writeSession(confirmedPhone,finalSlug,row?.session_token||"");
-    showSt("status2","✅ Accès ouvert. Redirection…","ok");
-    setTimeout(()=>redirect(finalSlug),700);'''
-
-    new_login = '''    const sb=getSb();
+  try{
+    const sb=getSb();
     const{data,error}=await sb.rpc("driver_issue_session",{
       p_phone:confirmedPhone,
       p_pin:pin,
       p_user_agent:navigator.userAgent||""
     });
+
     if(error)throw new Error(error.message||"Erreur serveur");
 
     const row=Array.isArray(data)?data[0]:data;
     if(!row?.ok){
-      pin="";updateDots();updateEnterBtn();
+      pin="";
+      updateDots();
+      updateEnterBtn();
       $("btnEnter").disabled=false;
       for(let i=0;i<4;i++)$("d"+i).classList.add("err");
       shake($("pinDots"));
@@ -158,6 +132,7 @@ def patch_pin(text: str) -> str:
 
     const finalSlug=String(row.slug||"").trim();
     const serverToken=String(row.token||"").trim();
+
     if(!finalSlug||serverToken.length<32){
       throw new Error("Session serveur DRIVER incomplète");
     }
@@ -168,9 +143,25 @@ def patch_pin(text: str) -> str:
       serverToken,
       row.expires_at
     );
+
     showSt("status2","✅ Accès sécurisé ouvert. Redirection…","ok");
-    setTimeout(()=>redirect(finalSlug),700);'''
-    return replace_once(text, old_login, new_login, "pin.html/doLogin")
+    setTimeout(()=>redirect(finalSlug),700);
+  }catch(err){
+    pin="";
+    updateDots();
+    updateEnterBtn();
+    $("btnEnter").disabled=false;
+    showSt("status2","❌ Erreur : "+(err?.message||"inattendue."),"err");
+  }
+}"""
+
+    pattern = r'async function doLogin\(\)\s*\{.*?\n\}\n\}\)\(\);\s*</script>'
+    replacement = new_login + '\n})();\n</script>'
+    text, count = re.subn(pattern, replacement, text, count=1, flags=re.S)
+    if count != 1:
+        raise PatchError(f"pin.html/doLogin: bloc final introuvable ou ambigu ({count})")
+
+    return text
 
 
 def patch_guard(text: str) -> str:
@@ -592,7 +583,7 @@ def validate(pin: str, guard: str, profile: str) -> None:
 
 def main() -> int:
     if len(sys.argv) != 2:
-        print("Usage: python3 apply_driver_session_patch.py /chemin/vers/digiy-pro-driver")
+        print("Usage: python3 apply_driver_session_patch_v2.py /chemin/vers/digiy-pro-driver")
         return 2
 
     root = Path(sys.argv[1]).expanduser().resolve()
