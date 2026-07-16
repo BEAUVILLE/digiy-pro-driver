@@ -1,0 +1,35 @@
+name: Configure DRIVER Pages
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/configure-pages-main-root.yml"
+
+permissions:
+  contents: read
+  pages: write
+
+jobs:
+  configure-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure Pages source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" --input - <<'JSON'
+          {
+            "build_type": "legacy",
+            "source": {
+              "branch": "main",
+              "path": "/"
+            }
+          }
+          JSON
+
+      - name: Request Pages rebuild
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds"
