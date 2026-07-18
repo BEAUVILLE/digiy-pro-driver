@@ -1,35 +1,37 @@
-name: Configure DRIVER Pages
+name: Deploy PRO-DRIVER to GitHub Pages
 
 on:
-  workflow_dispatch:
   push:
-    paths:
-      - ".github/workflows/configure-pages-main-root.yml"
+    branches: ["main"]
+  workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  configure-pages:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Configure Pages source
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" --input - <<'JSON'
-          {
-            "build_type": "legacy",
-            "source": {
-              "branch": "main",
-              "path": "/"
-            }
-          }
-          JSON
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Request Pages rebuild
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds"
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
