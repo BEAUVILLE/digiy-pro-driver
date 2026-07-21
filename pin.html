@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Accès Je conduis • DIGIY</title>
+  <title>Accès • DIGIY</title>
   <meta name="theme-color" content="#020617"/>
 
   <!-- CONFIG — changer ces 5 lignes par module -->
@@ -81,9 +81,9 @@ window.DIGIY_SLUG_PREFIX  = "driver";
 <div class="card">
 
   <div class="header">
-    <span class="ico" id="moduleIcon">🚗</span>
+    <span class="ico" id="moduleIcon">🏠</span>
     <div class="badge">🔑 Accès DIGIY</div>
-    <div class="title" id="moduleLabel">Je conduis</div>
+    <div class="title" id="moduleLabel">Je loue</div>
   </div>
 
   <div class="steps">
@@ -146,7 +146,7 @@ window.DIGIY_SLUG_PREFIX  = "driver";
 <script>
 (function(){
 "use strict";
-const MODULE=((window.DIGIY_MODULE)||"DRIVER").toUpperCase();
+const MODULE=((window.DIGIY_MODULE)||"LOC").toUpperCase();
 const MODULE_LABEL=window.DIGIY_MODULE_LABEL||MODULE;
 const MODULE_ICON=window.DIGIY_MODULE_ICON||"∞";
 const INDEX_URL=window.DIGIY_INDEX_URL||"./index.html";
@@ -154,7 +154,7 @@ const SLUG_PREFIX=(window.DIGIY_SLUG_PREFIX||MODULE.toLowerCase()).replace(/_/g,
 const MAX_AGE=8*60*60*1000;
 const mod=MODULE.toLowerCase();
 const SKEYS=[`digiy_${mod}_session`,`digiy_${mod}_guard_session`,`digiy_guard_${mod}_session`];
-const PKEYS=[`digiy_${mod}_phone`,`digiy_${mod}_last_phone`,"DIGIY_DRIVER_HUB_PHONE","digiy_phone"];
+const PKEYS=[`digiy_${mod}_phone`,`digiy_${mod}_last_phone`,"DIGIY_LOC_HUB_PHONE","digiy_phone"];
 const SLKEYS=[`digiy_${mod}_last_slug`,`digiy_${mod}_slug`,"digiy_last_slug"];
 
 const $=id=>document.getElementById(id);
@@ -187,9 +187,24 @@ function getSb(){
   return window._dsb;
 }
 
-function writeSession(phone,sl,token){
+function writeSession(phone,sl,token,expiresAt){
   const now=Date.now();
-  const sess=JSON.stringify({slug:sl,phone,module:MODULE,validated_at:now,expires_at:now+MAX_AGE,session_token:token||"",access:true,access_ok:true});
+  const parsedExpires=Date.parse(String(expiresAt||""));
+  const finalExpires=Number.isFinite(parsedExpires)&&parsedExpires>now
+    ? parsedExpires
+    : now+MAX_AGE;
+  const sess=JSON.stringify({
+    slug:sl,
+    phone,
+    module:MODULE,
+    validated_at:now,
+    verified_at:now,
+    expires_at:finalExpires,
+    session_token:String(token||"").trim(),
+    access:true,
+    access_ok:true,
+    pin_session_ok:true
+  });
   SKEYS.forEach(k=>{ls(k,sess);ss(k,sess)});
   PKEYS.forEach(k=>{ls(k,phone);ss(k,phone)});
   if(sl){
@@ -200,8 +215,16 @@ function writeSession(phone,sl,token){
 }
 
 function redirect(sl){
-  try{const u=new URL(INDEX_URL,location.href);if(sl)u.searchParams.set("slug",sl);u.searchParams.delete("phone");location.replace(u.toString())}
-  catch(_){location.replace(INDEX_URL)}
+  try{
+    const u=new URL(INDEX_URL,location.href);
+    if(sl&&!/\d{7,}/.test(String(sl)))u.searchParams.set("slug",sl);
+    else u.searchParams.delete("slug");
+    u.searchParams.delete("phone");
+    u.searchParams.delete("tel");
+    location.replace(u.toString());
+  }catch(_){
+    location.replace(INDEX_URL);
+  }
 }
 
 // ETAPE 1
@@ -266,59 +289,58 @@ document.addEventListener("keydown",e=>{
 
 $("btnEnter").addEventListener("click",doLogin);
 
-async function checkAbos(sb,phone){
-  const tries=[
-    ["digiy_has_module_access_from_abos",{p_phone:phone,p_module:MODULE}],
-    ["digiy_has_module_access_from_abos",{phone:phone,module:MODULE}],
-    ["digiy_has_access",{p_phone:phone,p_module:MODULE}]
-  ];
-  for(const[fn,args]of tries){
-    try{
-      const{data,error}=await sb.rpc(fn,args);
-      if(error)continue;
-      const raw=Array.isArray(data)?data[0]:data;
-      if(raw===true||raw===1)return true;
-      if(typeof raw==="string"&&/^(t|true|1|yes|ok)$/i.test(raw.trim()))return true;
-      if(raw&&typeof raw==="object"&&Object.values(raw).some(v=>v===true||v===1||v==="t"||v==="true"))return true;
-    }catch(_){}
-  }
-  return false;
-}
-
 async function doLogin(){
   if(pin.length!==4)return;
   $("btnEnter").disabled=true;
-  showSt("status2","⏳ Vérification du code…","spin");
+  showSt("status2","⏳ Vérification sécurisée…","spin");
+
   try{
     const sb=getSb();
-    const{data,error}=await sb.rpc("digiy_verify_pin",{p_phone:confirmedPhone,p_module:MODULE,p_pin:pin});
+    const{data,error}=await sb.rpc("driver_issue_session",{
+      p_phone:confirmedPhone,
+      p_pin:pin,
+      p_user_agent:navigator.userAgent||""
+    });
+
     if(error)throw new Error(error.message||"Erreur serveur");
-    /* Le RPC retourne un tableau → on prend la première ligne */
+
     const row=Array.isArray(data)?data[0]:data;
-    const ok=row===true||row?.ok===true||row?.access===true||row?.status==="ok";
-    if(!ok){
-      pin="";updateDots();updateEnterBtn();
+    if(!row?.ok){
+      pin="";
+      updateDots();
+      updateEnterBtn();
+      $("btnEnter").disabled=false;
       for(let i=0;i<4;i++)$("d"+i).classList.add("err");
       shake($("pinDots"));
-      showSt("status2","❌ Code incorrect.\nVérifie tes 4 chiffres et réessaie.","err");
+
+      const reason=String(row?.error||"");
+      const msg=reason==="driver_access_inactive"
+        ? "❌ Abonnement DRIVER inactif.\nContacte DIGIY pour réactiver ton accès."
+        : "❌ Code incorrect.\nVérifie tes 4 chiffres et réessaie.";
+      showSt("status2",msg,"err");
       return;
     }
-    /* PIN valide -> vérification ABOS réelle avant d'ouvrir la session DRIVER */
-    showSt("status2","⏳ Vérification de l'abonnement…","spin");
-    const hasAccess=await checkAbos(sb,confirmedPhone);
-    if(!hasAccess){
-      pin="";updateDots();updateEnterBtn();
-      $("btnEnter").disabled=false;
-      showSt("status2","❌ Abonnement DRIVER inactif.\nContacte DIGIY pour réactiver ton accès.","err");
-      return;
+
+    const finalSlug=String(row.slug||"").trim();
+    const serverToken=String(row.token||"").trim();
+
+    if(!finalSlug||serverToken.length<32){
+      throw new Error("Session serveur DRIVER incomplète");
     }
-    const rpcSlug=row?.slug||row?.identifiant||"";
-    const finalSlug=rpcSlug||slug(confirmedPhone);
-    writeSession(confirmedPhone,finalSlug,row?.session_token||"");
-    showSt("status2","✅ Accès ouvert. Redirection…","ok");
+
+    writeSession(
+      confirmedPhone,
+      finalSlug,
+      serverToken,
+      row.expires_at
+    );
+
+    showSt("status2","✅ Accès sécurisé ouvert. Redirection…","ok");
     setTimeout(()=>redirect(finalSlug),700);
   }catch(err){
-    pin="";updateDots();updateEnterBtn();
+    pin="";
+    updateDots();
+    updateEnterBtn();
     $("btnEnter").disabled=false;
     showSt("status2","❌ Erreur : "+(err?.message||"inattendue."),"err");
   }
@@ -327,8 +349,5 @@ async function doLogin(){
 </script>
 </body>
 </html>
-
-
-
 
 

@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Mon profil chauffeur • DIGIY</title>
+  <meta name="robots" content="noindex,nofollow,noarchive"/>
+  <meta name="theme-color" content="#092b20"/>
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_LOGIN_URL = "./pin.html";
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="./assets/css/driver-mobile.css?v=mobile-v4"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/driver-secure-api.js?v=mobile-v4"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="./hub.html">← Portes</a>
+    <strong>Profil chauffeur</strong>
+    <span class="status" id="sessionState">session…</span>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <h1>Mon profil</h1>
+      <p>Une seule partie à la fois. Enregistre sans traverser un long atelier.</p>
+    </section>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="identity" type="button">Identité</button>
+      <button class="tab" data-tab="zone" type="button">Zone</button>
+      <button class="tab" data-tab="contact" type="button">Contact</button>
+    </div>
+
+    <section class="card panel active" id="panel-identity">
+      <h2>Identité & véhicule</h2>
+      <div class="field"><label for="displayName">Nom affiché</label><input class="input" id="displayName"/></div>
+      <div class="field"><label for="vehicleType">Type de véhicule</label><input class="input" id="vehicleType" placeholder="Berline, 7 places, 4x4…"/></div>
+      <div class="grid2">
+        <div class="field"><label for="vehicleBrand">Marque</label><input class="input" id="vehicleBrand"/></div>
+        <div class="field"><label for="vehicleModel">Modèle</label><input class="input" id="vehicleModel"/></div>
+        <div class="field"><label for="vehicleYear">Année</label><input class="input" id="vehicleYear" inputmode="numeric"/></div>
+        <div class="field"><label for="vehicleColor">Couleur</label><input class="input" id="vehicleColor"/></div>
+      </div>
+      <div class="checks">
+        <label class="check"><input id="hasAc" type="checkbox"/> Climatisation</label>
+      </div>
+    </section>
+
+    <section class="card panel" id="panel-zone">
+      <h2>Zone de travail</h2>
+      <div class="field"><label for="city">Ville principale</label><input class="input" id="city" placeholder="Saly"/></div>
+      <div class="field"><label for="zones">Zones couvertes</label><textarea id="zones" placeholder="Saly, Mbour, Somone, AIBD…"></textarea></div>
+      <div class="checks">
+        <label class="check"><input id="airportOk" type="checkbox"/> Transferts aéroport</label>
+        <label class="check"><input id="longDistanceOk" type="checkbox"/> Longues distances</label>
+      </div>
+    </section>
+
+    <section class="card panel" id="panel-contact">
+      <h2>Contact & présentation</h2>
+      <div class="field"><label for="whatsapp">WhatsApp</label><input class="input" id="whatsapp" inputmode="tel"/></div>
+      <div class="field"><label for="contactNote">Note contact</label><input class="input" id="contactNote" placeholder="Disponible sur réservation"/></div>
+      <div class="field"><label for="bio">Bio</label><textarea id="bio"></textarea></div>
+      <div class="actions">
+        <a class="btn blue" href="./visibilite-driver.html">👁️ Visibilité</a>
+        <a class="btn gold" href="./tarifs-driver.html">💰 Mes tarifs</a>
+      </div>
+    </section>
+
+    <div class="message" id="message">Chargement du profil…</div>
+    <div class="stickyAction">
+      <button class="btn primary" id="saveBtn" type="button">💾 Enregistrer mon profil</button>
+    </div>
+  </main>
+
+  <nav class="bottom">
+    <a href="./hub.html"><i>🏠</i>Portes</a>
+    <a class="active" href="./profil-driver.html"><i>👤</i>Profil</a>
+    <a href="./tarifs-driver.html"><i>💰</i>Tarifs</a>
+    <a href="./session-driver.html"><i>🔒</i>Session</a>
+  </nav>
+
+<script>
+(() => {
+  "use strict";
+  const api = window.DIGIY_DRIVER_SECURE;
+  const $ = id => document.getElementById(id);
+  const META_PREFIX = "__DIGIY_DRIVER_META__:";
+  let cockpit = null;
+
+  function readMeta(address){
+    const raw = String(address || "");
+    if(!raw.startsWith(META_PREFIX)) return {};
+    try{return JSON.parse(raw.slice(META_PREFIX.length)) || {}}catch(_){return {}}
+  }
+
+  function buildMeta(){
+    return META_PREFIX + JSON.stringify({
+      vehicle_brand:$("vehicleBrand").value.trim(),
+      vehicle_model:$("vehicleModel").value.trim(),
+      vehicle_year:$("vehicleYear").value.trim(),
+      vehicle_color:$("vehicleColor").value.trim(),
+      has_ac:$("hasAc").checked,
+      airport_ok:$("airportOk").checked,
+      long_distance_ok:$("longDistanceOk").checked,
+      contact_note:$("contactNote").value.trim()
+    });
+  }
+
+  function vehicleLabel(){
+    return [
+      $("vehicleType").value.trim(),
+      $("vehicleBrand").value.trim(),
+      $("vehicleModel").value.trim(),
+      $("vehicleYear").value.trim(),
+      $("vehicleColor").value.trim(),
+      $("hasAc").checked ? "Clim" : ""
+    ].filter(Boolean).join(" • ");
+  }
+
+  function showMessage(text,type){
+    $("message").textContent = text;
+    $("message").className = "message " + (type || "");
+  }
+
+  function fill(data){
+    cockpit = data;
+    const p = data?.profile || {};
+    const meta = readMeta(p.address);
+    $("displayName").value = p.driver_name || p.business_name || "";
+    $("vehicleType").value = p.vehicle_type || "";
+    $("vehicleBrand").value = meta.vehicle_brand || "";
+    $("vehicleModel").value = meta.vehicle_model || "";
+    $("vehicleYear").value = meta.vehicle_year || "";
+    $("vehicleColor").value = meta.vehicle_color || "";
+    $("hasAc").checked = !!meta.has_ac;
+    $("city").value = p.city || "";
+    $("zones").value = p.zones || "";
+    $("airportOk").checked = !!meta.airport_ok;
+    $("longDistanceOk").checked = !!meta.long_distance_ok;
+    $("whatsapp").value = p.whatsapp || data?.phone || "";
+    $("contactNote").value = meta.contact_note || "";
+    $("bio").value = p.description || "";
+  }
+
+  async function load(){
+    if(!api.requireSession()) return;
+    $("sessionState").textContent = "session ouverte";
+    $("sessionState").className = "status ok";
+    try{
+      const data = await api.getCockpit();
+      fill(data);
+      showMessage("✅ Profil chargé.","ok");
+    }catch(error){
+      api.handleError(error,$("message"));
+    }
+  }
+
+  async function save(){
+    if(!cockpit?.profile) return;
+    const btn = $("saveBtn");
+    btn.disabled = true;
+    showMessage("⏳ Enregistrement…","warn");
+    const p = cockpit.profile;
+    const name = $("displayName").value.trim();
+    try{
+      await api.saveProfile({
+        p_business_name:name,
+        p_driver_name:name,
+        p_city:$("city").value.trim(),
+        p_zones:$("zones").value.trim(),
+        p_address:buildMeta(),
+        p_whatsapp:$("whatsapp").value.replace(/\D/g,""),
+        p_vehicle_type:$("vehicleType").value.trim(),
+        p_vehicle_label:vehicleLabel(),
+        p_vehicle_plate:p.vehicle_plate || "",
+        p_photo_url:p.photo_url || "",
+        p_cover_url:p.cover_url || "",
+        p_description:$("bio").value.trim(),
+        p_priority:Number(p.priority || 100),
+        p_is_published:!!p.is_published,
+        p_is_active:p.is_active !== false
+      });
+      await load();
+      showMessage("✅ Profil enregistré dans Supabase.","ok");
+    }catch(error){
+      api.handleError(error,$("message"));
+    }finally{
+      btn.disabled = false;
+    }
+  }
+
+  document.querySelectorAll("[data-tab]").forEach(btn => {
+    btn.addEventListener("click",() => {
+      document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active",x===btn));
+      document.querySelectorAll(".panel").forEach(x => x.classList.toggle("active",x.id==="panel-"+btn.dataset.tab));
+      scrollTo({top:0,behavior:"smooth"});
+    });
+  });
+
+  $("saveBtn").addEventListener("click",save);
+  load();
+})();
+</script>
+</body>
+</html>

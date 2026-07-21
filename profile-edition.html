@@ -736,7 +736,7 @@ body{padding-bottom:24px !important;}
         </div>
 
         <div class="card" id="ratesBlock">
-          <h2>Trajets habituels</h2>
+          <h2>Mes tarifs directs</h2>
 
           <div class="row">
             <div>
@@ -744,7 +744,7 @@ body{padding-bottom:24px !important;}
               <input class="in" id="routeLabel" placeholder="Ex : Saly → Dakar / Saly → Casamance"/>
             </div>
             <div>
-              <div class="muted">Tarif indicatif (FCFA)</div>
+              <div class="muted">Mon tarif direct (FCFA)</div>
               <input class="in" id="priceFcfa" inputmode="numeric" placeholder="Ex : 7000"/>
             </div>
           </div>
@@ -796,7 +796,7 @@ body{padding-bottom:24px !important;}
         cockpit: "./hub.html",
         dashboard: "./hub.html",
         trajets: "./trajets.html",
-        tarifs: "./tarifs.html",
+        tarifs: "./tarifs-driver.html",
         qr: "./generateur-digiy-driver.html",
         pin: "./pin.html",
         home: "./hub.html"
@@ -809,6 +809,50 @@ body{padding-bottom:24px !important;}
       let CURRENT_IS_PUBLISHED = false;
       let RATES_RPC_READY = true;
       let LAST_GUARD_STATE = null;
+
+      const DRIVER_SESSION_KEYS = [
+        "digiy_driver_session",
+        "digiy_guard_driver_session",
+        "digiy_guard_session",
+        "DIGIY_DRIVER_PIN_SESSION",
+        "DIGIY_PIN_SESSION",
+        "DIGIY_ACCESS",
+        "DIGIY_SESSION_DRIVER"
+      ];
+
+      function readDriverSessionToken(){
+        for(const key of DRIVER_SESSION_KEYS){
+          for(const store of [sessionStorage, localStorage]){
+            try{
+              const raw=store.getItem(key);
+              if(!raw) continue;
+              const parsed=JSON.parse(raw);
+              const moduleName=String(parsed?.module||"DRIVER").toUpperCase();
+              const expires=Number(parsed?.expires_at||0);
+              const token=String(parsed?.session_token||parsed?.token||"").trim();
+              if(moduleName!=="DRIVER") continue;
+              if(expires&&Date.now()>=expires) continue;
+              if(token.length>=32) return token;
+            }catch(_){}
+          }
+        }
+        return "";
+      }
+
+      function driverSessionToken(){
+        return String(
+          LAST_GUARD_STATE?.session_token ||
+          window.DIGIY_GUARD?.state?.session_token ||
+          readDriverSessionToken() ||
+          ""
+        ).trim();
+      }
+
+      function rateSessionError(code){
+        return String(code||"")==="invalid_or_expired_session"
+          ? "❌ Session serveur expirée. Repasse par la porte PIN."
+          : "❌ Opération tarifs refusée.";
+      }
 
       function normSlug(v){
         return String(v || "").trim().toLowerCase();
@@ -1232,9 +1276,16 @@ body{padding-bottom:24px !important;}
 
       async function fetchCockpit(){
         if (!sb) throw new Error("supabase_absent");
-        if (!slug) return { ok:false, reason:"slug_manquant" };
 
-        const { data, error } = await sb.rpc("digiy_driver_get_cockpit_by_slug", { p_slug: slug });
+        const token = driverSessionToken();
+        if (!token){
+          return { ok:false, reason:"invalid_or_expired_session" };
+        }
+
+        const { data, error } = await sb.rpc("driver_session_get_cockpit", {
+          p_token: token
+        });
+
         if (error) throw error;
         return data || { ok:false, reason:"empty_response" };
       }
@@ -1349,6 +1400,18 @@ body{padding-bottom:24px !important;}
             return true;
           }
 
+          if (data?.reason === "invalid_or_expired_session"){
+            CURRENT_COCKPIT = null;
+            CURRENT_IS_PUBLISHED = false;
+            setAccessState(false, "session expirée");
+            clearForm();
+            renderPublishState();
+            setFormDisabled(true);
+            setMsgProfile("❌ Session serveur expirée. Repasse par la porte PIN.", "bad");
+            setMsgRates("❌ Session serveur expirée. Repasse par la porte PIN.", "bad");
+            return false;
+          }
+
           CURRENT_COCKPIT = null;
           CURRENT_IS_PUBLISHED = false;
           clearForm();
@@ -1400,8 +1463,16 @@ body{padding-bottom:24px !important;}
         setMsgProfile("⏳ Enregistrement du profil…", "warn");
 
         try{
-          const { data, error } = await sb.rpc("digiy_driver_save_profile", {
-            p_slug: slug,
+          const token = driverSessionToken();
+          if (!token){
+            setAccessState(false, "session serveur absente");
+            setFormDisabled(true);
+            setMsgProfile("❌ Session serveur absente ou expirée. Repasse par la porte PIN.", "bad");
+            return false;
+          }
+
+          const { data, error } = await sb.rpc("driver_session_save_profile", {
+            p_token: token,
             p_business_name: displayName,
             p_driver_name: displayName,
             p_city: city,
@@ -1420,7 +1491,15 @@ body{padding-bottom:24px !important;}
           });
 
           if (error) throw error;
-          if (!data?.ok) throw new Error(data?.reason || "save_profile_error");
+          if (!data?.ok){
+            if (data?.reason === "invalid_or_expired_session"){
+              setAccessState(false, "session expirée");
+              setFormDisabled(true);
+              setMsgProfile("❌ Session serveur expirée. Repasse par la porte PIN.", "bad");
+              return false;
+            }
+            throw new Error(data?.reason || "save_profile_error");
+          }
 
           const reloaded = await loadProfile(true);
           if (!reloaded){
@@ -1563,8 +1642,7 @@ body{padding-bottom:24px !important;}
       }
 
       function renderRates(rows){
-        const localRoutes = driverReadPublicRoutes();
-        const data = (Array.isArray(rows) ? rows : []).concat(localRoutes);
+        const data = (Array.isArray(rows) ? rows : []).filter(r => r?.is_active !== false);
 
         if (!ACCESS_OK){
           $("ratesList").innerHTML = `<div class="empty">Aucun trajet habituel lisible tant que l’accès n’est pas validé.</div>`;
@@ -1597,8 +1675,14 @@ body{padding-bottom:24px !important;}
             setMsgRates("⏳ Désactivation du tarif…", "warn");
 
             try{
-              const { data, error } = await sb.rpc("driver_disable_rate_by_slug", {
-                p_slug: slug,
+              const token=driverSessionToken();
+              if(!token){
+                setMsgRates("❌ Session serveur absente. Repasse par la porte PIN.", "bad");
+                return;
+              }
+
+              const { data, error } = await sb.rpc("driver_session_disable_rate", {
+                p_token: token,
                 p_rate_id: id
               });
 
@@ -1612,7 +1696,10 @@ body{padding-bottom:24px !important;}
                 throw error;
               }
 
-              if (data && data.ok === false) throw new Error(data.error || "disable_rate_error");
+              if (data && data.ok === false){
+                setMsgRates(rateSessionError(data.error), "bad");
+                return;
+              }
 
               setMsgRates("✅ Tarif désactivé.", "ok");
               await loadRates();
@@ -1637,21 +1724,37 @@ body{padding-bottom:24px !important;}
         setMsgRates("⏳ Chargement des trajets habituels…", "warn");
 
         try{
-          const { data, error } = await sb.rpc("driver_list_rates_by_slug", { p_slug: slug });
+          const token=driverSessionToken();
+          if(!token){
+            RATES_RPC_READY = true;
+            renderRates([]);
+            setMsgRates("❌ Session serveur absente. Repasse par la porte PIN.", "bad");
+            return;
+          }
+
+          const { data, error } = await sb.rpc("driver_session_list_rates", {
+            p_token: token
+          });
 
           if (error){
             if (isRpcMissing(error)){
               RATES_RPC_READY = false;
               renderRates([]);
-              setMsgRates("✅ Mémoire locale des trajets habituels active.", "ok");
+              setMsgRates("❌ Fonction sécurisée des tarifs indisponible.", "bad");
               return;
             }
             throw error;
           }
 
+          if(data?.ok===false){
+            renderRates([]);
+            setMsgRates(rateSessionError(data.error), "bad");
+            return;
+          }
+
           RATES_RPC_READY = true;
-          renderRates(data || []);
-          setMsgRates("✅ Trajets habituels synchronisés.", "ok");
+          renderRates(Array.isArray(data?.rates) ? data.rates : []);
+          setMsgRates("✅ Tarifs directs synchronisés avec Supabase.", "ok");
         }catch(e){
           console.error(e);
           setMsgRates("❌ Erreur de chargement des trajets habituels.", "bad");
@@ -1682,8 +1785,14 @@ body{padding-bottom:24px !important;}
         setMsgRates("⏳ Enregistrement du trajet habituel…", "warn");
 
         try{
-          const { data, error } = await sb.rpc("driver_upsert_rate_by_slug", {
-            p_slug: slug,
+          const token=driverSessionToken();
+          if(!token){
+            setMsgRates("❌ Session serveur absente. Repasse par la porte PIN.", "bad");
+            return;
+          }
+
+          const { data, error } = await sb.rpc("driver_session_upsert_rate", {
+            p_token: token,
             p_route_label: routeLabel,
             p_price_fcfa: priceFcfa
           });
@@ -1692,13 +1801,16 @@ body{padding-bottom:24px !important;}
             if (isRpcMissing(error)){
               RATES_RPC_READY = false;
               renderRates([]);
-              setMsgRates("⚠️ Fonction trajets habituels non branchée en base. Mémoire locale DRIVER utilisée.", "warn");
+              setMsgRates("❌ Fonction sécurisée des tarifs non branchée en base.", "bad");
               return;
             }
             throw error;
           }
 
-          if (data && data.ok === false) throw new Error(data.error || "save_rate_error");
+          if (data && data.ok === false){
+            setMsgRates(rateSessionError(data.error || "save_rate_error"), "bad");
+            return;
+          }
 
           $("routeLabel").value = "";
           $("priceFcfa").value = "";
@@ -1796,45 +1908,7 @@ body{padding-bottom:24px !important;}
     })();
   </script>
 
-<script>
-/* ══ DIGIY DRIVER — sécurité mémoire trajets proposés publics ══ */
-(function(){
-  function val(id){ var el=document.getElementById(id); return el ? String(el.value || "").trim() : ""; }
-
-  function readProposedRouteForm(){
-    return {
-      source:"profile-edition",
-      label: val("routeLabel") || val("route_label") || val("publicRouteLabel"),
-      amount: Number(val("priceFcfa") || val("price_fcfa") || val("routePrice") || 0) || 0,
-      vehicle: val("routeVehicle") || val("vehicleType") || val("vehicle_type"),
-      note: val("routeNote") || val("contactNote") || ""
-    };
-  }
-
-  function saveNow(){
-    var m = window.DIGIY_DRIVER_MEMORY;
-    if(!m) return;
-    var r = readProposedRouteForm();
-    if(r.label && r.amount > 0){
-      m.saveProposedRoute(r);
-    }
-  }
-
-  document.addEventListener("click", function(e){
-    var btn = e.target && e.target.closest ? e.target.closest("button,a") : null;
-    if(!btn) return;
-    if(btn.id === "btnSaveRate" || /trajet|tarif|enregistrer|sauver|garder/.test(String(btn.textContent || "").toLowerCase())){
-      setTimeout(saveNow, 0);
-    }
-  }, true);
-
-  document.addEventListener("submit", function(){
-    setTimeout(saveNow, 0);
-  }, true);
-
-  window.addEventListener("beforeunload", saveNow);
-})();
-</script>
+<!-- Les tarifs officiels sont désormais servis uniquement par Supabase via une session DRIVER valide. -->
 
 </body>
 </html>
