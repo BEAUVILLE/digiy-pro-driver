@@ -3,332 +3,335 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY DRIVER — Accueil chauffeur</title>
-  <meta name="description" content="Accueil chauffeur DIGIY DRIVER : fiche, carte QR et partage WhatsApp."/>
+  <title>Je conduis • DIGIY DRIVER</title>
+  <meta name="description" content="Espace simple du chauffeur DIGIY : fiche, carte QR et partage client."/>
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
-  <meta name="theme-color" content="#071b14"/>
-  <meta name="digiy-build" content="driver-simple-hub-v6-20260715"/>
+  <meta name="theme-color" content="#0b3b29"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet"/>
 
   <script>
-    window.DIGIY_MODULE = "DRIVER";
-    window.DIGIY_LOGIN_URL = "./pin.html";
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
     window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_SUPABASE_KEY = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "DRIVER";
+    window.DIGIY_ABOS_MODULE = "DRIVER";
+    window.DIGIY_LOGIN_URL = "./pin.html";
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=driver-guard-20260531"></script>
+  <script src="./assets/js/digiy-abos-access.js?v=abos-20260522"></script>
+  <script src="./guard.js?v=driver-simple-v5"></script>
 
   <style>
     :root{
-      color-scheme:dark;
-      --bg:#071b14;
-      --bg2:#0b2a1f;
-      --card:rgba(255,255,255,.065);
-      --line:rgba(255,255,255,.14);
-      --text:#effff5;
-      --muted:rgba(239,255,245,.68);
-      --green:#22c55e;
-      --gold:#facc15;
-      --shadow:0 22px 70px rgba(0,0,0,.42);
+      --bg:#0b3b29;
+      --bg2:#061f16;
+      --line:rgba(255,255,255,.17);
+      --text:#f3fff7;
+      --muted:rgba(243,255,247,.72);
+      --shadow:0 18px 46px rgba(0,0,0,.28);
     }
 
     *{box-sizing:border-box}
 
-    html,body{
-      margin:0;
-      min-height:100%;
-    }
-
     body{
+      margin:0;
       min-height:100dvh;
-      display:grid;
-      place-items:center;
-      padding:22px;
+      padding:
+        calc(18px + env(safe-area-inset-top,0px))
+        14px
+        calc(24px + env(safe-area-inset-bottom,0px));
       color:var(--text);
-      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      font-family:Outfit,system-ui,-apple-system,"Segoe UI",sans-serif;
       background:
-        radial-gradient(900px 520px at 8% -10%,rgba(34,197,94,.18),transparent 60%),
-        radial-gradient(760px 480px at 106% 8%,rgba(250,204,21,.11),transparent 56%),
-        linear-gradient(180deg,var(--bg2),var(--bg));
+        radial-gradient(500px 320px at 12% 0%,rgba(34,197,94,.23),transparent 64%),
+        radial-gradient(420px 280px at 100% 5%,rgba(250,204,21,.12),transparent 62%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
     }
 
-    main{
-      width:min(480px,100%);
-      padding:24px;
-      border:1px solid var(--line);
-      border-radius:28px;
-      background:var(--card);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(18px);
-      -webkit-backdrop-filter:blur(18px);
+    a{color:inherit;text-decoration:none}
+    button{font:inherit}
+
+    .shell{
+      width:min(560px,100%);
+      min-height:calc(100dvh - 42px);
+      margin:auto;
+      display:flex;
+      flex-direction:column;
     }
 
-    h1{
-      margin:0 0 22px;
-      font-size:clamp(2rem,9vw,3rem);
-      line-height:1.02;
-      letter-spacing:-.045em;
-    }
-
-    nav{
-      display:grid;
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
       gap:12px;
     }
 
-    a,button{
-      width:100%;
-      min-height:62px;
+    .brand{
       display:flex;
       align-items:center;
-      justify-content:center;
-      padding:14px 18px;
+      gap:10px;
+      font-weight:1000;
+      letter-spacing:.07em;
+    }
+
+    .logo{
+      width:44px;
+      height:44px;
+      display:grid;
+      place-items:center;
+      border-radius:15px;
       border:1px solid var(--line);
-      border-radius:18px;
-      color:var(--text);
-      background:rgba(255,255,255,.075);
-      font:inherit;
-      font-size:1rem;
+      background:rgba(255,255,255,.09);
+      font-size:24px;
+    }
+
+    .session{
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(34,197,94,.42);
+      background:rgba(34,197,94,.12);
+      color:#bbf7d0;
+      font-size:12px;
       font-weight:900;
-      text-align:center;
-      text-decoration:none;
-      cursor:pointer;
-      transition:transform .14s ease,background .14s ease,border-color .14s ease;
     }
 
-    a:first-child{
-      color:#052012;
-      border-color:transparent;
-      background:linear-gradient(135deg,var(--green),#16a34a);
+    .hero{
+      padding:38px 4px 24px;
     }
 
-    a:nth-child(2){
-      color:#fff7c7;
-      border-color:rgba(250,204,21,.32);
-      background:rgba(250,204,21,.11);
+    .eyebrow{
+      margin-bottom:9px;
+      color:#fff0a8;
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:.15em;
+      text-transform:uppercase;
     }
 
-    a:hover,button:hover{
-      transform:translateY(-1px);
-      border-color:rgba(255,255,255,.26);
-      background:rgba(255,255,255,.12);
+    h1{
+      margin:0;
+      font-size:clamp(42px,13vw,68px);
+      line-height:.9;
+      letter-spacing:-.055em;
     }
 
-    a:first-child:hover{
-      border-color:transparent;
-      background:linear-gradient(135deg,#2bd368,#18ad4d);
-    }
-
-    a:active,button:active{transform:none}
-
-    button:disabled{
-      opacity:.62;
-      cursor:progress;
-      transform:none;
-    }
-
-    #status{
-      margin:14px 0 0;
-      padding:11px 12px;
-      border:1px solid rgba(250,204,21,.28);
-      border-radius:14px;
-      color:#fff2a8;
-      background:rgba(250,204,21,.09);
-      font-size:.88rem;
+    .intro{
+      margin:18px 0 0;
+      color:var(--muted);
+      font-size:17px;
       font-weight:800;
-      line-height:1.4;
+      line-height:1.45;
     }
 
-    #status[hidden]{display:none}
-
-    #status.bad{
-      color:#fecaca;
-      border-color:rgba(251,113,133,.32);
-      background:rgba(251,113,133,.10);
+    .actions{
+      display:grid;
+      gap:13px;
     }
 
-    @media(max-width:420px){
-      body{padding:14px}
-      main{padding:19px;border-radius:23px}
-      h1{margin-bottom:18px}
-      a,button{min-height:58px}
+    .action{
+      width:100%;
+      min-height:116px;
+      display:grid;
+      grid-template-columns:66px 1fr 20px;
+      align-items:center;
+      gap:14px;
+      padding:17px;
+      color:var(--text);
+      text-align:left;
+      border-radius:25px;
+      border:1px solid var(--line);
+      background:linear-gradient(
+        180deg,
+        rgba(255,255,255,.12),
+        rgba(255,255,255,.065)
+      );
+      box-shadow:var(--shadow);
+      cursor:pointer;
+    }
+
+    .action.main{
+      border-color:rgba(34,197,94,.45);
+      background:
+        radial-gradient(340px 150px at 100% 0%,rgba(34,197,94,.22),transparent 70%),
+        linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.07));
+    }
+
+    .action.share{
+      border-color:rgba(250,204,21,.4);
+    }
+
+    .icon{
+      width:66px;
+      height:66px;
+      display:grid;
+      place-items:center;
+      border-radius:21px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.1);
+      font-size:35px;
+    }
+
+    .copy b{
+      display:block;
+      margin-bottom:5px;
+      font-size:24px;
+      line-height:1.05;
+    }
+
+    .copy span{
+      display:block;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:800;
+      line-height:1.35;
+    }
+
+    .arrow{
+      color:rgba(255,255,255,.62);
+      font-size:26px;
+      font-weight:1000;
+    }
+
+    #message{
+      min-height:25px;
+      margin:14px 4px 0;
+      color:#bbf7d0;
+      font-weight:900;
+    }
+
+    footer{
+      margin-top:auto;
+      padding:28px 4px 4px;
+      color:rgba(243,255,247,.48);
+      font-size:12px;
+      font-weight:800;
+      text-align:center;
+    }
+
+    @media(max-width:390px){
+      .action{
+        min-height:104px;
+        grid-template-columns:56px 1fr 18px;
+        gap:11px;
+        padding:14px;
+      }
+
+      .icon{
+        width:56px;
+        height:56px;
+        border-radius:18px;
+        font-size:30px;
+      }
+
+      .copy b{font-size:21px}
+      .copy span{font-size:13px}
     }
   </style>
 </head>
+
 <body>
-  <main>
-    <h1>Bonjour chauffeur.</h1>
+  <main class="shell">
+    <header class="top">
+      <div class="brand">
+        <span class="logo">🚕</span>
+        <span>DIGIY DRIVER</span>
+      </div>
 
-    <nav aria-label="Actions chauffeur">
-      <a href="./ma-fiche.html">Ma fiche chauffeur</a>
-      <a href="./generateur-digiy-driver.html">Ma carte QR</a>
-      <button id="shareWhatsApp" type="button">Partager sur WhatsApp</button>
-    </nav>
+      <span class="session">● accès ouvert</span>
+    </header>
 
-    <p id="status" role="status" aria-live="polite" hidden></p>
+    <section class="hero">
+      <div class="eyebrow">Je conduis</div>
+      <h1>Bonjour chauffeur.</h1>
+
+      <p class="intro">
+        Choisis simplement ce que tu veux montrer ou partager au client.
+      </p>
+    </section>
+
+    <section class="actions">
+      <a class="action main" href="./ma-fiche.html">
+        <span class="icon">🪪</span>
+
+        <span class="copy">
+          <b>Ma fiche chauffeur</b>
+          <span>Voir ma présentation, mon véhicule, mes zones et mon contact.</span>
+        </span>
+
+        <span class="arrow">›</span>
+      </a>
+
+      <a class="action" href="./generateur-digiy-driver.html">
+        <span class="icon">📱</span>
+
+        <span class="copy">
+          <b>Ma carte QR</b>
+          <span>Afficher mon QR pour que le client puisse me retrouver.</span>
+        </span>
+
+        <span class="arrow">›</span>
+      </a>
+
+      <button class="action share" id="shareBtn" type="button">
+        <span class="icon">📲</span>
+
+        <span class="copy">
+          <b>Partager sur WhatsApp</b>
+          <span>Envoyer directement le lien de ma fiche au client.</span>
+        </span>
+
+        <span class="arrow">›</span>
+      </button>
+    </section>
+
+    <div id="message" aria-live="polite"></div>
+
+    <footer>
+      Paiement direct au chauffeur · 0 % de commission DIGIY
+    </footer>
   </main>
 
   <script>
-    (() => {
-      "use strict";
+  (() => {
+    "use strict";
 
-      const PUBLIC_FICHE_BASE = "https://beauville.github.io/galerie-chauffeurs/fiche-chauffeur.html";
-      const shareButton = document.getElementById("shareWhatsApp");
-      const statusBox = document.getElementById("status");
+    const button = document.getElementById("shareBtn");
+    const message = document.getElementById("message");
 
-      function setStatus(message, type){
-        statusBox.textContent = message;
-        statusBox.className = type || "";
-        statusBox.hidden = !message;
-      }
+    button.addEventListener("click", async () => {
+      const url = new URL("./ma-fiche.html", location.href).href;
+      const text =
+        "Voici ma fiche chauffeur DIGIY. " +
+        "Tu peux voir mes informations et me contacter directement :";
 
-      function normPhone(value){
-        const digits = String(value || "").replace(/[^\d]/g, "");
-        if(!digits) return "";
-        if(digits.startsWith("221") && digits.length === 12) return digits;
-        if(digits.length === 9) return "221" + digits;
-        return digits;
-      }
-
-      function allValues(row){
-        if(!row || typeof row !== "object") return [];
-        return Object.values(row)
-          .map(value => String(value == null ? "" : value).trim())
-          .filter(Boolean);
-      }
-
-      function rowPhones(row){
-        return [
-          row && row.phone,
-          row && row.whatsapp,
-          row && row.wa,
-          row && row.driver_phone,
-          row && row.contact_phone
-        ]
-          .concat(allValues(row))
-          .map(normPhone)
-          .filter(Boolean);
-      }
-
-      function pickCardSlug(row){
-        const candidates = [
-          row && row.slug,
-          row && row.card_slug,
-          row && row.public_slug,
-          row && row.public_card_slug
-        ].concat(allValues(row));
-
-        for(const raw of candidates){
-          const value = String(raw || "").trim();
-
-          if(/^card-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)){
-            return value;
-          }
-
-          if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)){
-            return "card-" + value;
-          }
-        }
-
-        return "";
-      }
-
-      async function getGuardSession(){
-        const guard = window.DIGIY_GUARD;
-        if(!guard) throw new Error("Protection chauffeur indisponible.");
-
-        if(typeof guard.ready === "function"){
-          await guard.ready({ redirect:true, preserve_validation:true });
-        }
-
-        if(typeof guard.isAuthenticated === "function" && !guard.isAuthenticated()){
-          throw new Error("Session chauffeur expirée.");
-        }
-
-        return typeof guard.getSession === "function"
-          ? (guard.getSession() || {})
-          : (guard.state || {});
-      }
-
-      function makeClient(){
-        if(window.sb) return window.sb;
-
-        if(!window.supabase || typeof window.supabase.createClient !== "function"){
-          return null;
-        }
-
-        return window.supabase.createClient(
-          window.DIGIY_SUPABASE_URL,
-          window.DIGIY_SUPABASE_ANON_KEY,
-          {
-            auth:{
-              persistSession:false,
-              autoRefreshToken:false,
-              detectSessionInUrl:false,
-              storageKey:"digiy-driver-simple-hub"
-            }
-          }
-        );
-      }
-
-      async function resolvePublicFiche(){
-        const session = await getGuardSession();
-        const guard = window.DIGIY_GUARD;
-        const phone = normPhone(
-          (guard && typeof guard.getPhone === "function" && guard.getPhone()) ||
-          session.phone ||
-          session.driver_phone ||
-          ""
-        );
-
-        if(!phone){
-          throw new Error("Téléphone chauffeur introuvable dans la session.");
-        }
-
-        const client = makeClient();
-        if(!client){
-          throw new Error("Connexion indisponible.");
-        }
-
-        const { data, error } = await client.rpc("digiy_driver_public_gallery");
-        if(error) throw error;
-
-        const rows = Array.isArray(data) ? data : [];
-        const found = rows.find(row => rowPhones(row).includes(phone));
-        const cardSlug = pickCardSlug(found);
-
-        if(!cardSlug){
-          throw new Error("Ta fiche publique n’est pas encore disponible.");
-        }
-
-        const url = new URL(PUBLIC_FICHE_BASE);
-        url.searchParams.set("slug", cardSlug);
-        return url.toString();
-      }
-
-      shareButton.addEventListener("click", async () => {
-        shareButton.disabled = true;
-        setStatus("Préparation de ta fiche…");
-
+      if(navigator.share){
         try{
-          const publicUrl = await resolvePublicFiche();
-          const message = "Bonjour, voici ma fiche chauffeur DIGIY : " + publicUrl;
-          const whatsappUrl = "https://wa.me/?text=" + encodeURIComponent(message);
-          setStatus("");
-          window.location.href = whatsappUrl;
+          await navigator.share({
+            title:"Ma fiche chauffeur DIGIY",
+            text,
+            url
+          });
+
+          message.textContent = "✅ Fiche partagée.";
+          return;
         }catch(error){
-          console.error("[driver-simple-hub]", error);
-          setStatus(
-            error && error.message
-              ? error.message
-              : "Impossible de préparer le partage pour le moment.",
-            "bad"
-          );
-          shareButton.disabled = false;
+          if(error && error.name === "AbortError") return;
         }
-      });
-    })();
+      }
+
+      const whatsapp =
+        "https://wa.me/?text=" +
+        encodeURIComponent(text + "\n" + url);
+
+      window.open(whatsapp,"_blank","noopener,noreferrer");
+      message.textContent = "✅ WhatsApp ouvert.";
+    });
+  })();
   </script>
 </body>
 </html>
